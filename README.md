@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="logo.png" alt="Long Beard" width="360">
+  <img src="logo.png" alt="Long Beard" width="320">
   <h1>Long Beard</h1>
-  <p><strong>Designs like a young art director. Codes like a senior.</strong></p>
+  <p><strong>Designs like an art director. Codes like a senior.</strong></p>
 </div>
 
 He has been writing software longer than the ticket in front of you. He keeps a short kit of ways of working, and he drops one the day it stops earning its place.
