@@ -13,7 +13,7 @@ The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm p
 ## Shape
 
 - Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). Skills stay with their authors. Do not vendor other people’s skills.
-- Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `--agent` **adds** to the defaults; it does not replace them.
+- Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `init` asks which agents on a TTY (catalog defaults pre-checked). `--agent` skips the list and installs for that tool. `--yes` uses the catalog agents.
 - One block in the project’s `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. Do not write `CLAUDE.md` or Copilot files unless asked.
 - Local skills we own live under `skills/` and use `"source": "local"`. Today: `design-md` (keep) and `design-reference-hunt` (prototype).
 - A project can omit or add skills in `beard.local.json`. Init is blocked inside this repository.

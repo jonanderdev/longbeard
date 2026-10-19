@@ -33,7 +33,7 @@ Until this is published, the one-shot form is:
 npx --yes --package github:jonanderdev/longbeard longbeard init
 ```
 
-Add `--global` to install for every project on this machine. That writes skills into your home directory, asks first, and keeps a copy of the note in `~/.longbeard/AGENTS.md`. Add `--all` for optional skills. Add `--agent codex` (repeatable) to also install for that tool.
+Add `--global` to install for every project on this machine. That writes skills into your home directory, asks first, and keeps a copy of the note in `~/.longbeard/AGENTS.md`. Add `--all` for optional skills. On a TTY, `init` asks which agents (space to toggle, like the Skills CLI). Pass `--agent cursor` (repeatable) to skip the list. `--yes` uses the catalog agents.
 
 ## Update
 

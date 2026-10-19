@@ -24,16 +24,16 @@ The catalog is beard.json. The npm package is @jonanderdev/longbeard. The comman
   npx longbeard update
   npx longbeard list
 
-  npx longbeard init [--global] [--all] [--yes] [--agent codex]
+  npx longbeard init [--global] [--all] [--yes] [--agent cursor]
   npx longbeard update [--global] [--all] [--force] [--yes]
   npx longbeard add <source> --skill <name> --author <name> --why <text> [--when text]
   npx longbeard remove <name>
 
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
---agent adds to the default agents (cursor, claude-code). Repeat it.
+--agent skips the agent list and installs for that tool. Repeat it.
 --force replaces local edits of skills this command installed.
---yes skips the write confirmation.
+--yes skips prompts and uses the catalog agents (cursor, claude-code).
 This does not install marketplace plugins or replace Cursor or Claude commands.
 `;
 
@@ -229,8 +229,99 @@ function chosen(flags) {
   };
 }
 
-function agentsFor(manifest, flags) {
-  return [...new Set([...(manifest.agents ?? []), ...flags.agents])];
+const agentNames = {
+  cursor: "Cursor",
+  "claude-code": "Claude Code",
+  codex: "Codex",
+  "github-copilot": "GitHub Copilot",
+  "gemini-cli": "Gemini CLI",
+};
+
+function knownAgents() {
+  return Object.keys(agentDirs);
+}
+
+function agentsFromLock(lock) {
+  return [...new Set(Object.values(lock?.skills ?? {}).flatMap((entry) => entry.agents ?? []))];
+}
+
+function readKey() {
+  const buf = Buffer.alloc(8);
+  const n = readSync(0, buf, 0, 8, null);
+  if (n <= 0) return "enter";
+  const code = buf[0];
+  if (code === 3) return "ctrl-c";
+  if (code === 13 || code === 10) return "enter";
+  if (code === 32) return "space";
+  if (code === 27 && buf[1] === 91) {
+    if (buf[2] === 65) return "up";
+    if (buf[2] === 66) return "down";
+  }
+  if (code === 107) return "up";
+  if (code === 106) return "down";
+  return "";
+}
+
+function pickAgents(options, selected) {
+  const on = new Set(selected);
+  let index = 0;
+  const height = options.length + 1;
+  const paintList = (first) => {
+    if (!first) process.stdout.write(`\x1b[${height}A`);
+    process.stdout.write(`  Which agents?  ${dim("space toggle · enter continue")}\x1b[K\n`);
+    for (let i = 0; i < options.length; i += 1) {
+      const name = options[i];
+      const arrow = i === index ? "❯" : " ";
+      const mark = on.has(name) ? "x" : " ";
+      const label = (agentNames[name] ?? name).padEnd(16);
+      const path = flagsPath(name);
+      process.stdout.write(`  ${arrow} [${mark}] ${label}  ${dim(path)}\x1b[K\n`);
+    }
+  };
+  function flagsPath(name) {
+    return agentDirs[name].project;
+  }
+  process.stdin.setRawMode(true);
+  paintList(true);
+  try {
+    while (true) {
+      const key = readKey();
+      if (key === "ctrl-c") fail("Aborted.");
+      if (key === "enter") {
+        if (on.size === 0) continue;
+        return options.filter((name) => on.has(name));
+      }
+      if (key === "space") {
+        const name = options[index];
+        if (on.has(name)) on.delete(name);
+        else on.add(name);
+      } else if (key === "up") index = (index + options.length - 1) % options.length;
+      else if (key === "down") index = (index + 1) % options.length;
+      paintList(false);
+    }
+  } finally {
+    process.stdin.setRawMode(false);
+    say();
+  }
+}
+
+function chooseAgents(manifest, flags, { pick, lock } = {}) {
+  const known = knownAgents();
+  if (flags.agents.length) {
+    const bad = flags.agents.filter((name) => !known.includes(name));
+    if (bad.length) fail(`Unknown agent: ${bad.join(", ")}. Known: ${known.join(", ")}`);
+    const listed = [...new Set(flags.agents)];
+    if (pick) return listed;
+    return [...new Set([...agentsFromLock(lock).filter((name) => known.includes(name)), ...listed])];
+  }
+  if (!pick) {
+    const locked = agentsFromLock(lock).filter((name) => known.includes(name));
+    if (locked.length) return locked;
+  }
+  const fallback = (manifest.agents ?? []).filter((name) => known.includes(name));
+  const start = fallback.length ? fallback : ["cursor"];
+  if (!pick || flags.yes || !process.stdin.isTTY) return start;
+  return pickAgents(known, start);
 }
 
 function sourcePath(skill) {
@@ -479,7 +570,7 @@ function remember(lock, flags, skills, agents) {
 function init(flags) {
   requireProject(flags);
   const { manifest, skills, items, later } = chosen(flags);
-  const agents = agentsFor(manifest, flags);
+  const agents = chooseAgents(manifest, flags, { pick: true, lock: readLock(flags) });
   const classified = classify(skills, agents, flags);
   classified.later = later;
   plan("init", flags, agents, classified);
@@ -498,7 +589,7 @@ function init(flags) {
 function update(flags) {
   requireProject(flags);
   const { manifest, skills, items, later } = chosen(flags);
-  const agents = agentsFor(manifest, flags);
+  const agents = chooseAgents(manifest, flags, { pick: false, lock: readLock(flags) });
   const classified = classify(skills, agents, flags);
   classified.later = later;
   plan("update", flags, agents, classified);
@@ -556,7 +647,7 @@ function add(flags, rest) {
   }
   writeExtra(flags, extra);
   const toInstall = flags.skill.map((name) => ({ name, source, author: flags.author, why: flags.why, when: flags.when }));
-  const agents = agentsFor(manifest, flags);
+  const agents = chooseAgents(manifest, flags, { pick: false, lock: readLock(flags) });
   const classified = classify(toInstall, agents, flags);
   plan("add", flags, agents, classified);
   if (classified.missing.length > 0) say(dim("Installing…"));
@@ -601,13 +692,14 @@ function remove(flags, rest) {
   writeExtra(flags, extra);
   const lock = readLock(flags);
   const ours = names.filter((name) => lock.skills[name]);
-  heading("remove", flags, agentsFor(manifest, flags));
+  const agents = chooseAgents(manifest, flags, { pick: false, lock });
+  heading("remove", flags, agents);
   rows("remove", yellow, names.map((name) => ({ name })), shared.has(names[0]) ? "Omitted here. Still in the shared catalog." : "This project only.", 16);
   if (ours.length > 0) {
     say(dim("Removing…"));
     const args = ["remove", ...ours, "-y"];
     if (flags.global) args.push("--global");
-    for (const agent of agentsFor(manifest, flags)) args.push("--agent", agent);
+    for (const agent of agents) args.push("--agent", agent);
     runSkills(args);
     for (const name of ours) delete lock.skills[name];
     writeLock(flags, lock);
