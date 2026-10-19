@@ -1,6 +1,8 @@
 # Long Beard
 
-A drawing belongs here. He has not sat for it yet.
+<img src="logo.png" alt="Long Beard" width="280">
+
+Designs like a youngster. Codes like a senior.
 
 He has been writing software longer than the ticket in front of you. He keeps a short kit of ways of working, and he drops one the day it stops earning its place.
 
