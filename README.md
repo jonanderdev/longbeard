@@ -6,7 +6,9 @@ He has been writing software longer than the ticket in front of you. He keeps a 
 
 Long Beard is that kit. Drop it into a project and the agents you already use — Cursor, Claude Code, and the rest — get a short note and a few skills that push them toward small, correct, well-designed work. Two commands: `init`, then later `update`.
 
-It is not an agent runtime. It is not a marketplace. It does not replace Cursor or Claude commands. It writes one block in `AGENTS.md`. The skills stay in their authors' repositories. Long Beard writes one skill, `design-md`.
+It is not an agent runtime. It is not a marketplace. It does not replace Cursor or Claude commands. It writes one block in `AGENTS.md`. The skills stay in their authors' repositories. Local skills we own live in `skills/`.
+
+Building Long Beard itself: read [`PRODUCT.md`](PRODUCT.md) first.
 
 What it installs lives in [`beard.json`](beard.json). That catalog can grow when a new kind of help earns a place. Until then, every entry is a skill.
 
