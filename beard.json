@@ -1,0 +1,86 @@
+{
+  "agents": ["cursor", "claude-code"],
+  "items": [
+    {
+      "name": "ponytail",
+      "author": "DietrichGebert",
+      "license": "MIT",
+      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
+      "when": "Building or fixing",
+      "why": "The smallest change that finishes the job. Leave validation, error handling, security, and accessibility in place."
+    },
+    {
+      "name": "ponytail-review",
+      "author": "DietrichGebert",
+      "license": "MIT",
+      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
+      "when": "A diff",
+      "why": "Read it like someone who gets paged."
+    },
+    {
+      "name": "ponytail-audit",
+      "author": "DietrichGebert",
+      "license": "MIT",
+      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
+      "when": "The whole repo",
+      "why": "That same pass, over every file."
+    },
+    {
+      "name": "ponytail-debt",
+      "author": "DietrichGebert",
+      "license": "MIT",
+      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
+      "when": "Shortcuts you meant to come back to",
+      "why": "Collect the limits you marked."
+    },
+    {
+      "name": "premortem",
+      "author": "GeorgeT",
+      "license": "MIT",
+      "source": "https://github.com/joetawil7/first-pass/tree/main/skills",
+      "when": "A change that touches data, money, jobs, or what a person sees",
+      "why": "Name where it can break before you write. A small change gets a short answer."
+    },
+    {
+      "name": "design-taste-frontend",
+      "author": "Leonxlnx",
+      "license": "MIT",
+      "source": "https://github.com/Leonxlnx/taste-skill",
+      "when": "A page with no design yet",
+      "why": "Art direction and a real browser check."
+    },
+    {
+      "name": "figma-design-to-code",
+      "author": "Figma",
+      "license": "see repository",
+      "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
+      "when": "A Figma file or link",
+      "why": "A designer handed it over. Needs the Figma connection. Reuse this project's components."
+    },
+    {
+      "name": "image-to-code",
+      "author": "Leonxlnx",
+      "license": "MIT",
+      "source": "https://github.com/Leonxlnx/imagegen-skills",
+      "optional": true,
+      "when": "A picture you already have",
+      "why": "Build the page from that picture."
+    },
+    {
+      "name": "web-design-guidelines",
+      "author": "Vercel",
+      "license": "see repository",
+      "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
+      "when": "A UI review you asked for",
+      "why": "Accessibility and interface rules."
+    },
+    {
+      "name": "design-md",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "The look of this project",
+      "why": "Follow DESIGN.md. If it is missing, ask before inventing one."
+    }
+  ]
+}
