@@ -42,12 +42,20 @@
       "why": "Name where it can break before you write. A small change gets a short answer."
     },
     {
+      "name": "design-reference-hunt",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A page with no official look (no DESIGN.md, no Figma, no board)",
+      "why": "Ask once for a Figma file. No direction: look widely, then keep. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. A later section: keep 10."
+    },
+    {
       "name": "design-taste-frontend",
       "author": "Leonxlnx",
       "license": "MIT",
       "source": "https://github.com/Leonxlnx/taste-skill",
       "when": "A page with no design yet",
-      "why": "Art direction and a real browser check."
+      "why": "Do not deal this skill’s references, and do not run draw. No official look is hunt: wait for `.design/board.md`. Those cards are the references. Build from them. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still."
     },
     {
       "name": "figma-design-to-code",
@@ -80,7 +88,7 @@
       "license": "MIT",
       "source": "local",
       "when": "The look of this project",
-      "why": "Follow DESIGN.md. If it is missing, ask before inventing one."
+      "why": "Follow DESIGN.md when it exists. A missing file plus “design this page” is hunt, not a question."
     }
   ]
 }

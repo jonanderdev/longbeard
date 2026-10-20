@@ -8,14 +8,14 @@ A drop-in kit so agents you already use (Cursor, Claude Code, and the rest) prod
 
 It is not an agent runtime. It is not a marketplace. It is not a replacement for Cursor or Claude commands. It is not Ruflo.
 
-The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonanderdev/longbeard`. The command is `longbeard`.
+The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonandev/longbeard`. The command is `longbeard`.
 
 ## Shape
 
 - Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). Skills stay with their authors. Do not vendor other people’s skills.
 - Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `init` asks which agents on a TTY (catalog defaults pre-checked). `--agent` skips the list and installs for that tool. `--yes` uses the catalog agents.
 - One block in the project’s `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. Do not write `CLAUDE.md` or Copilot files unless asked.
-- Local skills we own live under `skills/` and use `"source": "local"`. Today: `design-md` (keep) and `design-reference-hunt` (prototype).
+- Local skills we own live under `skills/` and use `"source": "local"`. They stay in this repository and ship with the package. Today: `design-md` and `design-reference-hunt`. A new skill we own is another folder here, not another package.
 - A project can omit or add skills in `beard.local.json`. Init is blocked inside this repository.
 
 Few skills. One job each. No two skills that do the same job. Few tokens. A skill that stops earning its place is dropped.
@@ -26,23 +26,25 @@ Few skills. One job each. No two skills that do the same job. Few tokens. A skil
 
 Official look wins, in this order:
 
-1. This project’s `DESIGN.md` → `design-md`. If it is missing, ask. Do not invent a look.
+1. This project’s `DESIGN.md` → `design-md`. If it is missing and they asked to design a page, that is hunt. Ask only when they want a brand file.
 2. A Figma file or link → `figma-design-to-code`.
 3. A picture they already have → `image-to-code` (optional).
-4. No official look → `design-reference-hunt` writes `.design/board.md`, then `design-taste-frontend` **builds in the same turn**.
+4. No official look (no `DESIGN.md`, no Figma, no board) → `design-reference-hunt` asks **once** for a Figma file. If they paste one, Figma. If not, **whole look**, then taste. A website hunts live pages. An application hunts product screens, not Awwwards. A later **section or component**, or a look that already exists, hunts 10 piece refs without replacing the board.
 5. `web-design-guidelines` only when they ask for a UI review.
 
-Taste is the builder. Hunt is the missing first step (live references, not a frozen gallery). Do not add a second “build an Awwwards site” skill.
+Hunt writes the board and does not lay the page out. This kit’s router pairs the cards with `design-taste-frontend`. Do not add a second “build an Awwwards site” skill.
 
-Hunt board: **Sites** (exactly 3 live websites or app screens that match the brief) and **Material** (imagery / type / marks). Taste follows Sites for structure, Material for pictures and type. A Dribbble illustration is imagery, never a site. Shots: full page, cookies accepted, one image with no repeated scroll chunks. Awwwards **jury** lines are quoted from the Awwwards page or omitted — never invented.
+Hunt writes one board. The cards are in the shape taste already reads (idea, hero, type, colour, worth taking). A short **Read this** at the top is for a person, or for a builder that is not taste. There is no second file. Taste does not deal its own references on this path. It builds from the cards: scale, grid, sections, motion. The control a card describes is the control. Taste does not add a filled button the card does not show. It still runs `inspect.mjs`. A page that comes back with that button, or in sand paper and condensed posters for a black-water brief, has left the cards.
 
-`design-reference-hunt` is a prototype in this repo. If it earns its place, move it to its own repository and point `beard.json` at that source. Do not ship public hunt skills we already tried: they wrote Claude paths, mixed imagery with sites, and searched with stale years.
+The large hunt runs only when there is no `DESIGN.md`, no Figma, and no board. Looking is wide and has no small cap. Scroll and screenshot only a keep. **Website:** aim for 10 live award sites (2 same-job, 2 register, 6 form). Those outweigh Dribbble, which is up to 20. Plus up to 10 imagery shots, without padding; once. Look through at least 30 live candidates before accepting fewer than 10, and name each drop. A short board is valid when those drops are named. **Application:** up to 6 public product pages of that job, plus up to 20 shots of the screen, component, or element. Those shots outweigh award sites. Not an Awwwards board. **Piece:** 10 filtered shots when a direction already exists, or they asked for a later section. Keep Awwwards SOTD / overall and Design ≥ 7.5; drop nominees with 4s. `form` is another business. From it, take a layout or a component that still belongs on this topic. Not its type, and not its colours. Colour and type come from the closest card. Before that card is locked, ask once which of the two or three closest should lead. While looking, one line says what the search is for. The next thing said is that question. A Dribbble illustration is imagery, never a site. A shot of a real screen may be a screen reference. Shots: full page, cookies accepted, one image with no repeated scroll chunks. Awwwards **jury** lines are quoted from the Awwwards page or omitted — never invented.
+
+`design-reference-hunt` stays here, with `"source": "local"`. Do not move it to its own repository. Do not ship public hunt skills we already tried: they wrote Claude paths, mixed imagery with sites, and searched with stale years.
 
 Do not put model-picker warnings in the kit. A skill that needs the current year should say so.
 
 ## How to know it worked
 
-Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md`; taste runs `draw.mjs` / `inspect.mjs` and a real browser.
+Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md` with cards and a short Read this; taste does not deal its references or run `draw.mjs`; it builds from the cards, runs `inspect.mjs`, and a real browser.
 
 Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project’s `.agents/skills/<name>/` (and `.claude/skills/` if present) and rewrite the `AGENTS.md` block to match `beard.json`. Do not run `longbeard init` in *this* repo.
 

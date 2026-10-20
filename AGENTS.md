@@ -4,15 +4,18 @@ The project's own code, conventions, and DESIGN.md win.
 
 Load only what the task needs. Leave the rest unread.
 
+A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. With no DESIGN.md and no Figma, both hunt. A site hunts live pages, and those outweigh Dribbble. An application hunts screen shots, and those outweigh award sites. With a direction already, hunt only the piece.
+
 - Building or fixing: ponytail. The smallest change that finishes the job. Leave validation, error handling, security, and accessibility in place.
 - A diff: ponytail-review. Read it like someone who gets paged.
 - The whole repo: ponytail-audit. That same pass, over every file.
 - Shortcuts you meant to come back to: ponytail-debt. Collect the limits you marked.
 - A change that touches data, money, jobs, or what a person sees: premortem. Name where it can break before you write. A small change gets a short answer.
-- A page with no design yet: design-taste-frontend. Art direction and a real browser check.
+- A page with no official look (no DESIGN.md, no Figma, no board): design-reference-hunt. Ask once for a Figma file. No direction: look widely, then keep. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. A later section: keep 10.
+- A page with no design yet: design-taste-frontend. Do not deal this skill’s references, and do not run draw. No official look is hunt: wait for `.design/board.md`. Those cards are the references. Build from them. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still.
 - A Figma file or link: figma-design-to-code. A designer handed it over. Needs the Figma connection. Reuse this project's components.
 - A UI review you asked for: web-design-guidelines. Accessibility and interface rules.
-- The look of this project: design-md. Follow DESIGN.md. If it is missing, ask before inventing one.
+- The look of this project: design-md. Follow DESIGN.md when it exists.
 
 A normal change can be ponytail and a short premortem. That is still a small set.
 

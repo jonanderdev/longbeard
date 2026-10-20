@@ -27,6 +27,8 @@ npx longbeard init
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes the optional skill.
 
+The skills written in this repository ship inside the package, including [design-reference-hunt](skills/design-reference-hunt/SKILL.md). `init` copies them with the rest. There is no separate install for that skill. The same package is what npm installs once it is published.
+
 ## Update
 
 ```bash
@@ -41,7 +43,7 @@ To get a newer Long Beard, run the install line again, then update.
 
 ## This project
 
-The kit lives here. Growing it is a change in this repository. A project can skip a piece, or add one that belongs only to that work. Do not copy `beard.json` into the project. That would fork the kit.
+The kit lives here. A skill we write stays in this repository, under `skills/`. It is not split into its own package when it grows. Growing the kit is a change here. A project can skip a piece, or add one that belongs only to that work. Do not copy `beard.json` into the project. That would fork the kit.
 
 Skip one:
 
@@ -59,7 +61,7 @@ That writes `beard.local.json`. Commit it if clones of this repo should get the 
 
 ## The kit
 
-Two of these are ours. The others are installed from the people who wrote them, and `npx longbeard update` pulls a fresh copy.
+Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `npx longbeard update` pulls a fresh copy of those.
 
 Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. A new piece can still hunt references without replacing that direction.
 
@@ -67,7 +69,7 @@ Writing stays small, and a risky change is named before it is built. A page foll
 | --- | --- | --- |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once | DietrichGebert |
 | [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
-| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | Writes a design reference board when there is no direction. A new section or component can still get references when a direction already exists | Long Beard |
+| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | No `DESIGN.md` and no Figma: looks widely, keeps the close pages, and asks which should lead. Writes `.design/board.md`. Taste builds from those cards. A later section keeps 10 shots and leaves the board | Long Beard |
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |

@@ -437,6 +437,8 @@ The project's own code, conventions, and DESIGN.md win.
 
 Load only what the task needs. Leave the rest unread.
 
+A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. With no DESIGN.md and no Figma, both hunt. A site hunts live pages, and those outweigh Dribbble. An application hunts screen shots, and those outweigh award sites. With a direction already, hunt only the piece.
+
 ${lines.join("\n")}
 
 A normal change can be ponytail and a short premortem. That is still a small set.
