@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="Long Beard" width="280">
+  <img src="logo.png" alt="Long Beard" width="240">
   <h1>Long Beard</h1>
   <p><strong>Designs like an Art director. Codes like a senior.</strong></p>
 </div>
