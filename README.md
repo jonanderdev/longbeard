@@ -6,9 +6,13 @@
 
 You show him a ticket. He has been shipping longer than the ticket has existed. He keeps a short kit, and he drops a piece the day it stops earning its place.
 
-Long Beard is a starting point for the agents you already use — Cursor, Claude Code, and the rest. One block in `AGENTS.md`, and a short list of skills, so the code stays small and the page is actually designed. Two commands: `init`, then later `update`.
+Long Beard is a starting point for the agents you already use — Cursor, Claude Code, and the rest. One block in `AGENTS.md`, and a short list of skills, so the code stays small and the page is actually designed. 
+Two commands: `init`, then later `update`.
 
-It is not an agent runtime. It is not a marketplace. It does not replace the commands you already use, or the skills you add yourself. It is a base. You keep going from here.
+It is not an agent runtime. 
+It is not a marketplace. 
+It does not replace the commands you already use, or the skills you add yourself. 
+It is a base. You keep going from here.
 
 ## Install
 
@@ -29,7 +33,7 @@ npx longbeard update
 
 That brings this project up to the Long Beard already installed: new skills, a fresh copy of the ones this command installed, and the `AGENTS.md` block. A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone. To get a newer Long Beard, run the install line again, then update.
 
-`npx skills update` refreshes a skill file too. It does not add a skill that is new to this list, and it does not rewrite the note. For that, install the latest Long Beard and run `longbeard update`.
+`npx skills update` refreshes a skill file too. It does not add a skill that is new to this list, and it does not rewrite the note. For that, install the latest Long Beard and run `npx longbeard update`.
 
 ## This project
 
@@ -51,7 +55,7 @@ That writes `beard.local.json`. Commit it if clones of this repo should get the 
 
 ## The kit
 
-Two of these are ours. The others are installed from the people who wrote them, and `longbeard update` pulls a fresh copy.
+Two of these are ours. The others are installed from the people who wrote them, and `npx longbeard update` pulls a fresh copy.
 
 | Skill | What it is for | Author |
 | --- | --- | --- |
