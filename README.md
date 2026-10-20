@@ -61,13 +61,13 @@ That writes `beard.local.json`. Commit it if clones of this repo should get the 
 
 Two of these are ours. The others are installed from the people who wrote them, and `npx longbeard update` pulls a fresh copy.
 
-Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt finds the references and taste designs the page, with real pictures, and checks it in a browser.
+Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. A new piece can still hunt references without replacing that direction.
 
 | Skill | What it is for | Author |
 | --- | --- | --- |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once | DietrichGebert |
 | [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
-| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | A reference check when there is no `DESIGN.md` and no Figma. Writes the board | Long Beard |
+| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | Writes a design reference board when there is no direction. A new section or component can still get references when a direction already exists | Long Beard |
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
