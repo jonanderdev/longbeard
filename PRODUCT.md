@@ -22,9 +22,18 @@ Change the number by hand, and only in that release commit. A push to `main`, an
 
 1. Write what changed, including what a person who already ran `init` must do.
 2. Set that version in `package.json`.
-3. Commit. Tag that commit. Push the tag.
-4. Open the GitHub release from the tag.
-5. `npm publish` from that same commit, on this machine. The `gitHead` on npm must be the tag.
+3. Commit that, and push `main`. Stay on that commit.
+4. From that commit, with `VERSION` set to the number in `package.json`:
+
+```bash
+VERSION=0.1.1
+git tag "v$VERSION"
+git push origin "v$VERSION"
+gh release create "v$VERSION" --title "$VERSION" --notes "$(awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md)"
+npm publish
+```
+
+Do not pass `--target`. The tag is already the commit. A short SHA makes GitHub return `Release.target_commitish is invalid`.
 
 There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
 
