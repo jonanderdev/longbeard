@@ -62,7 +62,7 @@ Two of these are ours. The others are installed from the people who wrote them, 
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Builds the page from that board | Leonxlnx |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file. Needs the Figma connection | Figma |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Accessibility and interface rules, when you ask for a review | Vercel |
-| [design-md](skills/design-md/SKILL.md) | Follows the `DESIGN.md` in the project you are working in | Long Beard |
+| [design-md](skills/design-md/SKILL.md) | Follows `DESIGN.md` when the project this is installed in has one | Long Beard |
 | [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates a picture, then builds the page from it | Leonxlnx |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json).
