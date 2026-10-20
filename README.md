@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="logo.png" alt="Long Beard" width="320">
+  <img src="logo.png" alt="Long Beard" width="280">
   <h1>Long Beard</h1>
-  <p><strong>Designs like an art director. Codes like a senior.</strong></p>
+  <p><strong>Designs like an Art director. Codes like a senior.</strong></p>
 </div>
 
 He has been writing software longer than the ticket in front of you. He keeps a short kit of ways of working, and he drops one the day it stops earning its place.
@@ -12,25 +12,20 @@ It is not an agent runtime. It is not a marketplace. It does not replace Cursor 
 
 ## Install
 
-On a laptop, once, from GitHub:
+In a project, from GitHub:
 
 ```bash
-npm install -g github:jonanderdev/longbeard
+npm install --save-dev github:jonanderdev/longbeard
+npx longbeard init
 ```
 
-That puts `longbeard` on your PATH. Then in a project:
-
-```bash
-longbeard init
-```
-
-`init` installs the catalog, writes a short block in `AGENTS.md`, and records it in `beard-lock.json`. On a TTY it asks which agents. `--yes` skips that. `--agent cursor` (repeatable) sets them. `--global` installs the skills for every project on this machine. `--all` includes optional skills.
+`npx` runs this project's `longbeard`. `init` installs the catalog, writes a short block in `AGENTS.md`, and records it in `beard-lock.json`. On a TTY it asks which agents. `--yes` skips that. `--agent cursor` (repeatable) sets them. `--global` installs the skills for every project on this machine. `--all` includes optional skills.
 
 ## Update
 
 ```bash
-npm install -g github:jonanderdev/longbeard
-longbeard update
+npm install --save-dev github:jonanderdev/longbeard
+npx longbeard update
 ```
 
 The first line pulls the latest kit. The second refreshes this project: anything new in `beard.json`, skills this command installed, and the `AGENTS.md` block. Skills you edited stay unless you pass `--force`.
@@ -42,16 +37,16 @@ You bring the kit. That list lives in this repository. Growing it is a change he
 Skip one skill in a project. It stays in the kit; this repo just does not install it:
 
 ```bash
-longbeard remove ponytail-audit
+npx longbeard remove ponytail-audit
 ```
 
 A skill that belongs only to this work — React, this team’s design system, not everyone — is an extra. Do not copy `beard.json` into the project. That would fork the kit.
 
 ```bash
-longbeard add https://github.com/someone/skills --skill their-skill --author TheirName --why "One sentence."
+npx longbeard add https://github.com/someone/skills --skill their-skill --author TheirName --why "One sentence."
 ```
 
-That writes `beard.local.json`. Commit that file if clones of this repo should get the extra. `longbeard list` shows the kit, then what this project added or skipped.
+That writes `beard.local.json`. Commit that file if clones of this repo should get the extra. `npx longbeard list` shows the kit, then what this project added or skipped.
 
 ## The catalog
 
