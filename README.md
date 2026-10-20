@@ -56,14 +56,14 @@ Two of these are ours. The others are installed from the people who wrote them, 
 
 | Skill | What it is for | Author |
 | --- | --- | --- |
-| [Ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job | DietrichGebert |
-| [Premortem](https://github.com/joetawil7/first-pass) | Before the code, where this change can break | GeorgeT |
-| Reference hunt | No official look yet. He goes and finds one | Long Beard |
-| [Taste](https://github.com/Leonxlnx/taste-skill) | Builds the page from that look | Leonxlnx |
-| [Figma](https://github.com/figma/mcp-server-guide) | A file a designer handed over | Figma |
-| [Interface guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | When you ask for a UI review | Vercel |
-| `DESIGN.md` | This project's own look | Long Beard |
-| [A picture](https://github.com/Leonxlnx/imagegen-skills) | Optional. You already have one | Leonxlnx |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job | DietrichGebert |
+| [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before the code, where this change can break | GeorgeT |
+| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | No official look yet. Finds references and writes the board | Long Beard |
+| [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Builds the page from that board | Leonxlnx |
+| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file. Needs the Figma connection | Figma |
+| [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Accessibility and interface rules, when you ask for a review | Vercel |
+| [design-md](skills/design-md/SKILL.md) | Follows the `DESIGN.md` in the project you are working in | Long Beard |
+| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates a picture, then builds the page from it | Leonxlnx |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json).
 
