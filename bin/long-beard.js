@@ -17,20 +17,21 @@ const END_OLD = "<!-- long-beard:end -->";
 const help = `Long Beard
 
 Drop this into a project so the agents you already use produce better work.
-The catalog is beard.json. The npm package is @jonanderdev/longbeard. The command is longbeard.
+The catalog is beard.json. The command is longbeard.
 
-  npm install --save-dev github:jonanderdev/longbeard
-  npx longbeard init
-  npx longbeard update
-  npx longbeard list
+  npm install -g github:jonanderdev/longbeard
+  longbeard init
+  longbeard update
+  longbeard list
 
-  npx longbeard init [--global] [--all] [--yes] [--agent cursor]
-  npx longbeard update [--global] [--all] [--force] [--yes]
-  npx longbeard add <source> --skill <name> --author <name> --why <text> [--when text]
-  npx longbeard remove <name>
+  longbeard init [--global] [--all] [--yes] [--agent cursor]
+  longbeard update [--global] [--all] [--force] [--yes]
+  longbeard add <source> --skill <name> --author <name> --why <text> [--when text]
+  longbeard remove <name>
 
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
+add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
 --force replaces local edits of skills this command installed.
 --yes skips prompts and uses the catalog agents (cursor, claude-code).
