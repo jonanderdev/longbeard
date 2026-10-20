@@ -10,39 +10,6 @@ It is not an agent runtime. It is not a marketplace. It is not a replacement for
 
 The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonandev/longbeard`. The command is `longbeard`.
 
-## Releases
-
-Outside users install the npm version. `main` can move between tags. Do not tell them to install `github:jonanderdev/longbeard`.
-
-A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, and npm. The notes are the matching section of `CHANGELOG.md`. GitHub release notes are that section, not a second writeup.
-
-`CHANGELOG.md` and the README say what a person who installed the package can do. They do not describe how a release is cut.
-
-Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
-
-1. Write what changed, including what a person who already ran `init` must do.
-2. Set that version in `package.json`.
-3. Commit that, and push `main`. Stay on that commit.
-4. From that commit, with `VERSION` set to the number in `package.json`:
-
-```bash
-VERSION=0.1.1
-git tag "v$VERSION"
-git push origin "v$VERSION"
-gh release create "v$VERSION" --title "$VERSION" --notes "$(awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md)"
-npm publish
-```
-
-Do not pass `--target`. The tag is already the commit. A short SHA makes GitHub return `Release.target_commitish is invalid`.
-
-There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
-
-While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
-
-`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, animate, or the security audit.
-
-`0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`
-
 ## Shape
 
 - Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). Skills stay with their authors. Do not vendor other people’s skills.
@@ -88,3 +55,48 @@ Smoke project (outside this git tree): `../longbeard-smoke`. After changing a lo
 - Discuss skills in the README that are not in the catalog.
 - Treat Awwwards as a style to copy (gates, WebGL, custom cursors). It is a jury, and only when quoted.
 - Monitor skill use, or add competing design builders, “for completeness.”
+
+## Releases
+
+Outside users install the npm version. `main` can move between tags. Do not tell them to install `github:jonanderdev/longbeard`.
+
+A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, and npm. The notes are the matching section of `CHANGELOG.md`. GitHub release notes are that section, not a second writeup.
+
+`CHANGELOG.md` and the README say what a person who installed the package can do. They do not describe how a release is cut.
+
+Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
+
+1. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
+2. Set that same number in `package.json`.
+3. Commit that, and push `main`. Stay on that commit.
+4. From that commit, run:
+
+```bash
+(
+  set -euo pipefail
+  VERSION=$(node -p "require('./package.json').version")
+  awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1 } END { exit !found }' CHANGELOG.md || { echo "CHANGELOG.md has no section for $VERSION" >&2; exit 1; }
+  if npm view "@jonandev/longbeard@$VERSION" version >/dev/null 2>&1; then
+    echo "$VERSION is already on npm" >&2
+    exit 1
+  fi
+  if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+    echo "tag v$VERSION already exists" >&2
+    exit 1
+  fi
+  git tag "v$VERSION"
+  git push origin "v$VERSION"
+  gh release create "v$VERSION" --title "$VERSION" --notes "$(awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md)"
+  npm publish
+)
+```
+
+`npm publish` reads `package.json`. The tag uses that same number. Do not pass `--target`. The tag is already the commit. A short SHA makes GitHub return `Release.target_commitish is invalid`. A failed check stops the rest. `exit` here closes the subshell, not the terminal.
+
+There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
+
+While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
+
+`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, animate, or the security audit.
+
+`0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`
