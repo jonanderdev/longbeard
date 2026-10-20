@@ -24,11 +24,10 @@ npx longbeard init
 ## Update
 
 ```bash
-npm install --save-dev github:jonanderdev/longbeard
 npx longbeard update
 ```
 
-The first line pulls the latest Long Beard. The second brings this project up to that list: new skills, a fresh copy of the ones this command installed, and the `AGENTS.md` block. A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.
+That brings this project up to the Long Beard already installed: new skills, a fresh copy of the ones this command installed, and the `AGENTS.md` block. A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone. To get a newer Long Beard, run the install line again, then update.
 
 `npx skills update` refreshes a skill file too. It does not add a skill that is new to this list, and it does not rewrite the note. For that, install the latest Long Beard and run `longbeard update`.
 
