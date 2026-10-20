@@ -69,29 +69,9 @@ Change the number by hand, and only in that release commit. A push to `main`, an
 1. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
 2. Set that same number in `package.json`.
 3. Commit that, and push `main`. Stay on that commit.
-4. From that commit, run:
+4. From the repo root, run `./scripts/release.sh`.
 
-```bash
-(
-  set -euo pipefail
-  VERSION=$(node -p "require('./package.json').version")
-  awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1 } END { exit !found }' CHANGELOG.md || { echo "CHANGELOG.md has no section for $VERSION" >&2; exit 1; }
-  if npm view "@jonandev/longbeard@$VERSION" version >/dev/null 2>&1; then
-    echo "$VERSION is already on npm" >&2
-    exit 1
-  fi
-  if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
-    echo "tag v$VERSION already exists" >&2
-    exit 1
-  fi
-  git tag "v$VERSION"
-  git push origin "v$VERSION"
-  gh release create "v$VERSION" --title "$VERSION" --notes "$(awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md)"
-  npm publish
-)
-```
-
-`npm publish` reads `package.json`. The tag uses that same number. Do not pass `--target`. The tag is already the commit. A short SHA makes GitHub return `Release.target_commitish is invalid`. A failed check stops the rest. `exit` here closes the subshell, not the terminal.
+The script reads `package.json`, tags that number, and publishes it. It does not rewrite `CHANGELOG.md`. It stops if that section is missing, if the tag exists, or if npm already has the version. After `npm publish`, the site can lag. If the next attempt says the version is already staged, wait and run `npm view @jonandev/longbeard version`. Do not publish that number again.
 
 There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
 
