@@ -67,7 +67,7 @@ Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot 
 
 **Read this** is written from the cards, after they choose. The primary card is the closest to this subject, not the largest type and not the highest score. Closest means the subject’s world is in the shot: the same job, or a register that shares its hour, its material, its ritual, or its kind of place. Colour and type come from that card, or from this subject’s pictures. A form card does not supply them. It can only add a layout or a component that still belongs on this topic.
 
-Before you write **Read this**, ask once, and wait. That message names the two or three closest cards, each with its idea in one line and why it is close. It does not list scores, drops, or the other keeps. Their answer is the primary card. If they say you should choose, take the closest.
+Before you write **Read this**, ask once, and wait. That message names the two or three closest cards. Each one has its idea in one line, why it is close, and the live URL, so the page can be opened. It also says the shots and the other cards are in `.design/board.md`. It does not list scores, drops, or the other keeps. Their answer is the primary card. If they say you should choose, take the closest.
 
 ```
 ## Read this
@@ -137,7 +137,7 @@ Read this: <one sentence, from the cards>
 
 ## After the board
 
-Do not end the turn on the cards. In the chat, name only the two or three closest, and wait. After they answer, write **Read this**, say it in the chat, and build. The cards stay in the file.
+Do not end the turn on the cards. In the chat, name only the two or three closest, each with its live URL, and say the shots are in `.design/board.md`. Then wait. After they answer, write **Read this**, say it in the chat, and build. The cards stay in the file.
 
 The cards are the references. Do not deal a library of other ones. On a website the site cards outweigh the screen cards. On an application the screen cards outweigh award sites. How the page is built — scale, grid, sections, motion — belongs to the builder, and with this kit that builder is taste. The control in the primary card is the control. Do not add a filled button the card does not show. Do not lower the score for that. A custom cursor, a password gate, or a WebGL scene is used only when a card shows it.
 
@@ -152,7 +152,7 @@ The cards are the references. Do not deal a library of other ones. On a website 
 - Pad the count by lowering the filter, or by keeping pictures you would not put on the page.
 - Stop looking at the first page of results, or treat the keep count as the number of candidates you open.
 - Scroll or screenshot a candidate. The capture script runs on a keep only.
-- Narrate candidates, scores, or drops while looking. After the opening line, the next thing said is the short list of the closest.
+- Narrate candidates, scores, or drops while looking. After the opening line, the next thing said is the short list of the closest, each with its live URL.
 - Write a hero that does not say what the control is.
 - Build from a short board that does not name each drop.
 - Take colour or type from a card about another business.
