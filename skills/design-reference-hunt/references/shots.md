@@ -4,12 +4,18 @@ A reference is the design from top to bottom. The builder has to take how the **
 
 ## Live sites — the script is for a keep
 
-Open as many listings and score pages as the hunt asks. Do not scroll a candidate, and do not screenshot one. Run the script only on a URL you are keeping. That run is the only scroll. Do not screenshot the tab by hand. Do not stitch folds. Stitching is what repeats a sticky hero down the file. A file in `.design/refs/` that is not on the board gets deleted.
+Open as many listings and score pages as the hunt asks. Do not scroll a candidate, and do not screenshot one. Run the script only on a URL you are keeping. That run is the only scroll. Do not screenshot the tab by hand. Do not stitch folds. Stitching is what repeats a sticky hero down the file. A file in `.design/refs/` that is not on the board gets deleted. A later hunt keeps its own shots in `.design/hunts/<slug>/refs/`. Do not delete those because the board does not cite them. A file in that folder that its note does not cite gets deleted.
 
-From the project root:
+From the project root, for the board:
 
 ```
 node <skill>/scripts/capture.mjs https://example.com --out .design/refs/<name>.jpg
+```
+
+For a later hunt:
+
+```
+node <skill>/scripts/capture.mjs https://example.com --out .design/hunts/<slug>/refs/<name>.jpg
 ```
 
 The script opens Chrome, accepts a cookie button if it can, then scrolls a viewport at a time and pauses so pictures and reveals can finish. It pauses motion. It does not turn animations off, because that puts a revealed section back to blank. Then it unsticks `fixed`/`sticky` and takes **one** JPEG of the document. Node 22+. Chrome, Edge, or Chromium must be installed (`CHROME_PATH` if it is not in the usual place).

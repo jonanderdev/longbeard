@@ -46,8 +46,8 @@
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A page with no official look (no DESIGN.md, no Figma, no board)",
-      "why": "Ask once for a Figma file. No direction: look widely, then keep. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. A later section: keep 10."
+      "when": "A page with no official look (no DESIGN.md, no Figma, no board), or they asked to hunt references",
+      "why": "Ask once for a Figma file. No direction: look widely, then keep, and write `.design/board.md`. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. Before looking, ask once for optional ideas to search. A later hunt (a view, a control, new ideas, a double-check) is a suggestion set in `.design/hunts/<slug>/`. It does not replace the board, DESIGN.md, or a Figma file."
     },
     {
       "name": "design-taste-frontend",
@@ -56,6 +56,14 @@
       "source": "https://github.com/Leonxlnx/taste-skill",
       "when": "A page with no design yet",
       "why": "Do not deal this skill’s references, and do not run draw. No official look is hunt: wait for `.design/board.md`. Those cards are the references. Build from them. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still."
+    },
+    {
+      "name": "animate",
+      "author": "emilkowalski",
+      "license": "MIT",
+      "source": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
+      "when": "They asked to animate a control or a transition",
+      "why": "A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it."
     },
     {
       "name": "figma-design-to-code",
@@ -73,6 +81,15 @@
       "optional": true,
       "when": "A picture you already have",
       "why": "Build the page from that picture."
+    },
+    {
+      "name": "security-audit",
+      "author": "Cloudflare",
+      "license": "MIT",
+      "source": "https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit",
+      "optional": true,
+      "when": "A security review you asked for",
+      "why": "Look for a broken trust boundary. The full audit runs only when you ask for an audit or a pen-test."
     },
     {
       "name": "web-design-guidelines",
