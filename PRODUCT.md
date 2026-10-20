@@ -10,6 +10,30 @@ It is not an agent runtime. It is not a marketplace. It is not a replacement for
 
 The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonandev/longbeard`. The command is `longbeard`.
 
+## Releases
+
+Outside users install the npm version. `main` can move between tags. Do not tell them to install `github:jonanderdev/longbeard`.
+
+A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, and npm. The notes are the matching section of `CHANGELOG.md`. GitHub release notes are that section, not a second writeup.
+
+`CHANGELOG.md` and the README say what a person who installed the package can do. They do not describe how a release is cut.
+
+Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
+
+1. Write what changed, including what a person who already ran `init` must do.
+2. Set that version in `package.json`.
+3. Commit. Tag that commit. Push the tag.
+4. Open the GitHub release from the tag.
+5. `npm publish` from that same commit, on this machine. The `gitHead` on npm must be the tag.
+
+There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
+
+While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
+
+`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, or the guidelines.
+
+`0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`
+
 ## Shape
 
 - Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). Skills stay with their authors. Do not vendor other people’s skills.

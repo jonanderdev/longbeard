@@ -18,16 +18,31 @@ It is a base. You keep going from here.
 
 ## Install
 
-In a project, from GitHub:
+In a project:
 
 ```bash
-npm install --save-dev github:jonanderdev/longbeard
+npm install --save-dev @jonandev/longbeard
 npx longbeard init
 ```
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes the optional skill.
 
-The skills written in this repository ship inside the package, including [design-reference-hunt](skills/design-reference-hunt/SKILL.md). `init` copies them with the rest. There is no separate install for that skill. The same package is what npm installs once it is published.
+The skills written in this repository ship inside the package, including [design-reference-hunt](skills/design-reference-hunt/SKILL.md). `init` copies them with the rest. There is no separate install for that skill.
+
+## Releases
+
+Install the version on npm. Each number has notes in [CHANGELOG.md](CHANGELOG.md), and the same number is the git tag, with a `v` in front. `npx longbeard --version` prints the copy in this project.
+
+`npx longbeard update` does not fetch a newer Long Beard. It uses the copy already installed: skills that are new in that copy, a fresh `AGENTS.md` block, and a refresh of skills this command installed. Skills written by other people are refreshed from their repositories, so those can move without a new Long Beard version. The skills in this repository stay with the version you installed.
+
+To take a newer Long Beard:
+
+```bash
+npm install --save-dev @jonandev/longbeard@latest
+npx longbeard update
+```
+
+While the version is `0.x`, a new minor can change the kit.
 
 ## Update
 
@@ -36,8 +51,7 @@ npx longbeard update
 ```
 
 That brings this project up to the Long Beard already installed: new skills, a fresh copy of the ones this command installed, and the `AGENTS.md` block.  
-A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.  
-To get a newer Long Beard, run the install line again, then update.
+A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.
 
 `npx skills update` refreshes a skill file too. It does not add a skill that is new to this list, and it does not rewrite the note. For that, install the latest Long Beard and run `npx longbeard update`.
 
@@ -77,5 +91,3 @@ Writing stays small, and a risky change is named before it is built. A page foll
 | [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates design images, then builds the page to match them | Leonxlnx |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json).
-
-Building Long Beard itself: read [`PRODUCT.md`](PRODUCT.md) first.

@@ -7,6 +7,21 @@
     "type": "git",
     "url": "git+https://github.com/jonanderdev/longbeard.git"
   },
+  "homepage": "https://github.com/jonanderdev/longbeard#readme",
+  "bugs": {
+    "url": "https://github.com/jonanderdev/longbeard/issues"
+  },
+  "keywords": [
+    "design",
+    "frontend",
+    "ui",
+    "code",
+    "figma",
+    "agents",
+    "skills",
+    "cursor",
+    "claude"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -18,6 +33,7 @@
     "bin",
     "beard.json",
     "AGENTS.md",
+    "CHANGELOG.md",
     "skills"
   ],
   "engines": {

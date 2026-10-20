@@ -19,10 +19,11 @@ const help = `Long Beard
 Drop this into a project so the agents you already use produce better work.
 The catalog is beard.json. The command is longbeard, via npx in the project.
 
-  npm install --save-dev github:jonanderdev/longbeard
+  npm install --save-dev @jonandev/longbeard
   npx longbeard init
   npx longbeard update
   npx longbeard list
+  npx longbeard --version
 
   npx longbeard init [--global] [--all] [--yes] [--agent cursor]
   npx longbeard update [--global] [--all] [--force] [--yes]
@@ -142,6 +143,7 @@ function parseArgs(argv) {
     else if (arg === "--yes" || arg === "-y") flags.yes = true;
     else if (arg === "--optional") flags.optional = true;
     else if (arg === "--help" || arg === "-h") flags.help = true;
+    else if (arg === "--version" || arg === "-V") flags.version = true;
     else if (arg === "--agent" || arg === "-a") flags.agents.push(take(argv, ++i, arg));
     else if (arg === "--skill" || arg === "-s") flags.skill.push(take(argv, ++i, arg));
     else if (arg === "--why") flags.why = take(argv, ++i, arg);
@@ -741,7 +743,8 @@ function list(flags) {
 }
 
 const { command, rest, flags } = parseArgs(process.argv.slice(2));
-if (flags.help || command === "help") console.log(help);
+if (flags.version) console.log(readJson(join(root, "package.json")).version);
+else if (flags.help || command === "help") console.log(help);
 else if (command === "init") init(flags);
 else if (command === "add") add(flags, rest);
 else if (command === "remove") remove(flags, rest);
