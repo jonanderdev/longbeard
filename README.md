@@ -61,16 +61,18 @@ That writes `beard.local.json`. Commit it if clones of this repo should get the 
 
 Two of these are ours. The others are installed from the people who wrote them, and `npx longbeard update` pulls a fresh copy.
 
+Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt finds the references and taste designs the page, with real pictures, and checks it in a browser.
+
 | Skill | What it is for | Author |
 | --- | --- | --- |
-| [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job | DietrichGebert |
-| [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before the code, where this change can break | GeorgeT |
-| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | No official look yet. Finds references and writes the board | Long Beard |
-| [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Builds the page from that board | Leonxlnx |
-| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file. Needs the Figma connection | Figma |
-| [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Accessibility and interface rules, when you ask for a review | Vercel |
-| [design-md](skills/design-md/SKILL.md) | Follows `DESIGN.md` when the project this is installed in has one | Long Beard |
-| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates a picture, then builds the page from it | Leonxlnx |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once | DietrichGebert |
+| [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
+| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | No `DESIGN.md` and no Figma. Finds references and writes a board. Does not build the page | Long Beard |
+| [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
+| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
+| [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
+| [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
+| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates design images, then builds the page to match them | Leonxlnx |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json).
 
