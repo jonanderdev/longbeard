@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-10-20
+
+- `init` waits for a key on the agent picker. Node 24 leaves the terminal non-blocking, so the first read was throwing `EAGAIN` and aborting the install. Install this version and run `npx longbeard init` again. Anyone who already finished `init` can leave it.
+
 ## 0.2.0 — 2026-10-20 
 
 - Install from npm: `@jonandev/longbeard`. The command prints that version with `--version`.

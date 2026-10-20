@@ -248,9 +248,22 @@ function agentsFromLock(lock) {
   return [...new Set(Object.values(lock?.skills ?? {}).flatMap((entry) => entry.agents ?? []))];
 }
 
+const stdinPause = new Int32Array(new SharedArrayBuffer(4));
+
+function readStdin(buf) {
+  for (;;) {
+    try {
+      return readSync(0, buf, 0, buf.length, null);
+    } catch (error) {
+      if (error?.code !== "EAGAIN" && error?.code !== "EWOULDBLOCK") throw error;
+      Atomics.wait(stdinPause, 0, 0, 50);
+    }
+  }
+}
+
 function readKey() {
   const buf = Buffer.alloc(8);
-  const n = readSync(0, buf, 0, 8, null);
+  const n = readStdin(buf);
   if (n <= 0) return "enter";
   const code = buf[0];
   if (code === 3) return "ctrl-c";
@@ -489,7 +502,7 @@ function confirmWrite(flags, writes) {
   if (writes.length === 0 || flags.yes || !process.stdin.isTTY) return;
   say(dim("Proceed? [Y/n]"));
   const buf = Buffer.alloc(80);
-  const n = readSync(0, buf, 0, 80, null);
+  const n = readStdin(buf);
   const line = buf.toString("utf8", 0, n).trim().toLowerCase();
   if (line && line !== "y" && line !== "yes") fail("Aborted.");
 }
