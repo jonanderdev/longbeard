@@ -77,6 +77,6 @@ There is no publish workflow. A GitHub Action would earn its place only to prove
 
 While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
 
-`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, animate, or the security audit.
+`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, animate, Matt's skills, or the security audit.
 
 `0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`
