@@ -34,12 +34,36 @@
       "why": "Collect the limits you marked."
     },
     {
+      "name": "diagnosing-bugs",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "Something is broken, throwing, failing, or slow — a hard bug",
+      "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
+    },
+    {
       "name": "premortem",
       "author": "GeorgeT",
       "license": "MIT",
       "source": "https://github.com/joetawil7/first-pass/tree/main/skills",
       "when": "A change that touches data, money, jobs, or what a person sees",
       "why": "Name where it can break before you write. A small change gets a short answer."
+    },
+    {
+      "name": "grill-me",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "They asked to grill a plan or design, or the ask is underspecified",
+      "why": "Interview until every branch of the design tree is resolved. Uses grilling."
+    },
+    {
+      "name": "grilling",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "Stress-testing a plan, decision, or idea",
+      "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
     },
     {
       "name": "design-reference-hunt",
@@ -98,6 +122,14 @@
       "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
       "when": "A UI review you asked for",
       "why": "Accessibility and interface rules."
+    },
+    {
+      "name": "handoff",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "They asked to hand off to another agent or session",
+      "why": "Compact the conversation into a handoff document another agent can pick up."
     },
     {
       "name": "design-md",

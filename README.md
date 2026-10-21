@@ -25,7 +25,10 @@ Writing stays small, and a risky change is named before it is built. A page foll
 | Skill | What it is for | Author |
 | --- | --- | --- |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt | DietrichGebert |
+| [diagnosing-bugs](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs) | Hard bugs and performance regressions: build a tight feedback loop first, then localize, reduce, fix, and guard | Matt Pocock |
 | [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
+| [grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) | Relentless interview until a plan or design has no open branches. Includes grilling | Matt Pocock |
+| [handoff](https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff) | Compacts the conversation into a handoff document for another agent or session | Matt Pocock |
 | [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | When there is no design direction, searches award-winning sites and galleries such as Dribbble, and writes a board for the design that follows. A later request — a view, a button, new ideas, a double-check — writes a separate suggestion set and leaves that board in place | Long Beard |
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
 | [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion | emilkowalski |
