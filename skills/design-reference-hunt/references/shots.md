@@ -4,7 +4,7 @@ A reference is the design from top to bottom. The builder has to take how the **
 
 ## Live sites — the script is for a keep
 
-Open as many listings and score pages as the hunt asks. Do not scroll a candidate, and do not screenshot one. Run the script only on a URL you are keeping. That run is the only scroll. Do not screenshot the tab by hand. Do not stitch folds. Stitching is what repeats a sticky hero down the file. A file in `.design/refs/` that is not on the board gets deleted. A later hunt keeps its own shots in `.design/hunts/<slug>/refs/`. Do not delete those because the board does not cite them. A file in that folder that its note does not cite gets deleted.
+Open as many listings and score pages as the hunt asks. Do not scroll a candidate, and do not screenshot one. Run the script only on a URL you are keeping. That run is the only scroll. Do not screenshot the tab by hand. Do not stitch folds. Stitching is what repeats a sticky hero down the file. A file in `.design/refs/` that is not on the board gets deleted, and only during the whole look that owns that folder. A later hunt keeps its own shots in `.design/hunts/<slug>/refs/`. Do not delete those because the board does not cite them. A file in that folder that its note does not cite gets deleted, and only during that hunt. A loading hunt does not delete a board shot. The whole look does not delete a hunt shot.
 
 From the project root, for the board:
 
