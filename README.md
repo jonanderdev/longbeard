@@ -36,6 +36,7 @@ Writing stays small, and a risky change is named before it is built. A page foll
 | [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates design images, then builds the page to match them | Leonxlnx |
 | [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Optional, with `--all`. Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test | Cloudflare |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
+| [jury](https://github.com/juliobsz/skills/tree/main/jury) | Scores a site from screenshots and measurements when you ask to jury, score, judge, or roast the design. Does not redesign; fixes stay on the board, DESIGN.md, or Figma | juliobsz |
 | [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
