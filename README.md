@@ -20,14 +20,22 @@ It is a base. You keep going from here.
 
 Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `update` pulls a fresh copy of those.
 
-Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board.
+Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board. The board does not replace that set either. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
 
 ### Code
 
 | Skill | What it is for | Author |
 | --- | --- | --- |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt | DietrichGebert |
+| [diagnosing-bugs](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs) | Hard bugs and performance regressions: build a tight feedback loop first, then localize, reduce, fix, and guard | Matt Pocock |
 | [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
+
+### Plan
+
+| Skill | What it is for | Author |
+| --- | --- | --- |
+| [grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) | Relentless interview until a plan or design has no open branches. Includes grilling | Matt Pocock |
+| [handoff](https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff) | Compacts the conversation into a handoff document for another agent or session | Matt Pocock |
 
 ### Design
 
@@ -35,10 +43,11 @@ Writing stays small, and a risky change is named before it is built. A page foll
 | --- | --- | --- |
 | [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
-| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | When there is no design direction, searches award-winning sites and galleries such as Dribbble, and writes a board for the design that follows. A later request — a view, a button, new ideas, a double-check — writes a separate suggestion set and leaves that board in place | Long Beard |
+| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | When there is no design direction, searches award-winning sites and galleries such as Dribbble, and writes a board for the design that follows. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place | Long Beard |
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
 | [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion | emilkowalski |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
+| [jury](https://github.com/juliobsz/skills/tree/main/jury) | Scores a site from screenshots and measurements when you ask to jury, score, judge, or roast the design. Does not redesign; fixes stay on the board, DESIGN.md, or Figma | juliobsz |
 
 ### Optional
 

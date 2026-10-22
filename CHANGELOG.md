@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- `jury` from [juliobsz](https://github.com/juliobsz/skills/tree/main/jury) is in the default kit. It runs only when they ask to jury, score, judge, or roast the design (or a live URL / local build): a blind evidence scorecard, not a redesign. Fixes stay on the board, `DESIGN.md`, or Figma. People who already ran `init`: install this version, then run `npx longbeard update`.
+- `design-reference-hunt` asks once, before looking, for a specific style and any requirements. For one piece — a loading state, a control — that message also offers two or three search ideas, then looks after the answer. A loading search and the whole no-look board stay side by side: neither replaces the other’s files, whichever ran first. The same whole look may rewrite its own board. A second pass of the same piece is the next slug. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+
+## 0.4.0 — 2026-10-21
+
+- `diagnosing-bugs`, `grill-me`, `grilling`, and `handoff` from [Matt Pocock](https://github.com/mattpocock/skills) are in the default kit. Hard bugs get a diagnosis loop; an underspecified ask gets grilled; a session can hand off cleanly. `grill-me` needs `grilling` beside it. People who already ran `init`: install this version, then run `npx longbeard update`.
+
 ## 0.3.0 — 2026-10-20
 
 - `init` waits for a key on the agent picker. Node 24 leaves the terminal non-blocking, so the first read was throwing `EAGAIN` and aborting the install. Install this version and run `npx longbeard init` again. Anyone who already finished `init` can leave it.

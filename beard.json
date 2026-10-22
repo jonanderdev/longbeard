@@ -34,6 +34,14 @@
       "why": "Collect the limits you marked."
     },
     {
+      "name": "diagnosing-bugs",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "Something is broken, throwing, failing, or slow — a hard bug",
+      "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
+    },
+    {
       "name": "premortem",
       "author": "GeorgeT",
       "license": "MIT",
@@ -42,12 +50,28 @@
       "why": "Name where it can break before you write. A small change gets a short answer."
     },
     {
+      "name": "grill-me",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "They asked to grill a plan or design, or the ask is underspecified",
+      "why": "Interview until every branch of the design tree is resolved. Uses grilling."
+    },
+    {
+      "name": "grilling",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "Stress-testing a plan, decision, or idea",
+      "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
+    },
+    {
       "name": "design-reference-hunt",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
       "when": "A page with no official look (no DESIGN.md, no Figma, no board), or they asked to hunt references",
-      "why": "Ask once for a Figma file. No direction: look widely, then keep, and write `.design/board.md`. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. Before looking, ask once for optional ideas to search. A later hunt (a view, a control, new ideas, a double-check) is a suggestion set in `.design/hunts/<slug>/`. It does not replace the board, DESIGN.md, or a Figma file."
+      "why": "Ask once for a Figma file. No direction: look widely, then keep, and write `.design/board.md`. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. Before looking, ask once for a specific style and any requirements. On a piece (a loading state, a control), also offer two or three search ideas, then look after they answer. A later hunt (a view, a control, new ideas, a double-check) is a suggestion set in `.design/hunts/<slug>/`. It does not replace the board, `.design/refs/`, DESIGN.md, or a Figma file, and the whole look does not replace `.design/hunts/`."
     },
     {
       "name": "design-taste-frontend",
@@ -98,6 +122,22 @@
       "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
       "when": "A UI review you asked for",
       "why": "Accessibility and interface rules."
+    },
+    {
+      "name": "jury",
+      "author": "juliobsz",
+      "license": "MIT",
+      "source": "https://github.com/juliobsz/skills/tree/main/jury",
+      "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
+      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every Taste build unless they asked."
+    },
+    {
+      "name": "handoff",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "They asked to hand off to another agent or session",
+      "why": "Compact the conversation into a handoff document another agent can pick up."
     },
     {
       "name": "design-md",
