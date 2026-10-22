@@ -22,18 +22,32 @@ Two of these are written here, in [`skills/`](skills/). `init` copies them from 
 
 Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board.
 
+### Code
+
 | Skill | What it is for | Author |
 | --- | --- | --- |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt | DietrichGebert |
 | [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
+
+### Design
+
+| Skill | What it is for | Author |
+| --- | --- | --- |
+| [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
+| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
 | [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | When there is no design direction, searches award-winning sites and galleries such as Dribbble, and writes a board for the design that follows. A later request — a view, a button, new ideas, a double-check — writes a separate suggestion set and leaves that board in place | Long Beard |
 | [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
 | [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion | emilkowalski |
-| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
-| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates design images, then builds the page to match them | Leonxlnx |
-| [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Optional, with `--all`. Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test | Cloudflare |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
-| [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
+
+### Optional
+
+Installed with `--all`.
+
+| Skill | What it is for | Author |
+| --- | --- | --- |
+| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Generates design images, then builds the page to match them | Leonxlnx |
+| [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test | Cloudflare |
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
