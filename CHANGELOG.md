@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `design-reference-hunt` asks once, before looking, for a specific style and any requirements. For one piece — a loading state, a control — that message also offers two or three search ideas, then looks after the answer. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+
 ## 0.4.0 — 2026-10-21
 
 - `diagnosing-bugs`, `grill-me`, `grilling`, and `handoff` from [Matt Pocock](https://github.com/mattpocock/skills) are in the default kit. Hard bugs get a diagnosis loop; an underspecified ask gets grilled; a session can hand off cleanly. `grill-me` needs `grilling` beside it. People who already ran `init`: install this version, then run `npx longbeard update`.
