@@ -31,8 +31,9 @@ Official look wins, in this order:
 3. A picture they already have → `image-to-code` (optional).
 4. No official look (no `DESIGN.md`, no Figma, no board) → `design-reference-hunt` asks **once** for a Figma file. If they paste one, Figma. If not, **whole look**, then taste. A website hunts live pages. An application hunts product screens, not Awwwards. They can also ask to hunt when a direction or a design already exists. That pass writes a suggestion set under `.design/hunts/<slug>/` and does not replace the board.
 5. `web-design-guidelines` only when they ask for a UI review.
-6. A control or transition they asked to animate → `animate`. A page taste is building keeps taste’s motion.
-7. A security review they asked for → `security-audit` (optional, `--all`). The full audit runs only when they ask for an audit or a pen-test.
+6. `jury` only when they ask to jury, score, judge, or roast the design (or a live URL / local build). Blind evidence scorecard. Do not redesign. Fixes stay on the board, `DESIGN.md`, or Figma. Do not run after every Taste build unless they asked.
+7. A control or transition they asked to animate → `animate`. A page taste is building keeps taste’s motion.
+8. A security review they asked for → `security-audit` (optional, `--all`). The full audit runs only when they ask for an audit or a pen-test.
 
 Hunt writes the board and does not lay the page out. This kit’s router pairs the cards with `design-taste-frontend`. Do not add a second “build an Awwwards site” skill.
 
@@ -46,7 +47,7 @@ Do not put model-picker warnings in the kit. A skill that needs the current year
 
 ## How to know it worked
 
-Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md` with cards and a short Read this; taste does not deal its references or run `draw.mjs`; it builds from the cards, runs `inspect.mjs`, and a real browser.
+Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md` with cards and a short Read this; taste does not deal its references or run `draw.mjs`; it builds from the cards, runs `inspect.mjs`, and a real browser; jury runs only when they asked to score or judge, and does not redesign.
 
 Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project’s `.agents/skills/<name>/` (and `.claude/skills/` if present) and rewrite the `AGENTS.md` block to match `beard.json`. Do not run `longbeard init` in *this* repo.
 
@@ -77,6 +78,6 @@ There is no publish workflow. A GitHub Action would earn its place only to prove
 
 While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
 
-`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, animate, Matt's skills, or the security audit.
+`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, jury, animate, Matt's skills, or the security audit.
 
 `0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`

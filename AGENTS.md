@@ -19,6 +19,7 @@ A marketing site is the page a person lands on to understand or choose. An appli
 - They asked to animate a control or a transition: animate. A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it.
 - A Figma file or link: figma-design-to-code. A designer handed it over. Needs the Figma connection. Reuse this project's components.
 - A UI review you asked for: web-design-guidelines. Accessibility and interface rules.
+- They asked to jury, score, judge, or roast the design (or a live URL / local build): jury. Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every Taste build unless they asked.
 - They asked to hand off to another agent or session: handoff. Compact the conversation into a handoff document another agent can pick up.
 - The look of this project: design-md. Follow DESIGN.md when it exists. A missing file plus “design this page” is hunt, not a question.
 

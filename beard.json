@@ -124,6 +124,14 @@
       "why": "Accessibility and interface rules."
     },
     {
+      "name": "jury",
+      "author": "juliobsz",
+      "license": "MIT",
+      "source": "https://github.com/juliobsz/skills/tree/main/jury",
+      "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
+      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every Taste build unless they asked."
+    },
+    {
       "name": "handoff",
       "author": "Matt Pocock",
       "license": "MIT",

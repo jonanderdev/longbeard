@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `jury` from [juliobsz](https://github.com/juliobsz/skills/tree/main/jury) is in the default kit. It runs only when they ask to jury, score, judge, or roast the design (or a live URL / local build): a blind evidence scorecard, not a redesign. Fixes stay on the board, `DESIGN.md`, or Figma. People who already ran `init`: install this version, then run `npx longbeard update`.
+
 ## 0.4.0 — 2026-10-21
 
 - `diagnosing-bugs`, `grill-me`, `grilling`, and `handoff` from [Matt Pocock](https://github.com/mattpocock/skills) are in the default kit. Hard bugs get a diagnosis loop; an underspecified ask gets grilled; a session can hand off cleanly. `grill-me` needs `grilling` beside it. People who already ran `init`: install this version, then run `npx longbeard update`.
