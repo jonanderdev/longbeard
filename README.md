@@ -20,7 +20,7 @@ It is a base. You keep going from here.
 
 Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `update` pulls a fresh copy of those.
 
-Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
+Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board. The board does not replace that set either. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
 
 | Skill | What it is for | Author |
 | --- | --- | --- |

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `design-reference-hunt` asks once, before looking, for a specific style and any requirements. For one piece — a loading state, a control — that message also offers two or three search ideas, then looks after the answer. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+- `design-reference-hunt` asks once, before looking, for a specific style and any requirements. For one piece — a loading state, a control — that message also offers two or three search ideas, then looks after the answer. A loading search and the whole no-look board stay side by side: neither replaces the other’s files, whichever ran first. The same whole look may rewrite its own board. A second pass of the same piece is the next slug. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
 
 ## 0.4.0 — 2026-10-21
 

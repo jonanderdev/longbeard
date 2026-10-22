@@ -15,7 +15,9 @@ description: >
   or for a builder that is not taste. Before looking, ask once for a
   specific style and any requirements. On a piece (a loading state, a
   control), also offer two or three search ideas, then look after they
-  answer. They asked to hunt while a
+  answer. A loading search writes .design/hunts/<slug>/ and does not
+  replace the board or .design/refs/. The whole look does not replace
+  a hunt folder. They asked to hunt while a
   direction or a design already exists (a view, a button, new ideas, a
   double-check): keep the suggestion set in .design/hunts/<slug>/ and
   do not replace the board, DESIGN.md, or a Figma file. Only keep
@@ -43,7 +45,9 @@ Two places. They do not share shots.
 
 `<slug>` names what the pass is for: `pricing`, `primary-button`, `settings`, `home-ideas`, `home-check`. If that folder exists, use `<slug>-2`, then `<slug>-3`. Never overwrite a hunt. Never delete one. Leave an old `.design/piece.md` where it is. Do not write a new one.
 
-A file in `.design/refs/` that the board does not cite gets deleted. A file in a hunt’s `refs/` that its note does not cite gets deleted. Do not delete across those folders.
+A file in `.design/refs/` that the board does not cite gets deleted. A file in a hunt’s `refs/` that its note does not cite gets deleted. That delete stays inside the place this pass owns. Do not delete across those folders.
+
+A search writes only its own place. The whole no-look search owns `.design/board.md` and `.design/refs/`. A loading search owns `.design/hunts/loading/` and the shots inside it. Neither replaces the other, whichever ran first. The same whole look may rewrite its own board and its own refs: the board is unfinished, or they asked to redo that whole look. It still leaves every hunt folder. A second pass of the same piece is the next slug (`loading-2`). It does not replace `loading`, and it does not replace the board. A different piece does not replace a sibling.
 
 ## Gate (do this first)
 
@@ -53,7 +57,8 @@ Check the repo and the prompt, in order. Stop at the first hit.
 2. They did not ask to hunt, and the prompt has a Figma file or link → implement from that file. Do not hunt.
 3. They did not ask to hunt, and `.design/board.md` exists → whole look is done when **Read this** names a primary card, that card’s hero names the control, and any shortfall is named. Aims: a website, 10 live sites and up to 20 screens; an application, up to 20 screens and not an Awwwards set. Imagery is up to 10. A short board that does not name each drop is unfinished: finish the hunt. Missing control: open the shot and write it, then build. Or run **Later hunt** if they asked for a section.
 4. They asked to hunt a view, a control, a section, new ideas, or a double-check → **Later hunt**. They asked only for a piece (a loading state, a button, an empty state, a section), including “build this and find references” → **Later hunt**. A page with no look is the whole look, not a piece. A direction or a design already in the project does not block this. Do not ask for a Figma file.
-5. Otherwise, for a **whole look** only: ask **once**, and wait:
+5. `.design/board.md` exists, and they asked to hunt again → **Later hunt** in a new folder. The board and `.design/refs/` stay. They asked to redo that same whole look → rewrite `.design/board.md` and `.design/refs/` only, and leave `.design/hunts/` in place.
+6. Otherwise, for a **whole look** only: ask **once**, and wait. There is no board yet.
 
    Do you have a Figma file for this, or should I hunt references? If I hunt, any specific style or requirements are optional: how it should feel, and what it must do.
 
@@ -99,7 +104,7 @@ Say once, in one line, what you are looking for, and that the closest come back 
 
 Look, then keep. The counts below are what you **keep**. They are not how many you open. Read listings and score pages until the keep is full of ones that pass [quality.md](references/quality.md), and do not stop at the first page. There is no small cap on looking. A website looks through at least 30 live candidates before it accepts fewer than 10 sites, and through the popular Dribbble sort (and the other-subject queries) before it accepts fewer than the screens it could have kept. If that pass is weak, look at the next gallery. A thin field stays thin: name each drop, and do not lower the filter to fill the count.
 
-Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot a listing, a score page, or a URL you might drop. The capture script scrolls; run it only on a keep. A file in `.design/refs/` that is not on the board gets deleted. Leave `.design/hunts/` alone.
+Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot a listing, a score page, or a URL you might drop. The capture script scrolls; run it only on a keep. A file in `.design/refs/` that is not on the board gets deleted. Leave `.design/hunts/` alone, including a loading hunt written before this board. Do not edit those notes or delete those shots.
 
 1. Name the subject and the **surface**: `website` or `app`.
 2. This year’s date. Do not search only the same subject. Also search the page type, the component, and the element, including other subjects that share that form. Add the style and the requirements they gave. Filter with [quality.md](references/quality.md).
@@ -179,7 +184,7 @@ Name `for` from what they asked. Ask once, as in **Before looking**, and wait. A
 1. Name `for` (hero, menu, pricing, a button, the whole look, …) and, for a piece, its role: page, component, or element. Slug the folder from that name.
 2. **Keep 10** after the quality filter when `for` is a piece. Not 20. Look through more than 10 before you choose, including the same role in other subjects. A whole-look `ideas` or `check` pass uses the **Whole look** keep counts, written in the hunt folder, not in `.design/board.md`. Name each drop. Do not pad. Dribbble (popular, this year), Land-book, Godly, component galleries, Unsplash for imagery. Add the style, the requirements, and, on a piece, the search ideas they accepted. Capture only what you keep. Crop to the **shot**, not the gallery. Live sites only if the piece is a whole block on a real page.
 3. Tag each: `kind: section | component | imagery | type | mark` and `subject: same-job | other`. Do not file a drawing as a section.
-4. Write `.design/hunts/<slug>/note.md`. Shots only in `.design/hunts/<slug>/refs/`. `node <skill>/scripts/capture.mjs <url> --out .design/hunts/<slug>/refs/<name>.jpg`. Do **not** replace `.design/board.md`, `DESIGN.md`, or `.design/refs/`. If a board or `DESIGN.md` exists, a piece takes a layout principle from these refs and keeps that look’s colour and type.
+4. Write `.design/hunts/<slug>/note.md`. Shots only in `.design/hunts/<slug>/refs/`. `node <skill>/scripts/capture.mjs <url> --out .design/hunts/<slug>/refs/<name>.jpg`. Do **not** replace `.design/board.md`, `DESIGN.md`, or `.design/refs/`. That holds when the board was written first and when this piece is hunted first. Do not delete a file in `.design/refs/` from this pass. If a board or `DESIGN.md` exists, a piece takes a layout principle from these refs and keeps that look’s colour and type.
 
 ```
 # Hunt
@@ -220,6 +225,7 @@ The cards are the references. Do not deal a library of other ones. On a website 
 - Write a second `.design/board.md`. A later pass is a hunt folder.
 - Overwrite or delete `.design/hunts/<slug>/`. Use the next free slug.
 - Put a later hunt’s shots in `.design/refs/`, or delete a hunt shot because the board does not cite it.
+- Let a loading hunt replace `.design/board.md` or `.design/refs/`, or let the whole look replace `.design/hunts/`. Order does not matter. The only rewrite of the board is that same whole look.
 - Change `DESIGN.md`, a Figma file, or the board from a later hunt.
 - Write a new `.design/piece.md`.
 - Pad the count by lowering the filter, or by keeping pictures you would not put on the page.
