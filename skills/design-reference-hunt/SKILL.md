@@ -5,10 +5,12 @@ description: >
   With no official look (no DESIGN.md, no Figma, no .design/board.md), ask
   once for a Figma file; if they paste one, stop. If not, whole look →
   .design/board.md with cards (idea, hero, type, colour, worth taking) and
-  a short Read this. After they pick a primary, say the direction in chat,
-  then ask to write DESIGN.md as its own message (design-md) — never the
-  last line of a long report. If they move on without answering, ask once
-  more, first in that reply. Stop unless they also asked to build. Later
+  a short Read this. After they pick a primary, run scripts/moodboard.mjs,
+  open .design/moodboard.html, say the direction in chat, then ask to write
+  DESIGN.md as its own message (design-md) — never the last line of a long
+  report. If they move on without answering, ask once more, first in that
+  reply. Stop unless they also asked to build. A later hunt does not
+  replace the moodboard. Later
   hunt (piece, ideas, check) writes .design/hunts/<slug>/; after they
   accept, ask to update DESIGN.md the same way. Direction-only stops
   after persist. Before looking, ask once for style and requirements; on a
@@ -18,7 +20,7 @@ description: >
 
 # Reference hunt
 
-This skill finds references and proposes a direction. It does **not** lay out or code a page. Say the direction clearly in chat. Persist with `design-md` only after they confirm. Coding is the project’s router, only when they also asked to build.
+This skill finds references and proposes a direction. It does **not** lay out or code a page. After a primary is chosen it writes `.design/moodboard.html` from the board — one fixed layout, the script’s — and opens that file. Say the direction clearly in chat. Persist with `design-md` only after they confirm. Coding is the project’s router, only when they also asked to build.
 
 Read [quality.md](references/quality.md) before you keep a reference. Weak nominees and generic Dribbble do not go on the board.
 
@@ -35,10 +37,11 @@ A Dribbble illustration is **imagery**, not a website. A Dribbble shot of a real
 
 ## Where files go
 
-Two places. They do not share shots.
+The board and a hunt do not share shots. The moodboard is a view of the board.
 
 - **Board** — the one full hunt when this project has no look. `.design/board.md` and `.design/refs/`. One board. Evidence for the direction. Card fields stay stable (idea, hero, type, colour, worth taking) so people and later builders can read the same file.
-- **Hunt** — every other pass. `.design/hunts/<slug>/note.md` and `.design/hunts/<slug>/refs/`. Suggestion set. Does not replace the board, `DESIGN.md`, or a Figma file until they confirm a persist via `design-md`.
+- **Moodboard** — `.design/moodboard.html`. Written when **Read this** is written, by `scripts/moodboard.mjs`. One file. The direction, for a person to look at. Not the page. A later hunt does not replace it. A redo of this whole look rewrites it with the new **Read this**.
+- **Hunt** — every other pass. `.design/hunts/<slug>/note.md` and `.design/hunts/<slug>/refs/`. Suggestion set. Does not replace the board, the moodboard, `DESIGN.md`, or a Figma file until they confirm a persist via `design-md`. A confirmed later hunt still leaves the moodboard. That file is the whole-look direction.
 
 `<slug>` names what the pass is for: `pricing`, `primary-button`, `settings`, `home-ideas`, `home-check`. If that folder exists, use `<slug>-2`, then `<slug>-3`. Never overwrite a hunt. Never delete one. Leave an old `.design/piece.md` where it is. Do not write a new one.
 
@@ -46,7 +49,7 @@ A file in `.design/refs/` that the board does not cite gets deleted. A file in a
 
 A search writes only its own place. The whole no-look search owns `.design/board.md` and `.design/refs/`. A loading search owns `.design/hunts/loading/` and the shots inside it. Neither replaces the other, whichever ran first. The same whole look may rewrite its own board and its own refs: the board is unfinished, or they asked to redo that whole look. It still leaves every hunt folder. A second pass of the same piece is the next slug (`loading-2`). It does not replace `loading`, and it does not replace the board. A different piece does not replace a sibling.
 
-Skill feedback and session notes stay in the chat, for them to forward. Do not write them under `.design/`. There is no feedback file and no `.design/feedback/`. `.design/` is the board, the hunts, and the shots those cite.
+Skill feedback and session notes stay in the chat, for them to forward. Do not write them under `.design/`. There is no feedback file and no `.design/feedback/`. `.design/` is the board, the moodboard, the hunts, and the shots those cite.
 
 ## Gate (do this first)
 
@@ -56,7 +59,7 @@ Check the repo and the prompt, in order. Stop at the first hit.
 2. They did not ask to hunt, and the prompt has a Figma file or link → implement from that file. Do not hunt.
 3. They did not ask to hunt, and `.design/board.md` exists → whole look is done when **Read this** names a primary card, that card’s hero names the control, and any shortfall is named. Aims: a website, 10 live sites and up to 20 screens; an application, up to 20 screens and not an Awwwards, MaxiBestOf, or Recent set. Imagery is up to 10. A short board that does not name each drop is unfinished: finish the hunt. Missing control: open the shot and write it. Or run **Later hunt** if they asked for a section. Building is the router only if they asked to build.
 4. They asked to hunt a view, a control, a section, new ideas, or a double-check → **Later hunt**. They asked only for a piece (a loading state, a button, an empty state, a section), including “build this and find references” → **Later hunt**. A page with no look is the whole look, not a piece. A direction or a design already in the project does not block this. Do not ask for a Figma file.
-5. `.design/board.md` exists, and they asked to hunt again → **Later hunt** in a new folder. The board and `.design/refs/` stay. They asked to redo that same whole look → rewrite `.design/board.md` and `.design/refs/` only, and leave `.design/hunts/` in place.
+5. `.design/board.md` exists, and they asked to hunt again → **Later hunt** in a new folder. The board, `.design/refs/`, and `.design/moodboard.html` stay. They asked to redo that same whole look → rewrite `.design/board.md` and `.design/refs/`, and leave `.design/hunts/` in place. The moodboard is rewritten when the new **Read this** is written, not before.
 6. Otherwise, for a **whole look** only: ask **once**, and wait. There is no board yet.
 
    Do you have a Figma file for this, or should I hunt references? If I hunt, any specific style or requirements are optional: how it should feel, and what it must do. I'll treat the subject as <subject as read from the repo>. Correct me if it is broader or narrower.
@@ -216,9 +219,15 @@ The note is the suggestion set. This skill does not rewrite `DESIGN.md` until **
 
 Do not end the turn on raw cards alone.
 
-**Whole look:** In the chat, name only the two or three closest, each with its live URL, and say the shots are in `.design/board.md`. Wait. After they answer, write **Read this**, say that direction in the chat (primary, control, colour, type, leave). Then the persist ask, as its own message.
+**Whole look:** In the chat, name only the two or three closest, each with its live URL, and say the shots are in `.design/board.md`. Wait. After they answer, write **Read this**, then:
 
-**Later hunt:** Name the two or three closest the same way; shots in `.design/hunts/<slug>/`. Say this pass does not change the look until they accept. After they pick what to take, the persist ask, as its own message.
+```
+node <skill>/scripts/moodboard.mjs .design/board.md --out .design/moodboard.html
+```
+
+Open that file. In the direction message, name the path, and say the direction (primary, control, colour, type, leave). Then the persist ask, as its own message. Do not hand-write the HTML. The script is the layout. Empty tiles are omitted. Shots show the top of the file. It does not add a logo, a slogan, or a stat.
+
+**Later hunt:** Name the two or three closest the same way; shots in `.design/hunts/<slug>/`. Say this pass does not change the look until they accept. Leave `.design/moodboard.html`. After they pick what to take, the persist ask, as its own message.
 
 **The persist ask.** Its own message. If the harness has a structured yes/skip prompt, use that. Never append it to a long report, a “not checked” list, or any other reply.
 
@@ -257,7 +266,10 @@ The control in the primary card is the control. Do not add a filled button the c
 - Let a loading hunt replace `.design/board.md` or `.design/refs/`, or let the whole look replace `.design/hunts/`. Order does not matter. The only rewrite of the board is that same whole look.
 - Rewrite `DESIGN.md` without their confirm. Persist only through `design-md` after **After they pick**.
 - Bury the persist question at the end of a long report. It is its own message.
-- Write skill feedback, session notes, or any file under `.design/` that is not the board, a hunt folder, or a shot those cite.
+- Write skill feedback, session notes, or any file under `.design/` that is not the board, the moodboard, a hunt folder, or a shot those cite.
+- Hand-write or restyle `.design/moodboard.html`. Run `scripts/moodboard.mjs`.
+- Write the moodboard before **Read this**, or let a later hunt replace it.
+- Put a logo, a slogan, or a stat on the moodboard. The script places fields from the board.
 - Write a new `.design/piece.md`.
 - Pad the count by lowering the filter, or by keeping pictures you would not put on the page.
 - Stop looking at the first page of results, or treat the keep count as the number of candidates you open.

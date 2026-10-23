@@ -29,7 +29,7 @@ Official look wins, in this order:
 1. This project’s `DESIGN.md` → `design-md` (follow). Write or update that file only when they **confirm** after a hunt (whole look primary pick, or an accepted later pass). Expand colour, type, control, layout principles, leave from the board or hunt note. Do not invent.
 2. A Figma file or link → `figma-design-to-code`.
 3. A picture they already have → `image-to-code` (optional).
-4. No official look (no `DESIGN.md`, no Figma, no board), or they asked to hunt / define direction → `design-reference-hunt`. Ask **once** for a Figma file. If they paste one, Figma. If not, **whole look** → board → ask once to write `DESIGN.md` → **stop** unless they also asked to build. A website hunts live pages. An application hunts product screens, not Awwwards. A later hunt (piece, ideas, check) writes `.design/hunts/<slug>/`, then asks once to update `DESIGN.md`. The whole look and a loading hunt stay side by side.
+4. No official look (no `DESIGN.md`, no Figma, no board), or they asked to hunt / define direction → `design-reference-hunt`. Ask **once** for a Figma file. If they paste one, Figma. If not, **whole look** → board → after they pick, open `.design/moodboard.html` → ask once to write `DESIGN.md` → **stop** unless they also asked to build. A website hunts live pages. An application hunts product screens, not Awwwards. A later hunt (piece, ideas, check) writes `.design/hunts/<slug>/`, then asks once to update `DESIGN.md`. The whole look and a loading hunt stay side by side.
 5. They asked to **build or code** a page → `design-taste-frontend` when that skill is in the project. Prefer `DESIGN.md`; else the board. Direction-only is not a build ask. On this path, taste does not deal its own references or run `draw.mjs`.
 6. `web-design-guidelines` only when they ask for a UI review.
 7. `jury` only when they ask to jury, score, judge, or roast the design (or a live URL / local build). Blind evidence scorecard. Do not redesign. Fixes stay on the board, `DESIGN.md`, or Figma. Do not run after every build unless they asked.
@@ -48,7 +48,7 @@ Do not put model-picker warnings in the kit. A skill that needs the current year
 
 ## How to know it worked
 
-Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md` (or a hunt note), explains the direction, asks once to persist `DESIGN.md`, and does not code on a direction-only ask; `DESIGN.md` appears only after confirm; a build skill runs only when they asked to build and prefers `DESIGN.md`; jury runs only when they asked to score or judge, and does not redesign.
+Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt writes `.design/board.md` (or a hunt note), opens `.design/moodboard.html` after a primary pick, explains the direction, asks once to persist `DESIGN.md`, and does not code the page on a direction-only ask; `DESIGN.md` appears only after confirm; a build skill runs only when they asked to build and prefers `DESIGN.md`; jury runs only when they asked to score or judge, and does not redesign.
 
 Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project’s `.agents/skills/<name>/` (and `.claude/skills/` if present) and rewrite the `AGENTS.md` block to match `beard.json`. Do not run `longbeard init` in *this* repo.
 

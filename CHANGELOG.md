@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `design-reference-hunt` writes `.design/moodboard.html` after a primary is chosen, from the board, and opens it before the question about `DESIGN.md`. The layout is one script, so every board looks the same. A later hunt does not replace that file. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+
 ## 0.5.1 — 2026-10-23
 
 - `design-reference-hunt` defines direction and does not code. After a primary pick (or an accepted later hunt), it explains the direction in chat and asks once to write or update `DESIGN.md`. Direction-only stops there. Build only if they also asked to build.
