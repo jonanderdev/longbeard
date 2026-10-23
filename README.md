@@ -20,7 +20,7 @@ It is a base. You keep going from here.
 
 Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `update` pulls a fresh copy of those.
 
-Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board. The board does not replace that set either. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
+Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt finds references and proposes a direction; it does not code. After you pick a primary, it explains the direction and asks once to write `DESIGN.md`. Direction-only stops there. Build runs only when you ask to build. Asking to hunt still works after a direction exists: that pass is its own suggestion set, then asks once before updating `DESIGN.md`. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
 
 <table>
   <thead>
@@ -46,7 +46,7 @@ Writing stays small, and a risky change is named before it is built. A page foll
     <tr>
       <td rowspan="7">Design</td>
       <td><a href="skills/design-md/SKILL.md">design-md</a></td>
-      <td>The installed project's <code>DESIGN.md</code> wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask</td>
+      <td>The installed project's <code>DESIGN.md</code> wins. Write or update it from a board or hunt note only when you confirm. With no file and no Figma, direction goes to hunt first — not an invented look</td>
       <td>Long Beard</td>
     </tr>
     <tr>
@@ -56,12 +56,12 @@ Writing stays small, and a risky change is named before it is built. A page foll
     </tr>
     <tr>
       <td><a href="skills/design-reference-hunt/SKILL.md">design-reference-hunt</a></td>
-      <td>When there is no design direction, searches live sites and galleries — Awwwards, MaxiBestOf, Recent, Dribbble, and others — and writes a board of the same size. It opens more candidates across those galleries before it keeps. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place</td>
+      <td>Finds references and proposes a direction; does not code. Writes a board (or a later suggestion set), asks which card leads, explains the direction, then asks once to write or update <code>DESIGN.md</code>. Direction-only stops there; build only if you also asked to build</td>
       <td>Long Beard</td>
     </tr>
     <tr>
       <td><a href="https://github.com/Leonxlnx/taste-skill">design-taste-frontend</a></td>
-      <td>Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent</td>
+      <td>Builds websites and app screens when you ask to code, with real pictures, and checks them in a browser. Prefers <code>DESIGN.md</code>, else the board. Not for direction-only</td>
       <td>Leonxlnx</td>
     </tr>
     <tr>

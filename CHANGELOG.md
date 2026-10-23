@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- `design-reference-hunt` defines direction and does not code. After a primary pick (or an accepted later hunt), it explains the direction in chat and asks once to write or update `DESIGN.md`. Direction-only stops there. Build only if they also asked to build.
+- `design-md` writes or updates `DESIGN.md` from the board or a hunt note only when they confirm — colour, type, control, layout principles, leave. It does not invent a look.
+- The `AGENTS.md` router matches that split: hunt / define direction → hunt; build or code a page → taste (when installed), preferring `DESIGN.md` then the board. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+
 ## 0.5.0 — 2026-10-23
 
 - `design-reference-hunt` also looks through MaxiBestOf, Recent, Supahero, Muzli, Pinterest, and Dark Mode Design. The board stays the same size: 10 live sites, up to 20 screens, 10 for a piece. What goes up is how many candidates it opens — at least 60 live ones, past the first page of each live gallery, before a short board. A piece looks through at least 30 before it keeps 10. Dark Mode Design only when the subject, the register, or the style they asked for is dark. Supahero is heroes. Muzli opens the original. Pinterest pins are pictures, never sites. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.

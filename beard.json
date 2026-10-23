@@ -70,16 +70,16 @@
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A page with no official look (no DESIGN.md, no Figma, no board), or they asked to hunt references",
-      "why": "Ask once for a Figma file. No direction: look widely, then keep, and write `.design/board.md`. Scroll and screenshot only the keeps. Another business lends a layout or a component only, not its type or its colours, and only if it still fits this topic. Ask once which of the closest cards should lead, then write the cards and a short Read this. Before looking, ask once for a specific style and any requirements. On a piece (a loading state, a control), also offer two or three search ideas, then look after they answer. A later hunt (a view, a control, new ideas, a double-check) is a suggestion set in `.design/hunts/<slug>/`. It does not replace the board, `.design/refs/`, DESIGN.md, or a Figma file, and the whole look does not replace `.design/hunts/`."
+      "when": "No official look, or they asked to hunt / define direction / find references",
+      "why": "Does not code. Ask once for a Figma file. Whole look writes `.design/board.md`; a later pass writes `.design/hunts/<slug>/`. After they pick a primary (or accept a later hunt), say the direction in chat, ask once to write or update `DESIGN.md` via design-md — only on yes. Direction-only stops there. Build only if they also asked to build."
     },
     {
       "name": "design-taste-frontend",
       "author": "Leonxlnx",
       "license": "MIT",
       "source": "https://github.com/Leonxlnx/taste-skill",
-      "when": "A page with no design yet",
-      "why": "Do not deal this skill’s references, and do not run draw. No official look is hunt: wait for `.design/board.md`. Those cards are the references. Build from them. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still."
+      "when": "They asked to build or code a page or screen",
+      "why": "Do not deal this skill’s references, and do not run draw. Prefer `DESIGN.md` when it exists; else wait for `.design/board.md` and build from those cards. Direction-only or hunt-only is not this skill. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still."
     },
     {
       "name": "animate",
@@ -129,7 +129,7 @@
       "license": "MIT",
       "source": "https://github.com/juliobsz/skills/tree/main/jury",
       "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
-      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every Taste build unless they asked."
+      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every build unless they asked."
     },
     {
       "name": "handoff",
@@ -144,8 +144,8 @@
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "The look of this project",
-      "why": "Follow DESIGN.md when it exists. A missing file plus “design this page” is hunt, not a question."
+      "when": "The look of this project, or they confirmed writing or updating DESIGN.md",
+      "why": "Follow DESIGN.md when it exists. Write or update it from the board or a hunt note only when they confirm — expand colour, type, control, layout principles, leave. Do not invent. Missing file plus design or define direction is hunt first."
     }
   ]
 }
