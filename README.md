@@ -20,7 +20,7 @@ It is a base. You keep going from here.
 
 Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `update` pulls a fresh copy of those.
 
-Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt finds references and proposes a direction; it does not code. After you pick a primary, it explains the direction and asks once to write `DESIGN.md`. Direction-only stops there. Build runs only when you ask to build. Asking to hunt still works after a direction exists: that pass is its own suggestion set, then asks once before updating `DESIGN.md`. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
+Writing stays small. A risky change is named before it is built. Design direction is hunted and written down before code, unless a `DESIGN.md` or Figma file already wins.
 
 <table>
   <thead>
@@ -46,64 +46,64 @@ Writing stays small, and a risky change is named before it is built. A page foll
     <tr>
       <td rowspan="7">Design</td>
       <td><a href="skills/design-md/SKILL.md">design-md</a></td>
-      <td>The installed project's <code>DESIGN.md</code> wins. Write or update it from a board or hunt note only when you confirm. With no file and no Figma, direction goes to hunt first — not an invented look</td>
+      <td>Follows the project's <code>DESIGN.md</code>. Writes or updates it only when you confirm. Does not invent a look</td>
       <td>Long Beard</td>
     </tr>
     <tr>
       <td><a href="https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code">figma-design-to-code</a></td>
-      <td>Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection</td>
+      <td>Builds from a Figma file. Needs the Figma connection</td>
       <td>Figma</td>
     </tr>
     <tr>
       <td><a href="skills/design-reference-hunt/SKILL.md">design-reference-hunt</a></td>
-      <td>Finds references and proposes a direction; does not code. Writes a board (or a later suggestion set), asks which card leads, explains the direction, then asks once to write or update <code>DESIGN.md</code>. Direction-only stops there; build only if you also asked to build</td>
+      <td>Finds references and proposes a direction. Does not code</td>
       <td>Long Beard</td>
     </tr>
     <tr>
       <td><a href="https://github.com/Leonxlnx/taste-skill">design-taste-frontend</a></td>
-      <td>Builds websites and app screens when you ask to code, with real pictures, and checks them in a browser. Prefers <code>DESIGN.md</code>, else the board. Not for direction-only</td>
+      <td>Builds websites and app screens when you ask to code, with real pictures, and checks them in a browser. Follows an existing direction; does not invent one</td>
       <td>Leonxlnx</td>
     </tr>
     <tr>
       <td><a href="https://github.com/emilkowalski/skills/tree/main/skills/animate">animate</a></td>
-      <td>Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion</td>
+      <td>Builds one control or transition you asked to animate</td>
       <td>emilkowalski</td>
     </tr>
     <tr>
       <td><a href="https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines">web-design-guidelines</a></td>
-      <td>Reviews the UI against interface and accessibility rules, when you ask</td>
+      <td>Reviews UI and accessibility when you ask. Does not redesign</td>
       <td>Vercel</td>
     </tr>
     <tr>
       <td><a href="https://github.com/juliobsz/skills/tree/main/jury">jury</a></td>
-      <td>Scores a site from screenshots and measurements when you ask to jury, score, judge, or roast the design. Does not redesign; fixes stay on the board, DESIGN.md, or Figma</td>
+      <td>Scores a live or local build when you ask. Does not redesign</td>
       <td>juliobsz</td>
     </tr>
     <tr>
       <td rowspan="3">Code</td>
       <td><a href="https://github.com/joetawil7/first-pass/tree/main/skills/premortem">premortem</a></td>
-      <td>Before writing, finds where the change will break by checking the real code</td>
+      <td>Names where a change will break before you write</td>
       <td>GeorgeT</td>
     </tr>
     <tr>
       <td><a href="https://github.com/DietrichGebert/ponytail">ponytail</a></td>
-      <td>The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt</td>
+      <td>Smallest change that finishes the job. Includes review, audit, and debt</td>
       <td>DietrichGebert</td>
     </tr>
     <tr>
       <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs">diagnosing-bugs</a></td>
-      <td>Hard bugs and performance regressions: build a tight feedback loop first, then localize, reduce, fix, and guard</td>
+      <td>Hard bugs and regressions: feedback loop, then fix</td>
       <td>Matt Pocock</td>
     </tr>
     <tr>
       <td rowspan="2">Optional</td>
       <td><a href="https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code">image-to-code</a></td>
-      <td>With <code>--all</code>. Generates design images, then builds the page to match them</td>
+      <td>With <code>--all</code>. Builds a page from a picture you have</td>
       <td>Leonxlnx</td>
     </tr>
     <tr>
       <td><a href="https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit">security-audit</a></td>
-      <td>With <code>--all</code>. Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test</td>
+      <td>With <code>--all</code>. Reviews a trust boundary when you ask</td>
       <td>Cloudflare</td>
     </tr>
   </tbody>
