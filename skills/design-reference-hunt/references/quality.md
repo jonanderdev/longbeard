@@ -72,7 +72,7 @@ If a pass across these galleries cannot fill the count without lowering these ga
 
 Hexes come from a kept shot, sampled from a **crop of the element** they name — never from a photograph, mockup frame, or presentation background unless that is the role. On the card: `#2c2824 body text`, `#b0563a active-tab dot`.
 
-Before **Read this**, run every text/background pair through `scripts/contrast.mjs` (`"#fg on #bg"`, optional `:large` or `:mark` for 3:1). Body and small text need 4.5:1; large text and non-text marks need 3:1. List each pair with ratio and verdict under **Read this**. A failing colour is adjusted; keep both hexes as `sampled → used`.
+Before the persist ask, run every adapted text/background pair through `scripts/contrast.mjs` (`"#fg on #bg"`, optional `:large` or `:mark` for 3:1). Body and small text need 4.5:1; large text and non-text marks need 3:1. List each pair with ratio and verdict under **Read this**. A failing colour is adjusted; keep both hexes as `sampled → used`. Card hexes stay what we saw. They are not the brand.
 
 ## Type licence
 
