@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.5.1 — 2026-10-23
+
 - `design-reference-hunt` defines direction and does not code. After a primary pick (or an accepted later hunt), it explains the direction in chat and asks once to write or update `DESIGN.md`. Direction-only stops there. Build only if they also asked to build.
 - `design-md` writes or updates `DESIGN.md` from the board or a hunt note only when they confirm — colour, type, control, layout principles, leave. It does not invent a look.
 - The `AGENTS.md` router matches that split: hunt / define direction → hunt; build or code a page → taste (when installed), preferring `DESIGN.md` then the board. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
