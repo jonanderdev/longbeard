@@ -7,7 +7,7 @@
 //
 // After the pick (marks the lead, keeps the rest):
 //   node moodboard.mjs .design/board.md --out .design/moodboard.html \
-//     --leads "Margin" --also "Quiet Hours,Moon Widget" --why "the typography and the calm"
+//     --leads "North Room" --also "Harbour,Field Notes" --why "the typography and the calm"
 //
 // --also takes every card they also liked. --count is how many references
 // they asked to see. --imagery adds the board's imagery tiles; leave it off

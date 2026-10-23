@@ -69,7 +69,7 @@ Do not ask whether DESIGN.md exists; look for the file.
 
 ## Talk first
 
-A direction starts as a conversation, not a search. The corrections that matter — “not journaling, any kind of writing”, “I picked it for the typography, not the margin”, “does an app like this even need pictures?” — arrive after the search when nobody asked first, and then they patch a result instead of shaping it.
+A direction starts as a conversation, not a search. The corrections that matter — “not only recipes, any kind of cooking”, “I picked it for the typography, not the layout”, “does an app like this even need pictures?” — arrive after the search when nobody asked first, and then they patch a result instead of shaping it.
 
 **One round.** One message, the questions below, each of them skippable. Then wait. Do not look in that turn. Do not ask a second round before searching.
 
@@ -80,7 +80,7 @@ I don't see a Figma file or a DESIGN.md for this project. If you have a Figma fi
 
 1. What are you into? How it should feel, what it should never feel like, and any apps, sites, brands, books or places you love for this.
 2. Pictures you already like? Screenshots, links or files — for this project or not.
-3. I read this as <subject>, a <website | app>, and the name gives me <identity nouns: tweed, elbow patch, study, lamp>. Broader, narrower, or wrong? Are those nouns fair game for the look?
+3. I read this as <subject>, a <website | app>, and the name gives me <identity nouns taken from the name and the story>. Broader, narrower, or wrong? Are those nouns fair game for the look?
 4. Does it need pictures? A website usually does. An app like this one may not.
 5. Where should I look? Defaults for <surface> are ticked. Untick, or add your own.
    [x] <source> — <what it gives>
@@ -176,7 +176,7 @@ Each adapted colour needs a **reason**, not a difference for its own sake. Valid
 
 Two lines keep the direction honest:
 
-- `ownable` answers “what makes this recognisably <project> and not <lead>?”. It names **one concrete element** from the identity nouns in **Talk first** — tweed, herringbone, an elbow patch, a lamp — turned into a design element: a wool-derived accent, a herringbone rule, an oval patch as the active marker. A direction that fits the brief and is the default look of every calm app of the year has not answered it.
+- `ownable` answers “what makes this recognisably <project> and not <lead>?”. It names **one concrete element** from the identity nouns in **Talk first**, turned into a design element: for a lighthouse logbook, a brass-derived accent, a rope-twist rule, a lamp-glow marker for the active item. A direction that fits the brief and is the default look of every calm app of the year has not answered it.
 - `gaps` names the key screens the board does not cover — the project’s differentiator first. If every “version history” result is a business audit log, say the history view has no strong reference. When the lead is a `concept`, `not shown` lists what it never faced.
 
 ```
@@ -231,12 +231,12 @@ The full fields, for the lead and the `also` cards only:
 - subject: same-job | other
 - hero: <what is in the frame, and the control>
 - type: <the faces, and how the shot uses them>
-- faces: <names only, comma separated: "Playfair Display, Spectral". The prose stays in type>
+- faces: <names only, comma separated: "Source Serif 4, Work Sans". The prose stays in type>
 - imagery: <what the pictures are>
 - leave: <their identity, and anything that is not the principle>
 ```
 
-`slot`, `tagline`, `faces`, and `url` are what the moodboard reads. `slot: product` stays off the moodboard — a product page cropped into a tile is noise. `tagline` is a phrase, not a sentence, and it is not `worth taking`, which stays on the board. `faces` is names only, so the type tile can set them; a line like “a high-contrast display serif (Playfair-like)” belongs in `type`, never in `faces`.
+`slot`, `tagline`, `faces`, and `url` are what the moodboard reads. `slot: product` stays off the moodboard — a product page cropped into a tile is noise. `tagline` is a phrase, not a sentence, and it is not `worth taking`, which stays on the board. `faces` is names only, so the type tile can set them; a line like “a high-contrast display serif (Didone-like)” belongs in `type`, never in `faces`.
 
 A **seed** is a short card with `source: user`, `fit: seed`, a `url` or the file they gave, and a `shot`. It is not scored and it is never dropped for being off-gallery. It is shown on the moodboard like any other tile.
 

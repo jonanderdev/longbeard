@@ -6,7 +6,7 @@
 //
 //   node proof.mjs .design/board.md --out .design/proof.html
 //   node proof.mjs .design/board.md --out .design/proof.html \
-//     --name "Elbowpatch" --sample PROJECT.md --meta "Draft · 1,240 words · edited today"
+//     --name "Your Project" --sample PROJECT.md --meta "Draft · 1,240 words · edited today"
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, resolve } from "node:path";
