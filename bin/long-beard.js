@@ -452,7 +452,7 @@ The project's own code, conventions, and DESIGN.md win.
 
 Load only what the task needs. Leave the rest unread.
 
-A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes a direction; it does not code the page. After they pick a primary, open `.design/moodboard.html`, then ask once to write or update DESIGN.md — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
+A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes an adaptation; it does not code the page. After they pick a leading reference, open the moodboard, say what we take, change, and leave, then ask once to write or update DESIGN.md — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
 
 ${lines.join("\n")}
 

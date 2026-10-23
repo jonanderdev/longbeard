@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// One moodboard for a chosen direction. The layout is this file.
-// Reads a board that already has Read this. Does not invent a logo, a line, or a stat.
+// A moodboard of the references that lead. The layout is this file.
+// It shows what we saw. It does not paint a brand, a logo, a line, or a stat.
 //
-//   node moodboard.mjs .design/board.md --out .design/moodboard.html
+//   node moodboard.mjs .design/board.md --out .design/moodboard.html --leads "North Room" --also "Margin"
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
@@ -17,9 +17,11 @@ const flag = (name) => {
 };
 
 const outArg = flag("out");
+const leadsArg = flag("leads");
+const alsoArg = flag("also");
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
-  console.error("usage: node moodboard.mjs .design/board.md --out .design/moodboard.html");
+  console.error('usage: node moodboard.mjs .design/board.md --out .design/moodboard.html --leads "Name" [--also "Name"]');
   process.exit(2);
 }
 
@@ -73,11 +75,6 @@ function lum(hex) {
     .map((i) => parseInt(hex.slice(i + 1, i + 3), 16) / 255)
     .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-function contrast(a, b) {
-  const [x, y] = [lum(a), lum(b)].sort((p, q) => p - q);
-  return (y + 0.05) / (x + 0.05);
 }
 
 function expand(hex) {
@@ -145,13 +142,10 @@ function shotSrc(shot) {
 
 const md = readFileSync(boardPath, "utf8");
 const readSlice = md.match(/## Read this\s*\n([\s\S]*?)(?=\n## |\n### |\n- kind:|$)/);
-if (!readSlice) {
-  console.error("moodboard: Read this is not on the board yet");
-  process.exit(1);
-}
-const read = fieldsOf(readSlice[1]);
-if (!read.primary) {
-  console.error("moodboard: Read this has no primary");
+const read = readSlice ? fieldsOf(readSlice[1]) : {};
+const leadsName = leadsArg || read.leads || read.primary || "";
+if (!leadsName) {
+  console.error("moodboard: name the leading card with --leads");
   process.exit(1);
 }
 
@@ -165,12 +159,12 @@ for (const chunk of chunks) {
   cards.push({ name, ...fieldsOf((cut === -1 ? body : body.slice(0, cut)).split(/^## /m)[0]) });
 }
 
-const primary = cards.find((c) => norm(c.name) === norm(read.primary));
+const primary = cards.find((c) => norm(c.name) === norm(leadsName));
 if (!primary) {
-  console.error(`moodboard: no card named ${read.primary}`);
+  console.error(`moodboard: no card named ${leadsName}`);
   process.exit(1);
 }
-const alsoName = read.also && !/^none$/i.test(read.also.trim()) ? read.also : "";
+const alsoName = alsoArg || (read.also && !/^none$/i.test(read.also.trim()) ? read.also : "");
 const also = alsoName ? cards.find((c) => norm(c.name) === norm(alsoName)) : null;
 if (alsoName && !also) console.error(`moodboard: no card named ${alsoName}`);
 
@@ -208,25 +202,18 @@ const imagery = [];
 }
 if (imagery.length > 3) console.error(`moodboard: showing 3 of ${imagery.length} imagery`);
 
-const colours = swatches(primary.colour || "");
-const faces = facesOf(read.type || primary.type || "");
-const family = cssFamily(faces[0] || "");
-const paper = "#ffffff";
-const inkDefault = "#1c1c1a";
-const inkSwatch = colours.find((s) => /text|ink|body|headline|type/i.test(s.label));
-const groundSwatch = colours.find((s) => /ground|background|canvas|page|surface/i.test(s.label));
-const ink = inkSwatch && contrast(inkSwatch.hex, paper) >= 3 ? inkSwatch.hex : inkDefault;
-let principleBg = paper;
-let principleFg = inkDefault;
-if (groundSwatch && inkSwatch && contrast(inkSwatch.hex, groundSwatch.hex) >= 3) {
-  principleBg = groundSwatch.hex;
-  principleFg = inkSwatch.hex;
+const colours = swatches(primary.colour || "").slice(0, 6);
+const seenFaces = [];
+for (const line of [primary.type, also && also.fit !== "form" ? also.type : ""]) {
+  for (const face of facesOf(line || "")) {
+    if (!seenFaces.some((f) => norm(f) === norm(face))) seenFaces.push(face);
+  }
 }
+const faces = seenFaces.slice(0, 3);
+const family = cssFamily(faces[0] || "");
+const ink = "#1c1c1a";
 
 const principle = (primary["worth taking"] || "").trim();
-const leave = (read.leave || "").trim();
-const control = (read.control || "").trim();
-const typeLine = (read.type || "").trim();
 const primarySrc = shotSrc(primary.shot);
 const alsoSrc = also ? shotSrc(also.shot) : "";
 const pictures = imagery.slice(0, 3).flatMap((item) => {
@@ -235,52 +222,41 @@ const pictures = imagery.slice(0, 3).flatMap((item) => {
 });
 
 const tiles = [];
-if (faces.length || typeLine) {
+if (faces.length) {
   const names = faces
     .map((face) => `<p class="face" style="font-family:${cssFamily(face)}">${esc(face)}</p>`)
     .join("");
   tiles.push(`<article class="tile type span-${colours.length ? 2 : 6}">
-      <p class="kicker">Type</p>
+      <p class="kicker">Type we saw</p>
       <p class="aa">Aa</p>
-      <div class="faces">${names || `<p class="face">${esc(typeLine)}</p>`}</div>
+      <div class="faces">${names}</div>
     </article>`);
 }
 if (colours.length) {
-  const span = faces.length || typeLine ? 4 : 6;
+  const span = faces.length ? 4 : 6;
   const chips = colours
     .map((s) => {
       const edge = lum(s.hex) > 0.86 ? " chip-edge" : "";
       return `<div class="swatch"><div class="chip${edge}" style="background:${s.hex}"></div><p class="hex">${esc(s.hex)}</p>${s.label ? `<p class="role">${esc(s.label)}</p>` : ""}</div>`;
     })
     .join("");
-  tiles.push(`<article class="tile colour span-${span}"><p class="kicker">Colour</p><div class="swatches">${chips}</div></article>`);
+  tiles.push(`<article class="tile colour span-${span}"><p class="kicker">Colour we saw</p><div class="swatches">${chips}</div></article>`);
 }
-if (principle) {
-  const span = primarySrc || control ? 3 : 6;
-  const long = principle.length > 140 ? " long" : "";
-  tiles.push(`<article class="tile principle span-${span}" style="background:${principleBg};color:${principleFg}"><p class="kicker">Worth taking</p><p class="statement${long}">${esc(principle)}</p></article>`);
+if (primarySrc || principle) {
+  const span = also && (alsoSrc || also["worth taking"]) ? 3 : 6;
+  const shot = primarySrc ? `<img src="${esc(primarySrc)}" alt="Leading reference, top of the shot">` : "";
+  tiles.push(`<article class="tile primary span-${span}${primarySrc ? " shot" : " no-shot"}">${shot}<div class="caption"><p class="kicker">Leads</p>${principle ? `<p class="control">${esc(principle)}</p>` : ""}</div></article>`);
 }
-if (primarySrc || control) {
-  const span = principle ? 3 : 6;
-  const shot = primarySrc ? `<img src="${esc(primarySrc)}" alt="Primary reference, top of the shot">` : "";
-  const caption = control ? `<div class="caption"><p class="kicker">Control</p><p class="control">${esc(control)}</p></div>` : "";
-  const bare = primarySrc && !control ? " shot-only" : primarySrc ? "" : " no-shot";
-  tiles.push(`<article class="tile primary span-${span}${bare}">${shot}${caption}</article>`);
+if (also && (alsoSrc || also["worth taking"])) {
+  const span = primarySrc || principle ? 3 : 6;
+  const shot = alsoSrc ? `<img src="${esc(alsoSrc)}" alt="Also reference, top of the shot">` : "";
+  const line = (also["worth taking"] || "").trim();
+  tiles.push(`<article class="tile also span-${span}${alsoSrc ? " shot" : ""}">${shot}<div class="caption"><p class="kicker">Also</p>${line ? `<p class="control">${esc(line)}</p>` : ""}</div></article>`);
 }
 const pictureSpan = pictures.length === 1 ? 6 : pictures.length === 2 ? 3 : 2;
 for (const pic of pictures) {
   const cap = pic.caption ? `<figcaption>${esc(pic.caption)}</figcaption>` : "";
-  tiles.push(`<figure class="tile picture span-${pictureSpan}"><img src="${esc(pic.src)}" alt="${esc(pic.caption || "Imagery")}">${cap}</figure>`);
-}
-if (also && (alsoSrc || also["worth taking"])) {
-  const span = leave ? 3 : 6;
-  const shot = alsoSrc ? `<img src="${esc(alsoSrc)}" alt="Also reference, top of the shot">` : "";
-  const line = (also["worth taking"] || "").trim();
-  tiles.push(`<article class="tile also span-${span}">${shot}<div class="caption"><p class="kicker">Also</p>${line ? `<p class="control">${esc(line)}</p>` : ""}</div></article>`);
-}
-if (leave) {
-  const span = also && (alsoSrc || also["worth taking"]) ? 3 : 6;
-  tiles.push(`<article class="tile leave span-${span}"><p class="kicker">Leave</p><p class="quiet">${esc(leave)}</p></article>`);
+  tiles.push(`<figure class="tile picture shot span-${pictureSpan}"><img src="${esc(pic.src)}" alt="${esc(pic.caption || "Imagery")}">${cap}</figure>`);
 }
 
 if (!tiles.length) {
@@ -293,7 +269,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Direction</title>
+<title>Moodboard</title>
 <style>
   :root {
     --display: ${family};
@@ -338,25 +314,33 @@ const html = `<!DOCTYPE html>
     color: var(--muted);
   }
   .type, .colour, .principle, .leave { padding: 22px 24px 20px; }
-  .type { display: flex; flex-direction: column; min-height: 250px; }
+  .type {
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    background: #171717;
+    color: #f6f5f2;
+  }
+  .type .kicker { color: rgba(255, 255, 255, 0.55); }
   .aa {
-    margin: 18px 0 0;
+    margin: 22px 0 0;
     font-family: var(--display);
     font-size: 104px;
     line-height: 0.78;
     letter-spacing: -0.045em;
     font-weight: 500;
-    color: var(--ink);
+    color: #f6f5f2;
   }
-  .faces { margin-top: auto; padding-top: 28px; }
+  .faces { margin-top: 20px; }
   .face {
     margin: 0;
     font-family: var(--display);
     font-size: 22px;
     line-height: 1.2;
     letter-spacing: -0.03em;
+    color: #f6f5f2;
   }
-  .face + .face { margin-top: 2px; font-size: 16px; color: var(--muted); }
+  .face + .face { margin-top: 2px; font-size: 16px; color: rgba(255, 255, 255, 0.62); }
   .colour { display: flex; flex-direction: column; min-height: 250px; }
   .swatches {
     margin-top: auto;
@@ -396,33 +380,46 @@ const html = `<!DOCTYPE html>
     font-weight: 500;
   }
   .statement.long { font-size: 28px; line-height: 1.15; max-width: 22ch; }
-  .primary, .also { display: flex; flex-direction: column; background: var(--paper); }
-  .primary { min-height: 320px; }
-  .primary img, .also img, .picture img { display: block; width: 100%; object-fit: cover; background: #eceae6; }
-  .primary img { flex: 1 1 auto; min-height: 200px; height: 220px; object-position: top center; }
-  .also img { height: 200px; object-position: top center; }
-  .picture img { height: 232px; object-position: center; }
-  .caption { padding: 16px 18px 18px; }
-  .control { margin: 8px 0 0; font-size: 15px; line-height: 1.4; color: #2a2a28; }
-  .primary.shot-only img { height: 320px; }
-  .primary.no-shot { min-height: 220px; }
-  .primary.no-shot .caption { padding: 22px 24px; }
+  .shot { position: relative; background: #1a1a1a; }
+  .shot img {
+    display: block;
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    object-position: top center;
+    background: #eceae6;
+  }
+  .picture img { height: 250px; object-position: center; }
+  .shot .caption, .picture figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 64px 18px 16px;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0.28) 52%, rgba(10, 10, 10, 0) 100%);
+    color: #fff;
+  }
+  .shot .kicker { color: rgba(255, 255, 255, 0.72); }
+  .shot .control { margin: 4px 0 0; font-size: 16px; line-height: 1.3; color: #fff; }
+  .picture { margin: 0; }
+  .picture figcaption {
+    font-size: 14px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .primary.no-shot { min-height: 220px; background: var(--paper); }
+  .primary.no-shot .caption { position: static; padding: 22px 24px; background: none; color: inherit; }
+  .primary.no-shot .kicker { color: var(--muted); }
   .primary.no-shot .control {
     font-family: var(--display);
     font-size: 28px;
     line-height: 1.15;
     letter-spacing: -0.03em;
-  }
-  .picture { margin: 0; display: flex; flex-direction: column; }
-  .picture figcaption {
-    padding: 10px 14px 12px;
-    font-size: 12px;
-    line-height: 1.35;
-    color: var(--muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    color: #2a2a28;
   }
   .leave { display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 180px; }
   .quiet { margin: 0; max-width: 28em; font-size: 20px; line-height: 1.35; letter-spacing: -0.02em; color: #3a3a38; }
@@ -436,7 +433,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 <main class="sheet">
-  <h1>Direction</h1>
+  <h1>Moodboard</h1>
   <div class="grid">
     ${tiles.join("\n    ")}
   </div>

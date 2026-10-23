@@ -71,7 +71,7 @@
       "license": "MIT",
       "source": "local",
       "when": "No official look, or they asked to hunt / define direction / find references",
-      "why": "Does not code the page. Ask once for a Figma file. Whole look writes `.design/board.md` and, after they pick a primary, `.design/moodboard.html` from that board. A later pass writes `.design/hunts/<slug>/` and does not replace the moodboard. Open the moodboard, say the direction in chat, then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Direction-only stops there. Build only if they also asked to build."
+      "why": "Does not code the page. Ask once for a Figma file. Whole look writes `.design/board.md` and, after they pick a leading reference, `.design/moodboard.html` of those references. A later pass writes `.design/hunts/<slug>/` and does not replace the moodboard. Open the moodboard, say the adaptation (take, change, leave, adapted colour and type), then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Direction-only stops there. Build only if they also asked to build."
     },
     {
       "name": "design-taste-frontend",

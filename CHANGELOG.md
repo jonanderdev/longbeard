@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `design-reference-hunt` writes `.design/moodboard.html` after a primary is chosen, from the board, and opens it before the question about `DESIGN.md`. The layout is one script, so every board looks the same. A later hunt does not replace that file. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
+- `design-reference-hunt` opens `.design/moodboard.html` after a leading reference is chosen. That file is the references: pictures, type we saw, colour we saw. The direction is the adaptation said after it — what we take, what we change, what we leave — and `DESIGN.md` is written from that, not from the reference’s exact colours or faces. A later hunt does not replace the moodboard. People who already ran `init` get it by installing the release that contains it, then running `npx longbeard update`.
 
 ## 0.5.1 — 2026-10-23
 
