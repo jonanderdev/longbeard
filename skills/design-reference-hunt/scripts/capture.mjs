@@ -5,6 +5,8 @@
 //   node capture.mjs <url> --out .design/refs/name.jpg
 //   node capture.mjs <url> --out .design/refs/name.jpg --review /tmp/name-review.jpg
 //   node capture.mjs <url> --out .design/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs <url> --out .design/refs/name.jpg --clip-selector "main"
+//   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
 import { spawn, execSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -22,10 +24,15 @@ const url = args[0];
 const outArg = flag("out", "") || "";
 const reviewArg = flag("review", "") || "";
 const clipArg = flag("clip", "") || "";
-if (!url || !/^https?:\/\//.test(url) || !outArg) {
+const clipSelector = flag("clip-selector", "") || "";
+if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    "usage: node capture.mjs <https://url> --out .design/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h]",
+    'usage: node capture.mjs <https://url | file:///path> --out .design/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"]',
   );
+  process.exit(2);
+}
+if (clipArg && clipSelector) {
+  console.error("pass --clip or --clip-selector, not both");
   process.exit(2);
 }
 
@@ -295,16 +302,48 @@ await page("Runtime.evaluate", {
 });
 await sleep(400);
 
+// --clip-selector takes the element's box in document coordinates, measured
+// after the unstick pass so the numbers match what the capture sees.
+let selected = null;
+if (clipSelector) {
+  const { result } = await page("Runtime.evaluate", {
+    expression: `(() => {
+      const el = document.querySelector(${JSON.stringify(clipSelector)});
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        x: Math.max(0, Math.round(r.left + window.scrollX)),
+        y: Math.max(0, Math.round(r.top + window.scrollY)),
+        width: Math.round(r.width),
+        height: Math.round(r.height),
+      };
+    })()`,
+    returnByValue: true,
+  });
+  selected = result?.value || null;
+  if (!selected) {
+    console.error(`no element matches ${clipSelector}`);
+    drop();
+    process.exit(1);
+  }
+  if (selected.width < 1 || selected.height < 1) {
+    console.error(`${clipSelector} has no box (width ${selected.width}, height ${selected.height})`);
+    drop();
+    process.exit(1);
+  }
+}
+
 const metrics = await page("Page.getLayoutMetrics");
 const size = metrics.cssContentSize || metrics.contentSize;
 const fullWidth = Math.max(1, Math.ceil(size.width || 1440));
 const fullHeight = Math.max(1, Math.min(Math.ceil(size.height || 900), 14000));
-const shotClip = clip
+const clipBox = clip || (selected ? { ...selected, scale: 1 } : null);
+const shotClip = clipBox
   ? {
-      x: Math.min(clip.x, fullWidth - 1),
-      y: Math.min(clip.y, fullHeight - 1),
-      width: Math.min(clip.width, fullWidth - Math.min(clip.x, fullWidth - 1)),
-      height: Math.min(clip.height, fullHeight - Math.min(clip.y, fullHeight - 1)),
+      x: Math.min(clipBox.x, fullWidth - 1),
+      y: Math.min(clipBox.y, fullHeight - 1),
+      width: Math.min(clipBox.width, fullWidth - Math.min(clipBox.x, fullWidth - 1)),
+      height: Math.min(clipBox.height, fullHeight - Math.min(clipBox.y, fullHeight - 1)),
       scale: 1,
     }
   : { x: 0, y: 0, width: fullWidth, height: fullHeight, scale: 1 };

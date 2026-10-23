@@ -1,8 +1,17 @@
 #!/usr/bin/env node
-// A moodboard of the references that lead. The layout is this file.
+// A moodboard of the references. The layout is this file.
 // It shows what we saw. It does not paint a brand, a logo, a line, or a stat.
 //
-//   node moodboard.mjs .design/board.md --out .design/moodboard.html --leads "North Room" --also "Margin"
+// Before the pick (so they choose by looking):
+//   node moodboard.mjs .design/board.md --out .design/moodboard.html
+//
+// After the pick (marks the lead, keeps the rest):
+//   node moodboard.mjs .design/board.md --out .design/moodboard.html \
+//     --leads "Margin" --also "Quiet Hours,Moon Widget" --why "the typography and the calm"
+//
+// --also takes every card they also liked. --count is how many references
+// they asked to see. --imagery adds the board's imagery tiles; leave it off
+// when the look has no pictures in it.
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
@@ -15,13 +24,24 @@ const flag = (name) => {
   args.splice(i, 2);
   return v;
 };
+const has = (name) => {
+  const i = args.indexOf(`--${name}`);
+  if (i === -1) return false;
+  args.splice(i, 1);
+  return true;
+};
 
 const outArg = flag("out");
 const leadsArg = flag("leads");
 const alsoArg = flag("also");
+const whyArg = flag("why");
+const countArg = flag("count");
+const showImagery = has("imagery");
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
-  console.error('usage: node moodboard.mjs .design/board.md --out .design/moodboard.html --leads "Name" [--also "Name"]');
+  console.error(
+    'usage: node moodboard.mjs .design/board.md --out .design/moodboard.html [--leads "Name"] [--also "A,B"] [--why "their reason"] [--count 12] [--imagery]',
+  );
   process.exit(2);
 }
 
@@ -59,7 +79,7 @@ function fieldsOf(text) {
   const fields = {};
   let key = null;
   for (const line of text.split(/\r?\n/)) {
-    const m = line.match(/^- ([a-z][a-z /]*):\s*(.*)$/i);
+    const m = line.match(/^- ([a-z][a-z /-]*):\s*(.*)$/i);
     if (m) {
       key = m[1].toLowerCase();
       fields[key] = m[2].trim();
@@ -101,12 +121,28 @@ function swatches(colour) {
   return out.slice(0, 8);
 }
 
-function facesOf(typeLine) {
-  return typeLine
+// `faces:` is a list of names. `type:` is prose, so it is only a fallback and
+// anything that reads like a sentence is dropped rather than shown as a face.
+function facesOf(card) {
+  const listed = (card.faces || "")
+    .split(/,|\s+and\s+|\s+&\s+|\s+\+\s+/i)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (listed.length) return listed.filter(isFaceName).slice(0, 3);
+  return (card.type || "")
     .split(/,|\s+and\s+|\s+&\s+|\s+\+\s+/i)
     .map((s) => s.replace(/\s+for\s+.*/i, "").replace(/^(a pairing of|pairing of|the)\s+/i, "").trim())
-    .filter(Boolean)
+    .filter(isFaceName)
     .slice(0, 2);
+}
+
+function isFaceName(name) {
+  const words = name.split(/\s+/);
+  return (
+    /^[\p{L}\p{N}][\p{L}\p{N} .'’&-]*$/u.test(name) &&
+    words.length <= 4 &&
+    !/^(body|headline|display|serif|sans|sans-serif|mono|monospace|text|titles?|labels?)$/i.test(name)
+  );
 }
 
 function isSans(name) {
@@ -116,12 +152,22 @@ function isSans(name) {
 }
 
 function cssFamily(name) {
-  if (!name) return '"Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif';
-  const safe = name.replace(/["\\<>]/g, "").slice(0, 80);
-  const fallback = isSans(name)
-    ? '"Helvetica Neue", Helvetica, Arial, sans-serif'
-    : '"Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif';
-  return `"${safe}", ${fallback}`;
+  const serif = "'Iowan Old Style', Palatino, 'Palatino Linotype', Georgia, serif";
+  if (!name) return serif;
+  // Single quotes, so the value is safe inside a style="" attribute once escaped.
+  const safe = name.replace(/['"\\<>;{}]/g, "").slice(0, 80);
+  const fallback = isSans(name) ? "'Helvetica Neue', Helvetica, Arial, sans-serif" : serif;
+  return `'${safe}', ${fallback}`;
+}
+
+// Optimistic: a face that is on Google Fonts renders for real, one that is not
+// falls back. No axes are requested, so a family without 500 still resolves.
+function fontsHref(names) {
+  const families = names
+    .filter((n) => /^[A-Za-z0-9][A-Za-z0-9 ]*$/.test(n))
+    .map((n) => `family=${n.trim().replace(/\s+/g, "+")}`);
+  if (!families.length) return "";
+  return `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
 }
 
 function webPath(fromFile, absTarget) {
@@ -140,14 +186,14 @@ function shotSrc(shot) {
   return webPath(outPath, abs);
 }
 
+function href(url) {
+  const value = (url || "").trim().split(/\s+/)[0] || "";
+  return /^https?:\/\//i.test(value) ? value : "";
+}
+
 const md = readFileSync(boardPath, "utf8");
 const readSlice = md.match(/## Read this\s*\n([\s\S]*?)(?=\n## |\n### |\n- kind:|$)/);
 const read = readSlice ? fieldsOf(readSlice[1]) : {};
-const leadsName = leadsArg || read.leads || read.primary || "";
-if (!leadsName) {
-  console.error("moodboard: name the leading card with --leads");
-  process.exit(1);
-}
 
 const cards = [];
 const chunks = md.split(/^### /m).slice(1);
@@ -159,14 +205,24 @@ for (const chunk of chunks) {
   cards.push({ name, ...fieldsOf((cut === -1 ? body : body.slice(0, cut)).split(/^## /m)[0]) });
 }
 
-const primary = cards.find((c) => norm(c.name) === norm(leadsName));
-if (!primary) {
+const leadsName = leadsArg || read.leads || read.primary || "";
+const primary = leadsName ? cards.find((c) => norm(c.name) === norm(leadsName)) : null;
+if (leadsName && !primary) {
   console.error(`moodboard: no card named ${leadsName}`);
   process.exit(1);
 }
-const alsoName = alsoArg || (read.also && !/^none$/i.test(read.also.trim()) ? read.also : "");
-const also = alsoName ? cards.find((c) => norm(c.name) === norm(alsoName)) : null;
-if (alsoName && !also) console.error(`moodboard: no card named ${alsoName}`);
+// --also takes every card they said they liked, not only one.
+const alsoNames = (alsoArg || (read.also && !/^none$/i.test(read.also.trim()) ? read.also : ""))
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const alsoCards = [];
+for (const name of alsoNames) {
+  const card = cards.find((c) => norm(c.name) === norm(name));
+  if (card) alsoCards.push(card);
+  else console.error(`moodboard: no card named ${name}`);
+}
+const also = alsoCards[0] || null;
 
 const imagery = [];
 {
@@ -187,7 +243,7 @@ const imagery = [];
       push();
       continue;
     }
-    const m = line.match(/^- ([a-z][a-z /]*):\s*(.*)$/i);
+    const m = line.match(/^- ([a-z][a-z /-]*):\s*(.*)$/i);
     if (m && m[1].toLowerCase() === "kind") {
       inCard = false;
       push();
@@ -200,63 +256,120 @@ const imagery = [];
   }
   push();
 }
-if (imagery.length > 3) console.error(`moodboard: showing 3 of ${imagery.length} imagery`);
 
-const colours = swatches(primary.colour || "").slice(0, 6);
+// Screens and sites close to this subject. A product page cropped into a tile
+// reads as noise, and a `form` card is a layout note, not a picture to feel.
+// --count is how many references they said they wanted to see.
+const MAX_PICTURES = Math.max(2, Math.min(24, Number(countArg) || 12));
+const boardHasSlots = cards.some((c) => c.slot);
+function showable(card) {
+  if (!card.shot) return false;
+  if (boardHasSlots && /product/i.test(card.slot || "")) return false;
+  if (/^form$/i.test((card.fit || "").trim())) return false;
+  return true;
+}
+
+const chosen = [];
+const add = (card, role) => {
+  if (!card || chosen.some((c) => c.card === card)) return;
+  chosen.push({ card, role });
+};
+if (primary) add(primary, "leads");
+for (const card of alsoCards) add(card, "also");
+for (const card of cards) {
+  if (chosen.length >= MAX_PICTURES) break;
+  if (showable(card)) add(card, "");
+}
+const pictures = chosen
+  .filter((c) => c.role || showable(c.card))
+  .flatMap(({ card, role }) => {
+    const src = shotSrc(card.shot);
+    if (!src) return [];
+    const caption = role === "leads" && whyArg.trim() ? whyArg.trim() : (card.tagline || "").trim();
+    return [{ src, role, name: card.name, caption, url: href(card.url) }];
+  })
+  .slice(0, MAX_PICTURES);
+
+if (showImagery && imagery.length > 4) console.error(`moodboard: showing 4 of ${imagery.length} imagery`);
+const picturesOfPlace = showImagery
+  ? imagery.slice(0, 4).flatMap((item) => {
+      const src = shotSrc(item.shot);
+      return src ? [{ src, caption: (item.shows || "").trim(), url: href(item.url) }] : [];
+    })
+  : [];
+
+// Before the pick there is no lead yet, so the type and the colour tiles read
+// the cards on show instead.
+const onShow = pictures.map((pic) => cards.find((c) => c.name === pic.name)).filter(Boolean);
+const colourCards = [];
+if (primary?.colour) colourCards.push({ name: primary.name, colours: swatches(primary.colour).slice(0, 6) });
+else {
+  const from = onShow.find((c) => c.colour);
+  if (from) colourCards.push({ name: from.name, colours: swatches(from.colour).slice(0, 6), show: true });
+}
+// The night palette often comes from the `also` card. Show it, or the picture
+// and the adaptation disagree.
+if (also?.colour && /^register$/i.test((also.fit || "").trim())) {
+  colourCards.push({ name: also.name, colours: swatches(also.colour).slice(0, 4) });
+}
+const colourCount = colourCards.reduce((n, c) => n + c.colours.length, 0);
+
 const seenFaces = [];
-for (const line of [primary.type, also && also.fit !== "form" ? also.type : ""]) {
-  for (const face of facesOf(line || "")) {
+const faceCards = primary ? [primary, also && !/^form$/i.test((also.fit || "").trim()) ? also : null] : onShow;
+for (const card of faceCards) {
+  if (!card) continue;
+  for (const face of facesOf(card)) {
     if (!seenFaces.some((f) => norm(f) === norm(face))) seenFaces.push(face);
   }
 }
 const faces = seenFaces.slice(0, 3);
 const family = cssFamily(faces[0] || "");
+const fonts = fontsHref(faces);
 const ink = "#1c1c1a";
-
-const principle = (primary["worth taking"] || "").trim();
-const primarySrc = shotSrc(primary.shot);
-const alsoSrc = also ? shotSrc(also.shot) : "";
-const pictures = imagery.slice(0, 3).flatMap((item) => {
-  const src = shotSrc(item.shot);
-  return src ? [{ src, caption: (item.shows || "").trim() }] : [];
-});
 
 const tiles = [];
 if (faces.length) {
   const names = faces
-    .map((face) => `<p class="face" style="font-family:${cssFamily(face)}">${esc(face)}</p>`)
+    .map((face) => `<p class="face" style="font-family:${esc(cssFamily(face))}">${esc(face)}</p>`)
     .join("");
-  tiles.push(`<article class="tile type span-${colours.length ? 2 : 6}">
+  tiles.push(`<article class="tile type span-${colourCount ? 2 : 6}">
       <p class="kicker">Type we saw</p>
       <p class="aa">Aa</p>
       <div class="faces">${names}</div>
     </article>`);
 }
-if (colours.length) {
+if (colourCount) {
   const span = faces.length ? 4 : 6;
-  const chips = colours
-    .map((s) => {
-      const edge = lum(s.hex) > 0.86 ? " chip-edge" : "";
-      return `<div class="swatch"><div class="chip${edge}" style="background:${s.hex}"></div><p class="hex">${esc(s.hex)}</p>${s.label ? `<p class="role">${esc(s.label)}</p>` : ""}</div>`;
+  const rows = colourCards
+    .filter((group) => group.colours.length)
+    .map((group, i) => {
+      const chips = group.colours
+        .map((s) => {
+          const edge = lum(s.hex) > 0.86 ? " chip-edge" : "";
+          return `<div class="swatch"><div class="chip${edge}" style="background:${esc(s.hex)}"></div><p class="hex">${esc(s.hex)}</p>${s.label ? `<p class="role">${esc(s.label)}</p>` : ""}</div>`;
+        })
+        .join("");
+      const label = i === 0 && !group.show ? "" : `<p class="from">${esc(group.name)}</p>`;
+      return `${label}<div class="swatches">${chips}</div>`;
     })
     .join("");
-  tiles.push(`<article class="tile colour span-${span}"><p class="kicker">Colour we saw</p><div class="swatches">${chips}</div></article>`);
+  tiles.push(`<article class="tile colour span-${span}"><p class="kicker">Colour we saw</p><div class="rows">${rows}</div></article>`);
 }
-if (primarySrc || principle) {
-  const span = also && (alsoSrc || also["worth taking"]) ? 3 : 6;
-  const shot = primarySrc ? `<img src="${esc(primarySrc)}" alt="Leading reference, top of the shot">` : "";
-  tiles.push(`<article class="tile primary span-${span}${primarySrc ? " shot" : " no-shot"}">${shot}<div class="caption"><p class="kicker">Leads</p>${principle ? `<p class="control">${esc(principle)}</p>` : ""}</div></article>`);
-}
-if (also && (alsoSrc || also["worth taking"])) {
-  const span = primarySrc || principle ? 3 : 6;
-  const shot = alsoSrc ? `<img src="${esc(alsoSrc)}" alt="Also reference, top of the shot">` : "";
-  const line = (also["worth taking"] || "").trim();
-  tiles.push(`<article class="tile also span-${span}${alsoSrc ? " shot" : ""}">${shot}<div class="caption"><p class="kicker">Also</p>${line ? `<p class="control">${esc(line)}</p>` : ""}</div></article>`);
-}
-const pictureSpan = pictures.length === 1 ? 6 : pictures.length === 2 ? 3 : 2;
 for (const pic of pictures) {
-  const cap = pic.caption ? `<figcaption>${esc(pic.caption)}</figcaption>` : "";
-  tiles.push(`<figure class="tile picture shot span-${pictureSpan}"><img src="${esc(pic.src)}" alt="${esc(pic.caption || "Imagery")}">${cap}</figure>`);
+  const span = pic.role ? 3 : 2;
+  const kicker = pic.role === "leads" ? "Leads" : pic.role === "also" ? "Also" : "";
+  const img = `<img src="${esc(pic.src)}" alt="${esc(pic.name)}" loading="lazy">`;
+  const frame = pic.url
+    ? `<a class="frame" href="${esc(pic.url)}" target="_blank" rel="noopener noreferrer">${img}</a>`
+    : `<div class="frame">${img}</div>`;
+  tiles.push(`<figure class="tile shot span-${span}${pic.role ? " marked" : ""}">${frame}<figcaption>${kicker ? `<p class="kicker">${esc(kicker)}</p>` : ""}<p class="name">${esc(pic.name)}</p>${pic.caption ? `<p class="line">${esc(pic.caption)}</p>` : ""}</figcaption></figure>`);
+}
+for (const pic of picturesOfPlace) {
+  const img = `<img src="${esc(pic.src)}" alt="${esc(pic.caption || "Imagery")}" loading="lazy">`;
+  const frame = pic.url
+    ? `<a class="frame" href="${esc(pic.url)}" target="_blank" rel="noopener noreferrer">${img}</a>`
+    : `<div class="frame">${img}</div>`;
+  tiles.push(`<figure class="tile shot picture span-2">${frame}<figcaption><p class="kicker">Imagery</p>${pic.caption ? `<p class="line">${esc(pic.caption)}</p>` : ""}</figcaption></figure>`);
 }
 
 if (!tiles.length) {
@@ -270,7 +383,7 @@ const html = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moodboard</title>
-<style>
+${fonts ? `<link rel="stylesheet" href="${esc(fonts)}">\n` : ""}<style>
   :root {
     --display: ${family};
     --ink: ${ink};
@@ -289,9 +402,9 @@ const html = `<!DOCTYPE html>
     font-family: var(--ui);
     -webkit-font-smoothing: antialiased;
   }
-  .sheet { max-width: 1080px; margin: 0 auto; padding: 52px 28px 80px; }
+  .sheet { max-width: 1200px; margin: 0 auto; padding: 52px 28px 80px; }
   h1 {
-    margin: 0 0 16px 2px;
+    margin: 0 0 20px 2px;
     font-family: var(--ui);
     font-size: 11px;
     font-weight: 600;
@@ -299,7 +412,7 @@ const html = `<!DOCTYPE html>
     text-transform: uppercase;
     color: var(--muted);
   }
-  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; align-items: stretch; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; align-items: stretch; }
   .tile { background: var(--paper); border-radius: 22px; overflow: hidden; min-width: 0; }
   .span-2 { grid-column: span 2; }
   .span-3 { grid-column: span 3; }
@@ -313,17 +426,17 @@ const html = `<!DOCTYPE html>
     text-transform: uppercase;
     color: var(--muted);
   }
-  .type, .colour, .principle, .leave { padding: 22px 24px 20px; }
+  .type, .colour { padding: 26px 28px 24px; }
   .type {
     display: flex;
     flex-direction: column;
-    min-height: 250px;
+    min-height: 280px;
     background: #171717;
     color: #f6f5f2;
   }
   .type .kicker { color: rgba(255, 255, 255, 0.55); }
   .aa {
-    margin: 22px 0 0;
+    margin: 24px 0 0;
     font-family: var(--display);
     font-size: 104px;
     line-height: 0.78;
@@ -331,23 +444,27 @@ const html = `<!DOCTYPE html>
     font-weight: 500;
     color: #f6f5f2;
   }
-  .faces { margin-top: 20px; }
+  .faces { margin-top: 24px; }
   .face {
     margin: 0;
-    font-family: var(--display);
     font-size: 22px;
-    line-height: 1.2;
+    line-height: 1.25;
     letter-spacing: -0.03em;
     color: #f6f5f2;
   }
-  .face + .face { margin-top: 2px; font-size: 16px; color: rgba(255, 255, 255, 0.62); }
-  .colour { display: flex; flex-direction: column; min-height: 250px; }
+  .face + .face { margin-top: 4px; font-size: 17px; color: rgba(255, 255, 255, 0.68); }
+  .colour { display: flex; flex-direction: column; min-height: 280px; }
+  .rows { margin-top: auto; padding-top: 24px; display: grid; gap: 18px; }
+  .from {
+    margin: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
   .swatches {
-    margin-top: auto;
-    padding-top: 22px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
-    gap: 10px 12px;
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 12px 14px;
   }
   .chip { height: 92px; border-radius: 14px; }
   .chip-edge { box-shadow: inset 0 0 0 1px rgba(28, 28, 26, 0.14); }
@@ -358,76 +475,32 @@ const html = `<!DOCTYPE html>
     letter-spacing: 0.02em;
     color: #3c3c39;
   }
-  .role {
-    margin: 2px 0 0;
-    font-size: 12px;
-    line-height: 1.3;
-    color: var(--muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .role { margin: 3px 0 0; font-size: 12px; line-height: 1.35; color: var(--muted); }
+  .shot { margin: 0; display: flex; flex-direction: column; }
+  .frame {
+    display: block;
+    background: #141414;
+    aspect-ratio: 1;
   }
-  .principle { display: flex; flex-direction: column; min-height: 320px; }
-  .principle .kicker { color: color-mix(in srgb, currentColor 58%, transparent); }
-  .statement {
-    margin: auto 0 0;
-    max-width: 16ch;
-    font-family: var(--display);
-    font-size: 40px;
-    line-height: 1.05;
-    letter-spacing: -0.035em;
-    font-weight: 500;
-  }
-  .statement.long { font-size: 28px; line-height: 1.15; max-width: 22ch; }
-  .shot { position: relative; background: #1a1a1a; }
   .shot img {
     display: block;
     width: 100%;
-    height: 320px;
-    object-fit: cover;
-    object-position: top center;
-    background: #eceae6;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
   }
-  .picture img { height: 250px; object-position: center; }
-  .shot .caption, .picture figcaption {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    padding: 64px 18px 16px;
-    background: linear-gradient(to top, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0.28) 52%, rgba(10, 10, 10, 0) 100%);
-    color: #fff;
-  }
-  .shot .kicker { color: rgba(255, 255, 255, 0.72); }
-  .shot .control { margin: 4px 0 0; font-size: 16px; line-height: 1.3; color: #fff; }
-  .picture { margin: 0; }
-  .picture figcaption {
-    font-size: 14px;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .primary.no-shot { min-height: 220px; background: var(--paper); }
-  .primary.no-shot .caption { position: static; padding: 22px 24px; background: none; color: inherit; }
-  .primary.no-shot .kicker { color: var(--muted); }
-  .primary.no-shot .control {
-    font-family: var(--display);
-    font-size: 28px;
-    line-height: 1.15;
-    letter-spacing: -0.03em;
-    color: #2a2a28;
-  }
-  .leave { display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 180px; }
-  .quiet { margin: 0; max-width: 28em; font-size: 20px; line-height: 1.35; letter-spacing: -0.02em; color: #3a3a38; }
-  @media (max-width: 800px) {
+  .shot figcaption { flex: 1; padding: 16px 18px 18px; background: var(--paper); color: var(--ink); }
+  .shot .name { margin: 6px 0 0; font-size: 15px; line-height: 1.3; letter-spacing: -0.01em; }
+  .shot .line { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .shot figcaption .kicker + .name { margin-top: 6px; }
+  .marked .frame { aspect-ratio: 4 / 3; }
+  .marked .name { font-family: var(--display); font-size: 22px; letter-spacing: -0.02em; }
+  .marked .line { font-size: 15px; color: #3a3a38; }
+  @media (max-width: 900px) {
     .sheet { padding: 28px 16px 48px; }
+    .grid { gap: 16px; }
     .tile, .span-2, .span-3, .span-4, .span-6 { grid-column: 1 / -1; }
     .aa { font-size: 84px; }
-    .statement { font-size: 32px; }
   }
 </style>
 </head>
