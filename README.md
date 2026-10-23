@@ -22,22 +22,92 @@ Two of these are written here, in [`skills/`](skills/). `init` copies them from 
 
 Writing stays small, and a risky change is named before it is built. A page follows a `DESIGN.md` or a Figma file when one exists. With neither, hunt writes the reference board and taste designs the page, with real pictures, and checks it in a browser. Asking to hunt references still works after a direction or a design exists. That pass is its own suggestion set and does not replace the board. The board does not replace that set either. A loading search and the no-look board stay side by side. Before it looks, it asks once for a specific style and any requirements. For one piece, such as a loading state, it also offers a few search ideas and waits.
 
-| Skill | What it is for | Author |
-| --- | --- | --- |
-| [ponytail](https://github.com/DietrichGebert/ponytail) | The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt | DietrichGebert |
-| [diagnosing-bugs](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs) | Hard bugs and performance regressions: build a tight feedback loop first, then localize, reduce, fix, and guard | Matt Pocock |
-| [premortem](https://github.com/joetawil7/first-pass/tree/main/skills/premortem) | Before writing, finds where the change will break by checking the real code | GeorgeT |
-| [grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) | Relentless interview until a plan or design has no open branches. Includes grilling | Matt Pocock |
-| [handoff](https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff) | Compacts the conversation into a handoff document for another agent or session | Matt Pocock |
-| [design-reference-hunt](skills/design-reference-hunt/SKILL.md) | When there is no design direction, searches live sites and galleries — Awwwards, MaxiBestOf, Recent, Dribbble, and others — and writes a board of the same size. It opens more candidates across those galleries before it keeps. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place | Long Beard |
-| [design-taste-frontend](https://github.com/Leonxlnx/taste-skill) | Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent | Leonxlnx |
-| [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion | emilkowalski |
-| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection | Figma |
-| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Optional, with `--all`. Generates design images, then builds the page to match them | Leonxlnx |
-| [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Optional, with `--all`. Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test | Cloudflare |
-| [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews the UI against interface and accessibility rules, when you ask | Vercel |
-| [jury](https://github.com/juliobsz/skills/tree/main/jury) | Scores a site from screenshots and measurements when you ask to jury, score, judge, or roast the design. Does not redesign; fixes stay on the board, DESIGN.md, or Figma | juliobsz |
-| [design-md](skills/design-md/SKILL.md) | The installed project's `DESIGN.md` wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask | Long Beard |
+<table>
+  <thead>
+    <tr>
+      <th>Group</th>
+      <th>Skill</th>
+      <th>What it is for</th>
+      <th>Author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2">Plan</td>
+      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me">grill-me</a></td>
+      <td>Relentless interview until a plan or design has no open branches. Includes grilling</td>
+      <td>Matt Pocock</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff">handoff</a></td>
+      <td>Compacts the conversation into a handoff document for another agent or session</td>
+      <td>Matt Pocock</td>
+    </tr>
+    <tr>
+      <td rowspan="7">Design</td>
+      <td><a href="skills/design-md/SKILL.md">design-md</a></td>
+      <td>The installed project's <code>DESIGN.md</code> wins. With no file and no Figma, a new page goes to hunt instead of an invented look. A brand file is written only when they ask</td>
+      <td>Long Beard</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code">figma-design-to-code</a></td>
+      <td>Turns a Figma file into code in the project's stack, reusing components that already exist. Needs the Figma connection</td>
+      <td>Figma</td>
+    </tr>
+    <tr>
+      <td><a href="skills/design-reference-hunt/SKILL.md">design-reference-hunt</a></td>
+      <td>When there is no design direction, searches live sites and galleries — Awwwards, MaxiBestOf, Recent, Dribbble, and others — and writes a board of the same size. It opens more candidates across those galleries before it keeps. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place</td>
+      <td>Long Beard</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/Leonxlnx/taste-skill">design-taste-frontend</a></td>
+      <td>Designs websites and app screens, with real pictures, and checks them in a browser. An existing direction wins over a look it would invent</td>
+      <td>Leonxlnx</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/emilkowalski/skills/tree/main/skills/animate">animate</a></td>
+      <td>Builds one control or transition they asked to animate. A page already being designed keeps that skill’s motion</td>
+      <td>emilkowalski</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines">web-design-guidelines</a></td>
+      <td>Reviews the UI against interface and accessibility rules, when you ask</td>
+      <td>Vercel</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/juliobsz/skills/tree/main/jury">jury</a></td>
+      <td>Scores a site from screenshots and measurements when you ask to jury, score, judge, or roast the design. Does not redesign; fixes stay on the board, DESIGN.md, or Figma</td>
+      <td>juliobsz</td>
+    </tr>
+    <tr>
+      <td rowspan="3">Code</td>
+      <td><a href="https://github.com/joetawil7/first-pass/tree/main/skills/premortem">premortem</a></td>
+      <td>Before writing, finds where the change will break by checking the real code</td>
+      <td>GeorgeT</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/DietrichGebert/ponytail">ponytail</a></td>
+      <td>The smallest change that finishes the job, and a reply you can read once. Includes ponytail-review, ponytail-audit, and ponytail-debt</td>
+      <td>DietrichGebert</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs">diagnosing-bugs</a></td>
+      <td>Hard bugs and performance regressions: build a tight feedback loop first, then localize, reduce, fix, and guard</td>
+      <td>Matt Pocock</td>
+    </tr>
+    <tr>
+      <td rowspan="2">Optional</td>
+      <td><a href="https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code">image-to-code</a></td>
+      <td>With <code>--all</code>. Generates design images, then builds the page to match them</td>
+      <td>Leonxlnx</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit">security-audit</a></td>
+      <td>With <code>--all</code>. Reviews a trust boundary when you ask. The full audit runs only when you ask for an audit or a pen-test</td>
+      <td>Cloudflare</td>
+    </tr>
+  </tbody>
+</table>
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
