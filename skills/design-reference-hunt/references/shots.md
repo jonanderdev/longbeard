@@ -31,13 +31,16 @@ If it is invalid, delete it and run the script again. If the site will not scrol
 
 ## Open the piece
 
-- Prefer a **live site**. Click through from Awwwards / Godly / Land-book to the actual URL, then run the script on that URL.
+- Prefer a **live site**. Click through from Awwwards / Godly / Land-book / siteinspire / MaxiBestOf / Recent / Dark Mode Design to the actual URL, then run the script on that URL.
+- Supahero: the live site behind a hero, or the hero crop itself when the piece is a hero. Not the grid.
+- Muzli: the original URL. Not the Muzli page.
 - Dribbble: open the **shot page** (`/shots/...`). Capture the artwork image only, not `/search`.
+- Pinterest: the pin image only, not the board and not search.
 - Never capture a search grid, a home feed, or a listing of cards.
 
-## Dribbble / Behance / Unsplash — not sites
+## Dribbble / Behance / Unsplash / Pinterest — not sites
 
-These are pictures, not pages. Capture the **image** (or the type specimen), no page chrome. An illustration goes under **Material** (`kind: imagery`, `type`, or `mark`). A shot of a real screen goes under **Screens**. Never under Sites.
+These are pictures, not pages. Capture the **image** (or the type specimen), no page chrome. An illustration goes under **Material** (`kind: imagery`, `type`, or `mark`). A shot of a real screen goes under **Screens**. Never under Sites. A Pinterest pin follows that same split.
 
 Unsplash and Wikimedia: search the **subject**, not stock category.
 
