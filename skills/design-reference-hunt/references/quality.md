@@ -44,13 +44,17 @@ muz.li collects other people’s work. Open the original. That page still has to
 
 Pins on pinterest.com are pictures, never sites. Keep one when it is a single real page or screen and you can name what is worth taking. Prefer this year when the pin shows a date. A photograph of this subject can be imagery. Drop mood boards, collages, AI mush, and anything you would drop on Dribbble. Do not capture a board or a search grid.
 
+If Pinterest shows a login wall, write `Pinterest: login wall` under the board’s drops and continue. That counts as the pass.
+
 ## Dribbble / Behance
 
-Open `/shots/...`, not search.
+Listing pages are client-rendered (WebFetch returns empty). Shot pages (`/shots/...`) often hit Human Verification in headless Chrome. Use `scripts/dribbble-cards.mjs` on a popular-search listing; take artwork from `cdn.dribbble.com`. Run queries one at a time; retry a 0-card query once after a pause.
 
-Sort this year by most saved or most liked. Latest is the wrong feed. A Pinterest pass does not replace this sort. Look through that sort, then the page type, the component, and the element, including other subjects. A whole-look board keeps up to 20 that pass this filter. On a website they lose to a kept live site. On an application they outweigh award sites. A piece hunt keeps 10 after it has opened at least 30. Open more than you keep. The keep does not rise because another gallery was added. If the pass is weak, the board stays short. Do not lower the filter to finish the count.
+Sort this year by **popular** (`timeframe=year`). There is no “most saved/liked” sort on the listing; cards show **views**, not likes. Accept views as the vote signal when likes are hidden, and say so on the card: `score: 5.4k views (likes unavailable)`. `timeframe=year` is not strict — older shots appear; when the slug or shot ID reveals a year, record it on the card so an old shot is visible as old.
 
-Keep if you can name what is worth taking in one line (a crop, a type pairing, a palette, a component, a screen). The shot has to be one people actually saved.
+A Pinterest pass does not replace this sort. Look through that sort, then the page type, the component, and the element, including other subjects. A whole-look board keeps up to 20 that pass this filter. On a website they lose to a kept live site. On an application they outweigh award sites. A piece hunt keeps 10 after it has opened at least 30. Open more than you keep. The keep does not rise because another gallery was added. If the pass is weak, the board stays short. Do not lower the filter to finish the count.
+
+Keep if you can name what is worth taking in one line (a crop, a type pairing, a palette, a component, a screen). The shot has to be one people actually saved (or viewed, when that is the only signal).
 
 Drop: AI mush, fake browser chrome around a 3-card landing, purple gradient on dark, Inter-everywhere, emoji icons, melted type, a shot whose only job is “bakery website mockup.”
 
@@ -58,8 +62,18 @@ A Dribbble drawing is **imagery**, never a site.
 
 ## Unsplash / Wikimedia
 
-Search **this** subject, not a stock category name. Drop posed lifestyle and fake product. One real place or material beats a pile of similar ones.
+Search **this** subject, not a stock category name. Drop posed lifestyle and fake product. One real place or material beats a pile of similar ones. Download routes: see [shots.md](shots.md).
 
 A file counts when you can point at a crop where that principle is the subject. If the thing you would leave is what the frame is about, drop it or write the crop. Do not keep ten near-misses to fill a count. The page may use fewer.
 
 If a pass across these galleries cannot fill the count without lowering these gates, the board stays short. Do not fill it with 4s.
+
+## Colour and contrast
+
+Hexes come from a kept shot, sampled from a **crop of the element** they name — never from a photograph, mockup frame, or presentation background unless that is the role. On the card: `#2c2824 body text`, `#b0563a active-tab dot`.
+
+Before **Read this**, run every text/background pair through `scripts/contrast.mjs` (`"#fg on #bg"`, optional `:large` or `:mark` for 3:1). Body and small text need 4.5:1; large text and non-text marks need 3:1. List each pair with ratio and verdict under **Read this**. A failing colour is adjusted; keep both hexes as `sampled → used`.
+
+## Type licence
+
+A type pick needs a `licence:` line that covers how this project ships it (bundled in app, self-hosted web, default UI). If it does not cover that use, drop it and name it under drops.
