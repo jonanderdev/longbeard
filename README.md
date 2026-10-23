@@ -18,7 +18,7 @@ It is a base. You keep going from here.
 
 ## The kit
 
-Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the people who wrote them, and `update` pulls a fresh copy of those.
+Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
 
 Writing stays small. A risky change is named before it is built. Design direction is hunted and written down before code, unless a `DESIGN.md` or Figma file already wins.
 
