@@ -6,9 +6,11 @@ description: >
   once for a Figma file; if they paste one, stop. If not, whole look →
   .design/board.md with cards (idea, hero, type, colour, worth taking) and
   a short Read this. After they pick a primary, say the direction in chat,
-  ask once to write DESIGN.md (design-md); stop unless they also asked to
-  build. Later hunt (piece, ideas, check) writes .design/hunts/<slug>/;
-  after they accept, ask once to update DESIGN.md. Direction-only stops
+  then ask to write DESIGN.md as its own message (design-md) — never the
+  last line of a long report. If they move on without answering, ask once
+  more, first in that reply. Stop unless they also asked to build. Later
+  hunt (piece, ideas, check) writes .design/hunts/<slug>/; after they
+  accept, ask to update DESIGN.md the same way. Direction-only stops
   after persist. Before looking, ask once for style and requirements; on a
   piece, offer two or three search ideas. Use when they ask to hunt, define
   direction, or design with no look yet.
@@ -44,6 +46,8 @@ A file in `.design/refs/` that the board does not cite gets deleted. A file in a
 
 A search writes only its own place. The whole no-look search owns `.design/board.md` and `.design/refs/`. A loading search owns `.design/hunts/loading/` and the shots inside it. Neither replaces the other, whichever ran first. The same whole look may rewrite its own board and its own refs: the board is unfinished, or they asked to redo that whole look. It still leaves every hunt folder. A second pass of the same piece is the next slug (`loading-2`). It does not replace `loading`, and it does not replace the board. A different piece does not replace a sibling.
 
+Skill feedback and session notes stay in the chat, for them to forward. Do not write them under `.design/`. There is no feedback file and no `.design/feedback/`. `.design/` is the board, the hunts, and the shots those cite.
+
 ## Gate (do this first)
 
 Check the repo and the prompt, in order. Stop at the first hit.
@@ -55,10 +59,10 @@ Check the repo and the prompt, in order. Stop at the first hit.
 5. `.design/board.md` exists, and they asked to hunt again → **Later hunt** in a new folder. The board and `.design/refs/` stay. They asked to redo that same whole look → rewrite `.design/board.md` and `.design/refs/` only, and leave `.design/hunts/` in place.
 6. Otherwise, for a **whole look** only: ask **once**, and wait. There is no board yet.
 
-   Do you have a Figma file for this, or should I hunt references? If I hunt, any specific style or requirements are optional: how it should feel, and what it must do.
+   Do you have a Figma file for this, or should I hunt references? If I hunt, any specific style or requirements are optional: how it should feel, and what it must do. I'll treat the subject as <subject as read from the repo>. Correct me if it is broader or narrower.
 
    - They paste a Figma link → implement from Figma. Stop hunting.
-   - They say no, skip, or “hunt” → **Whole look** below. Style and requirements they added ride along. If they added none, do not ask again.
+   - They say no, skip, or “hunt” → **Whole look** below. Style and requirements they added ride along. If they added none, do not ask again. A correction to the subject rides along too.
 
 Do not ask whether DESIGN.md exists; look for the file.
 
@@ -99,18 +103,18 @@ Say once, in one line, what you are looking for, and that the closest come back 
 
 Look, then keep. The counts below are what you **keep**. They are not how many you open. More galleries do not raise those counts. They raise how many you open, across every gallery, until the ones that pass [quality.md](references/quality.md) are the keep. Do not fill that keep from the first gallery. Read listings and score pages, and do not stop at the first page. There is no small cap on looking. A website opens each live gallery — Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent, and Dark Mode Design when the subject, the register, or the style they asked for is dark — and uses Muzli only to reach the original. It looks through at least 60 live candidates, past the first page of each of those galleries, before it accepts fewer than 10 sites. It can stop once the keep is full of ones that pass and it has gone past the first page of each gallery this hunt opens. Screens go through the popular Dribbble sort and a Pinterest search, past the first page of each, and the other-subject queries, before it accepts fewer than the screens it could have kept. The screen cap stays 20. A thin field stays thin: name each drop, and do not lower the filter to fill the count.
 
-Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot a listing, a score page, or a URL you might drop. The capture script scrolls; run it only on a keep. A file in `.design/refs/` that is not on the board gets deleted. Leave `.design/hunts/` alone, including a loading hunt written before this board. Do not edit those notes or delete those shots.
+Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot a listing, a score page, or a URL you might drop into `refs/`. Viewing a listing’s own thumbnails is allowed (not a capture; writes nothing to `refs/`). Use `scripts/contact-sheet.mjs` on candidate image URLs in a scratch folder when you need to judge many at once, then open only the shortlist at full size. The capture script scrolls; run it only on a keep. Relative `--out` paths resolve against the git project root. A file in `.design/refs/` that is not on the board gets deleted. Leave `.design/hunts/` alone, including a loading hunt written before this board. Do not edit those notes or delete those shots.
 
 1. Name the subject and the **surface**: `website` or `app`.
 2. This year’s date. Do not search only the same subject. Also search the page type, the component, and the element, including other subjects that share that form. Add the style and the requirements they gave. Filter with [quality.md](references/quality.md).
    - **Website — Sites (aim 10), mixed `fit`:** live URLs from this year. These outweigh Dribbble. The aim stays 10. Prefer Awwwards SOTD / high scores (overall and Design ≥ 7.5; never 4s). Also Godly, Land-book, siteinspire, MaxiBestOf, and Recent. Dark Mode Design only when the subject, the register, or the style they asked for is dark. Muzli is a way into the original, not a page you keep. Supahero is heroes: open the live page when you keep a site. Aim `same-job` 2, `register` 2, `form` 6. `same-job` is this subject. `register` shares its feeling: the hour, the material, the ritual, or the kind of place. `form` is another type of business. From it, take only a layout or a component that still works once this topic’s pictures and words are in the frame. If that frame only makes sense for the other type, drop it. Not its type, and not its colours. Leave their identity. An older site only when nothing current has that structure.
    - **Website — Screens (up to 20):** strongly voted Dribbble from this year, after the quality filter, and a Pinterest pin that is one real screen. The cap stays 20. They lose to a kept site. Tag `role: page | component | element` and `subject: same-job | other`. An illustration stays imagery. These are not Sites.
-   - **App — Products (up to 6):** public product pages of this job. Not Awwwards, not a campaign site. Fewer is valid when the board names each drop (a login wall, no public page).
-   - **App — Screens (up to 20):** strongly voted Dribbble, a Pinterest pin that is one real screen, and component galleries. These outweigh product pages and award sites. The shot is the screen, a component, or an element. Other subjects that share that role count. An illustration stays imagery. Do not fill this board with Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design.
+   - **App — Products (up to 6):** public product pages of this job. Not Awwwards, not a campaign site. Fewer is valid when the board names each drop (a login wall, no public page). Product pages mostly give voice, principle, and the mascot or illustration register. The visual direction comes from screens. Three strong products is a complete set when the drops are named.
+   - **App — Screens (up to 20):** strongly voted Dribbble (views when likes are hidden — see [quality.md](references/quality.md)), a Pinterest pin that is one real screen, and component galleries. These outweigh product pages and award sites. The shot is the screen, a component, or an element. Other subjects that share that role count. An illustration stays imagery. Do not fill this board with Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design.
    - **Imagery (up to 10):** this subject’s world (Unsplash, Wikimedia, museums). Not stock category. A file counts when a crop can make the principle the subject. Drop the rest. Do not pad.
    - **Type / marks (1–2):** a pairing or a stamp you can name. MaxiBestOf fonts are a place to find one.
-3. Scroll and screenshot only a keep. `node <skill>/scripts/capture.mjs <url> --out .design/refs/<name>.jpg` for that URL only. Do not stitch. How: [shots.md](references/shots.md). Jury quotes only from an Awwwards page you kept. Dribbble: the shot artwork of a keep, not the search grid.
-4. Write `.design/board.md`. One file, two layers. **Read this** is a few lines a person can read. **Cards** are the references (idea, hero, type, colour, worth taking). A website is valid at 10 sites, or short when each missing site is named after the 60-candidate look across those galleries. Screens are up to 20. An application is valid with its screens, and invalid if the spine is Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design. A short one names each missing screen. Imagery is up to 10. Products are up to 6. Do not pad by lowering the filter. Hexes come from a kept shot, not a palette library. Later pages reuse it. Do not write a second board. A later pass is a hunt folder. Do not treat a short board that does not name each drop as finished.
+3. Scroll and screenshot only a keep. `node <skill>/scripts/capture.mjs <url> --out .design/refs/<name>.jpg` for that URL only (add `--review <scratch>/…` when the capture is tall; `--clip x,y,w,h` for type specimens). Do not stitch. How: [shots.md](references/shots.md). Jury quotes only from an Awwwards page you kept. Dribbble: artwork via `scripts/dribbble-cards.mjs` and `cdn.dribbble.com`, not the search grid and not a gated `/shots/...` page.
+4. Write `.design/board.md`. One file, two layers. **Read this** is a few lines a person can read. **Cards** are the references (idea, hero, type, colour, worth taking). A website is valid at 10 sites, or short when each missing site is named after the 60-candidate look across those galleries. Screens are up to 20. An application is valid with its screens, and invalid if the spine is Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design. A short one names each missing screen. Imagery is up to 10. Products are up to 6. Do not pad by lowering the filter. Hexes come from a kept shot — sampled from a crop of the named element, not a photo, mockup frame, or presentation background, and not a palette library. Check pairs with `scripts/contrast.mjs` before **Read this**. Later pages reuse it. Do not write a second board. A later pass is a hunt folder. Do not treat a short board that does not name each drop as finished.
 
 `Asked:` sits above **Read this**. It is not a card.
 
@@ -126,9 +130,12 @@ Asked: <style, requirements, and any search ideas used, or none>
 - also: <one other card>
 - control: <as that card’s hero describes it: text link, filled shape, or absent, and where it sits>
 - colour: <where it sits in the shot>
+- contrast: <each text/background pair: hex on hex, ratio, AA|AAA|FAIL; failing pairs show sampled → used>
 - type: <the pairing>
 - leave: <one line>
 ```
+
+Every text/background pair in **Read this** has been through `scripts/contrast.mjs`. Body and small text need 4.5:1; large text and non-text marks need 3:1. Adjust failures before asking to persist `DESIGN.md`.
 
 Each site, product page, or screen is a card, written from the open shot file. `role` is required on `form`. A hero that says “one action” and does not say what the control is does not count. On a website the primary card is the closest live site, not a form site chosen for its type. On an application it is a screen, not an award site.
 
@@ -144,7 +151,7 @@ Each site, product page, or screen is a card, written from the open shot file. `
 - idea: <one sentence. The principle, not their name>
 - hero: <what is in the frame. The control: text link, filled shape, or absent, and where it sits>
 - type: <the faces, and how the shot uses them>
-- colour: <hexes you can see, and where each sits. A colour is a button fill only when the shot fills a button with it>
+- colour: <hex + element sampled from a crop of that element, e.g. "#2c2824 body text", "#b0563a active-tab dot". Never from a photo, mockup frame, or presentation background unless that is the role. A colour is a button fill only when the shot fills a button with it>
 - imagery: <what the pictures are>
 - worth taking: <one principle. On a form card: a layout or a component only, and only if it still works on this topic. Not their type. Not their colours>
 - leave: <their identity, and anything that is not the principle>
@@ -155,10 +162,13 @@ Imagery and type stay short. They are material, not cards.
 ```
 - kind: imagery | type
 - url:
+- licence: <OFL / Apache / commercial / restricted>; covers <bundled in app, self-hosted web, default UI>? yes/no
 - shot: .design/refs/<file>
 - shows:
 - leave:
 ```
+
+`licence:` is required on `kind: type`. A type pick whose licence does not cover how this project ships it is dropped and named under drops. Imagery may omit `licence:`.
 
 The cards are the references. The shot files are the evidence.
 
@@ -206,19 +216,28 @@ The note is the suggestion set. This skill does not rewrite `DESIGN.md` until **
 
 Do not end the turn on raw cards alone.
 
-**Whole look:** In the chat, name only the two or three closest, each with its live URL, and say the shots are in `.design/board.md`. Wait. After they answer, write **Read this**, say that direction in the chat (primary, control, colour, type, leave). Then ask **once**:
+**Whole look:** In the chat, name only the two or three closest, each with its live URL, and say the shots are in `.design/board.md`. Wait. After they answer, write **Read this**, say that direction in the chat (primary, control, colour, type, leave). Then the persist ask, as its own message.
+
+**Later hunt:** Name the two or three closest the same way; shots in `.design/hunts/<slug>/`. Say this pass does not change the look until they accept. After they pick what to take, the persist ask, as its own message.
+
+**The persist ask.** Its own message. If the harness has a structured yes/skip prompt, use that. Never append it to a long report, a “not checked” list, or any other reply.
+
+Before the question, these three lines. That message ends on the question:
+
+The board is the evidence. **Read this** is the direction. `DESIGN.md` is the file every later build follows. Nothing is official until `DESIGN.md` exists.
+
+Whole look:
 
 Write `DESIGN.md` from this direction? Colour, type, control, and layout principles from the primary card. Skip if you only want the board for now.
 
-- Yes → load `design-md` and write the file from the board.
-- No / skip → leave the board; do not invent a brand file.
-
-**Later hunt:** Name the two or three closest the same way; shots in `.design/hunts/<slug>/`. Say this pass does not change the look until they accept. After they pick what to take, ask **once**:
+Later hunt:
 
 Update `DESIGN.md` with what we accepted from this hunt? (Keeps colour and type unless we agreed to change them.)
 
-- Yes → load `design-md` and update only what that pass changes.
-- No / skip → leave `DESIGN.md` and the board as they were.
+- Yes → load `design-md` and write or update from the board or the hunt note.
+- No / skip → leave the board; do not invent a brand file. A later hunt leaves `DESIGN.md` and the board as they were.
+
+If their next messages go elsewhere without a yes or a skip, ask again **once**, and make it the first thing in that reply. A second ask after a topic change is the step, not a repeat of the style question. After that second ask, wait. Do not ask a third time.
 
 Then **stop**, unless they also asked to build, code, or design the page in the same ask. Coding is the project’s router after this skill finishes. The board and `DESIGN.md` are enough when the ask was direction only — say the direction in chat and stop.
 
@@ -237,10 +256,15 @@ The control in the primary card is the control. Do not add a filled button the c
 - Put a later hunt’s shots in `.design/refs/`, or delete a hunt shot because the board does not cite it.
 - Let a loading hunt replace `.design/board.md` or `.design/refs/`, or let the whole look replace `.design/hunts/`. Order does not matter. The only rewrite of the board is that same whole look.
 - Rewrite `DESIGN.md` without their confirm. Persist only through `design-md` after **After they pick**.
+- Bury the persist question at the end of a long report. It is its own message.
+- Write skill feedback, session notes, or any file under `.design/` that is not the board, a hunt folder, or a shot those cite.
 - Write a new `.design/piece.md`.
 - Pad the count by lowering the filter, or by keeping pictures you would not put on the page.
 - Stop looking at the first page of results, or treat the keep count as the number of candidates you open.
-- Scroll or screenshot a candidate. The capture script runs on a keep only.
+- Scroll or screenshot a candidate into `refs/`. The capture script runs on a keep only. Listing thumbnails and scratch contact sheets are fine; they are not refs.
+- Sample colour from a photo, mockup surround, or presentation background when the role is UI ink or accent.
+- Write **Read this** colour pairs that have not been through `scripts/contrast.mjs`.
+- Keep a typeface whose licence does not cover how this project ships it.
 - Narrate candidates, scores, or drops while looking. After the opening line, the next thing said is the short list of the closest, each with its live URL.
 - Look in the same turn as the style question, or in the same turn as a piece’s search ideas. Wait for the answer, or for a skip.
 - Offer search ideas on a whole look, or on an ideas or check pass.

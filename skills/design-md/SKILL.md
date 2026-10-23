@@ -28,6 +28,8 @@ Write or change `DESIGN.md` only when they said yes to persisting the direction 
 
 If neither file exists, ask which reference to follow. Do not guess.
 
+Refuse to write a colour palette whose text/background pairs have not been through contrast check. On a board from `design-reference-hunt`, **Read this** must list each pair with ratio and verdict (`scripts/contrast.mjs`). Body and small text need 4.5:1; large text and non-text marks need 3:1. If pairs are missing or any still FAIL, send the board back — do not write failing hexes into `DESIGN.md`.
+
 Expand the cards into a short brand file a builder can follow without the shots open:
 
 ```markdown
