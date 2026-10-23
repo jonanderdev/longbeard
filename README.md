@@ -56,7 +56,7 @@ Writing stays small, and a risky change is named before it is built. A page foll
     </tr>
     <tr>
       <td><a href="skills/design-reference-hunt/SKILL.md">design-reference-hunt</a></td>
-      <td>When there is no design direction, searches award-winning sites and galleries such as Dribbble, and writes a board for the design that follows. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place</td>
+      <td>When there is no design direction, searches live sites and galleries — Awwwards, MaxiBestOf, Recent, Dribbble, and others — and writes a board of the same size. It opens more candidates across those galleries before it keeps. Before looking, it asks for a specific style and any requirements. A later request — a view, a loading state, new ideas, a double-check — writes a separate suggestion set; a piece also gets a few search ideas first. That set leaves the board in place</td>
       <td>Long Beard</td>
     </tr>
     <tr>
