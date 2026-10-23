@@ -1,7 +1,18 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, readSync, statSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  readSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +43,8 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
 
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
+A kit skill is copied from the installed package when its version moved, and the line says which versions.
+Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
 --force replaces local edits of skills this command installed.
@@ -412,6 +425,14 @@ function writeLock(flags, lock) {
   writeJson(lockFile(flags, true), { version: 1, skills: lock.skills });
 }
 
+function packageVersion() {
+  try {
+    return readJson(join(root, "package.json")).version ?? "";
+  } catch {
+    return "";
+  }
+}
+
 function recordInstall(lock, skill, agents) {
   const prev = lock.skills[skill.name] ?? { agents: [] };
   lock.skills[skill.name] = {
@@ -419,7 +440,29 @@ function recordInstall(lock, skill, agents) {
     author: skill.author,
     agents: [...new Set([...prev.agents, ...agents])],
     installedAt: new Date().toISOString(),
+    ...(skill.source === "local" ? { version: packageVersion() } : {}),
   };
+}
+
+// The skills CLI can only update what it can fetch. A kit skill lives in this
+// package, so update copies it here instead of reporting "up to date" over a
+// stale file.
+function copyLocalSkill(name, agents, global) {
+  const from = join(root, "skills", name);
+  if (!existsSync(join(from, "SKILL.md"))) return false;
+  let copied = false;
+  for (const dir of new Set(agents.map((agent) => agentDir(agent, global)))) {
+    const to = join(dir, name);
+    if (existsSync(to)) {
+      // A link already points at this package. Replacing it would pin a copy.
+      if (lstatSync(to).isSymbolicLink()) continue;
+      rmSync(to, { recursive: true, force: true });
+    }
+    mkdirSync(dirname(to), { recursive: true });
+    cpSync(from, to, { recursive: true });
+    copied = true;
+  }
+  return copied;
 }
 
 function skillMarkdown(name, agents, global) {
@@ -452,7 +495,7 @@ The project's own code, conventions, and DESIGN.md win.
 
 Load only what the task needs. Leave the rest unread.
 
-A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes an adaptation; it does not code the page. After they pick a leading reference, open the moodboard, say what we take, change, and leave, then ask once to write or update DESIGN.md — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
+A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes an adaptation; it does not code the page. Open the moodboard before they pick, mark the lead after, say what we take, change, and leave, then ask once to write or update DESIGN.md — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
 
 ${lines.join("\n")}
 
@@ -616,19 +659,37 @@ function update(flags) {
   if (classified.missing.length > 0) say(dim("Installing…"));
   installSkills(classified.missing, { global: flags.global, agents });
   remember(classified.lock, flags, classified.missing, agents);
-  if (refresh.length > 0) {
-    say(dim("Refreshing…"));
-    const args = ["update", ...refresh.map((skill) => skill.name), "-y"];
+  const here = packageVersion();
+  const local = refresh.filter((skill) => skill.source === "local");
+  const theirs = refresh.filter((skill) => skill.source !== "local");
+  const stale = flags.force
+    ? local
+    : local.filter((skill) => (classified.lock.skills[skill.name]?.version ?? "") !== here);
+  let copied = 0;
+  if (stale.length > 0 || theirs.length > 0) say(dim("Refreshing…"));
+  for (const skill of stale) {
+    const was = classified.lock.skills[skill.name]?.version || "unknown";
+    if (!copyLocalSkill(skill.name, skill.agentsNeed ?? agents, flags.global)) continue;
+    copied += 1;
+    say(was === here ? `  ${skill.name} ${here}, replaced` : `  ${skill.name} ${was} → ${here}`);
+  }
+  for (const skill of local) {
+    if (stale.includes(skill)) continue;
+    say(dim(`  ${skill.name} ${here}, already there`));
+  }
+  if (theirs.length > 0) {
+    const args = ["update", ...theirs.map((skill) => skill.name), "-y"];
     if (flags.global) args.push("--global");
     else args.push("--project");
     runSkills(args);
-    remember(readLock(flags), flags, refresh, agents);
   }
+  if (refresh.length > 0) remember(readLock(flags), flags, refresh, agents);
   writePointers(flags, items);
   const held = flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length;
   finish([
     green("Done."),
-    `${classified.missing.length} installed, ${refresh.length} refreshed, ${held} left as they are.`,
+    `${classified.missing.length} installed, ${copied + theirs.length} refreshed, ${held} left as they are.`,
+    `This is Long Beard ${here}. Run npm install -D @jonandev/longbeard@latest first if a newer one is out.`,
     flags.global ? "Rewrote ~/.longbeard/AGENTS.md." : "Rewrote the AGENTS.md block.",
   ]);
 }

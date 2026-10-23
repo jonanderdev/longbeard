@@ -24,12 +24,12 @@ They asked to **hunt**, **define direction**, or find references → load `desig
 
 Write or change `DESIGN.md` only when they said yes to persisting the adaptation (after a whole-look leading pick, or after accepting a later hunt). Do not invent hexes, faces, or controls. Do not copy the leading card’s `colour` or `type` into the brand. Take the adaptation from:
 
-- `.design/board.md` **Read this** (`take`, `change`, `colour`, `type`, `control`, `leave`), or
+- `.design/board.md` **Read this** (`take`, `change`, `ownable`, `colour`, `type`, `control`, `leave`, `gaps`), or
 - `.design/hunts/<slug>/note.md` when the change is a later pass they accepted
 
-`.design/moodboard.html` is the references. Do not read it as the brand.
+`.design/moodboard.html` is the references, and `.design/proof.html` is the adaptation shown with the project’s own words. Do not read either as the brand: the brand is **Read this**.
 
-If **Read this** has no `take`, `change`, `colour`, or `type`, stop and send it back to the hunt. Do not fill those in here.
+If **Read this** has no `take`, `change`, `colour`, or `type`, or has no `ownable`, stop and send it back to the hunt. Do not fill those in here.
 
 If neither file exists, ask which reference to follow. Do not guess.
 
@@ -46,6 +46,7 @@ Expand the adaptation into a short brand file a builder can follow without the s
 - from: .design/board.md | .design/hunts/<slug>/note.md
 - take: <from Read this>
 - change: <the twist>
+- ownable: <the one concrete element from the project’s own identity, from Read this>
 - leave: <their name, their exact colours, their exact faces, and the rest>
 
 ## Colour
@@ -62,6 +63,9 @@ Expand the adaptation into a short brand file a builder can follow without the s
 
 ## Imagery
 - <what the pictures are, if any>
+
+## Gaps
+- <screens with no strong reference, from Read this. A builder treats these as open, not as solved by a borrowed pattern>
 
 ## Do not
 - <the leave line>

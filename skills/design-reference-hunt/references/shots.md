@@ -22,7 +22,7 @@ node <skill>/scripts/capture.mjs https://example.com --out .design/hunts/<slug>/
 
 Tall captures (thousands of px) shrink when opened whole until body text is illegible. For reading only, add `--review <scratch>/name-review.jpg`. That writes side-by-side columns about 2,800 px tall; the real capture stays the single tall file in `refs/`. Review files stay in temp or session scratch, never `refs/`.
 
-Type specimens (Google Fonts, etc.): use `--clip x,y,w,h` so the shot is the specimen area (name, large sample, text sample), or crop to that area after capture. A type shot may be cropped to the specimen — it is material, not a site.
+Type specimens (Google Fonts, etc.): use `--clip-selector "<css>"` to clip to an element's box — on `fonts.google.com` the specimen `main` — so the empty rail above it is not in the shot. `--clip x,y,w,h` still works when no element matches the area. Either way the shot is the specimen (name, large sample, text sample). A type shot may be cropped to the specimen — it is material, not a site.
 
 The script opens Chrome, accepts a cookie **button** if the whole label matches (not partial “ok” inside other link text), strips short privacy/cookie dialogs, then scrolls a viewport at a time and pauses so pictures and reveals can finish. If a dismiss click navigates away, it exits non-zero with `navigated away: <url>` — do not keep that file. It pauses motion. It does not turn animations off, because that puts a revealed section back to blank. Then it unsticks `fixed`/`sticky` and takes **one** JPEG of the document. Node 22+. Chrome, Edge, or Chromium must be installed (`CHROME_PATH` if it is not in the usual place). Helpers stay Node with no package dependencies.
 
@@ -35,12 +35,22 @@ Then open the file (use the review sheet when the capture is tall). Write the he
 
 If it is invalid, delete it and run the script again. If the site will not scroll (WebGL, a locked canvas), say `coverage: fold` on the board, keep a **single** viewport shot, and find another scrolling site. Never glue folds by hand.
 
+## Look at your own moodboard
+
+The capture script takes a `file://` URL too, so the moodboard can be checked before anyone is shown it:
+
+```
+node <skill>/scripts/capture.mjs "file://$PWD/.design/moodboard.html" --out <scratch>/moodboard.jpg
+```
+
+Open that shot. A caption that states the wrong reason, a face that fell back to the default serif, a tile that is a product page, or a missing picture is fixed on the board, and the moodboard script is run again. The shot stays in scratch, never in `refs/`.
+
 ## Open the piece
 
 - Prefer a **live site**. Click through from Awwwards / Godly / Land-book / siteinspire / MaxiBestOf / Recent / Dark Mode Design to the actual URL, then run the script on that URL.
 - Supahero: the live site behind a hero, or the hero crop itself when the piece is a hero. Not the grid.
 - Muzli: the original URL. Not the Muzli page.
-- Dribbble: listing pages are client-rendered; `/shots/...` often returns Human Verification to headless Chrome. Use `scripts/dribbble-cards.mjs` on a popular-search listing URL — it scrolls and prints TSV of `id-slug`, views, image URL, title. Download artwork from `cdn.dribbble.com` (`<url>?resize=1600x1200`). Do not capture `/search`. Run queries one at a time; if a query returns 0 cards, retry once after a pause.
+- Dribbble: listing pages are client-rendered; `/shots/...` often returns Human Verification to headless Chrome. Use `scripts/dribbble-cards.mjs` on a popular-search listing URL — it scrolls and prints TSV of `id-slug`, likes, views, image URL, title. Download artwork from `cdn.dribbble.com` (`<url>?resize=1600x1200`). Do not capture `/search`. Run queries one at a time; if a query returns 0 cards, retry after 8 seconds, then after 30 seconds, then record it under drops.
 - Pinterest: the pin image only, not the board and not search. If a login wall appears, see [quality.md](quality.md).
 - Never capture a search grid, a home feed, or a listing of cards (contact sheets of listing thumbnails are fine; they are not refs).
 
