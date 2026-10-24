@@ -5,6 +5,8 @@ cd "$(dirname "$0")/.."
 VERSION=$(node -p "require('./package.json').version")
 NAME=$(node -p "require('./package.json').name")
 
+npm test
+
 awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1 } END { exit !found }' CHANGELOG.md \
   || { echo "CHANGELOG.md has no section for $VERSION" >&2; exit 1; }
 

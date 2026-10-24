@@ -40,6 +40,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "longbeard": "node ./bin/long-beard.js"
+    "longbeard": "node ./bin/long-beard.js",
+    "router": "node ./bin/long-beard.js router > AGENTS.md",
+    "test": "node --test"
   }
 }
