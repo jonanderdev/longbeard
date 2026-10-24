@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
@@ -14,7 +15,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -433,15 +434,33 @@ function packageVersion() {
   }
 }
 
-function recordInstall(lock, skill, agents) {
+function recordInstall(lock, skill, agents, global) {
   const prev = lock.skills[skill.name] ?? { agents: [] };
+  const all = [...new Set([...prev.agents, ...agents])];
+  const folder = skillFolders(skill.name, all, global)[0];
   lock.skills[skill.name] = {
     source: skill.source,
     author: skill.author,
-    agents: [...new Set([...prev.agents, ...agents])],
+    agents: all,
     installedAt: new Date().toISOString(),
     ...(skill.source === "local" ? { version: packageVersion() } : {}),
+    ...(folder ? { hash: folderHash(folder) } : {}),
   };
+}
+
+// A clone or a checkout rewrites every mtime, so an edit is a change of content.
+function folderHash(dir) {
+  const hash = createHash("sha256");
+  const walk = (at) => {
+    for (const name of readdirSync(at).sort()) {
+      if (name === ".DS_Store") continue;
+      const file = join(at, name);
+      if (statSync(file).isDirectory()) walk(file);
+      else hash.update(`${relative(dir, file)}\0`).update(readFileSync(file));
+    }
+  };
+  walk(dir);
+  return hash.digest("hex");
 }
 
 // The skills CLI can only update what it can fetch. A kit skill lives in this
@@ -465,22 +484,25 @@ function copyLocalSkill(name, agents, global) {
   return copied;
 }
 
-function skillMarkdown(name, agents, global) {
-  const files = [];
+function skillFolders(name, agents, global) {
+  const folders = [];
   const seen = new Set();
   for (const agent of agents) {
-    const file = join(agentDir(agent, global), name, "SKILL.md");
-    if (seen.has(file)) continue;
-    seen.add(file);
-    if (existsSync(file)) files.push(file);
+    const folder = join(agentDir(agent, global), name);
+    if (seen.has(folder)) continue;
+    seen.add(folder);
+    if (existsSync(join(folder, "SKILL.md"))) folders.push(folder);
   }
-  return files;
+  return folders;
 }
 
 function locallyEdited(name, entry, agents, global) {
+  const folders = skillFolders(name, entry?.agents ?? agents, global);
+  if (entry?.hash) return folders.some((folder) => folderHash(folder) !== entry.hash);
+  // Locks written before 0.6.1 have no hash. The next update records one.
   const installed = Date.parse(entry?.installedAt ?? "");
   if (Number.isNaN(installed)) return false;
-  return skillMarkdown(name, entry.agents ?? agents, global).some((file) => statSync(file).mtimeMs > installed + 2000);
+  return folders.some((folder) => statSync(join(folder, "SKILL.md")).mtimeMs > installed + 2000);
 }
 
 function generateRouter(items) {
@@ -495,7 +517,7 @@ The project's own code, conventions, and DESIGN.md win.
 
 Load only what the task needs. Leave the rest unread.
 
-A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes an adaptation; it does not code the page. Open the moodboard before they pick, mark the lead after, say what we take, change, and leave, then ask once to write or update DESIGN.md — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
+A marketing site is the page a person lands on to understand or choose. An application is the tool they come back to. Official look wins: DESIGN.md, then Figma, then the board. Hunt finds references and proposes an adaptation; it does not code the page. Open the moodboard before they pick, mark the lead after, say what we take, change, and leave, then ask to write or update DESIGN.md as its own message — once more, first, if they move on without answering — only on yes. Code the page only when they asked to build. Direction-only stops after persist. A site hunts live pages; an application hunts screen shots. With a direction already, hunt only the piece.
 
 ${lines.join("\n")}
 
@@ -503,6 +525,12 @@ A normal change can be ponytail and a short premortem. That is still a small set
 
 Write so a person can use the reply in one read. End with what you did not check.
 `;
+}
+
+// AGENTS.md in this repository is this output, without the optional skills.
+// `npm run router` rewrites it; `npm test` fails when the two drift.
+function kitRouter() {
+  return generateRouter(catalog(curated()).filter((item) => !item.optional));
 }
 
 function pointerWrites(flags, agents) {
@@ -624,7 +652,7 @@ function setCatalog(manifest, items) {
 }
 
 function remember(lock, flags, skills, agents) {
-  for (const skill of skills) recordInstall(lock, skill, skill.agentsNeed ?? agents);
+  for (const skill of skills) recordInstall(lock, skill, skill.agentsNeed ?? agents, flags.global);
   writeLock(flags, lock);
 }
 
@@ -708,9 +736,10 @@ function add(flags, rest) {
     }
     setCatalog(manifest, items);
     writeJson(curatedFile, manifest);
+    writeFileSync(join(root, "AGENTS.md"), kitRouter());
     heading("add", flags, curated().agents);
     rows("catalog", green, flags.skill.map((name) => entry(name, source, flags)), "", 16);
-    finish([green("Done."), "Wrote beard.json. Commit it and push. Projects pick this up on update."]);
+    finish([green("Done."), "Wrote beard.json and AGENTS.md. Commit them and push. Projects pick this up on update."]);
     return;
   }
   const extra = extraState(flags);
@@ -751,9 +780,10 @@ function remove(flags, rest) {
     }
     setCatalog(manifest, items.filter((item) => !names.includes(item.name)));
     writeJson(curatedFile, manifest);
+    writeFileSync(join(root, "AGENTS.md"), kitRouter());
     heading("remove", flags, curated().agents);
     rows("catalog", yellow, names.map((name) => ({ name })), "", 16);
-    finish([green("Done."), "Wrote beard.json. Commit it and push."]);
+    finish([green("Done."), "Wrote beard.json and AGENTS.md. Commit them and push."]);
     return;
   }
   const { manifest, extra } = chosen(flags);
@@ -824,4 +854,5 @@ else if (command === "add") add(flags, rest);
 else if (command === "remove") remove(flags, rest);
 else if (command === "update") update(flags);
 else if (command === "list") list(flags);
+else if (command === "router") process.stdout.write(kitRouter());
 else fail(`Unknown command: ${command}\n\n${help}`);
