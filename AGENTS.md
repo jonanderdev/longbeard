@@ -11,6 +11,7 @@ A marketing site is the page a person lands on to understand or choose. An appli
 - The whole repo: ponytail-audit. That same pass, over every file.
 - Shortcuts you meant to come back to: ponytail-debt. Collect the limits you marked.
 - Something is broken, throwing, failing, or slow — a hard bug: diagnosing-bugs. Build a tight feedback loop first, then localize, reduce, fix, and guard.
+- They asked for TDD, test-first, or red-green-refactor: tdd. Red before green, one slice at a time, tests at seams you agreed. Only on request; ponytail stays the default for building.
 - A change that touches data, money, jobs, or what a person sees: premortem. Name where it can break before you write. A small change gets a short answer.
 - They asked to grill a plan or design, or the ask is underspecified: grill-me. Interview until every branch of the design tree is resolved. Uses grilling.
 - Stress-testing a plan, decision, or idea: grilling. The interview primitive behind grill-me. Relentless questions until branches are closed.

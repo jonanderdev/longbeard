@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `tdd` from [Matt Pocock](https://github.com/mattpocock/skills) is in the default kit, under Code. It runs only when you ask for TDD, test-first, or red-green-refactor; `ponytail` stays the default for building and fixing. People who already ran `init`: install this version, then run `npx longbeard update`.
+
 ## 0.6.0 — 2026-10-23
 
 - `update` refreshes a kit skill from the installed package. It used to hand every refresh to the skills CLI, which cannot fetch a skill that ships inside this package, so it printed "up to date" over files from an older release. Each line now says which versions moved (`design-reference-hunt 0.5.1 → 0.6.0`), `--force` always replaces, and the last line names the version you are running. Install the package first; `update` still does not fetch it.
