@@ -42,6 +42,14 @@
       "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
     },
     {
+      "name": "tdd",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills",
+      "when": "They asked for TDD, test-first, or red-green-refactor",
+      "why": "Red before green, one slice at a time, tests at seams you agreed. Only on request; ponytail stays the default for building."
+    },
+    {
       "name": "premortem",
       "author": "GeorgeT",
       "license": "MIT",

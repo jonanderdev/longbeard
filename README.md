@@ -80,7 +80,7 @@ Writing stays small. A risky change is named before it is built. Design directio
       <td>juliobsz</td>
     </tr>
     <tr>
-      <td rowspan="3">Code</td>
+      <td rowspan="4">Code</td>
       <td><a href="https://github.com/joetawil7/first-pass/tree/main/skills/premortem">premortem</a></td>
       <td>Names where a change will break before you write</td>
       <td>GeorgeT</td>
@@ -93,6 +93,11 @@ Writing stays small. A risky change is named before it is built. Design directio
     <tr>
       <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs">diagnosing-bugs</a></td>
       <td>Hard bugs and regressions: feedback loop, then fix</td>
+      <td>Matt Pocock</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd">tdd</a></td>
+      <td>Test-first, one red-to-green slice at a time, when you ask for it</td>
       <td>Matt Pocock</td>
     </tr>
     <tr>
