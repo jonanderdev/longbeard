@@ -3,6 +3,8 @@
 ## Unreleased
 
 - `tdd` from [Matt Pocock](https://github.com/mattpocock/skills) is in the default kit, under Code. It runs only when you ask for TDD, test-first, or red-green-refactor; `ponytail` stays the default for building and fixing. People who already ran `init`: install this version, then run `npx longbeard update`.
+- The `AGENTS.md` block `init` and `update` write now matches the 0.6.0 hunt: the `DESIGN.md` ask is its own message, asked once more if they move on without answering. 0.6.0 shipped the older "ask once" line. Run `npx longbeard update` after installing this release.
+- `update` tells an edit by content, not by file time. A fresh clone or a checkout no longer makes every skill look edited, so they refresh again. A lock written by 0.6.0 or earlier has no hash yet: if `update` lists a skill under "your edits" that you did not change, run `npx longbeard update --force` once.
 
 ## 0.6.0 — 2026-10-23
 
