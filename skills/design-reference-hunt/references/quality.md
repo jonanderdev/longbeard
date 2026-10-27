@@ -52,7 +52,9 @@ Listing pages are client-rendered (WebFetch returns empty). Shot pages (`/shots/
 
 **Query for the form, not the word.** A search for the subject’s word returns things that share the word and not the idea: for “writing app”, print-on-demand tees, CV services, tracing worksheets, essay mills, posters, AI assistants. Use a category path and add the form — `/search/shots/popular/product-design?q=writing+app+ui`, `/mobile?q=text+editor+screen`, `/web-design?q=…`.
 
-**Negative list.** `scripts/dribbble-cards.mjs` drops these by whole word in the slug and title before a thumbnail is fetched, and prints the noise rate on stderr: `t-shirt, tee, merch, apparel, hoodie, resume, cv, cover letter, essay, worksheet, tracing, handwriting practice, alphabet, halloween, christmas, valentine, logo, logotype, branding, brand identity, packaging, poster, book cover, sticker, mockup, chatbot, mood tracker, habit tracker`. A project extends it with `--drop "a,b"` and relaxes it with `--keep "a,b"` (a font hunt keeps `logotype`; a product about moods keeps `mood tracker`). Put the noise rate under the board’s drops. A high rate means the query is wrong: fix the query, do not scroll more. Words that may be the subject itself, like “ai” and “illustration”, are judged on the shot, not filtered on the title.
+**Negative list.** `scripts/dribbble-cards.mjs` drops merch, CVs, worksheets, posters, logos, and code, video, photo, and AI tools by whole word in the slug and title before a thumbnail is fetched. The list is `OFF_TOPIC` in that script. A project extends it with `--drop "a,b"` and relaxes it with `--keep "a,b"` (a font hunt keeps `logotype`; a product that is a dashboard keeps `dashboard`). Words that may be the subject itself, like “ai” and “illustration”, are judged on the shot, not filtered on the title.
+
+**Noise is two numbers.** The script's rate is what the title filter caught. It says nothing about what got through. After the contact sheet, count the cards that are this form: `writing app ui: 28 kept by the filter, 3 relevant on the sheet`. Write both under the board's `Noise:`. When the second number is small, the query is wrong: fix the query, do not scroll more.
 
 Sort this year by **popular** (`timeframe=year`). There is no “most saved/liked” sort on the listing. `scripts/dribbble-cards.mjs` prints `id-slug`, **likes**, **views**, image URL, and title, each count read from the card's own stat element. A count it cannot read is empty — it never guesses one from the title. `score:` uses whichever counts came back: `score: 39 likes, 6k views`, or `score: 5.4k views (likes unavailable)`. Do not put a number on a card that the helper left empty. `timeframe=year` is not strict — older shots appear; when the slug or shot ID reveals a year, record it on the card so an old shot is visible as old.
 
@@ -66,13 +68,17 @@ A Dribbble drawing is **imagery**, never a site.
 
 ## Shipped, or a concept
 
-A Dribbble shot of a screen is usually a mockup with a few short, curated sample texts. It has never faced a long essay, a phone keyboard, Markdown, empty or error states, or the product’s key feature. Mark every app card `shipped: yes | concept`. Shipped sources first for an app: the product’s own in-app screenshots (App Store listings, press kits, help docs) and shipped-screen galleries such as Mobbin or Refero, which may need the person’s login — write `Mobbin: login wall` under drops and go on. When the lead is a concept, **Read this** says what it does not show (`not shown`).
+A Dribbble shot of a screen is usually a mockup with a few short, curated sample texts. It has never faced a long essay, a phone keyboard, Markdown, empty or error states, or the product’s key feature. Mark every app card `shipped: yes | concept`. Shipped sources first for an app: the product’s own in-app screenshots (App Store listings through `scripts/appstore-shots.mjs`, press kits, help docs) and shipped-screen galleries such as Mobbin or Refero, which may need the person’s login — write `Mobbin: login wall` under drops and go on. When the lead is a concept, **Read this** says what it does not show (`not shown`).
 
 For a typography-first brief, a register source outside screens is allowed: book design, publishers, editorial typography. Say on the card why it is the register.
 
 ## A seed
 
 A picture the person gave you is a seed. It is not scored, not dropped for being off-gallery, and it is shown on the moodboard like any other tile. It steers queries (“more like this”) and it ranks candidates on the contact sheet.
+
+A seed that is not this surface (a poster for an app, a recipe card) still steers the queries, and goes under `Seeds set aside:` on the board, one line each with the reason. It stays one step away: they can bring any back. Seeds take at most half the moodboard's tiles, so the search is still seen.
+
+A picture pasted into the chat has no URL. Save it as `.design/refs/seed-<name>.<ext>` (ask them to save it there if you cannot write the file) and write `url: none (shared in chat)`. The moodboard shows that tile without a link.
 
 ## Unsplash / Wikimedia
 
@@ -93,3 +99,5 @@ Before the persist ask, run every adapted text/background pair through `scripts/
 ## Type licence
 
 A type pick needs a `licence:` line that covers how this project ships it (bundled in app, self-hosted web, default UI). If it does not cover that use, drop it and name it under drops.
+
+Set a face at the sizes it will do its jobs before it goes into **Read this**: its italic still reads as italic at quote size, and its figures suit where numbers sit (lining and tabular in controls, counts, and times). A face that fails a job it was picked for is named under drops, or that job goes to a second face.

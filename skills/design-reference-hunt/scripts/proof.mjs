@@ -125,25 +125,34 @@ if (!colours.length) {
 }
 
 const nightish = (s) => /night|dark|dusk|lamp|evening/i.test(s.label);
-const byLight = [...colours].sort((a, b) => lum(b.hex) - lum(a.hex));
 const night = colours.filter(nightish);
 const dayPool = colours.filter((s) => !nightish(s));
 
+// A role comes from the words after the hex. Ground and text fall back to the
+// lightest and darkest; the others are only shown when a label names them,
+// so a grey-only palette gets no invented accent.
+const roles = {
+  mark: /accent|mark|dot|rule|highlight/i,
+  dim: /\bdim|faded|earlier/i,
+  secondary: /secondary|meta|muted|caption|quiet|label/i,
+  text: /text|ink|body/i,
+  ground: /page|ground|background|paper|canvas/i,
+};
+const roleOf = (s) => Object.keys(roles).find((role) => roles[role].test(s.label)) || "";
+
+// With no colours labelled for this side, labels belong to the other side:
+// night inverts the palette by lightness, as it always did.
 function theme(pool, dark) {
-  const list = (pool.length ? pool : colours).slice();
+  const list = pool.length ? pool : colours;
   const sorted = [...list].sort((a, b) => lum(b.hex) - lum(a.hex));
-  const ground = dark ? sorted[sorted.length - 1] : sorted[0];
-  const text = dark ? sorted[0] : sorted[sorted.length - 1];
-  // The accent is the hex furthest from both, so a cream-and-ink pair falls
-  // back to the ink rather than inventing a colour.
-  const rest = list.filter((s) => s.hex !== ground.hex && s.hex !== text.hex);
-  const accent =
-    rest.sort((a, b) => Math.abs(lum(a.hex) - lum(ground.hex)) - Math.abs(lum(b.hex) - lum(ground.hex))).pop() || text;
-  return { ground, text, accent };
+  const named = (role) => (pool.length ? list.find((s) => roleOf(s) === role) : undefined);
+  const ground = named("ground") || (dark ? sorted[sorted.length - 1] : sorted[0]);
+  const text = named("text") || (dark ? sorted[0] : sorted[sorted.length - 1]);
+  return { ground, text, secondary: named("secondary"), dim: named("dim"), mark: named("mark") || colours.find((s) => roleOf(s) === "mark"), all: list };
 }
 
 const day = theme(dayPool, false);
-const dusk = theme(night.length ? night : byLight, true);
+const dusk = theme(night, true);
 
 function isFaceName(name) {
   const words = name.split(/\s+/);
@@ -178,18 +187,22 @@ const metaFace = family(faces.find((f) => isSans(f)) || faces[1] || faces[0] || 
 
 // The words are this project's, so the direction is judged on real text.
 const projectName = nameArg || basename(root);
+// A paragraph is the lines between blank lines, so a file wrapped at 80 or 105
+// columns still has one. Headings, lists, quotes, tables, and HTML are not prose.
 function sampleText() {
   const files = sampleArg ? [sampleArg] : ["PRODUCT.md", "PROJECT.md", "README.md"];
   for (const file of files) {
     const path = resolvePath(file);
     if (!existsSync(path)) continue;
-    const plain = readFileSync(path, "utf8")
+    const para = readFileSync(path, "utf8")
       .replace(/```[\s\S]*?```/g, "")
-      .split(/\r?\n/)
-      .filter((l) => l.trim() && !/^[#>\-*|!\[]/.test(l.trim()) && !/^\s*\d+\./.test(l))
-      .map((l) => l.trim());
-    const para = plain.find((l) => l.length > 120);
-    if (para) return { text: para.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`]/g, ""), from: file };
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .split(/\r?\n\s*\r?\n/)
+      .map((block) => block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean))
+      .filter((lines) => lines.length && !lines.some((l) => /^([#>\-*|!<]|\d+\.\s)/.test(l)))
+      .map((lines) => lines.join(" "))
+      .find((text) => text.length > 120);
+    if (para) return { text: para.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`]/g, ""), from: basename(file) };
   }
   return {
     text:
@@ -202,29 +215,48 @@ const meta = metaArg || "Draft · 1,240 words · edited today";
 const gaps = (read.gaps || "").trim();
 const ownable = (read.ownable || "").trim();
 const control = (read.control || "").trim();
+const behaviour = (read.behaviour || read.behavior || "").trim();
+const [firstSentence, ...restSentences] = sample.text.split(/(?<=[.!?])\s+/);
 
 function panel(name, t, large) {
   const pairs = [
-    { label: "body on ground", r: ratio(t.text.hex, t.ground.hex), large: false },
-    { label: "accent on ground", r: ratio(t.accent.hex, t.ground.hex), large: true },
-  ];
+    { label: "body", s: t.text, large: false },
+    t.secondary && { label: "secondary", s: t.secondary, large: false },
+    t.dim && { label: "dimmed", s: t.dim, large: false },
+    t.mark && { label: "mark", s: t.mark, large: true },
+  ].filter(Boolean);
   const checks = pairs
     .map((p) => {
-      const v = verdict(p.r, p.large);
-      return `<li class="${v === "FAIL" ? "fail" : "pass"}">${esc(p.label)} ${p.r.toFixed(2)}:1 ${v}</li>`;
+      const r = ratio(p.s.hex, t.ground.hex);
+      const v = verdict(r, p.large);
+      return `<li class="${v === "FAIL" ? "fail" : "pass"}">${esc(p.label)} ${r.toFixed(2)}:1 ${v}</li>`;
     })
     .join("");
-  return `<section class="panel${large ? " wide" : " phone"}" style="--ground:${esc(t.ground.hex)};--text:${esc(t.text.hex)};--accent:${esc(t.accent.hex)}">
+  // Every hex on this side of the colour line, with its label, so a grey that
+  // only carries metadata is still seen.
+  const chips = t.all
+    .map((s) => `<li><span class="chip" style="background:${esc(s.hex)}"></span>${esc(s.hex)}${s.label ? ` ${esc(s.label)}` : ""}</li>`)
+    .join("");
+  const dimmed = t.dim && restSentences.length;
+  const style = [
+    `--ground:${t.ground.hex}`,
+    `--text:${t.text.hex}`,
+    `--secondary:${(t.secondary || t.text).hex}`,
+    `--dim:${(t.dim || t.text).hex}`,
+    `--mark:${(t.mark || t.text).hex}`,
+  ].join(";");
+  return `<section class="panel${large ? " wide" : " phone"}" style="${esc(style)}">
     <header class="panel-head"><p class="kicker">${esc(name)}</p><ul class="checks">${checks}</ul></header>
     <div class="page">
-      <p class="eyebrow">${esc(projectName)}</p>
+      <p class="eyebrow">${t.mark ? '<span class="dot"></span>' : ""}${esc(projectName)}</p>
       <h2 class="piece">${esc(sample.from === "placeholder" ? projectName : `${projectName}, in its own words`)}</h2>
       <p class="meta">${esc(meta)}</p>
-      <p class="body">${esc(sample.text)}</p>
+      ${dimmed ? `<p class="body dim">${esc(firstSentence)}</p><p class="body">${esc(restSentences.join(" "))}</p>` : `<p class="body">${esc(sample.text)}</p>`}
       <div class="row"><span class="row-title">An earlier draft</span><span class="row-meta">${esc(meta)}</span></div>
       <div class="row"><span class="row-title">The first page</span><span class="row-meta">${esc(meta)}</span></div>
       ${control ? `<p class="control">${esc(control)}</p>` : ""}
     </div>
+    <ul class="chips">${chips}</ul>
   </section>`;
 }
 
@@ -256,15 +288,20 @@ ${fonts ? `<link rel="stylesheet" href="${esc(fonts)}">\n` : ""}<style>
   .checks { display: flex; gap: 14px; margin: 0; padding: 0; list-style: none; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; opacity: 0.8; }
   .checks .fail { font-weight: 700; text-decoration: underline; }
   .page { padding: 34px 32px 38px; }
-  .eyebrow, .meta, .row-meta { font-family: var(--meta); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-  .eyebrow { margin: 0 0 22px; }
+  .eyebrow, .meta, .row-meta { font-family: var(--meta); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--secondary); }
+  .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 22px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mark); }
+  .body.dim { color: var(--dim); margin-bottom: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 14px 24px 18px; list-style: none; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; color: var(--secondary); border-top: 1px solid rgba(127, 127, 127, 0.25); }
+  .chips li { display: flex; align-items: center; gap: 6px; }
+  .chip { width: 14px; height: 14px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(127, 127, 127, 0.4); }
   .piece { margin: 0; font-family: var(--body); font-size: 34px; line-height: 1.12; letter-spacing: -0.02em; font-weight: 500; }
   .meta { margin: 10px 0 24px; }
   .body { margin: 0; max-width: 66ch; font-family: var(--body); font-size: 17px; line-height: 1.62; }
   .row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 18px; padding-top: 14px; border-top: 1px solid currentColor; opacity: 0.85; }
   .row:first-of-type { margin-top: 34px; }
   .row-title { font-family: var(--body); font-size: 17px; }
-  .control { margin: 30px 0 0; font-family: var(--meta); font-size: 14px; color: var(--accent); }
+  .control { margin: 30px 0 0; font-family: var(--meta); font-size: 14px; color: var(--mark); }
   .phone .page { padding: 26px 22px 30px; }
   .phone .row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .phone .piece { font-size: 26px; }
@@ -287,8 +324,9 @@ ${fonts ? `<link rel="stylesheet" href="${esc(fonts)}">\n` : ""}<style>
     ${panel("Night", dusk, false)}
   </div>
   <div class="notes">
-    <p class="note"><b>Faces:</b> ${faces.length ? esc(faces.join(", ")) : "none named in Read this"}. ${faces.length > 2 ? "Three families. Can this be done with fewer?" : "Can this be done with fewer?"}</p>
+    <p class="note"><b>Faces:</b> ${faces.length ? esc(faces.join(", ")) : "none named in Read this"}.${faces.length > 2 ? " Three families. Can this be done with fewer?" : faces.length === 2 ? " Can this be done with one?" : ""}</p>
     ${ownable ? `<p class="note"><b>Ownable:</b> ${esc(ownable)}</p>` : ""}
+    ${behaviour ? `<p class="note"><b>Behaviour, not shown here:</b> ${esc(behaviour)}</p>` : ""}
     ${gaps ? `<p class="note"><b>Not covered by a reference:</b> ${esc(gaps)}</p>` : ""}
   </div>
 </main>

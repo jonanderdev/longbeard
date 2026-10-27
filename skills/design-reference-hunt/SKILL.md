@@ -13,11 +13,11 @@ description: >
   adapted colour and type), show .design/proof.html, and ask to write
   DESIGN.md as its own message (design-md) — never the last line of a long
   report. If they move on without answering, ask once more, first in that
-  reply. Stop unless they also asked to build. A later hunt (piece, ideas,
-  check) writes .design/hunts/<slug>/ and does not replace the moodboard;
-  after they accept, ask to update DESIGN.md the same way. Direction-only
-  stops after persist. Use when they ask to hunt, define direction, or
-  design with no look yet.
+  reply. Then offer the next step: prototype the gaps, hunt one, or stop.
+  A later hunt (piece, ideas, check) writes .design/hunts/<slug>/ and does
+  not replace the moodboard; after they accept, ask to update DESIGN.md the
+  same way. .design/ stays out of git. Use when they ask to hunt, define
+  direction, or design with no look yet.
 ---
 
 # Reference hunt
@@ -52,7 +52,9 @@ A file in `.design/refs/` that the board does not cite gets deleted. A file in a
 
 A search writes only its own place. The whole no-look search owns `.design/board.md` and `.design/refs/`. A loading search owns `.design/hunts/loading/` and the shots inside it. Neither replaces the other, whichever ran first. The same whole look may rewrite its own board and its own refs: the board is unfinished, or they asked to redo that whole look. It still leaves every hunt folder. A second pass of the same piece is the next slug (`loading-2`). It does not replace `loading`, and it does not replace the board. A different piece does not replace a sibling.
 
-Skill feedback and session notes stay in the chat, for them to forward, **unless they ask for a file**. If they ask, write it where they say, or at the repo root — never under `.design/`. There is no `.design/feedback/`. `.design/` is the board, the moodboard, the proof, the hunts, and the shots those cite.
+Skill feedback and session notes stay in the chat, for them to forward, **unless they ask for a file**. If they ask, write it where they say, or at the repo root — never under `.design/`. `.design/` is the board, the moodboard, the proof, the hunts, and the shots those cite.
+
+**`.design/` stays out of git.** The shots are other people's work, and the board and the moodboard name them. On the first write to `.design/`, add `.design/` to `.gitignore` if it is not there, and say why in one line. If `git ls-files .design` already lists files, say so and leave `git rm -r --cached .design` to them. `DESIGN.md` is the file that is published.
 
 ## Gate (do this first)
 
@@ -80,15 +82,17 @@ I don't see a Figma file or a DESIGN.md for this project. If you have a Figma fi
 
 1. What are you into? How it should feel, what it should never feel like, and any apps, sites, brands, books or places you love for this.
 2. Pictures you already like? Screenshots, links or files — for this project or not.
-3. I read this as <subject>, a <website | app>, and the name gives me <identity nouns taken from the name and the story>. Broader, narrower, or wrong? Are those nouns fair game for the look?
+3. I read this as <subject>, a <website | app>, and the name gives me <identity nouns taken from the name and the story>. Broader, narrower, or wrong? Are those nouns fair game for the look? For an app: what are the main screens, and how do you move between them?
 4. Does it need pictures? A website usually does. An app like this one may not.
 5. Where should I look? Defaults for <surface> are ticked. Untick, or add your own.
    [x] <source> — <what it gives>
    [x] <source> — <what it gives>
    [ ] <source> — <what it gives>
    [ ] Your own: ______
-6. How many references do you want to see at the end? 8 / 12 / 20
+6. How many references do you want to see at the end? 6 for a quick look / 12 / 20
 ```
+
+On a redo, the first sentence is “There's a DESIGN.md from the last pass. It stays exactly as it is until you answer the replace question at the end.”, and each question offers last time's answer as its default.
 
 Defaults for the checklist, before they touch it:
 
@@ -137,15 +141,15 @@ What they accepted goes into the queries, with the subject, the page type, and t
 
 No `DESIGN.md`, no Figma, no `.design/board.md`. The first time this project needs a look. A direction that already exists, or a hunt they asked for beside a design, is **Later hunt**, not this.
 
-Say once, in one line, what you chose for anything they skipped and what you are looking for. Then look without narrating. No scores, no drops, and no site called interesting until the moodboard is open.
+Say once, in one line, what you chose for anything they skipped and what you are looking for. Then look without narrating: no scores, no drops, and no site called interesting until the moodboard is open. One progress line is allowed when the search ends: “Found 14, building the moodboard.”
 
 **Search small and clean.** The keep is what they chose in **Talk first** (default 10 for an app, 12 for a website), not a fixed 20. Eight strong references beat twenty adequate ones. The keep is not how many you open, and the filter does not drop to fill it. A thin field stays thin: name each drop.
 
 - **Query for the form, not the word.** For “writing app” most of what comes back is about the *word*: print-on-demand tees, CV services, tracing worksheets, essay mills. Use the category path and add the form: `/search/shots/popular/product-design?q=writing+app+ui`, `/mobile?q=text+editor+screen`, `/web-design?q=…`. Other subjects that share the form count: the page type, the component, the element.
-- **Negative list.** `scripts/dribbble-cards.mjs` drops the shared list from [quality.md](references/quality.md) by slug and title before a thumbnail is fetched, and prints the noise rate. Extend it with `--drop`, relax it with `--keep`.
+- **Negative list.** `scripts/dribbble-cards.mjs` drops off-topic cards by slug and title before a thumbnail is fetched ([quality.md](references/quality.md)). Extend it with `--drop`, relax it with `--keep`.
 - **Seeds rank.** When they gave pictures they like, candidates that look like a seed go first on the contact sheet. Query “more like this” from each seed.
 - **A stop rule, not a floor.** For an app, stop when two more queries add nothing to the shortlist. For a website, the 60-candidate look across each live gallery still applies before it accepts fewer than the keep.
-- **Noise rate.** A query’s noise rate goes under the board’s drops: “629 after filtering, about 40% off-topic”. A high rate means the query is wrong. Fix it. Do not scroll more.
+- **Noise is two numbers.** Kept by the filter, and relevant on the contact sheet: “28 kept, 3 relevant”. A low second number means the query is wrong. Fix it. Do not scroll more.
 - **Contact sheets are the first cut only.** Thumbnails cannot show type, and for a typography brief type is the whole question. Open every shortlisted shot at full size before it is kept. A shot you only saw as a thumbnail is not a keep.
 - Screens come from the popular Dribbble sort and a Pinterest search, past the first page of each, and from the sources they ticked. A website opens each live gallery they ticked — Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent, and Dark Mode Design when the subject, the register, or the style is dark — and uses Muzli only to reach the original.
 
@@ -155,7 +159,7 @@ Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot 
 2. This year’s date. Add the style and the requirements they gave. Filter with [quality.md](references/quality.md).
    - **Website — Sites (aim 10), mixed `fit`:** live URLs from this year. These outweigh Dribbble. Prefer Awwwards SOTD / high scores (overall and Design ≥ 7.5; never 4s). Muzli is a way into the original, not a page you keep. Supahero is heroes: open the live page when you keep a site. Aim `same-job` 2, `register` 2, `form` 6. `same-job` is this subject. `register` shares its feeling: the hour, the material, the ritual, or the kind of place. `form` is another type of business. From it, take only a layout or a component that still works once this topic’s pictures and words are in the frame. If that frame only makes sense for the other type, drop it. Not its type, and not its colours. Leave their identity. An older site only when nothing current has that structure.
    - **Website — Screens:** strongly voted Dribbble from this year, after the quality filter, and a Pinterest pin that is one real screen. They lose to a kept site. Tag `role: page | component | element` and `subject: same-job | other`. An illustration stays imagery. These are not Sites.
-   - **App — Screens (the keep they chose):** **shipped apps first.** The real in-app screens of comparable products: their App Store listings, press kits, and help docs, and shipped-screen galleries (Mobbin, Refero) when they ticked them — a login wall is a named skip, not a silent one. Then strongly voted Dribbble (likes and views — see [quality.md](references/quality.md)), a Pinterest pin that is one real screen, and component galleries. A Dribbble concept is a mockup: it has never faced a long essay, a phone keyboard, an empty state, or the product’s key feature. Mark each card `shipped: yes | concept`. These outweigh product pages and award sites. Do not fill this board with Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design.
+   - **App — Screens (the keep they chose):** **shipped apps first.** The real in-app screens of comparable products: their App Store listings (`scripts/appstore-shots.mjs`, see [shots.md](references/shots.md)), press kits, and help docs, and shipped-screen galleries (Mobbin, Refero) when they ticked them — a login wall is a named skip, not a silent one. Then strongly voted Dribbble (likes and views — see [quality.md](references/quality.md)), a Pinterest pin that is one real screen, and component galleries. A Dribbble concept is a mockup: it has never faced a long essay, a phone keyboard, an empty state, or the product’s key feature. Mark each card `shipped: yes | concept`. These outweigh product pages and award sites. Do not fill this board with Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design.
    - **App — Products (up to 6):** public product pages of this job. Not Awwwards, not a campaign site. Fewer is valid when the board names each drop. Product pages give voice and principle. The visual direction comes from screens. They stay on the board; they do not go on the moodboard.
    - **Register outside screens:** for a typography-first brief, one or two cards from book design, publishers, or editorial typography are allowed. `fit: register`, `slot: screen` if it is a page you can show, and say why on the card.
    - **Imagery (0 to 10):** only when **Talk first** said this look uses pictures. This subject’s world (Unsplash, Wikimedia, museums). Not stock category. A file counts when a crop can make the principle the subject. Drop the rest. Do not pad. Zero is a complete answer.
@@ -168,7 +172,7 @@ Scroll and screenshot only a keep. Do not scroll a candidate. Do not screenshot 
 
    One line is enough. Their answer is the adaptation’s input: `leads` and `also` come from the tiles they liked (it can be more than one), the reason they give becomes the lead caption (`--why`), and what feels wrong goes into `leave`. A tile they saw and picked outranks the three you would have named. If they say you should choose, take the closest and say which. Then rerun the moodboard with the lead marked, and write the full fields of the lead and the `also` cards (`hero`, `type`, `faces`, `imagery`, `role`, `subject`, `leave`) from the open shot files. The other cards stay short.
 
-`Asked:`, `Seeds:`, `Sources:`, and `Refs:` sit above **Read this**. They are not cards.
+`Asked:`, `Seeds:`, `Seeds set aside:`, `Sources:`, `Refs:`, and `Noise:` sit above **Read this**. They are not cards.
 
 **Read this** is the adaptation, written after the narrowing answer. The leading card is the closest to this subject, not the largest type and not the highest score. Closest means the subject’s world is in the shot: the same job, or a register that shares its hour, its material, its ritual, or its kind of place. That card leads the feeling. It does not supply the brand. A form card does not supply colour or type. It can only add a layout or a component that still belongs on this topic. `colour` and `type` are the adaptation. They are not a paste of the leading card’s colour line or type line.
 
@@ -176,24 +180,26 @@ Each adapted colour needs a **reason**, not a difference for its own sake. Valid
 
 Two lines keep the direction honest:
 
-- `ownable` answers “what makes this recognisably <project> and not <lead>?”. It names **one concrete element** from the identity nouns in **Talk first**, turned into a design element: for a lighthouse logbook, a brass-derived accent, a rope-twist rule, a lamp-glow marker for the active item. A direction that fits the brief and is the default look of every calm app of the year has not answered it.
-- `gaps` names the key screens the board does not cover — the project’s differentiator first. If every “version history” result is a business audit log, say the history view has no strong reference. When the lead is a `concept`, `not shown` lists what it never faced.
+- `ownable` answers “what makes this recognisably <project> and not <lead>?”. It names **one concrete element** from the identity nouns in **Talk first**, turned into a design element: for a lighthouse logbook, a brass-derived accent, a rope-twist rule, a lamp-glow marker for the active item. A direction that fits the brief and is the default look of every calm app of the year has not answered it. It is unconfirmed until someone has seen it on a rendered screen: say so when you name it.
+- `gaps` names the key screens the board does not cover — the project’s differentiator first — and, for an app, any move between screens that no reference shows. If every “version history” result is a business audit log, say the history view has no strong reference. When the lead is a `concept`, `not shown` lists what it never faced.
 
 ```
 Asked: <style, requirements, and any search ideas used, or none>
 Seeds: <the pictures and links they gave, or none>
 Sources: <the ticked list, and any named skip: a login wall, no public page>
 Refs: <how many they chose to see>
-Noise: <query: kept of seen, % off-topic. Zero-card queries: "<query>: 0 cards (rate limit?)">
+Seeds set aside: <a seed that is not this surface, and why, one line each, or none>
+Noise: <query: kept by the filter, relevant on the contact sheet. Zero-card queries: "<query>: 0 cards (rate limit?)">
 
 ## Read this
 - leads: <card name>
-- also: <the other cards they liked, comma separated>
+- also: <the other cards they liked, separated by |>
 - control: <as that card’s hero describes it: text link, filled shape, or absent, and where it sits>
 - take: <what we keep: a layout, a temperature, a kind of picture, and which cards. Draws from every tile they liked>
 - change: <the twist, so this is not that reference>
 - ownable: <one concrete element from the project’s own identity that this look has and the lead does not>
-- colour: <adapted hexes, where each sits, and the reason each one moved: contrast, the twist, our pictures, our brand. A generic sampled hex may stay as it is>
+- behaviour: <how the page moves, pages, fades, or reveals, and which card each comes from, or none>
+- colour: <adapted hexes, each labelled by role (page, text, secondary, dimmed, mark, night …), and the reason each one moved: contrast, the twist, our pictures, our brand. A generic sampled hex may stay as it is>
 - contrast: <each adapted text/background pair: hex on hex, ratio, AA|AAA|FAIL; failing pairs show sampled → used>
 - type: <adapted pairing. Not their exact faces unless they asked to keep them. Licence still covers how this ships>
 - faces: <names only, comma separated, for the proof page>
@@ -307,10 +313,10 @@ node <skill>/scripts/moodboard.mjs .design/board.md --out .design/moodboard.html
 
 Add `--imagery` only when **Talk first** said this look uses pictures. Open that file and look at it yourself before you show it — `node <skill>/scripts/capture.mjs "file://$PWD/.design/moodboard.html" --out <scratch>/moodboard.jpg` — then read the shot. A tile with the wrong caption, a face that did not set, or a missing picture is fixed on the board and the script is run again.
 
-Then, in the chat, say where the moodboard is, say every picture links to its source, and ask the one narrowing question from **Whole look** step 5. Do not name two or three links instead. Wait. After they answer:
+Then, in the chat, say where the moodboard is, say every picture with a source links to it, and ask the one narrowing question from **Whole look** step 5. Do not name two or three links instead. Wait. After they answer:
 
 ```
-node <skill>/scripts/moodboard.mjs .design/board.md --out .design/moodboard.html --count <n> --leads "<card>" --also "<card>,<card>" --why "<their reason, in their words>"
+node <skill>/scripts/moodboard.mjs .design/board.md --out .design/moodboard.html --count <n> --leads "<card>" --also "<card>" --also "<card>" --why "<their reason, in their words>"
 ```
 
 The reason they gave is the lead caption — pass it as `--why`. Do not let the card’s `worth taking` stand in for a reason they contradicted. What they said feels wrong goes into `leave`. Open the file again. Write the full fields of the lead and the `also` cards, then **Read this**.
@@ -323,7 +329,7 @@ node <skill>/scripts/proof.mjs .design/board.md --out .design/proof.html --name 
 
 `proof.html` is the adaptation with this project’s own words in it: paper and night side by side, a list row, a phone column, the faces at body size, the contrast ratios, `ownable`, and `gaps`. The words come from the project’s own product file or README (`--sample <file>` to point elsewhere). It is not the product and not a page build. Open it, look at it yourself, and fix what you see in **Read this** — a face that did not set, a night text that is too dim, small caps that fight the serif. One check before it is shown: can this be done with fewer families? If they say skip the proof, skip it.
 
-Then say the adaptation in chat: what we take, what we change, what we leave, `ownable`, and the adapted colour and type. Then the persist ask, as its own message. Do not hand-write the HTML. The script is the layout. Empty tiles are omitted. It does not add a logo, a slogan, a stat, or a brand.
+Then say the adaptation in chat: what we take, what we change, what we leave, `ownable`, `behaviour` when it is not none, and the adapted colour and type. Then the persist ask, as its own message. Do not hand-write the HTML. The script is the layout. Empty tiles are omitted. It does not add a logo, a slogan, a stat, or a brand.
 
 **Later hunt:** Name the two or three closest, each with its live URL; shots in `.design/hunts/<slug>/`. Say this pass does not change the look until they accept. Leave `.design/moodboard.html`. After they pick what to take, the persist ask, as its own message. A later hunt does not redo the brand’s colour or type unless they agreed to that change.
 
@@ -335,7 +341,7 @@ The board and the moodboard are the references. **Read this** is the adaptation.
 
 Whole look:
 
-Write `DESIGN.md` from this adaptation? The colour, type, and twist just named. Skip if you only want the references for now.
+Write `DESIGN.md` from this adaptation? The colour, type, behaviour, and twist just named. Skip if you only want the references for now.
 
 Whole look, redone, with a `DESIGN.md` already there:
 
@@ -346,13 +352,17 @@ Later hunt:
 Update `DESIGN.md` with what we accepted from this hunt? (Keeps colour and type unless we agreed to change them.)
 
 - Yes → load `design-md` and write or update from the board or the hunt note.
-- No / skip → leave the board; do not invent a brand file. A later hunt leaves `DESIGN.md` and the board as they were.
+- No / skip → leave the board; do not invent a brand file. A later hunt leaves `DESIGN.md` and the board as they were. Say once that the board stays on this machine, so `DESIGN.md` is how anyone else will see the direction.
 
-After the answer, yes or skip, and as part of the reply that follows it — not inside the persist message — offer a later hunt for each line in `gaps`, one line each: “The history view has no strong reference. Hunt it next?” For a gap that software has not solved, suggest searching outside software for the same form: manuscript drafts, archive catalogues, film edit histories.
+After the answer, yes or skip, and as part of the reply that follows it — not inside the persist message — offer the next step as one short list. A direction is not yet a design; the gaps are where it becomes one.
+
+- **Prototype the gaps** (recommended for an app): the main screen built from `DESIGN.md` (or the board, if they skipped it), with `gaps` as its brief. That is a build, so the router's build skill does it. It lives outside `.design/`: it is the project's own work, and is committed. What they approve on it goes back into `DESIGN.md` through `design-md`.
+- **Hunt a gap**: a later hunt, one per line in `gaps`. For a gap software has not solved, search outside software for the same form: manuscript drafts, archive catalogues, film edit histories.
+- **Stop here.**
 
 If their next messages go elsewhere without a yes or a skip, ask again **once**, and make it the first thing in that reply. A second ask after a topic change is the step, not a repeat of the style question. After that second ask, wait. Do not ask a third time.
 
-Then **stop**, unless they also asked to build, code, or design the page in the same ask. Coding is the project’s router after this skill finishes. The board and `DESIGN.md` are enough when the ask was direction only — say the direction in chat and stop.
+Then **stop**, unless they also asked to build, code, or design the page in the same ask, or picked the prototype. Coding is the project’s router after this skill finishes.
 
 The control in the primary card is the control. Do not add a filled button the card does not show. A custom cursor, a password gate, or a WebGL scene is used only when a card shows it. On a website the site cards outweigh the screen cards. On an application the screen cards outweigh award sites.
 
@@ -368,27 +378,16 @@ The control in the primary card is the control. Do not add a filled button the c
 - Overwrite or delete `.design/hunts/<slug>/`. Use the next free slug.
 - Put a later hunt’s shots in `.design/refs/`, or delete a hunt shot because the board does not cite it.
 - Let a loading hunt replace `.design/board.md` or `.design/refs/`, or let the whole look replace `.design/hunts/`. Order does not matter. The only rewrite of the board is that same whole look.
-- Rewrite `DESIGN.md` without their confirm. Persist only through `design-md` after **After they pick**.
-- Bury the persist question at the end of a long report. It is its own message.
 - Write skill feedback or session notes under `.design/`. In chat, or the file they asked for, outside `.design/`.
 - Hand-write or restyle `.design/moodboard.html`. Run `scripts/moodboard.mjs`.
 - Ask them to pick from two URLs with no moodboard open, or let a later hunt replace it.
 - Search before the **Talk first** round, or ask a second round of questions before searching.
-- Hunt imagery for a look that said it has no pictures in it.
 - Fill a board with Dribbble concepts for an app when shipped screens of comparable products exist, or leave a concept’s gaps unsaid.
-- Keep a shot you only saw as a thumbnail.
-- Scroll on once two more queries add nothing, or ignore the noise rate.
-- Write full card fields for every keep. Full fields are the lead and the `also` cards.
 - Write **Read this** with no `ownable` line, or an `ownable` that names no element from the project’s own identity.
 - Leave the screen the project is about out of `gaps` because the board never covered it.
-- Persist before the proof, unless they said skip it.
-- Show the moodboard without looking at it first.
-- Caption the lead with `worth taking` when they said why they picked it.
-- Put product-page tiles or imagery this look does not use on the moodboard.
 - Change a sampled hex with no reason. Same cream, same ink, no adaptation.
 - Title the moodboard as the direction, or paint their colours and faces as the brand.
 - Paste the leading card’s colour line or type line into **Read this** as the brand. Exact hexes and exact faces go in `leave`, unless they asked to keep them.
-- Put a logo, a slogan, or a stat on the moodboard. The script places fields from the cards.
 - Write a new `.design/piece.md`.
 - Pad the count by lowering the filter, or by keeping pictures you would not put on the page.
 - Stop looking at the first page of results, or treat the keep count as the number of candidates you open.
@@ -396,18 +395,12 @@ The control in the primary card is the control. Do not add a filled button the c
 - Sample colour from a photo, mockup surround, or presentation background when the role is UI ink or accent.
 - Write **Read this** colour pairs that have not been through `scripts/contrast.mjs`.
 - Keep a typeface whose licence does not cover how this project ships it.
-- Narrate candidates, scores, or drops while looking. After the opening line, the next thing said is the short list of the closest, each with its live URL.
+- Narrate candidates, scores, or drops while looking.
 - Look in the same turn as the style question, or in the same turn as a piece’s search ideas. Wait for the answer, or for a skip.
-- Offer search ideas on a whole look, or on an ideas or check pass.
-- Search a piece with ideas they skipped.
-- Write a hero that does not say what the control is.
-- Treat a short board that does not name each drop as finished direction.
 - Take colour or type from a card about another business.
-- Copy the leading reference’s exact palette or exact faces into the adaptation.
 - Let a card lead because its type is large, when a closer card has the subject’s world in the shot.
 - Let a screen card be the primary card on a website, or an award site be the primary card on an application.
 - Fill an application board with Awwwards, MaxiBestOf, Recent, Supahero, or Dark Mode Design.
-- Raise a keep count because there are more galleries.
 - Fill the keep from the first gallery and leave the others unopened.
 - File a Supahero crop, a Pinterest pin, or a Muzli card as a Site.
 - Open Dark Mode Design when the subject, the register, and the style they asked for are not dark.
