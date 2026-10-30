@@ -27,11 +27,11 @@ They asked to **hunt**, **define direction**, or find references → load `desig
 Write or change `DESIGN.md` only when they said yes to persisting the adaptation (after a whole-look leading pick, or after accepting a later hunt), or approved a decision on a rendered prototype (below). Do not invent hexes, faces, or controls. Do not copy the leading card’s `colour` or `type` into the brand. Take the adaptation from:
 
 - `.design/board.md` **Read this** (`take`, `change`, `ownable`, `colour`, `type`, `control`, `behaviour`, `leave`, `gaps`), or
-- `.design/hunts/<slug>/note.md` when the change is a later pass they accepted
+- `.design/hunts/<slug>/board.md` **Read this** when the change is a later pass they accepted
 
-`.design/moodboard.html` is the references, and `.design/proof.html` is the adaptation shown with the project’s own words. Do not read either as the brand: the brand is **Read this**.
+`.design/moodboard.html` is the references. Do not read it as the brand: the brand is **Read this**.
 
-If **Read this** has no `take`, `change`, `colour`, or `type`, or has no `ownable`, stop and send it back to the hunt. Do not fill those in here.
+If a whole-look **Read this** has no `take`, `change`, `colour`, or `type`, or has no `ownable`, stop and send it back to the hunt. Do not fill those in here.
 
 If neither file exists, ask which reference to follow. Do not guess.
 

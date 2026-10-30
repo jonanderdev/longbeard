@@ -79,7 +79,7 @@
       "license": "MIT",
       "source": "local",
       "when": "No official look, or they asked to hunt / define direction / find references",
-      "why": "Does not code the page. Talk first, one round, then search small. Narrow on `.design/moodboard.html`, say the adaptation, then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Then offer the next step: prototype the gaps, hunt one, or stop. A later pass writes `.design/hunts/<slug>/`. `.design/` stays out of git."
+      "why": "Does not code the page. Talk first, one round, then search small. Pick on `.design/moodboard.html`, say the adaptation, then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Then offer the next step: prototype the gaps, hunt one, or stop. A later hunt for one piece writes `.design/hunts/<slug>/`. `.design/` is scratch, out of git."
     },
     {
       "name": "design-taste-frontend",
