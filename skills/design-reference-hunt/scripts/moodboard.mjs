@@ -7,9 +7,10 @@
 //
 // After the pick (marks the lead, keeps the rest):
 //   node moodboard.mjs .design/board.md --out .design/moodboard.html \
-//     --leads "<card name>" --also "<card name>,<card name>" --why "<their reason>"
+//     --leads "<card name>" --also "<card name>" --also "<card name>" --why "<their reason>"
 //
-// --also takes every card they also liked. --count is how many references
+// --also takes every card they also liked: repeat it, or join names with "|".
+// A name with a comma in it still matches. --count is how many references
 // they asked to see. --imagery adds the board's imagery tiles; leave it off
 // when the look has no pictures in it.
 import { execSync } from "node:child_process";
@@ -30,17 +31,22 @@ const has = (name) => {
   args.splice(i, 1);
   return true;
 };
+const every = (name) => {
+  const out = [];
+  while (args.includes(`--${name}`)) out.push(flag(name));
+  return out;
+};
 
 const outArg = flag("out");
 const leadsArg = flag("leads");
-const alsoArg = flag("also");
+const alsoArgs = every("also");
 const whyArg = flag("why");
 const countArg = flag("count");
 const showImagery = has("imagery");
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
   console.error(
-    'usage: node moodboard.mjs .design/board.md --out .design/moodboard.html [--leads "Name"] [--also "A,B"] [--why "their reason"] [--count 12] [--imagery]',
+    'usage: node moodboard.mjs .design/board.md --out .design/moodboard.html [--leads "Name"] [--also "A" --also "B"] [--why "their reason"] [--count 12] [--imagery]',
   );
   process.exit(2);
 }
@@ -211,14 +217,18 @@ if (leadsName && !primary) {
   console.error(`moodboard: no card named ${leadsName}`);
   process.exit(1);
 }
-// --also takes every card they said they liked, not only one.
-const alsoNames = (alsoArg || (read.also && !/^none$/i.test(read.also.trim()) ? read.also : ""))
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
+// --also takes every card they said they liked, not only one. A value is a
+// whole card name first, so "Reading, light and dark" is one card; then a
+// "|" list; then, for older boards, a comma list.
+const cardNamed = (name) => cards.find((c) => norm(c.name) === norm(name));
+function namesIn(value) {
+  if (cardNamed(value)) return [value];
+  return value.split(value.includes("|") ? "|" : ",").map((s) => s.trim()).filter(Boolean);
+}
+const alsoValues = alsoArgs.length ? alsoArgs : read.also && !/^none$/i.test(read.also.trim()) ? [read.also] : [];
 const alsoCards = [];
-for (const name of alsoNames) {
-  const card = cards.find((c) => norm(c.name) === norm(name));
+for (const name of alsoValues.flatMap(namesIn)) {
+  const card = cardNamed(name);
   if (card) alsoCards.push(card);
   else console.error(`moodboard: no card named ${name}`);
 }
@@ -276,10 +286,22 @@ const add = (card, role) => {
 };
 if (primary) add(primary, "leads");
 for (const card of alsoCards) add(card, "also");
+// Seeds take at most half the tiles, so the search is seen. When the search
+// runs out first, seeds fill the rest.
+const isSeed = (card) => /^seed$/i.test((card.fit || "").trim());
+let seedRoom = Math.floor(MAX_PICTURES / 2) - chosen.filter((c) => isSeed(c.card)).length;
 for (const card of cards) {
   if (chosen.length >= MAX_PICTURES) break;
-  if (showable(card)) add(card, "");
+  if (!showable(card) || (isSeed(card) && seedRoom <= 0)) continue;
+  if (isSeed(card)) seedRoom -= 1;
+  add(card, "");
 }
+for (const card of cards) {
+  if (chosen.length >= MAX_PICTURES) break;
+  if (isSeed(card) && showable(card)) add(card, "");
+}
+const seedsHeld = cards.filter((c) => isSeed(c) && showable(c) && !chosen.some((x) => x.card === c)).length;
+if (seedsHeld) console.error(`moodboard: ${seedsHeld} seeds held back so the search shows; raise --count to see them`);
 const pictures = chosen
   .filter((c) => c.role || showable(c.card))
   .flatMap(({ card, role }) => {
@@ -298,15 +320,17 @@ const picturesOfPlace = showImagery
     })
   : [];
 
-// Before the pick there is no lead yet, so the type and the colour tiles read
-// the cards on show instead.
+// Before the pick there is no lead yet, so the type tile reads the cards on
+// show. There is no colour tile: one card's colours would stand for the set.
 const onShow = pictures.map((pic) => cards.find((c) => c.name === pic.name)).filter(Boolean);
+// The page and its text come first, so a side panel does not lead.
+const surfaceFirst = (list) => {
+  const rank = (s) =>
+    /mark|accent|dot/i.test(s.label) ? 2 : /page|ground|background|paper|canvas/i.test(s.label) ? 0 : /text|ink|body/i.test(s.label) ? 1 : 2;
+  return [...list].sort((a, b) => rank(a) - rank(b));
+};
 const colourCards = [];
-if (primary?.colour) colourCards.push({ name: primary.name, colours: swatches(primary.colour).slice(0, 6) });
-else {
-  const from = onShow.find((c) => c.colour);
-  if (from) colourCards.push({ name: from.name, colours: swatches(from.colour).slice(0, 6), show: true });
-}
+if (primary?.colour) colourCards.push({ name: primary.name, colours: surfaceFirst(swatches(primary.colour)).slice(0, 6) });
 // The night palette often comes from the `also` card. Show it, or the picture
 // and the adaptation disagree.
 if (also?.colour && /^register$/i.test((also.fit || "").trim())) {
@@ -349,7 +373,7 @@ if (colourCount) {
           return `<div class="swatch"><div class="chip${edge}" style="background:${esc(s.hex)}"></div><p class="hex">${esc(s.hex)}</p>${s.label ? `<p class="role">${esc(s.label)}</p>` : ""}</div>`;
         })
         .join("");
-      const label = i === 0 && !group.show ? "" : `<p class="from">${esc(group.name)}</p>`;
+      const label = i === 0 ? "" : `<p class="from">${esc(group.name)}</p>`;
       return `${label}<div class="swatches">${chips}</div>`;
     })
     .join("");
@@ -477,12 +501,18 @@ ${fonts ? `<link rel="stylesheet" href="${esc(fonts)}">\n` : ""}<style>
   }
   .role { margin: 3px 0 0; font-size: 12px; line-height: 1.35; color: var(--muted); }
   .shot { margin: 0; display: flex; flex-direction: column; }
+  /* The picture sits inside the frame, so a tall App Store frame cannot
+     stretch its tile past the others. */
   .frame {
+    position: relative;
     display: block;
+    overflow: hidden;
     background: #141414;
     aspect-ratio: 1;
   }
   .shot img {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;

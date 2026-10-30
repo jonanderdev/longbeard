@@ -54,6 +54,14 @@ Open that shot. A caption that states the wrong reason, a face that fell back to
 - Pinterest: the pin image only, not the board and not search. If a login wall appears, see [quality.md](quality.md).
 - Never capture a search grid, a home feed, or a listing of cards (contact sheets of listing thumbnails are fine; they are not refs).
 
+## App Store listings — shipped screens
+
+`scripts/appstore-shots.mjs "<app>" "<app>" …` asks the iTunes Search API (no login) for each app and prints TSV of `label`, full-size image URL, listing URL. Feed it to `contact-sheet.mjs`. `--ipad` takes the iPad set, `--country gb` another store. The listing URL is the card's `url:`.
+
+Most App Store screenshots are **marketing frames**: a headline, a coloured ground, a tilted phone. Prefer frames that are mostly the screen. When you keep one, crop it to the device screen — `capture.mjs "file://<abs path to image>" --out .design/refs/<name>.jpg --clip x,y,w,h`, in the image's own pixels — and write `crop: device screen` on the card. A frame with its headline left on reads as an ad on the moodboard.
+
+**Name a file by its format.** The image URL ends `/1200x0w.jpg` and is JPEG, even though the path holds `.png` before it. A download keeps the last extension, or the `content-type` it came with. `capture.mjs` writes the format its `--out` extension names.
+
 ## Dribbble / Behance / Unsplash / Pinterest — not sites
 
 These are pictures, not pages. Capture the **image** (or the type specimen), no page chrome. An illustration goes under **Material** (`kind: imagery`, `type`, or `mark`). A shot of a real screen goes under **Screens**. Never under Sites. A Pinterest pin follows that same split.
