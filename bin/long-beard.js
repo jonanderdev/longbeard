@@ -424,16 +424,24 @@ function childDirs(dir) {
   }
 }
 
+// Claude Code lists installed plugins in installed_plugins.json. A plugin keeps
+// a skill anywhere under its install path: skills/<name> or skills/<group>/<name>.
 function pluginHas(name) {
-  for (const base of [join(homedir(), ".claude", "plugins"), join(process.cwd(), ".claude", "plugins")]) {
-    for (const plugin of childDirs(base)) {
-      if (existsSync(join(plugin, "skills", name, "SKILL.md"))) return true;
-      for (const nested of childDirs(plugin)) {
-        if (existsSync(join(nested, "skills", name, "SKILL.md"))) return true;
-      }
-    }
+  let installs;
+  try {
+    installs = Object.values(readJson(join(homedir(), ".claude", "plugins", "installed_plugins.json")).plugins ?? {}).flat();
+  } catch {
+    return false;
   }
-  return false;
+  const here = resolve(process.cwd());
+  const find = (dir, depth) =>
+    existsSync(join(dir, name, "SKILL.md")) || (depth > 0 && childDirs(dir).some((child) => find(child, depth - 1)));
+  return installs.some(
+    (install) =>
+      install.installPath &&
+      (install.scope === "user" || !install.projectPath || resolve(install.projectPath) === here) &&
+      find(install.installPath, 3),
+  );
 }
 
 function agentDir(agent, global) {
