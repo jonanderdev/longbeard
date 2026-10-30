@@ -34,53 +34,140 @@
       ]
     },
     {
-      "name": "mattpocock-skills",
-      "kit": true,
+      "name": "grill-me",
       "author": "Matt Pocock",
       "license": "MIT",
-      "source": "https://github.com/mattpocock/skills",
-      "routes": [
-        {
-          "when": "Something is broken, throwing, failing, or slow — a hard bug",
-          "skill": "diagnosing-bugs",
-          "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
-        },
-        {
-          "when": "They asked for TDD, test-first, or red-green-refactor",
-          "skill": "tdd",
-          "why": "Red before green, one slice at a time, tests at seams you agreed. Only on request; ponytail stays the default for building."
-        },
-        {
-          "when": "They asked to grill a plan or design, or the ask is underspecified",
-          "skill": "grill-me",
-          "why": "Interview until every branch of the design tree is resolved. Uses grilling."
-        },
-        {
-          "when": "Stress-testing a plan, decision, or idea",
-          "skill": "grilling",
-          "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
-        },
-        {
-          "when": "They want an idea built through a spec and tickets",
-          "skill": "Matt Pocock's flow",
-          "why": "In his order: grill-with-docs, to-spec, to-tickets, then implement per ticket or implement-spec for all of them. setup-matt-pocock-skills runs once first and picks the tracker (GitHub Issues or local files). Inside the flow its own steps win: implement calls tdd and code-review; do not swap in ponytail-review. ask-matt names the next step."
-        },
-        {
-          "when": "A throwaway prototype of logic or state",
-          "skill": "prototype",
-          "why": "A page or screen goes to design-taste-frontend."
-        },
-        {
-          "when": "Deepening modules or the shape of the code",
-          "skill": "improve-codebase-architecture",
-          "why": "Bugs, load, and bloat across the repo stay ponytail-audit."
-        },
-        {
-          "when": "They asked to hand off to another agent or session",
-          "skill": "handoff",
-          "why": "Compact the conversation into a handoff document another agent can pick up."
-        }
-      ]
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me",
+      "when": "They asked to grill a plan or design, or the ask is underspecified",
+      "why": "Interview until every branch of the design tree is resolved. Uses grilling. A feature goes on to to-spec, then to-tickets."
+    },
+    {
+      "name": "grilling",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling",
+      "when": "Stress-testing a plan, decision, or idea",
+      "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/setup-matt-pocock-skills",
+      "when": "Before to-spec or to-tickets in a repo with no tracker set up",
+      "why": "Once per repo. Picks where specs and tickets live: GitHub Issues when the repo is on GitHub, else local markdown. Writes its `## Agent skills` block outside the longbeard markers."
+    },
+    {
+      "name": "to-spec",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec",
+      "when": "A grilled feature to write down whole",
+      "why": "One spec on the tracker setup chose: problem, user stories, decisions, test seams, out of scope. No tracker set up yet: run setup-matt-pocock-skills first. A small feature can skip it and go to to-tickets."
+    },
+    {
+      "name": "to-tickets",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets",
+      "when": "A spec, plan, or conversation to split into tickets",
+      "why": "Vertical slices, each checkable on its own, with their blockers, on the tracker setup chose. No tracker set up yet: run setup-matt-pocock-skills first."
+    },
+    {
+      "name": "implement",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/implement",
+      "when": "Building one ticket, or a spec in one session",
+      "why": "Read the ticket from the tracker, build it with tdd at the seams the spec agreed, then code-review, then commit."
+    },
+    {
+      "name": "implement-spec",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/implement-spec",
+      "when": "Building every ticket of a spec",
+      "why": "One integration branch. A fresh agent per ticket in its own worktree, each with tdd, started as its blockers finish. code-review at the end."
+    },
+    {
+      "name": "tdd",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd",
+      "when": "They asked for TDD, test-first, or red-green-refactor",
+      "why": "Red before green, one slice at a time, tests at seams you agreed. implement and implement-spec call it. Otherwise only on request; ponytail stays the default for building."
+    },
+    {
+      "name": "code-review",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review",
+      "when": "Reviewing work built from a spec or ticket",
+      "why": "Two axes, in parallel: this repo's standards, and the spec. A plain diff stays ponytail-review."
+    },
+    {
+      "name": "diagnosing-bugs",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs",
+      "when": "Something is broken, throwing, failing, or slow — a hard bug",
+      "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
+    },
+    {
+      "name": "prototype",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype",
+      "when": "A throwaway prototype of logic or state",
+      "why": "A page or screen goes to design-taste-frontend."
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/improve-codebase-architecture",
+      "when": "Deepening modules or the shape of the code",
+      "why": "Uses codebase-design and domain-modeling. Bugs, load, and bloat across the repo stay ponytail-audit."
+    },
+    {
+      "name": "codebase-design",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/codebase-design",
+      "when": "Designing a module's interface",
+      "why": "The shared vocabulary for deep modules that improve-codebase-architecture uses."
+    },
+    {
+      "name": "domain-modeling",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/domain-modeling",
+      "when": "Naming the project's terms or recording a decision",
+      "why": "Keeps `GLOSSARY.md` and ADRs current, created only when a term or decision is settled. improve-codebase-architecture calls it."
+    },
+    {
+      "name": "handoff",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff",
+      "when": "They asked to hand off to another agent or session",
+      "why": "Compact the conversation into a handoff document another agent can pick up."
+    },
+    {
+      "name": "retro",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/retro",
+      "when": "They asked for a retro on a session",
+      "why": "Find what would have made the session easier: checks, navigation pointers, review rules, tool cost. Uses writing-for-agents. Suggests; you choose."
+    },
+    {
+      "name": "writing-for-agents",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents",
+      "when": "Writing a skill, AGENTS.md, or CLAUDE.md",
+      "why": "The style guide retro uses."
     },
     {
       "name": "premortem",

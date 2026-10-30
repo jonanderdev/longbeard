@@ -2,6 +2,10 @@
 
 ## Unreleased 
 
+- Matt Pocock's skills are no longer a kit. The catalog takes 17 of his 27: `grill-me`, `grilling`, `setup-matt-pocock-skills`, `to-spec`, `to-tickets`, `implement`, `implement-spec`, `tdd`, `code-review`, `diagnosing-bugs`, `prototype`, `improve-codebase-architecture`, `codebase-design`, `domain-modeling`, `handoff`, `retro`, and `writing-for-agents`. The flow runs from a grilled feature to a spec, vertical-slice tickets with their blockers, each built test-first, and a review against the spec. Run `/setup-matt-pocock-skills` once per repo before the first `to-spec` or `to-tickets`: it picks GitHub Issues when the repo is on GitHub, or local markdown. `triage`, `wayfinder`, `teach`, `wizard`, `wait-what`, `to-questionnaire`, `pr`, `research`, `ask-matt`, and `grill-with-docs` are gone; `npx longbeard add` brings one back in a project. `retro` is new: ask for one after a session to find what would have made it easier.
+- `update` and `remove` delete a skill's shared `.agents/skills` folder too. They used to unlink it from Claude Code only, so Cursor kept a skill you had removed.
+- `update` removes a kit's skills when the catalog drops the kit, unless you edited them. People who already ran `init`: install this version, then run `npx longbeard update`; it removes the Matt Pocock skills not in the list above.
+
 ## 0.8.0 — 2026-10-30
 
 - Ponytail and Matt Pocock's skills are kits: every skill each author publishes, not a handful picked here. That adds Matt's spec flow (`setup-matt-pocock-skills`, `to-spec`, `to-tickets`, `implement`, `implement-spec`) and the rest of his published set, and ponytail's `ponytail-gain` and `ponytail-help`. A kit follows its author: `update` installs a skill they add and removes one they stop publishing, unless you edited it. The router only says which flow a plain ask goes to where they overlap, and leaves the steps inside a flow alone. `npx longbeard remove <name>` leaves one kit skill out. People who already ran `init`: install this version, then run `npx longbeard update`; the Matt and ponytail skills you have join their kits.
