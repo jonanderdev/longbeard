@@ -44,7 +44,8 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
 
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
-A kit skill is copied from the installed package when its version moved, and the line says which versions.
+A skill written here is copied from the installed package when its version moved, and the line says which versions.
+A kit (ponytail, Matt Pocock) is every skill its author publishes. update adds new ones and removes retired ones you did not edit.
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
@@ -229,6 +230,50 @@ function writeExtra(flags, state) {
   });
 }
 
+// A kit is what its author publishes: the skills in their plugin manifest, else
+// every folder in their skills/. Read at install time so a new or retired skill
+// follows the author, not this catalog.
+async function kitSkills(item) {
+  const repo = item.source.match(/github\.com\/([^/]+\/[^/#?]+)/)?.[1]?.replace(/\.git$/, "");
+  if (!repo) fail(`${item.name}: a kit needs a GitHub source.`);
+  // update retires what this list leaves out, so a failed fetch must stop here,
+  // never fall through to a guess. Only a missing manifest (404) falls back.
+  const cannot = `Could not list the ${item.name} kit from GitHub. Check the network and try again.`;
+  const get = async (url) => {
+    try {
+      const res = await fetch(url);
+      if (res.status === 404) return null;
+      if (!res.ok) fail(`${cannot} (${res.status} from ${url})`);
+      return await res.json();
+    } catch {
+      fail(cannot);
+    }
+  };
+  const manifest = await get(`https://raw.githubusercontent.com/${repo}/HEAD/.claude-plugin/plugin.json`);
+  const names = Array.isArray(manifest?.skills)
+    ? manifest.skills.map((path) => path.replace(/\/$/, "").split("/").pop())
+    : ((await get(`https://api.github.com/repos/${repo}/git/trees/HEAD?recursive=1`))?.tree ?? [])
+        .map((entry) => entry.path.match(/^skills\/([^/]+)\/SKILL\.md$/)?.[1])
+        .filter(Boolean);
+  if (names.length === 0) fail(cannot);
+  return names;
+}
+
+async function expandKits(skills, omit) {
+  const out = [];
+  for (const item of skills) {
+    if (!item.kit) {
+      out.push(item);
+      continue;
+    }
+    for (const name of await kitSkills(item)) {
+      if (omit.includes(name)) continue;
+      out.push({ name, source: item.source, author: item.author, license: item.license, kit: item.name });
+    }
+  }
+  return out;
+}
+
 function chosen(flags) {
   const manifest = curated();
   const extra = extraState(flags);
@@ -388,16 +433,24 @@ function childDirs(dir) {
   }
 }
 
+// Claude Code lists installed plugins in installed_plugins.json. A plugin keeps
+// a skill anywhere under its install path: skills/<name> or skills/<group>/<name>.
 function pluginHas(name) {
-  for (const base of [join(homedir(), ".claude", "plugins"), join(process.cwd(), ".claude", "plugins")]) {
-    for (const plugin of childDirs(base)) {
-      if (existsSync(join(plugin, "skills", name, "SKILL.md"))) return true;
-      for (const nested of childDirs(plugin)) {
-        if (existsSync(join(nested, "skills", name, "SKILL.md"))) return true;
-      }
-    }
+  let installs;
+  try {
+    installs = Object.values(readJson(join(homedir(), ".claude", "plugins", "installed_plugins.json")).plugins ?? {}).flat();
+  } catch {
+    return false;
   }
-  return false;
+  const here = resolve(process.cwd());
+  const find = (dir, depth) =>
+    existsSync(join(dir, name, "SKILL.md")) || (depth > 0 && childDirs(dir).some((child) => find(child, depth - 1)));
+  return installs.some(
+    (install) =>
+      install.installPath &&
+      (install.scope === "user" || !install.projectPath || resolve(install.projectPath) === here) &&
+      find(install.installPath, 3),
+  );
 }
 
 function agentDir(agent, global) {
@@ -443,6 +496,7 @@ function recordInstall(lock, skill, agents, global) {
     author: skill.author,
     agents: all,
     installedAt: new Date().toISOString(),
+    ...(skill.kit ? { kit: skill.kit } : {}),
     ...(skill.source === "local" ? { version: packageVersion() } : {}),
     ...(folder ? { hash: folderHash(folder) } : {}),
   };
@@ -506,10 +560,10 @@ function locallyEdited(name, entry, agents, global) {
 }
 
 function generateRouter(items) {
-  const lines = items.filter((item) => kind(item) === "skill").map((item) => {
-    const when = item.when?.trim() || item.name;
-    const why = item.why?.trim();
-    return why ? `- ${when}: ${item.name}. ${why}` : `- ${when}: ${item.name}`;
+  const line = (when, name, why) => (why?.trim() ? `- ${when}: ${name}. ${why.trim()}` : `- ${when}: ${name}`);
+  const lines = items.filter((item) => kind(item) === "skill").flatMap((item) => {
+    if (item.kit) return (item.routes ?? []).map((route) => line(route.when, route.skill, route.why));
+    return [line(item.when?.trim() || item.name, item.name, item.why)];
   });
   return `# Long Beard
 
@@ -656,10 +710,11 @@ function remember(lock, flags, skills, agents) {
   writeLock(flags, lock);
 }
 
-function init(flags) {
+async function init(flags) {
   requireProject(flags);
-  const { manifest, skills, items, later } = chosen(flags);
+  const { manifest, extra, items, later, ...picked } = chosen(flags);
   const agents = chooseAgents(manifest, flags, { pick: true, lock: readLock(flags) });
+  const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
   plan("init", flags, agents, classified);
@@ -675,14 +730,31 @@ function init(flags) {
   ]);
 }
 
-function update(flags) {
+async function update(flags) {
   requireProject(flags);
-  const { manifest, skills, items, later } = chosen(flags);
+  const { manifest, extra, items, later, ...picked } = chosen(flags);
   const agents = chooseAgents(manifest, flags, { pick: false, lock: readLock(flags) });
+  const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
+  // A skill its author stopped publishing leaves with the kit, unless you edited it.
+  const kits = new Set(picked.skills.filter((item) => item.kit).map((item) => item.name));
+  const listed = new Set(skills.map((skill) => skill.name));
+  const retired = Object.entries(classified.lock.skills)
+    .filter(([name, entry]) => kits.has(entry.kit) && !listed.has(name) && !extra.omit.includes(name))
+    .map(([name, entry]) => ({ name, author: entry.author, edited: locallyEdited(name, entry, agents, flags.global) }));
+  const drop = retired.filter((skill) => !skill.edited);
   plan("update", flags, agents, classified);
+  rows("retired", yellow, drop, "The author no longer publishes it. Removed with the kit.", nameWidth([retired]));
+  rows("retired, kept", yellow, retired.filter((skill) => skill.edited), "The author no longer publishes it. Kept because you edited it.", nameWidth([retired]));
   confirmWrite(flags, classified.writes);
+  if (drop.length > 0) {
+    const args = ["remove", ...drop.map((skill) => skill.name), "-y"];
+    if (flags.global) args.push("--global");
+    for (const agent of agents) args.push("--agent", agent);
+    runSkills(args);
+    for (const skill of drop) delete classified.lock.skills[skill.name];
+  }
   const refresh = flags.force ? [...classified.ours, ...classified.edited] : classified.ours;
   if (classified.missing.length > 0) say(dim("Installing…"));
   installSkills(classified.missing, { global: flags.global, agents });
@@ -716,7 +788,7 @@ function update(flags) {
   const held = flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length;
   finish([
     green("Done."),
-    `${classified.missing.length} installed, ${copied + theirs.length} refreshed, ${held} left as they are.`,
+    `${classified.missing.length} installed, ${copied + theirs.length} refreshed, ${drop.length} retired, ${held} left as they are.`,
     `This is Long Beard ${here}. Run npm install -D @jonandev/longbeard@latest first if a newer one is out.`,
     flags.global ? "Rewrote ~/.longbeard/AGENTS.md." : "Rewrote the AGENTS.md block.",
   ]);
@@ -787,7 +859,12 @@ function remove(flags, rest) {
     return;
   }
   const { manifest, extra } = chosen(flags);
-  const shared = new Set(catalog(manifest).map((item) => item.name));
+  const lock = readLock(flags);
+  // A skill a kit installed can be omitted like a catalog item.
+  const shared = new Set([
+    ...catalog(manifest).map((item) => item.name),
+    ...Object.keys(lock.skills).filter((name) => lock.skills[name].kit),
+  ]);
   const extraNames = new Set(extra.items.map((item) => item.name));
   for (const name of names) {
     if (!shared.has(name) && !extraNames.has(name) && !extra.omit.includes(name)) {
@@ -799,7 +876,6 @@ function remove(flags, rest) {
     if (shared.has(name) && !extra.omit.includes(name)) extra.omit.push(name);
   }
   writeExtra(flags, extra);
-  const lock = readLock(flags);
   const ours = names.filter((name) => lock.skills[name]);
   const agents = chooseAgents(manifest, flags, { pick: false, lock });
   heading("remove", flags, agents);
@@ -825,7 +901,8 @@ function printSkill(skill, width, extra) {
   const mark = extra.omit?.includes(skill.name) ? yellow("omitted ") : skill.optional ? dim("optional") : green("kept    ");
   const credit = [skill.author, skill.license].filter(Boolean).join(", ");
   say(`${mark}  ${skill.name.padEnd(width)}  ${dim(credit)}`);
-  if (skill.why) say(`        ${skill.why}`);
+  const why = skill.why ?? (skill.kit ? `Every skill ${skill.author} publishes, kept current on update.` : "");
+  if (why) say(`        ${why}`);
 }
 
 function list(flags) {
@@ -849,10 +926,10 @@ function list(flags) {
 const { command, rest, flags } = parseArgs(process.argv.slice(2));
 if (flags.version) console.log(readJson(join(root, "package.json")).version);
 else if (flags.help || command === "help") console.log(help);
-else if (command === "init") init(flags);
+else if (command === "init") await init(flags);
 else if (command === "add") add(flags, rest);
 else if (command === "remove") remove(flags, rest);
-else if (command === "update") update(flags);
+else if (command === "update") await update(flags);
 else if (command === "list") list(flags);
 else if (command === "router") process.stdout.write(kitRouter());
 else fail(`Unknown command: ${command}\n\n${help}`);

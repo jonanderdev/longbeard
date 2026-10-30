@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 — 2026-10-30
+
+- Ponytail and Matt Pocock's skills are kits: every skill each author publishes, not a handful picked here. That adds Matt's spec flow (`setup-matt-pocock-skills`, `to-spec`, `to-tickets`, `implement`, `implement-spec`) and the rest of his published set, and ponytail's `ponytail-gain` and `ponytail-help`. A kit follows its author: `update` installs a skill they add and removes one they stop publishing, unless you edited it. The router only says which flow a plain ask goes to where they overlap, and leaves the steps inside a flow alone. `npx longbeard remove <name>` leaves one kit skill out. People who already ran `init`: install this version, then run `npx longbeard update`; the Matt and ponytail skills you have join their kits.
+- `init` sees skills a Claude Code plugin already installed and leaves them to the plugin. It used to look two folders deep, where no plugin keeps its skills, so a Figma or Matt Pocock plugin got a second copy of every skill. It now reads Claude Code's list of installed plugins.
+
 ## 0.7.0 — 2026-10-30
 
 - The hunt is smaller. Its goal is one `DESIGN.md`, and `.design/` is scratch you may delete once that exists; a later hunt for one piece works without it. `SKILL.md` drops from about 400 lines to under 200, and `quality.md` and `shots.md` become one `sources.md`. `proof.mjs` is gone: a prototype of the gaps is the proof. `moodboard.mjs` runs once, before the pick, as a grid of shots linked to their sources; `--leads`, `--also`, `--why`, `--count`, and `--imagery` are gone, and the pick is said in chat. A board card is six lines. A later hunt writes `.design/hunts/<slug>/board.md` with the same cards and its own moodboard.

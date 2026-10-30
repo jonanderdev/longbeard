@@ -33,14 +33,9 @@ Writing stays small. A risky change is named before it is built. Design directio
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2">Plan</td>
-      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me">grill-me</a></td>
-      <td>Relentless interview until a plan or design has no open branches. Includes grilling</td>
-      <td>Matt Pocock</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff">handoff</a></td>
-      <td>Compacts the conversation into a handoff document for another agent or session</td>
+      <td>Plan</td>
+      <td><a href="https://github.com/mattpocock/skills">mattpocock-skills</a></td>
+      <td>Kit: every skill he publishes. Grill a plan, write it as a spec, split it into agent-ready tickets (GitHub Issues or local files), build each test-first. Also diagnosing-bugs, tdd, handoff. Most run only when you type their command</td>
       <td>Matt Pocock</td>
     </tr>
     <tr>
@@ -80,25 +75,15 @@ Writing stays small. A risky change is named before it is built. Design directio
       <td>juliobsz</td>
     </tr>
     <tr>
-      <td rowspan="4">Code</td>
+      <td rowspan="2">Code</td>
       <td><a href="https://github.com/joetawil7/first-pass/tree/main/skills/premortem">premortem</a></td>
       <td>Names where a change will break before you write</td>
       <td>GeorgeT</td>
     </tr>
     <tr>
       <td><a href="https://github.com/DietrichGebert/ponytail">ponytail</a></td>
-      <td>Smallest change that finishes the job. Includes review, audit, and debt</td>
+      <td>Kit: every skill he publishes. Smallest change that finishes the job, plus review, audit, and debt</td>
       <td>DietrichGebert</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs">diagnosing-bugs</a></td>
-      <td>Hard bugs and regressions: feedback loop, then fix</td>
-      <td>Matt Pocock</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd">tdd</a></td>
-      <td>Test-first, one red-to-green slice at a time, when you ask for it</td>
-      <td>Matt Pocock</td>
     </tr>
     <tr>
       <td rowspan="2">Optional</td>
@@ -113,6 +98,8 @@ Writing stays small. A risky change is named before it is built. Design directio
     </tr>
   </tbody>
 </table>
+
+A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. `update` installs a skill they add and removes one they retire, unless you edited it. The router in `AGENTS.md` only says which flow a plain ask goes to where two overlap; inside a flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 

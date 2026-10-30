@@ -1,53 +1,86 @@
 {
-  "agents": ["cursor", "claude-code"],
+  "agents": [
+    "cursor",
+    "claude-code"
+  ],
   "items": [
     {
       "name": "ponytail",
+      "kit": true,
       "author": "DietrichGebert",
       "license": "MIT",
-      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
-      "when": "Building or fixing",
-      "why": "The smallest change that finishes the job. Leave validation, error handling, security, and accessibility in place."
+      "source": "https://github.com/DietrichGebert/ponytail",
+      "routes": [
+        {
+          "when": "Building or fixing",
+          "skill": "ponytail",
+          "why": "The smallest change that finishes the job. Leave validation, error handling, security, and accessibility in place."
+        },
+        {
+          "when": "A diff",
+          "skill": "ponytail-review",
+          "why": "Read it like someone who gets paged."
+        },
+        {
+          "when": "The whole repo",
+          "skill": "ponytail-audit",
+          "why": "That same pass, over every file."
+        },
+        {
+          "when": "Shortcuts you meant to come back to",
+          "skill": "ponytail-debt",
+          "why": "Collect the limits you marked."
+        }
+      ]
     },
     {
-      "name": "ponytail-review",
-      "author": "DietrichGebert",
-      "license": "MIT",
-      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
-      "when": "A diff",
-      "why": "Read it like someone who gets paged."
-    },
-    {
-      "name": "ponytail-audit",
-      "author": "DietrichGebert",
-      "license": "MIT",
-      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
-      "when": "The whole repo",
-      "why": "That same pass, over every file."
-    },
-    {
-      "name": "ponytail-debt",
-      "author": "DietrichGebert",
-      "license": "MIT",
-      "source": "https://github.com/DietrichGebert/ponytail/tree/main/skills",
-      "when": "Shortcuts you meant to come back to",
-      "why": "Collect the limits you marked."
-    },
-    {
-      "name": "diagnosing-bugs",
+      "name": "mattpocock-skills",
+      "kit": true,
       "author": "Matt Pocock",
       "license": "MIT",
       "source": "https://github.com/mattpocock/skills",
-      "when": "Something is broken, throwing, failing, or slow — a hard bug",
-      "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
-    },
-    {
-      "name": "tdd",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills",
-      "when": "They asked for TDD, test-first, or red-green-refactor",
-      "why": "Red before green, one slice at a time, tests at seams you agreed. Only on request; ponytail stays the default for building."
+      "routes": [
+        {
+          "when": "Something is broken, throwing, failing, or slow — a hard bug",
+          "skill": "diagnosing-bugs",
+          "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
+        },
+        {
+          "when": "They asked for TDD, test-first, or red-green-refactor",
+          "skill": "tdd",
+          "why": "Red before green, one slice at a time, tests at seams you agreed. Only on request; ponytail stays the default for building."
+        },
+        {
+          "when": "They asked to grill a plan or design, or the ask is underspecified",
+          "skill": "grill-me",
+          "why": "Interview until every branch of the design tree is resolved. Uses grilling."
+        },
+        {
+          "when": "Stress-testing a plan, decision, or idea",
+          "skill": "grilling",
+          "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
+        },
+        {
+          "when": "They want an idea built through a spec and tickets",
+          "skill": "Matt Pocock's flow",
+          "why": "In his order: grill-with-docs, to-spec, to-tickets, then implement per ticket or implement-spec for all of them. setup-matt-pocock-skills runs once first and picks the tracker (GitHub Issues or local files). Inside the flow its own steps win: implement calls tdd and code-review; do not swap in ponytail-review. ask-matt names the next step."
+        },
+        {
+          "when": "A throwaway prototype of logic or state",
+          "skill": "prototype",
+          "why": "A page or screen goes to design-taste-frontend."
+        },
+        {
+          "when": "Deepening modules or the shape of the code",
+          "skill": "improve-codebase-architecture",
+          "why": "Bugs, load, and bloat across the repo stay ponytail-audit."
+        },
+        {
+          "when": "They asked to hand off to another agent or session",
+          "skill": "handoff",
+          "why": "Compact the conversation into a handoff document another agent can pick up."
+        }
+      ]
     },
     {
       "name": "premortem",
@@ -56,22 +89,6 @@
       "source": "https://github.com/joetawil7/first-pass/tree/main/skills",
       "when": "A change that touches data, money, jobs, or what a person sees",
       "why": "Name where it can break before you write. A small change gets a short answer."
-    },
-    {
-      "name": "grill-me",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills",
-      "when": "They asked to grill a plan or design, or the ask is underspecified",
-      "why": "Interview until every branch of the design tree is resolved. Uses grilling."
-    },
-    {
-      "name": "grilling",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills",
-      "when": "Stress-testing a plan, decision, or idea",
-      "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
     },
     {
       "name": "design-reference-hunt",
@@ -138,14 +155,6 @@
       "source": "https://github.com/juliobsz/skills/tree/main/jury",
       "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
       "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every build unless they asked."
-    },
-    {
-      "name": "handoff",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills",
-      "when": "They asked to hand off to another agent or session",
-      "why": "Compact the conversation into a handoff document another agent can pick up."
     },
     {
       "name": "design-md",
