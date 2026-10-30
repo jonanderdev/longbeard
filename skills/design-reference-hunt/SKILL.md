@@ -45,7 +45,7 @@ I don't see a Figma file or a DESIGN.md for this project. If you have a Figma fi
 
 Default sources:
 
-- **App:** shipped screens first (App Store listings via `scripts/appstore-shots.mjs`, press kits, help docs), then popular Dribbble, then component galleries. Mobbin and Refero unticked (login wall). No award galleries.
+- **App:** popular Dribbble, Pinterest, and component galleries. Mobbin and Refero unticked (login wall). No award galleries.
 - **Website:** Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent. Dribbble for screens. Dark Mode Design only when the look is dark.
 - **Imagery** (Unsplash, Wikimedia, museums) only when question 4 says yes.
 
@@ -61,7 +61,7 @@ Read [sources.md](references/sources.md) before keeping anything. Do not narrate
 - **Query the form, not the word.** “writing app” returns T-shirts and essay mills; `product-design?q=text+editor+screen` returns screens.
 - **Thumbnails are the first cut.** Use `scripts/contact-sheet.mjs` in scratch, then open the shortlist at full size. Nothing is kept from a thumbnail.
 - **Capture only a keep:** `node <skill>/scripts/capture.mjs <url> --out .design/refs/<name>.jpg`.
-- **App:** shipped screens outweigh Dribbble concepts. Mark a concept as one; it has never faced real content.
+- **App:** a real product's screen outweighs a Dribbble concept, which has never faced real content.
 - **Website:** live sites outweigh Dribbble shots. A site of another business gives a layout or a component only, never its colour or type.
 
 On the first write to `.design/`, add `.design/` to `.gitignore` if it is missing, and say why in one line: the shots are other people's work. If `git ls-files .design` already lists files, say so and leave `git rm -r --cached .design` to them.
@@ -76,7 +76,7 @@ Sources: <what was searched, and any skip: "Mobbin: login wall">
 Missing: <what the search could not find, or none>
 
 ### <name>
-- source: <gallery, App Store (shipped), Dribbble (concept), or user>
+- source: <gallery, or user>
 - url: <the page a person can open, or "none (shared in chat)">
 - shot: .design/refs/<file>
 - tagline: <about six words, the moodboard caption>

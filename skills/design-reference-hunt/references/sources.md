@@ -27,19 +27,15 @@ It prints `id-slug`, likes, views, image URL, and title. It drops merch, CVs, wo
 - Keep a shot when you can name what is worth taking in one line, and people actually saved it. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
 - A Dribbble illustration is imagery, never a site.
 
-## App Store — shipped screens
+## Cropping a downloaded image
 
-```
-node <skill>/scripts/appstore-shots.mjs "<app>" "<app>" > shipped.tsv   # --ipad, --country gb
-```
-
-It prints label, full-size image URL, and listing URL with no login. The listing URL is the card's `url`. Most frames are marketing: a headline, a coloured ground, and a tilted phone. Prefer frames that are mostly the screen. Crop a keep to the device screen:
+To crop a picture you already have (a screen inside a marketing frame, a type specimen):
 
 ```
 node <skill>/scripts/capture.mjs "file://<abs path to image>" --out .design/refs/<name>.jpg --clip x,y,w,h
 ```
 
-`--clip` is in the image's own pixels. The image is JPEG even when its path contains `.png`.
+`--clip` is in the image's own pixels.
 
 ## Imagery
 

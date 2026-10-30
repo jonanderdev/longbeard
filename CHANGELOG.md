@@ -7,7 +7,6 @@
 - The `AGENTS.md` block `init` and `update` write now matches the 0.6.0 hunt: the `DESIGN.md` ask is its own message, asked once more if they move on without answering. 0.6.0 shipped the older "ask once" line. Run `npx longbeard update` after installing this release.
 - `update` tells an edit by content, not by file time. A fresh clone or a checkout no longer makes every skill look edited, so they refresh again. A lock written by 0.6.0 or earlier has no hash yet: if `update` lists a skill under "your edits" that you did not change, run `npx longbeard update --force` once.
 - A direction can hold behaviour. **Read this** has a `behaviour:` line (how the page moves, pages, fades, or reveals, or `none`), `DESIGN.md` has a `## Behaviour` section, and `animate` reads it first.
-- New `scripts/appstore-shots.mjs` lists full-size App Store screenshots for named apps through the iTunes Search API, with no login, as TSV for `contact-sheet.mjs`. It warns when the closest listing is not the app you named. `shots.md` says how to crop a marketing frame to the device.
 - `capture.mjs` writes the format its `--out` extension names (PNG for `.png`). Given an image file, `--clip` is in the image's own pixels.
 - `dribbble-cards.mjs` also drops code, video, and photo editors, AI assistants, dashboards, and SaaS.
 - The hunt's first message has a redo line for when `DESIGN.md` already exists, and one progress line is allowed when the search ends.
