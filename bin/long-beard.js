@@ -44,7 +44,8 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
 
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
-A kit skill is copied from the installed package when its version moved, and the line says which versions.
+A skill written here is copied from the installed package when its version moved, and the line says which versions.
+A kit (ponytail, Matt Pocock) is every skill its author publishes. update adds new ones and removes retired ones you did not edit.
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
