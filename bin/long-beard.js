@@ -235,19 +235,27 @@ function writeExtra(flags, state) {
 async function kitSkills(item) {
   const repo = item.source.match(/github\.com\/([^/]+\/[^/#?]+)/)?.[1]?.replace(/\.git$/, "");
   if (!repo) fail(`${item.name}: a kit needs a GitHub source.`);
+  // update retires what this list leaves out, so a failed fetch must stop here,
+  // never fall through to a guess. Only a missing manifest (404) falls back.
+  const cannot = `Could not list the ${item.name} kit from GitHub. Check the network and try again.`;
   const get = async (url) => {
     try {
       const res = await fetch(url);
-      return res.ok ? await res.json() : null;
+      if (res.status === 404) return null;
+      if (!res.ok) fail(`${cannot} (${res.status} from ${url})`);
+      return await res.json();
     } catch {
-      return null;
+      fail(cannot);
     }
   };
   const manifest = await get(`https://raw.githubusercontent.com/${repo}/HEAD/.claude-plugin/plugin.json`);
-  if (Array.isArray(manifest?.skills)) return manifest.skills.map((path) => path.replace(/\/$/, "").split("/").pop());
-  const folders = await get(`https://api.github.com/repos/${repo}/contents/skills`);
-  if (Array.isArray(folders)) return folders.filter((entry) => entry.type === "dir").map((entry) => entry.name);
-  fail(`Could not list the ${item.name} kit from GitHub. Check the network and try again.`);
+  const names = Array.isArray(manifest?.skills)
+    ? manifest.skills.map((path) => path.replace(/\/$/, "").split("/").pop())
+    : ((await get(`https://api.github.com/repos/${repo}/git/trees/HEAD?recursive=1`))?.tree ?? [])
+        .map((entry) => entry.path.match(/^skills\/([^/]+)\/SKILL\.md$/)?.[1])
+        .filter(Boolean);
+  if (names.length === 0) fail(cannot);
+  return names;
 }
 
 async function expandKits(skills, omit) {
