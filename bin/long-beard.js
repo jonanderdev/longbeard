@@ -45,7 +45,7 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
 A skill written here is copied from the installed package when its version moved, and the line says which versions.
-A kit (ponytail, Matt Pocock) is every skill its author publishes. update adds new ones and removes retired ones you did not edit.
+A kit (ponytail) is every skill its author publishes. update adds new ones and removes retired ones you did not edit, and a kit's skills when the catalog drops it.
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
@@ -737,21 +737,22 @@ async function update(flags) {
   const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
-  // A skill its author stopped publishing leaves with the kit, unless you edited it.
-  const kits = new Set(picked.skills.filter((item) => item.kit).map((item) => item.name));
+  // A kit skill nothing lists any more leaves, unless you edited it: the author
+  // stopped publishing it, or the catalog dropped the kit.
   const listed = new Set(skills.map((skill) => skill.name));
   const retired = Object.entries(classified.lock.skills)
-    .filter(([name, entry]) => kits.has(entry.kit) && !listed.has(name) && !extra.omit.includes(name))
+    .filter(([name, entry]) => entry.kit && !listed.has(name) && !extra.omit.includes(name))
     .map(([name, entry]) => ({ name, author: entry.author, edited: locallyEdited(name, entry, agents, flags.global) }));
   const drop = retired.filter((skill) => !skill.edited);
   plan("update", flags, agents, classified);
-  rows("retired", yellow, drop, "The author no longer publishes it. Removed with the kit.", nameWidth([retired]));
-  rows("retired, kept", yellow, retired.filter((skill) => skill.edited), "The author no longer publishes it. Kept because you edited it.", nameWidth([retired]));
+  rows("retired", yellow, drop, "No longer in its kit or the catalog. Removed.", nameWidth([retired]));
+  rows("retired, kept", yellow, retired.filter((skill) => skill.edited), "No longer in its kit or the catalog. Kept because you edited it.", nameWidth([retired]));
   confirmWrite(flags, classified.writes);
   if (drop.length > 0) {
+    // No --agent: with one, the skills CLI unlinks Claude Code but leaves the
+    // shared .agents/skills folder that Cursor reads.
     const args = ["remove", ...drop.map((skill) => skill.name), "-y"];
     if (flags.global) args.push("--global");
-    for (const agent of agents) args.push("--agent", agent);
     runSkills(args);
     for (const skill of drop) delete classified.lock.skills[skill.name];
   }
@@ -882,9 +883,9 @@ function remove(flags, rest) {
   rows("remove", yellow, names.map((name) => ({ name })), shared.has(names[0]) ? "Omitted here. Still in the shared catalog." : "This project only.", 16);
   if (ours.length > 0) {
     say(dim("Removing…"));
+    // No --agent, as in update: it would leave the shared .agents/skills folder.
     const args = ["remove", ...ours, "-y"];
     if (flags.global) args.push("--global");
-    for (const agent of agents) args.push("--agent", agent);
     runSkills(args);
     for (const name of ours) delete lock.skills[name];
     writeLock(flags, lock);

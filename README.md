@@ -35,7 +35,7 @@ Writing stays small. A risky change is named before it is built. Design directio
     <tr>
       <td>Plan</td>
       <td><a href="https://github.com/mattpocock/skills">mattpocock-skills</a></td>
-      <td>Kit: every skill he publishes. Grill a plan, write it as a spec, split it into agent-ready tickets (GitHub Issues or local files), build each test-first. Also diagnosing-bugs, tdd, handoff. Most run only when you type their command</td>
+      <td>A picked set, not his whole repo. Grill a feature, write it as a spec, split it into vertical-slice tickets on GitHub Issues or local files, build each test-first, then review against the spec. Run <code>/setup-matt-pocock-skills</code> once per repo first. Also diagnosing-bugs, prototype, improve-codebase-architecture, handoff, retro. Most run only when you type their command</td>
       <td>Matt Pocock</td>
     </tr>
     <tr>
@@ -99,7 +99,7 @@ Writing stays small. A risky change is named before it is built. Design directio
   </tbody>
 </table>
 
-A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. `update` installs a skill they add and removes one they retire, unless you edited it. The router in `AGENTS.md` only says which flow a plain ask goes to where two overlap; inside a flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
+A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. Ponytail is one. `update` installs a skill they add and removes one they retire, unless you edited it. Where an author publishes more than this kit needs, the catalog takes single skills instead, as with Matt Pocock's. The router in `AGENTS.md` only says which flow a plain ask goes to where two overlap; inside a flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
