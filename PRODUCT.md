@@ -20,7 +20,7 @@ The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm p
 - `beard-lock.json` records a content hash per skill. `update` treats a skill as edited when its files differ from that hash, not when its mtime moved.
 - Do not edit `AGENTS.md` by hand. Change the generator or `beard.json`, then `npm run router`. `add` and `remove` in this repo rewrite it. `npm test` fails when the two drift, and `scripts/release.sh` runs it.
 
-Take an author's flow whole or leave it out. When an author publishes a set of skills that call each other (ponytail, Matt Pocock), the catalog takes the whole set as one `kit` item: every skill they publish, kept current on `update`. Never cherry-pick half a flow, and never rewire a step inside one. The router only decides between flows where they overlap: which one a plain ask goes to. Inside a flow, its own steps win. Single skills from other authors stay single items. Few tokens: a skill that only runs when you type its command costs nothing until then. A kit or skill that stops earning its place is dropped.
+Few skills. Few tokens. Where two skills overlap, the router says which one a plain ask goes to; it does not rewire a step inside an author's flow. A kit or skill that stops earning its place is dropped.
 
 `kind` is the door to grow past skills later. Until a new kind has an installer, do not catalog it. MCP servers (for example Awwwards search) are not a `skill` and `init` cannot wire them yet.
 
