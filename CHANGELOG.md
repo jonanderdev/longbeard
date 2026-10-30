@@ -1,10 +1,20 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 — 2026-10-30
 
+- The hunt is smaller. Its goal is one `DESIGN.md`, and `.design/` is scratch you may delete once that exists; a later hunt for one piece works without it. `SKILL.md` drops from about 400 lines to under 200, and `quality.md` and `shots.md` become one `sources.md`. `proof.mjs` is gone: a prototype of the gaps is the proof. `moodboard.mjs` runs once, before the pick, as a grid of shots linked to their sources; `--leads`, `--also`, `--why`, `--count`, and `--imagery` are gone, and the pick is said in chat. A board card is six lines. A later hunt writes `.design/hunts/<slug>/board.md` with the same cards and its own moodboard.
 - `tdd` from [Matt Pocock](https://github.com/mattpocock/skills) is in the default kit, under Code. It runs only when you ask for TDD, test-first, or red-green-refactor; `ponytail` stays the default for building and fixing. People who already ran `init`: install this version, then run `npx longbeard update`.
 - The `AGENTS.md` block `init` and `update` write now matches the 0.6.0 hunt: the `DESIGN.md` ask is its own message, asked once more if they move on without answering. 0.6.0 shipped the older "ask once" line. Run `npx longbeard update` after installing this release.
 - `update` tells an edit by content, not by file time. A fresh clone or a checkout no longer makes every skill look edited, so they refresh again. A lock written by 0.6.0 or earlier has no hash yet: if `update` lists a skill under "your edits" that you did not change, run `npx longbeard update --force` once.
+- A direction can hold behaviour. **Read this** has a `behaviour:` line (how the page moves, pages, fades, or reveals, or `none`), `DESIGN.md` has a `## Behaviour` section, and `animate` reads it first.
+- `capture.mjs` writes the format its `--out` extension names (PNG for `.png`). Given an image file, `--clip` is in the image's own pixels.
+- `dribbble-cards.mjs` also drops code, video, and photo editors, AI assistants, dashboards, and SaaS.
+- The hunt's first message has a redo line for when `DESIGN.md` already exists, and one progress line is allowed when the search ends.
+- After the `DESIGN.md` question, the hunt offers a next step instead of stopping: prototype the gaps (the gaps are the prototype's brief), hunt one, or stop. For an app, the first round also asks for the main screens and how you move between them, and 6 references is offered as a quick look.
+- `DESIGN.md` names ideas, not sources: no reference names, no `.design/` paths, and `leave` is written as ideas. It gains a "To see it working" line and a **Decisions** list. `design-md` may now record decisions you approve on a rendered prototype, with the reason, the date, and a contrast check for every new colour token.
+- `.design/` stays out of git. The hunt adds it to `.gitignore` on its first write and says why: the screenshots are other people's work. If it was already committed, it tells you, and leaves untracking it to you.
+- An `ownable` element is unconfirmed until it has been seen on a rendered screen. Faces are set at their real sizes before they are kept: the italic at quote size, and the figures where numbers sit.
+- The router tells `design-taste-frontend` that with `DESIGN.md` it builds and checks, and does not art-direct; it also takes a prototype ask. A Figma file stays with `figma-design-to-code`. App screens use taste's app-screen rules and inspector, and a warning about something `DESIGN.md` decided is reported, not "fixed"; accessibility failures are still fixed. If you already have a `DESIGN.md`, move any reference names in it into ideas.
 
 ## 0.6.0 — 2026-10-23
 

@@ -79,15 +79,15 @@
       "license": "MIT",
       "source": "local",
       "when": "No official look, or they asked to hunt / define direction / find references",
-      "why": "Does not code the page. Talk first, one round, then search small. Whole look writes `.design/board.md` and `.design/moodboard.html` of those references, open before they pick and marked again after. A later pass writes `.design/hunts/<slug>/` and does not replace the moodboard. Narrow on the moodboard, show the proof, say the adaptation (take, change, leave, ownable, gaps, adapted colour and type), then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Direction-only stops there. Build only if they also asked to build."
+      "why": "Does not code the page. Talk first, one round, then search small. Pick on `.design/moodboard.html`, say the adaptation, then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Then offer the next step: prototype the gaps, hunt one, or stop. A later hunt for one piece writes `.design/hunts/<slug>/`. `.design/` is scratch, out of git."
     },
     {
       "name": "design-taste-frontend",
       "author": "Leonxlnx",
       "license": "MIT",
       "source": "https://github.com/Leonxlnx/taste-skill",
-      "when": "They asked to build or code a page or screen",
-      "why": "Do not deal this skill’s references, and do not run draw. Prefer `DESIGN.md` when it exists; else wait for `.design/board.md` and build from those cards. Direction-only or hunt-only is not this skill. The control a card describes is the control. Do not add a filled button the card does not show. Inspect still."
+      "when": "They asked to build, code, or prototype a page or screen",
+      "why": "With DESIGN.md it builds and checks; it does not art-direct: no draw, no dealt references, palette, or type. Else build from the `.design/board.md` cards. Run `inspect.mjs` (`--app` and its app-screen house rules for an app screen). Report a warning about something DESIGN.md decides as per DESIGN.md; contrast, focus, and tap-target failures still get fixed. Direction-only or hunt-only is not this skill. The control a card describes is the control; add no filled button it does not show."
     },
     {
       "name": "animate",
@@ -95,7 +95,7 @@
       "license": "MIT",
       "source": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
       "when": "They asked to animate a control or a transition",
-      "why": "A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it."
+      "why": "Read the Behaviour section of DESIGN.md first. A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it."
     },
     {
       "name": "figma-design-to-code",
@@ -153,7 +153,7 @@
       "license": "MIT",
       "source": "local",
       "when": "The look of this project, or they confirmed writing or updating DESIGN.md",
-      "why": "Follow DESIGN.md when it exists. Write or update it from the board or a hunt note only when they confirm — expand colour, type, control, layout principles, leave. Do not invent. Missing file plus design or define direction is hunt first."
+      "why": "Follow DESIGN.md when it exists. Write or update it only on confirm: from the hunt's adaptation, or from decisions approved on a rendered prototype, with reason, date, and contrast. Ideas, not sources: no reference names or `.design/` paths. Do not invent. Missing file plus design or define direction is hunt first."
     }
   ]
 }

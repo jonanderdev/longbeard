@@ -116,6 +116,10 @@ Writing stays small. A risky change is named before it is built. Design directio
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
+## Design, from no look to a build
+
+With no `DESIGN.md` and no Figma, ask to define the direction. The hunt asks one round of questions, shows a moodboard of real references, and writes `DESIGN.md` when you say yes. Then prototype the screens no reference covered (the hunt lists them as gaps), and record what you approve in `DESIGN.md`. When you ask to build, `design-taste-frontend` follows `DESIGN.md` instead of choosing a look of its own; a Figma file is built with `figma-design-to-code`. `.design/` holds other people's screenshots, so the hunt keeps it out of git; `DESIGN.md` is the file you publish. Once it exists you can delete `.design/`. A later hunt for one piece (a pricing section, an empty state) starts its own folder there.
+
 ## Install
 
 In a project:

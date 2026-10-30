@@ -31,8 +31,8 @@ Official look wins, in this order:
 1. This project’s `DESIGN.md` → `design-md` (follow). Write or update that file only when they **confirm** after a hunt (whole look primary pick, or an accepted later pass). Expand colour, type, control, layout principles, leave from the board or hunt note. Do not invent.
 2. A Figma file or link → `figma-design-to-code`.
 3. A picture they already have → `image-to-code` (optional).
-4. No official look (no `DESIGN.md`, no Figma, no board), or they asked to hunt / define direction → `design-reference-hunt`. **Whole look:** one round of questions, with a Figma link on the first line → a small search into `.design/board.md` → the moodboard opens **before** the pick, and they narrow on it → the adaptation (take, change, leave, ownable, gaps) → `.design/proof.html` → the persist ask as its own message → **stop** unless they also asked to build. A website hunts live pages. An application hunts shipped screens first, not award sites. A later hunt (piece, ideas, check) writes `.design/hunts/<slug>/` and asks the same way to update `DESIGN.md`.
-5. They asked to **build or code** a page → `design-taste-frontend` when that skill is in the project. Prefer `DESIGN.md`; else the board. Direction-only is not a build ask. On this path, taste does not deal its own references or run `draw.mjs`.
+4. No official look (no `DESIGN.md`, no Figma, no board), or they asked to hunt / define direction → `design-reference-hunt`. **Whole look:** one round of questions, with a Figma link on the first line → a small search into `.design/board.md` → the moodboard opens **before** the pick, and they pick on it → the adaptation (take, change, leave, ownable, gaps) → the persist ask as its own message → **stop** unless they also asked to build. A website hunts live pages. An application hunts app screens, not award sites. A later hunt (one piece) writes `.design/hunts/<slug>/` and asks the same way to update `DESIGN.md`. `.design/` is scratch: once `DESIGN.md` exists it may be deleted, and a later hunt works without it.
+5. They asked to **build or code** a page or screen, or to prototype the gaps → `design-taste-frontend` when that skill is in the project. With `DESIGN.md`, taste builds and checks; it does not art-direct (no `draw.mjs`, no dealt references, palette, or type). Else the board. A Figma file stays with `figma-design-to-code` (step 2). Taste still runs `inspect.mjs`, with `--app` and its app-screen house rules for an app screen. Direction-only is not a build ask. Decisions they approve on a prototype go back into `DESIGN.md` through `design-md`.
 6. `web-design-guidelines` only when they ask for a UI review.
 7. `jury` only when they ask to jury, score, judge, or roast the design (or a live URL / local build). Blind evidence scorecard. Do not redesign. Fixes stay on the board, `DESIGN.md`, or Figma. Do not run after every build unless they asked.
 8. A control or transition they asked to animate → `animate`. A page already being built keeps that skill’s motion rules when both apply.
@@ -46,7 +46,8 @@ The hunt's rules — the questions, sources, keep counts, card fields, quality f
 
 - The direction starts as a conversation, and they choose by looking at the moodboard, not from a list of links.
 - The closest reference leads the feeling. It does not become the brand. `DESIGN.md` is an adaptation with a reason for each change and one `ownable` element from the project's own identity, never the reference's exact palette or faces.
-- Nothing is official until they say yes to `DESIGN.md`.
+- Nothing is official until they say yes to `DESIGN.md`. A direction is not yet a design: the hunt ends by offering to prototype its gaps.
+- `DESIGN.md` is published and names ideas, never the sources the hunt looked at. `.design/` holds other people's work and stays out of git.
 - Fewer, stronger references beat a padded board. A short board names its drops.
 
 `design-reference-hunt` stays here, with `"source": "local"`. Do not move it to its own repository. Do not ship public hunt skills we already tried: they wrote Claude paths, mixed imagery with sites, and searched with stale years.
@@ -55,7 +56,7 @@ Do not put model-picker warnings in the kit. A skill that needs the current year
 
 ## How to know it worked
 
-Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt asks one round before it searches, writes `.design/board.md` (or a hunt note), opens the moodboard before the pick and marks the lead after, shows the proof, says the adaptation, asks to persist `DESIGN.md` as its own message, and does not code the page on a direction-only ask; `DESIGN.md` appears only after confirm and does not copy the reference’s exact palette or faces; a build skill runs only when they asked to build and prefers `DESIGN.md`; jury runs only when they asked to score or judge, and does not redesign.
+Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt asks one round before it searches, writes `.design/board.md` (or a hunt board), opens the moodboard before the pick, says the adaptation, asks to persist `DESIGN.md` as its own message, and does not code the page on a direction-only ask; `DESIGN.md` appears only after confirm and does not copy the reference’s exact palette or faces; a build skill runs only when they asked to build and prefers `DESIGN.md`; jury runs only when they asked to score or judge, and does not redesign.
 
 Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project’s `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. Do not run `longbeard init` in *this* repo.
 
