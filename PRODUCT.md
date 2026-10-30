@@ -12,7 +12,7 @@ The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm p
 
 ## Shape
 
-- Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). Skills stay with their authors. Do not vendor other people’s skills.
+- Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). An item with `"kit": true` is an author's whole published set: the skills in their plugin manifest, else every folder in their `skills/`. Its `routes` are the router lines. Skills stay with their authors. Do not vendor other people’s skills.
 - Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `init` asks which agents on a TTY (catalog defaults pre-checked). `--agent` skips the list and installs for that tool. `--yes` uses the catalog agents.
 - One block in the project’s `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. Do not write `CLAUDE.md` or Copilot files unless asked.
 - Local skills we own live under `skills/` and use `"source": "local"`. They stay in this repository and ship with the package. Today: `design-md` and `design-reference-hunt`. A new skill we own is another folder here, not another package.
@@ -20,7 +20,7 @@ The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm p
 - `beard-lock.json` records a content hash per skill. `update` treats a skill as edited when its files differ from that hash, not when its mtime moved.
 - Do not edit `AGENTS.md` by hand. Change the generator or `beard.json`, then `npm run router`. `add` and `remove` in this repo rewrite it. `npm test` fails when the two drift, and `scripts/release.sh` runs it.
 
-Few skills. One job each. No two skills that do the same job. Few tokens. A skill that stops earning its place is dropped.
+Take an author's flow whole or leave it out. When an author publishes a set of skills that call each other (ponytail, Matt Pocock), the catalog takes the whole set as one `kit` item: every skill they publish, kept current on `update`. Never cherry-pick half a flow, and never rewire a step inside one. The router only decides between flows where they overlap: which one a plain ask goes to. Inside a flow, its own steps win. Single skills from other authors stay single items. Few tokens: a skill that only runs when you type its command costs nothing until then. A kit or skill that stops earning its place is dropped.
 
 `kind` is the door to grow past skills later. Until a new kind has an installer, do not catalog it. MCP servers (for example Awwwards search) are not a `skill` and `init` cannot wire them yet.
 
