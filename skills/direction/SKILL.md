@@ -47,7 +47,7 @@ Before I look, three questions. Skip any with "go" and I'll decide.
 
 Default sources:
 
-- **App:** Refero, popular Dribbble, Pinterest. No award galleries.
+- **App:** popular Dribbble, Pinterest. No award galleries.
 - **Site:** Awwwards, siteinspire, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
 - **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
 
@@ -65,7 +65,7 @@ Read [sources.md](references/sources.md) before keeping anything. Do not narrate
 - **Query the form, not the word.** "writing app" returns T-shirts. `product-design?q=text+editor+screen` returns screens.
 - **Thumbnails are the first cut.** Use `scripts/contact-sheet.mjs` in scratch, then open the shortlist at full size. Nothing is kept from a thumbnail.
 - **Capture only a keep:** `node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg`.
-- **App:** a real product's screen outweighs a Dribbble concept, which has never faced real content.
+- **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names and its empty state.
 - **Site:** live sites outweigh Dribbble shots.
 
 ### 3. Write `board.md`

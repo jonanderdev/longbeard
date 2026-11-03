@@ -9,7 +9,6 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
 - **Pinterest.** Keep a pin that is one real screen or page. Drop boards, collages, and AI mush. If you hit a login wall, write `Pinterest: login wall` under `Sources:` and move on.
-- **Refero.** Shipped app screens from real products, the best source for an app. Its home page is a prompt; go straight to a search: `https://refero.design/apps/search?query=<form>` (iOS by default; switch to Web apps on the page). Search the form ("task management", "onboarding"), as on Dribbble. Crop one screen with `--clip-selector` or `--clip`.
 
 ## Dribbble
 
