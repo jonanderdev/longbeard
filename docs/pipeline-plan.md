@@ -102,7 +102,7 @@ In order. Tick as done.
 3. [x] **`design-rules.md`**: draft, then real word count. Decide where the one copy lives so both skills read it.
 4. [x] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
 5. [x] **`design`**: new skill. Absorbs what is still needed from `skills/design-md` (contrast, ideas-not-sources, the `DESIGN.md` template), then delete `skills/design-md`.
-6. [ ] **`design-check`**: new skill, two modes.
+6. [x] **`design-check`**: new skill, two modes.
 7. [ ] **`idea`**: new skill, small.
 8. [ ] **Router**: change the generator in `bin/long-beard.js`, run `npm run router`, check it is under 200 words.
 9. [ ] **Docs**: rewrite PRODUCT.md (job, shape, stages, design stack); README kit table; CHANGELOG `Unreleased` with the migration note (what is gone, what replaced it, what to run).
@@ -126,6 +126,8 @@ What each session learned that a later one needs. One or two lines each, newest 
 - **S4 capture (→ S6).** Done in S5, see S5 shared files.
 - **S5 design (→ S6, S8, S9).** `skills/design/` covers the stage, and design-md is deleted. Choices: Figma screens are built from `DESIGN.md` tokens, with no `generate_figma_design` capture of the prototype; images go in with `upload_assets` and `nodeIds` from `prototype/img/` (checked: a PNG landed as an IMAGE fill on node `2:2` of S1's file); Ready is a name suffix, `<screen> — <state> — Ready`, because the Plugin API has no dev status. The prototype hides its switcher on `?capture`.
 - **S5 shared files (→ S6).** `scripts/share.mjs` (`npm run share`) copies `rules/design-rules.md` and `skills/direction/scripts/capture.mjs` into design and design-check, plus `contrast.mjs` into design-check. S5 added `--width N` to capture (below 768 it uses a phone viewport at 2x; checked at 390). S6 adds only the cookie flag and the final-URL check, in the `direction/` source, then runs `npm run share`.
+- **S6 design-check (→ S8, S9).** Frame mode ran on S1's `1:17`: 6 hard and 3 soft findings, 3 tool calls (screenshot, one read-only `use_figma` for state frames and unbound values, contrast). The hard ones were missing states, missing component states and focus, equal gaps across groups, no primary action, and a 16 px target, so the rules catch what S1's quick screen skipped. Two hard fixes came out as "needs a design decision", which `design` has to bring to Jon, not invent.
+- **S6 capture (→ S9).** `--cookie "a=1; b=2"` sets cookies for the page's origin. A page that lands at another address is named on stderr, and with `--strict` exits 1 (design-check build uses it). Strict is opt-in because hunts hit canonical redirects (details.so → www.details.so/inspo). `test/capture.test.js` covers the server redirect, a fast client redirect and the cookie, and skips without Chrome.
 
 ## Open
 
