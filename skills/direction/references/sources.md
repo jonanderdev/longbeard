@@ -32,7 +32,7 @@ It prints `id-slug`, likes, views, image URL, and title. It drops merch, CVs, wo
 To crop a picture you already have (a screen inside a marketing frame, a type specimen):
 
 ```
-node <skill>/scripts/capture.mjs "file://<abs path to image>" --out .design/refs/<name>.jpg --clip x,y,w,h
+node <skill>/scripts/capture.mjs "file://<abs path to image>" --out design-exploration/<slug>/refs/<name>.jpg --clip x,y,w,h
 ```
 
 `--clip` is in the image's own pixels.
@@ -41,12 +41,12 @@ node <skill>/scripts/capture.mjs "file://<abs path to image>" --out .design/refs
 
 Search the subject, not a stock category. One real place or material beats a pile of similar ones. Zero imagery is a complete answer.
 
-- **Unsplash.** On the search page, read `figure a[href*="/photos/"] img`. Take its `src` up to the `?` and download `<src>?w=1600&q=80`. The photo page is the `url`.
-- **Wikimedia Commons.** Query the API with `-A "<project>-hunt/0.1"`, `prop=imageinfo&iiprop=url&iiurlwidth=1920`. Save `thumburl`. `descriptionurl` is the `url`.
+- **Unsplash.** On the search page, read `figure a[href*="/photos/"] img`. Take its `src` up to the `?` and download `<src>?w=1600&q=80`. The photo page is the `link`.
+- **Wikimedia Commons.** Query the API with `-A "<project>-hunt/0.1"`, `prop=imageinfo&iiprop=url&iiurlwidth=1920`. Save `thumburl`. `descriptionurl` is the `link`.
 
 ## Contact sheets
 
-Viewing listing thumbnails is fine. It is not a capture. Build labelled grids in scratch, never under `.design/`:
+Viewing listing thumbnails is fine. It is not a capture. Build labelled grids in scratch, never under `design-exploration/`:
 
 ```
 node <skill>/scripts/contact-sheet.mjs candidates.tsv --out <scratch>/sheets   # TSV: label<TAB>imageURL
@@ -57,7 +57,7 @@ node <skill>/scripts/contact-sheet.mjs candidates.tsv --out <scratch>/sheets   #
 Only for a keep, run from the project root:
 
 ```
-node <skill>/scripts/capture.mjs <url> --out .design/refs/<name>.jpg
+node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg
 ```
 
 The script dismisses cookie banners, scrolls so reveals load, unsticks fixed headers, and takes one full-page JPEG. Node 22+ and an installed Chrome are required (set `CHROME_PATH` if Chrome is somewhere unusual). Options:
@@ -66,9 +66,3 @@ The script dismisses cookie banners, scrolls so reveals load, unsticks fixed hea
 - `--clip-selector "main"` or `--clip x,y,w,h` crops to a type specimen.
 
 Open the file. Delete it and run again if it repeats a band, still shows a cookie dialog, or is mostly empty. If a page will not scroll (WebGL, a locked canvas), keep one viewport and say so on the card. Never stitch screenshots.
-
-## Colour and type
-
-- **Colour.** Sample hexes from a crop of the element named (body text, active tab), never from a photo, a mockup frame, or a presentation background. Card hexes are what we saw, not the brand.
-- **Contrast.** Check pairs with `node <skill>/scripts/contrast.mjs "#2c2824 on #f6f1e7" "#b0563a on #f6f1e7:mark"`. `:large` and `:mark` check 3:1. A failing pair is written as `sampled → used`.
-- **Type.** A face's licence has to cover how this ships: bundled in an app, self-hosted web, or default UI. Set it at real sizes before you pick it. Check that the italic reads at quote size and that its figures suit where numbers sit.

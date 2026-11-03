@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Build labelled contact sheets from a TSV of label\timageURL.
-// Writes JPEG grids (~36 per sheet) into an output directory (scratch, not .design/).
+// Writes JPEG grids (~36 per sheet) into an output directory (scratch, not design-exploration/).
 // Viewing listing thumbnails is allowed; this is not a capture.
 //
 //   node contact-sheet.mjs candidates.tsv --out /tmp/hunt-sheets

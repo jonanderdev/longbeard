@@ -100,7 +100,7 @@ In order. Tick as done.
    - [x] `update` in `bin/long-beard.js` removes skills dropped from the catalog.
 2. [x] **Catalog** (`beard.json`): one Matt kit entry replacing the 17 single entries; Figma's four; drop ponytail, premortem, taste, design-md; mark add-ons optional; add the four local skills.
 3. [x] **`design-rules.md`**: draft, then real word count. Decide where the one copy lives so both skills read it.
-4. [ ] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
+4. [x] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
 5. [ ] **`design`**: new skill. Absorbs what is still needed from `skills/design-md` (contrast, ideas-not-sources, the `DESIGN.md` template), then delete `skills/design-md`.
 6. [ ] **`design-check`**: new skill, two modes.
 7. [ ] **`idea`**: new skill, small.
@@ -122,6 +122,8 @@ What each session learned that a later one needs. One or two lines each, newest 
 - **S2 migration (→ S8 CHANGELOG, S9).** animate, jury and web-design-guidelines are optional now, so a plain `update` leaves existing installs alone without refreshing them; use `--all`. Local skills refresh only when the lock `version` differs from the package version, so a project that took the 0.9.0 stubs keeps them until a version bump or `--force`. That, plus the smoke project's edited copies, is why S9 starts fresh.
 - **S3 rules (→ S5, S6).** `rules/design-rules.md`, 2,331 words: sections 0–14, 24 hard and 57 soft checks, a site list and an app list, tells dated 2026-11-03. `npm run rules` copies it to `skills/design/references/` and `skills/design-check/references/`, and `test/rules.test.js` fails on drift. S5 and S6 edit only `rules/`, never the copies, and link `references/design-rules.md` from their SKILL.md.
 - **S3 choices (→ S5, S6, S9).** The hard target floor is WCAG 2.2 AA (24×24 CSS px), and the app list raises it to 44 pt / 48 dp on touch. Every tell is soft, including the ones taste-skill bans, and the list never names a replacement. State checks (focus, empty, loading, error) are judged from state frames, so a missing frame fails rule 8.
+- **S4 direction (→ S5, S8).** `skills/direction/` replaces design-reference-hunt. Card fields are `link`, `shot`, `pattern`, `why`. The moodboard captions with `pattern` and has no product slot, and `sources.md` lost its Colour and type section. `contrast.mjs` is now `skills/design/scripts/contrast.mjs`, so S5 links it from there. The one-piece mode writes a short `direction.md` and hands back to `design`. Old `.design/` paths survive only in files S5 and S8 rewrite (design-md, AGENTS.md, README, PRODUCT, CHANGELOG).
+- **S4 capture (→ S6).** `capture.mjs` lives in `skills/direction/scripts/`. design-check installs on its own, so it can't read that folder. S6 copies it in the same way as the rules (one source, `npm run`, a drift test), or moves the source to a neutral spot.
 
 ## Open
 

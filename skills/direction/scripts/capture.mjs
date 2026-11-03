@@ -2,12 +2,12 @@
 // Full-page capture. Unsticks fixed/sticky chrome first so Chrome does not
 // repeat the same fold. Node 22+. Uses an installed Chrome/Edge/Chromium.
 //
-//   node capture.mjs <url> --out .design/refs/name.jpg
-//   node capture.mjs <url> --out .design/refs/name.jpg --review /tmp/name-review.jpg
-//   node capture.mjs <url> --out .design/refs/name.jpg --clip x,y,w,h
-//   node capture.mjs <url> --out .design/refs/name.jpg --clip-selector "main"
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --review /tmp/name-review.jpg
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip-selector "main"
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
-//   node capture.mjs file:///abs/path/shot.jpg --out .design/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 import { spawn, execSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -28,7 +28,7 @@ const clipArg = flag("clip", "") || "";
 const clipSelector = flag("clip-selector", "") || "";
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out .design/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"]',
+    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"]',
   );
   process.exit(2);
 }
