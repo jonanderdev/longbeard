@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 // A moodboard of the references: every card with a shot, its name, its
-// tagline, and a link to its source. The layout is this file. It shows what
+// pattern, and a link to its source. The layout is this file. It shows what
 // we saw. It does not paint a brand, a logo, a line, or a stat.
 //
-//   node moodboard.mjs .design/board.md --out .design/moodboard.html
-//   node moodboard.mjs .design/hunts/pricing/board.md --out .design/hunts/pricing/moodboard.html
-//
-// A card with `slot: product` stays off: a product page cropped into a tile is noise.
+//   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
+//   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
@@ -16,7 +14,7 @@ const outAt = args.indexOf("--out");
 const outArg = outAt === -1 ? "" : (args.splice(outAt, 2)[1] ?? "");
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
-  console.error("usage: node moodboard.mjs .design/board.md --out .design/moodboard.html");
+  console.error("usage: node moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html");
   process.exit(2);
 }
 
@@ -65,7 +63,7 @@ const cards = md
 
 const tiles = [];
 for (const card of cards) {
-  if (!card.shot || /product/i.test(card.slot || "")) continue;
+  if (!card.shot) continue;
   const abs = resolvePath(card.shot.trim());
   if (!existsSync(abs)) {
     console.error(`moodboard: missing shot ${card.shot.trim()}`);
@@ -74,12 +72,12 @@ for (const card of cards) {
   let src = relative(dirname(outPath), abs).split("\\").join("/");
   if (!src.startsWith(".")) src = `./${src}`;
   // A seed shared in chat has no URL, so its tile has no link.
-  const url = (card.url || "").trim().split(/\s+/)[0];
+  const url = (card.link || "").trim().split(/\s+/)[0];
   const img = `<img src="${esc(src)}" alt="${esc(card.name)}" loading="lazy">`;
   const frame = /^https?:\/\//i.test(url)
     ? `<a class="frame" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${img}</a>`
     : `<div class="frame">${img}</div>`;
-  const line = card.tagline ? `<p class="line">${esc(card.tagline)}</p>` : "";
+  const line = card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "";
   tiles.push(`<figure class="tile">${frame}<figcaption><p class="name">${esc(card.name)}</p>${line}</figcaption></figure>`);
 }
 
