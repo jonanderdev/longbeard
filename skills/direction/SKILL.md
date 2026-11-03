@@ -47,9 +47,11 @@ Before I look, three questions. Skip any with "go" and I'll decide.
 
 Default sources:
 
-- **App:** popular Dribbble, Pinterest. Refero unticked (login wall). No award galleries.
-- **Site:** Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
-- **Imagery** (Unsplash, Wikimedia, museums): only when the brief's key screens need pictures.
+- **App:** Refero, popular Dribbble, Pinterest. No award galleries.
+- **Site:** Awwwards, siteinspire, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
+- **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
+
+Each of these was checked to work with this skill's scripts, without a login (2026-11-03). Do not add a source that has not been.
 
 Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link pasted before the search means the look already exists: say so, and offer `design` instead. If their answers contradict the brief, that is `grilling`, not a second round.
 
@@ -72,7 +74,7 @@ A few header lines, then one card per keep.
 
 ```
 Asked: <feel, never feel, loves, or none>
-Sources: <what was searched, and any skip: "Refero: login wall">
+Sources: <what was searched, and any skip: "Pinterest: login wall">
 Missing: <what the search could not find, or none>
 
 ### <name>
