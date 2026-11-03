@@ -98,7 +98,7 @@ In order. Tick as done.
    - [x] Matt's `prototype` (read `UI.md`) pointed at plain HTML outside an app.
    - [x] `capture.mjs` against a local app, including one behind a login.
    - [x] `update` in `bin/long-beard.js` removes skills dropped from the catalog.
-2. [ ] **Catalog** (`beard.json`): one Matt kit entry replacing the 17 single entries; Figma's four; drop ponytail, premortem, taste, design-md; mark add-ons optional; add the four local skills.
+2. [x] **Catalog** (`beard.json`): one Matt kit entry replacing the 17 single entries; Figma's four; drop ponytail, premortem, taste, design-md; mark add-ons optional; add the four local skills.
 3. [ ] **`design-rules.md`**: draft, then real word count. Decide where the one copy lives so both skills read it.
 4. [ ] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
 5. [ ] **`design`**: new skill. Absorbs what is still needed from `skills/design-md` (contrast, ideas-not-sources, the `DESIGN.md` template), then delete `skills/design-md`.
@@ -106,7 +106,7 @@ In order. Tick as done.
 7. [ ] **`idea`**: new skill, small.
 8. [ ] **Router**: change the generator in `bin/long-beard.js`, run `npm run router`, check it is under 200 words.
 9. [ ] **Docs**: rewrite PRODUCT.md (job, shape, stages, design stack); README kit table; CHANGELOG `Unreleased` with the migration note (what is gone, what replaced it, what to run).
-10. [ ] **Tests**: `npm test` green; add a case for removed skills if step 1 shows `update` needs it.
+10. [ ] **Tests**: `npm test` green; add a case for removed skills if step 1 shows `update` needs it. (Removed-skills case done in S2: `test/update.test.js`.)
 11. [ ] **Smoke**: run the first pass in `../longbeard-smoke` from an idea to Figma, and one small spec through Build.
 12. [ ] **Release** as one `0.x` minor, per PRODUCT.md.
 
@@ -118,6 +118,7 @@ What each session learned that a later one needs. One or two lines each, newest 
 - **S1 prototype (→ S5).** Matt's UI branch, followed by hand on a plain folder, works: one `index.html`, `?variant=`, floating switcher. `design` must override sub-shape A (use B), the router, NODE_ENV and task runner (just open the file), "skip the polish" (we want real copy and imagery), and the throwaway branch (gitignored folder, winner goes to `DESIGN.md`).
 - **S1 capture (→ S6).** Works on localhost and on `file://…?variant=B`. It turns `position: fixed` into in-flow blocks, so the prototype switcher and bottom bars land in the shot. Exit 0 is no login check: a server redirect, or a client redirect inside the first 2.5 s, captures the login page with exit 0. Build mode must compare the final URL with the requested one. Before build mode, add a viewport or mobile flag (fixed at 1440×900) and a cookie flag.
 - **S1 update (→ S2).** `update` retires only lock entries with `kit`. Proved on a scratch copy: ponytail went; premortem, design-md and design-taste-frontend stayed. Fix: retire any lock entry missing from the full catalog (optional items included, not `chosen()`, which drops them without `--all`), plus extras and kit expansions, minus `omit`. Keep the edited guard.
+- **S2 catalog (→ S4–S8).** `beard.json` now lists the four local skills (stub `SKILL.md`s in `skills/idea`, `direction`, `design`, `design-check`), the `matt-pocock` kit (27 skills, live from his `plugin.json`), Figma's four, and five optional add-ons. design-reference-hunt and design-md are out of the catalog, but their folders stay for S4 and S5. S4 replaces the `direction` stub. The kit entry has no `routes`; S8 writes the router. `update` now removes any lock entry the full catalog doesn't list (local skills too, checked), and `--force` removes edited ones as well. In the smoke project, design-md, design-reference-hunt and design-taste-frontend are held as edited, because their `.claude` and `.agents` copies really differ from the lock hash. S9 starts fresh, or runs `update --force`.
 
 ## Open
 
