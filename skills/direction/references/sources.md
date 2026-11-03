@@ -11,14 +11,6 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **Pinterest.** Keep a pin that is one real screen or page. Drop boards, collages, and AI mush. If you hit a login wall, write `Pinterest: login wall` under `Sources:` and move on.
 - **Refero.** Shipped screens, often behind a login. Handle a login wall the same way.
 
-## Component galleries
-
-React Bits (reactbits.dev) and Magic UI (magicui.design) show one component at a time, often animated. Use them for a piece: a control, a transition, a loader, an empty state. Never use them for a whole look.
-
-- Keep the pattern ("a count that rolls into place"), not the component's styling. The card's `pattern` names what it does.
-- Many entries are the tells in rule 14 of the design rules: glows, gradient borders, shimmer, spotlight cards. Drop those unless the direction asked for exactly that.
-- Capture the demo itself with `--clip-selector`, not the whole docs page.
-
 ## Dribbble
 
 Listing pages render in the browser, and shot pages hit human verification. Use the script on a popular listing for this year:
