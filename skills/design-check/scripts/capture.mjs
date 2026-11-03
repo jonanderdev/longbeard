@@ -7,6 +7,11 @@
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip-selector "main"
 //   node capture.mjs <url> --out /tmp/mobile.png --width 390
+//   node capture.mjs http://localhost:3000/app --out /tmp/app.png --cookie "session=abc; theme=dark" --strict
+//
+// A page that ends up at another address (a login, or a site's canonical
+// www) is named on stderr. With --strict that is exit 1, so a 0 means the
+// shot is of the page asked for.
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
 //   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 import { spawn, execSync } from "node:child_process";
@@ -27,11 +32,16 @@ const outArg = flag("out", "") || "";
 const reviewArg = flag("review", "") || "";
 const clipArg = flag("clip", "") || "";
 const clipSelector = flag("clip-selector", "") || "";
+// Sent with every request to the page's own origin, as a logged-in browser would.
+const cookieArg = flag("cookie", "") || "";
+const strictAt = args.indexOf("--strict");
+const strict = strictAt !== -1;
+if (strict) args.splice(strictAt, 1);
 // Below 768 the page gets a phone viewport: mobile layout, 2x pixels.
 const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390]',
+    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict]',
   );
   process.exit(2);
 }
@@ -217,6 +227,22 @@ if (/^file:\/\/.*\.(png|jpe?g|webp|gif)$/i.test(url)) {
   target = `file://${join(dir, "image.html")}`;
   writeFileSync(join(dir, "image.html"), `<!doctype html><body style="margin:0;background:#000"><img src="${url.replace(/"/g, "%22")}" style="display:block">`);
 }
+if (cookieArg && /^https?:/.test(url)) {
+  const cookies = cookieArg
+    .split(";")
+    .map((pair) => pair.trim())
+    .filter(Boolean)
+    .map((pair) => {
+      const at = pair.indexOf("=");
+      return { name: pair.slice(0, at), value: pair.slice(at + 1), url: new URL(url).origin };
+    });
+  if (cookies.some((cookie) => !cookie.name)) {
+    console.error('cookie must be "name=value; name=value"');
+    drop();
+    process.exit(2);
+  }
+  await page("Network.setCookies", { cookies });
+}
 await page("Page.navigate", { url: target }, 40000);
 await sleep(2500);
 
@@ -318,6 +344,23 @@ await page("Runtime.evaluate", {
   returnByValue: true,
 });
 await sleep(400);
+
+// A redirect can land late (an app checks the session after it loads), so
+// the address is checked last, right before the shot.
+if (target === url) {
+  const landed = (await page("Runtime.evaluate", { expression: "location.href", returnByValue: true })).result.value;
+  const where = (href) => {
+    const u = new URL(href);
+    return `${u.origin}${u.pathname.replace(/\/$/, "")}`;
+  };
+  if (where(landed) !== where(url)) {
+    console.error(`landed on ${landed}, not ${url}. Behind a login? Pass --cookie.`);
+    if (strict) {
+      drop();
+      process.exit(1);
+    }
+  }
+}
 
 // --clip-selector takes the element's box in document coordinates, measured
 // after the unstick pass so the numbers match what the capture sees.
