@@ -42,6 +42,7 @@
   "scripts": {
     "longbeard": "node ./bin/long-beard.js",
     "router": "node ./bin/long-beard.js router > AGENTS.md",
-    "test": "node --test"
+    "test": "node --test",
+    "rules": "node -e \"for (const s of ['design', 'design-check']) require('fs').cpSync('rules/design-rules.md', 'skills/' + s + '/references/design-rules.md')\""
   }
 }
