@@ -99,7 +99,7 @@ In order. Tick as done.
    - [x] `capture.mjs` against a local app, including one behind a login.
    - [x] `update` in `bin/long-beard.js` removes skills dropped from the catalog.
 2. [x] **Catalog** (`beard.json`): one Matt kit entry replacing the 17 single entries; Figma's four; drop ponytail, premortem, taste, design-md; mark add-ons optional; add the four local skills.
-3. [ ] **`design-rules.md`**: draft, then real word count. Decide where the one copy lives so both skills read it.
+3. [x] **`design-rules.md`**: draft, then real word count. Decide where the one copy lives so both skills read it.
 4. [ ] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
 5. [ ] **`design`**: new skill. Absorbs what is still needed from `skills/design-md` (contrast, ideas-not-sources, the `DESIGN.md` template), then delete `skills/design-md`.
 6. [ ] **`design-check`**: new skill, two modes.
@@ -120,8 +120,9 @@ What each session learned that a later one needs. One or two lines each, newest 
 - **S1 update (→ S2).** `update` retires only lock entries with `kit`. Proved on a scratch copy: ponytail went; premortem, design-md and design-taste-frontend stayed. Fix: retire any lock entry missing from the full catalog (optional items included, not `chosen()`, which drops them without `--all`), plus extras and kit expansions, minus `omit`. Keep the edited guard.
 - **S2 catalog (→ S4–S8).** `beard.json` has the four local skills as stubs, the `matt-pocock` kit (no `routes` yet, S8), Figma's four, and five optional add-ons. design-md and design-reference-hunt are out of the catalog, but their folders stay for S4/S5. `update` removes any lock entry the full catalog doesn't list, and `--force` removes edited ones too. `skills remove` exits 0 on unknown names.
 - **S2 migration (→ S8 CHANGELOG, S9).** animate, jury and web-design-guidelines are optional now, so a plain `update` leaves existing installs alone without refreshing them; use `--all`. Local skills refresh only when the lock `version` differs from the package version, so a project that took the 0.9.0 stubs keeps them until a version bump or `--force`. That, plus the smoke project's edited copies, is why S9 starts fresh.
+- **S3 rules (→ S5, S6).** `rules/design-rules.md`, 2,331 words: sections 0–14, 24 hard and 57 soft checks, a site list and an app list, tells dated 2026-11-03. `npm run rules` copies it to `skills/design/references/` and `skills/design-check/references/`, and `test/rules.test.js` fails on drift. S5 and S6 edit only `rules/`, never the copies, and link `references/design-rules.md` from their SKILL.md.
+- **S3 choices (→ S5, S6, S9).** The hard target floor is WCAG 2.2 AA (24×24 CSS px), and the app list raises it to 44 pt / 48 dp on touch. Every tell is soft, including the ones taste-skill bans, and the list never names a replacement. State checks (focus, empty, loading, error) are judged from state frames, so a missing frame fails rule 8.
 
 ## Open
 
-- Where `design-rules.md` lives so two skills share one copy without depending on each other's paths.
 - How `DESIGN.md`, the brief, and ADRs are named and placed so `code-review`'s standards axis picks up the ADRs.
