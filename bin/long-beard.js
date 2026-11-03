@@ -49,7 +49,7 @@ A kit (Matt Pocock's) is every skill its author publishes. update adds new ones,
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
---force replaces local edits of skills this command installed.
+--force replaces local edits of skills this command installed, and removes edited ones the catalog dropped.
 --yes skips prompts and uses the catalog agents (cursor, claude-code).
 This does not install marketplace plugins or replace Cursor or Claude commands.
 `;
