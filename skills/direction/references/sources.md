@@ -9,7 +9,18 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
 - **Pinterest.** Keep a pin that is one real screen or page. Drop boards, collages, and AI mush. If you hit a login wall, write `Pinterest: login wall` under `Sources:` and move on.
-- **Mobbin, Refero.** Shipped screens, often behind a login. Handle a login wall the same way.
+- **Details** (details.so). Real sites cut into pieces: heroes, footers, preloaders, page transitions. Treat a keep as a piece, like a MaxiBestOf section, and capture the live site it links to.
+- **Mobbin.** Shipped app screens, searchable by app, screen type and flow. The best source for an app. Full listings need a login: without one, keep what the public pages show and note `Mobbin: login wall` under `Sources:`.
+- **Refero.** Shipped screens, often behind a login. Handle a login wall the same way.
+
+## Component galleries
+
+React Bits (reactbits.dev), Magic UI (magicui.design) and Uiverse (uiverse.io) show one component at a time, often animated. Use them for a piece: a control, a transition, a loader, an empty state. Never use them for a whole look.
+
+- Keep the pattern ("a count that rolls into place"), not the component's styling. The card's `pattern` names what it does.
+- Many entries are the tells in rule 14 of the design rules: glows, gradient borders, shimmer, spotlight cards. Drop those unless the direction asked for exactly that.
+- Capture the demo itself with `--clip-selector`, not the whole docs page.
+- Uiverse sits behind a Cloudflare check. If the capture shows the check page, note `Uiverse: blocked` under `Sources:` and move on.
 
 ## Dribbble
 
