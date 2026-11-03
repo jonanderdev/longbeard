@@ -45,11 +45,11 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
 init installs missing skills from beard.json. A skill already present for an agent is left there.
 update installs anything new, refreshes only items in beard-lock.json, and rewrites the AGENTS.md block.
 A skill written here is copied from the installed package when its version moved, and the line says which versions.
-A kit (ponytail) is every skill its author publishes. update adds new ones and removes retired ones you did not edit, and a kit's skills when the catalog drops it.
+A kit (Matt Pocock's) is every skill its author publishes. update adds new ones, and removes any skill the catalog or its kit no longer lists, unless you edited it.
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
 --agent skips the agent list and installs for that tool. Repeat it.
---force replaces local edits of skills this command installed.
+--force replaces local edits of skills this command installed, and removes edited ones the catalog dropped.
 --yes skips prompts and uses the catalog agents (cursor, claude-code).
 This does not install marketplace plugins or replace Cursor or Claude commands.
 `;
@@ -232,8 +232,14 @@ function writeExtra(flags, state) {
 
 // A kit is what its author publishes: the skills in their plugin manifest, else
 // every folder in their skills/. Read at install time so a new or retired skill
-// follows the author, not this catalog.
-async function kitSkills(item) {
+// follows the author, not this catalog. Read once per run.
+const kitCache = new Map();
+function kitSkills(item) {
+  if (!kitCache.has(item.source)) kitCache.set(item.source, fetchKit(item));
+  return kitCache.get(item.source);
+}
+
+async function fetchKit(item) {
   const repo = item.source.match(/github\.com\/([^/]+\/[^/#?]+)/)?.[1]?.replace(/\.git$/, "");
   if (!repo) fail(`${item.name}: a kit needs a GitHub source.`);
   // update retires what this list leaves out, so a failed fetch must stop here,
@@ -737,16 +743,18 @@ async function update(flags) {
   const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
-  // A kit skill nothing lists any more leaves, unless you edited it: the author
-  // stopped publishing it, or the catalog dropped the kit.
-  const listed = new Set(skills.map((skill) => skill.name));
+  // A skill nothing lists any more leaves, unless you edited it: the catalog
+  // dropped it, or its kit's author stopped publishing it. Listed means the
+  // whole catalog, so an add-on installed with --all stays without it.
+  const all = [...catalog(manifest), ...extra.items].filter((item) => kind(item) === "skill");
+  const listed = new Set((await expandKits(all, extra.omit)).map((skill) => skill.name));
   const retired = Object.entries(classified.lock.skills)
-    .filter(([name, entry]) => entry.kit && !listed.has(name) && !extra.omit.includes(name))
+    .filter(([name]) => !listed.has(name) && !extra.omit.includes(name))
     .map(([name, entry]) => ({ name, author: entry.author, edited: locallyEdited(name, entry, agents, flags.global) }));
-  const drop = retired.filter((skill) => !skill.edited);
+  const drop = flags.force ? retired : retired.filter((skill) => !skill.edited);
   plan("update", flags, agents, classified);
   rows("retired", yellow, drop, "No longer in its kit or the catalog. Removed.", nameWidth([retired]));
-  rows("retired, kept", yellow, retired.filter((skill) => skill.edited), "No longer in its kit or the catalog. Kept because you edited it.", nameWidth([retired]));
+  rows("retired, kept", yellow, retired.filter((skill) => !drop.includes(skill)),"No longer in its kit or the catalog. Kept because you edited it. Pass --force to remove it.", nameWidth([retired]));
   confirmWrite(flags, classified.writes);
   if (drop.length > 0) {
     // No --agent: with one, the skills CLI unlinks Claude Code but leaves the

@@ -5,201 +5,67 @@
   ],
   "items": [
     {
-      "name": "ponytail",
-      "kit": true,
-      "author": "DietrichGebert",
-      "license": "MIT",
-      "source": "https://github.com/DietrichGebert/ponytail",
-      "routes": [
-        {
-          "when": "Building or fixing",
-          "skill": "ponytail",
-          "why": "The smallest change that finishes the job. Leave validation, error handling, security, and accessibility in place."
-        },
-        {
-          "when": "A diff",
-          "skill": "ponytail-review",
-          "why": "Read it like someone who gets paged."
-        },
-        {
-          "when": "The whole repo",
-          "skill": "ponytail-audit",
-          "why": "That same pass, over every file."
-        },
-        {
-          "when": "Shortcuts you meant to come back to",
-          "skill": "ponytail-debt",
-          "why": "Collect the limits you marked."
-        }
-      ]
-    },
-    {
-      "name": "grill-me",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me",
-      "when": "They asked to grill a plan or design, or the ask is underspecified",
-      "why": "Interview until every branch of the design tree is resolved. Uses grilling. A feature goes on to to-spec, then to-tickets."
-    },
-    {
-      "name": "grilling",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling",
-      "when": "Stress-testing a plan, decision, or idea",
-      "why": "The interview primitive behind grill-me. Relentless questions until branches are closed."
-    },
-    {
-      "name": "setup-matt-pocock-skills",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/setup-matt-pocock-skills",
-      "when": "Before to-spec or to-tickets in a repo with no tracker set up",
-      "why": "Once per repo. Picks where specs and tickets live: GitHub Issues when the repo is on GitHub, else local markdown. Writes its `## Agent skills` block outside the longbeard markers."
-    },
-    {
-      "name": "to-spec",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec",
-      "when": "A grilled feature to write down whole",
-      "why": "One spec on the tracker setup chose: problem, user stories, decisions, test seams, out of scope. No tracker set up yet: run setup-matt-pocock-skills first. A small feature can skip it and go to to-tickets."
-    },
-    {
-      "name": "to-tickets",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets",
-      "when": "A spec, plan, or conversation to split into tickets",
-      "why": "Vertical slices, each checkable on its own, with their blockers, on the tracker setup chose. No tracker set up yet: run setup-matt-pocock-skills first."
-    },
-    {
-      "name": "implement",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/implement",
-      "when": "Building one ticket, or a spec in one session",
-      "why": "Read the ticket from the tracker, build it with tdd at the seams the spec agreed, then code-review, then commit."
-    },
-    {
-      "name": "implement-spec",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/implement-spec",
-      "when": "Building every ticket of a spec",
-      "why": "One integration branch. A fresh agent per ticket in its own worktree, each with tdd, started as its blockers finish. code-review at the end."
-    },
-    {
-      "name": "tdd",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd",
-      "when": "They asked for TDD, test-first, or red-green-refactor",
-      "why": "Red before green, one slice at a time, tests at seams you agreed. implement and implement-spec call it. Otherwise only on request; ponytail stays the default for building."
-    },
-    {
-      "name": "code-review",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review",
-      "when": "Reviewing work built from a spec or ticket",
-      "why": "Two axes, in parallel: this repo's standards, and the spec. A plain diff stays ponytail-review."
-    },
-    {
-      "name": "diagnosing-bugs",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs",
-      "when": "Something is broken, throwing, failing, or slow — a hard bug",
-      "why": "Build a tight feedback loop first, then localize, reduce, fix, and guard."
-    },
-    {
-      "name": "prototype",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/prototype",
-      "when": "A throwaway prototype of logic or state",
-      "why": "A page or screen goes to design-taste-frontend."
-    },
-    {
-      "name": "improve-codebase-architecture",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/improve-codebase-architecture",
-      "when": "Deepening modules or the shape of the code",
-      "why": "Uses codebase-design and domain-modeling. Bugs, load, and bloat across the repo stay ponytail-audit."
-    },
-    {
-      "name": "codebase-design",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/codebase-design",
-      "when": "Designing a module's interface",
-      "why": "The shared vocabulary for deep modules that improve-codebase-architecture uses."
-    },
-    {
-      "name": "domain-modeling",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/domain-modeling",
-      "when": "Naming the project's terms or recording a decision",
-      "why": "Keeps `GLOSSARY.md` and ADRs current, created only when a term or decision is settled. improve-codebase-architecture calls it."
-    },
-    {
-      "name": "handoff",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff",
-      "when": "They asked to hand off to another agent or session",
-      "why": "Compact the conversation into a handoff document another agent can pick up."
-    },
-    {
-      "name": "retro",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/engineering/retro",
-      "when": "They asked for a retro on a session",
-      "why": "Find what would have made the session easier: checks, navigation pointers, review rules, tool cost. Uses writing-for-agents. Suggests; you choose."
-    },
-    {
-      "name": "writing-for-agents",
-      "author": "Matt Pocock",
-      "license": "MIT",
-      "source": "https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents",
-      "when": "Writing a skill, AGENTS.md, or CLAUDE.md",
-      "why": "The style guide retro uses."
-    },
-    {
-      "name": "premortem",
-      "author": "GeorgeT",
-      "license": "MIT",
-      "source": "https://github.com/joetawil7/first-pass/tree/main/skills",
-      "when": "A change that touches data, money, jobs, or what a person sees",
-      "why": "Name where it can break before you write. A small change gets a short answer."
-    },
-    {
-      "name": "design-reference-hunt",
+      "name": "idea",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "No official look, or they asked to hunt / define direction / find references",
-      "why": "Does not code the page. Talk first, one round, then search small. Pick on `.design/moodboard.html`, say the adaptation, then ask to write or update `DESIGN.md` via design-md as its own message — once more, first, if they move on without answering — only on yes. Then offer the next step: prototype the gaps, hunt one, or stop. A later hunt for one piece writes `.design/hunts/<slug>/`. `.design/` is scratch, out of git."
+      "when": "An idea, or a repo with no docs/brief.md",
+      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
     },
     {
-      "name": "design-taste-frontend",
-      "author": "Leonxlnx",
+      "name": "direction",
+      "author": "Long Beard",
       "license": "MIT",
-      "source": "https://github.com/Leonxlnx/taste-skill",
-      "when": "They asked to build, code, or prototype a page or screen",
-      "why": "With DESIGN.md it builds and checks; it does not art-direct: no draw, no dealt references, palette, or type. Else build from the `.design/board.md` cards. Run `inspect.mjs` (`--app` and its app-screen house rules for an app screen). Report a warning about something DESIGN.md decides as per DESIGN.md; contrast, focus, and tap-target failures still get fixed. Direction-only or hunt-only is not this skill. The control a card describes is the control; add no filled button it does not show."
+      "source": "local",
+      "when": "A brief with UI and no direction yet, or one piece to find",
+      "why": "References and patterns from what you like, picked on a moodboard. Writes design-exploration/<slug>/direction.md, a proposal."
     },
     {
-      "name": "animate",
-      "author": "emilkowalski",
+      "name": "design",
+      "author": "Long Beard",
       "license": "MIT",
-      "source": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
-      "when": "They asked to animate a control or a transition",
-      "why": "Read the Behaviour section of DESIGN.md first. A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it."
+      "source": "local",
+      "when": "A direction to turn into screens",
+      "why": "Prototype the key screens, approve, write DESIGN.md, then build them in Figma."
+    },
+    {
+      "name": "design-check",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A Figma screen, or a built UI spec, to check",
+      "why": "Against the design rules and the Ready frame. Hard rules block; soft ones are reported."
+    },
+    {
+      "name": "matt-pocock",
+      "kit": true,
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source": "https://github.com/mattpocock/skills"
+    },
+    {
+      "name": "figma-use",
+      "author": "Figma",
+      "license": "see repository",
+      "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
+      "when": "Before any use_figma call",
+      "why": "The Plugin API rules every Figma write follows."
+    },
+    {
+      "name": "figma-generate-library",
+      "author": "Figma",
+      "license": "see repository",
+      "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
+      "when": "Tokens, styles, or components in Figma",
+      "why": "Variables, text styles, and components that match the code."
+    },
+    {
+      "name": "figma-generate-design",
+      "author": "Figma",
+      "license": "see repository",
+      "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
+      "when": "A screen in Figma",
+      "why": "Compose it from the file's components and tokens."
     },
     {
       "name": "figma-design-to-code",
@@ -210,30 +76,13 @@
       "why": "A designer handed it over. Needs the Figma connection. Reuse this project's components."
     },
     {
-      "name": "image-to-code",
-      "author": "Leonxlnx",
+      "name": "animate",
+      "author": "emilkowalski",
       "license": "MIT",
-      "source": "https://github.com/Leonxlnx/imagegen-skills",
-      "optional": true,
-      "when": "A picture you already have",
-      "why": "Build the page from that picture."
-    },
-    {
-      "name": "security-audit",
-      "author": "Cloudflare",
-      "license": "MIT",
-      "source": "https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit",
-      "optional": true,
-      "when": "A security review you asked for",
-      "why": "Look for a broken trust boundary. The full audit runs only when you ask for an audit or a pen-test."
-    },
-    {
-      "name": "web-design-guidelines",
-      "author": "Vercel",
-      "license": "see repository",
-      "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
-      "when": "A UI review you asked for",
-      "why": "Accessibility and interface rules."
+      "source": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
+      "when": "They asked to animate a control or a transition",
+      "why": "Read the Behaviour section of DESIGN.md first. A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it.",
+      "optional": true
     },
     {
       "name": "jury",
@@ -241,15 +90,35 @@
       "license": "MIT",
       "source": "https://github.com/juliobsz/skills/tree/main/jury",
       "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
-      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every build unless they asked."
+      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every build unless they asked.",
+      "optional": true
     },
     {
-      "name": "design-md",
-      "author": "Long Beard",
+      "name": "web-design-guidelines",
+      "author": "Vercel",
+      "license": "see repository",
+      "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
+      "when": "A UI review you asked for",
+      "why": "Accessibility and interface rules.",
+      "optional": true
+    },
+    {
+      "name": "security-audit",
+      "author": "Cloudflare",
       "license": "MIT",
-      "source": "local",
-      "when": "The look of this project, or they confirmed writing or updating DESIGN.md",
-      "why": "Follow DESIGN.md when it exists. Write or update it only on confirm: from the hunt's adaptation, or from decisions approved on a rendered prototype, with reason, date, and contrast. Ideas, not sources: no reference names or `.design/` paths. Do not invent. Missing file plus design or define direction is hunt first."
+      "source": "https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit",
+      "when": "A security review you asked for",
+      "why": "Look for a broken trust boundary. The full audit runs only when you ask for an audit or a pen-test.",
+      "optional": true
+    },
+    {
+      "name": "image-to-code",
+      "author": "Leonxlnx",
+      "license": "MIT",
+      "source": "https://github.com/Leonxlnx/imagegen-skills",
+      "when": "A picture you already have",
+      "why": "Build the page from that picture.",
+      "optional": true
     }
   ]
 }
