@@ -6,6 +6,7 @@
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --review /tmp/name-review.jpg
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip-selector "main"
+//   node capture.mjs <url> --out /tmp/mobile.png --width 390
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
 //   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 import { spawn, execSync } from "node:child_process";
@@ -26,12 +27,20 @@ const outArg = flag("out", "") || "";
 const reviewArg = flag("review", "") || "";
 const clipArg = flag("clip", "") || "";
 const clipSelector = flag("clip-selector", "") || "";
+// Below 768 the page gets a phone viewport: mobile layout, 2x pixels.
+const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"]',
+    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390]',
   );
   process.exit(2);
 }
+if (!Number.isFinite(width) || width < 200 || width > 3840) {
+  console.error("width must be a number from 200 to 3840");
+  process.exit(2);
+}
+const mobile = width < 768;
+const height = mobile ? 844 : 900;
 if (clipArg && clipSelector) {
   console.error("pass --clip or --clip-selector, not both");
   process.exit(2);
@@ -129,7 +138,7 @@ proc = spawn(
     "--hide-scrollbars",
     "--mute-audio",
     "--force-color-profile=srgb",
-    "--window-size=1440,900",
+    `--window-size=${width},${height}`,
     "about:blank",
   ],
   { stdio: ["ignore", "ignore", "pipe"] },
@@ -196,10 +205,10 @@ const page = (method, params, timeoutMs) => send(method, params, sessionId, time
 await page("Page.enable");
 await page("Runtime.enable");
 await page("Emulation.setDeviceMetricsOverride", {
-  width: 1440,
-  height: 900,
-  deviceScaleFactor: 1,
-  mobile: false,
+  width,
+  height,
+  deviceScaleFactor: mobile ? 2 : 1,
+  mobile,
 });
 // Chrome centres an image file and shrinks it to the window. A page that holds
 // it at full size from 0,0 makes --clip x,y,w,h the image's own pixels.
@@ -343,8 +352,8 @@ if (clipSelector) {
 
 const metrics = await page("Page.getLayoutMetrics");
 const size = metrics.cssContentSize || metrics.contentSize;
-const fullWidth = Math.max(1, Math.ceil(size.width || 1440));
-const fullHeight = Math.max(1, Math.min(Math.ceil(size.height || 900), 14000));
+const fullWidth = Math.max(1, Math.ceil(size.width || width));
+const fullHeight = Math.max(1, Math.min(Math.ceil(size.height || height), 14000));
 const clipBox = clip || (selected ? { ...selected, scale: 1 } : null);
 const shotClip = clipBox
   ? {
