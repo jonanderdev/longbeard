@@ -47,9 +47,9 @@ Before I look, three questions. Skip any with "go" and I'll decide.
 
 Default sources:
 
-- **App:** Mobbin, popular Dribbble, Pinterest. Refero unticked (login wall). No award galleries.
-- **Site:** Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent, Details. Dribbble for screens. Dark Mode Design only when the feel is dark.
-- **Components** (React Bits, Magic UI, Uiverse): unticked for identity. Ticked in one-piece mode when the piece is a control, a transition or a small element.
+- **App:** popular Dribbble, Pinterest. Refero unticked (login wall). No award galleries.
+- **Site:** Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
+- **Components** (React Bits, Magic UI): unticked for identity. Ticked in one-piece mode when the piece is a control, a transition or a small element.
 - **Imagery** (Unsplash, Wikimedia, museums): only when the brief's key screens need pictures.
 
 Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link pasted before the search means the look already exists: say so, and offer `design` instead. If their answers contradict the brief, that is `grilling`, not a second round.
@@ -73,7 +73,7 @@ A few header lines, then one card per keep.
 
 ```
 Asked: <feel, never feel, loves, or none>
-Sources: <what was searched, and any skip: "Mobbin: login wall">
+Sources: <what was searched, and any skip: "Refero: login wall">
 Missing: <what the search could not find, or none>
 
 ### <name>
