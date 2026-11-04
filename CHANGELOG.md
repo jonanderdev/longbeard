@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `design-direction` calls itself the inspiration step, and its wording and the README's say so plainly.
+
 ## 0.10.0 — 2026-11-04
 
 Long Beard is now a pipeline: Idea → Direction → Design → Architecture → Plan → Build. Each stage writes one file the next one reads (`docs/brief.md`, `design-exploration/<slug>/direction.md`, `DESIGN.md` and Ready Figma frames, `GLOSSARY.md`, specs and tickets, one PR per spec), and ends by offering the next. The `AGENTS.md` block is a stage table the agent reads to know where it is, under 200 words.
