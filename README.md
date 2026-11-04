@@ -1,7 +1,7 @@
 <div align="center">
   <img src="logo.png" alt="Long Beard" width="350">
   <h1>Long Beard</h1>
-  <p><strong>Designs like an Art director. Codes like a senior.</strong></p>
+  <p><strong>Designs like an Art director. Codes like a Senior Engineer.</strong></p>
 </div>
 
 A beard like this takes years: moving logos two pixels left, reviewing pull requests at midnight.  
