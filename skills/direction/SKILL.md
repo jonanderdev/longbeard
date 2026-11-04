@@ -47,9 +47,11 @@ Before I look, three questions. Skip any with "go" and I'll decide.
 
 Default sources:
 
-- **App:** popular Dribbble, Pinterest, and component galleries. Mobbin and Refero unticked (login wall). No award galleries.
-- **Site:** Awwwards, Godly, Land-book, siteinspire, MaxiBestOf, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
-- **Imagery** (Unsplash, Wikimedia, museums): only when the brief's key screens need pictures.
+- **App:** popular Dribbble, Pinterest. No award galleries.
+- **Site:** Awwwards, siteinspire, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
+- **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
+
+Each of these was checked to work with this skill's scripts, without a login (2026-11-03). Do not add a source that has not been.
 
 Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link pasted before the search means the look already exists: say so, and offer `design` instead. If their answers contradict the brief, that is `grilling`, not a second round.
 
@@ -63,7 +65,7 @@ Read [sources.md](references/sources.md) before keeping anything. Do not narrate
 - **Query the form, not the word.** "writing app" returns T-shirts. `product-design?q=text+editor+screen` returns screens.
 - **Thumbnails are the first cut.** Use `scripts/contact-sheet.mjs` in scratch, then open the shortlist at full size. Nothing is kept from a thumbnail.
 - **Capture only a keep:** `node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg`.
-- **App:** a real product's screen outweighs a Dribbble concept, which has never faced real content.
+- **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names and its empty state.
 - **Site:** live sites outweigh Dribbble shots.
 
 ### 3. Write `board.md`
@@ -72,7 +74,7 @@ A few header lines, then one card per keep.
 
 ```
 Asked: <feel, never feel, loves, or none>
-Sources: <what was searched, and any skip: "Mobbin: login wall">
+Sources: <what was searched, and any skip: "Pinterest: login wall">
 Missing: <what the search could not find, or none>
 
 ### <name>

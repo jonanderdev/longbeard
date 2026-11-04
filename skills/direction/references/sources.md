@@ -5,11 +5,10 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 ## Galleries
 
 - **Awwwards.** Open the site page, not the listing card. Keep Site of the Day, Month, or Year, or an Honorable Mention with overall and Design ≥ 7.5. Drop any 4s, and any gate or password wall.
-- **Godly, Land-book, siteinspire, MaxiBestOf, Recent.** These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). MaxiBestOf sections and Supahero crops are pieces, not sites.
+- **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
-- **Pinterest.** Keep a pin that is one real screen or page. Drop boards, collages, and AI mush. If you hit a login wall, write `Pinterest: login wall` under `Sources:` and move on.
-- **Mobbin, Refero.** Shipped screens, often behind a login. Handle a login wall the same way.
+- **Pinterest.** Search works without a login: `https://www.pinterest.com/search/pins/?q=<form>`. Logged out, pins have no link: you get the picture, not the pin page or the site it came from. Take the image straight from the page, at full size: swap `/236x/` in its `i.pinimg.com` URL for `/736x/` (or `/originals/`). The card's `link` is the search URL. Keep a pin that is one real screen or page. Drop boards, collages, and AI mush.
 
 ## Dribbble
 
@@ -41,7 +40,6 @@ node <skill>/scripts/capture.mjs "file://<abs path to image>" --out design-explo
 
 Search the subject, not a stock category. One real place or material beats a pile of similar ones. Zero imagery is a complete answer.
 
-- **Unsplash.** On the search page, read `figure a[href*="/photos/"] img`. Take its `src` up to the `?` and download `<src>?w=1600&q=80`. The photo page is the `link`.
 - **Wikimedia Commons.** Query the API with `-A "<project>-hunt/0.1"`, `prop=imageinfo&iiprop=url&iiurlwidth=1920`. Save `thumburl`. `descriptionurl` is the `link`.
 
 ## Contact sheets
