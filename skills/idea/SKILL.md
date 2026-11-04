@@ -19,7 +19,7 @@ The brief says what and for whom, never how. No framework, database, host or lib
 
 Look at the repo. Do not ask what is there.
 
-1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature with `grill-with-docs` when it brings new terms, otherwise `grilling`; then `to-spec`. The brief stays as it is.
+1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature: they type `/grill-with-docs` when it brings new terms, otherwise load `grilling`. Then they type `/to-spec`. The brief stays as it is.
 2. `docs/brief.md` exists and the product itself changes (new people, new surface, a flow dropped) → **Change**.
 3. No brief, and the repo has code or a README → **Existing project**.
 4. Otherwise → **New idea**.
@@ -35,9 +35,11 @@ Load Matt's `grilling` and run it. The design tree is the brief's sections below
 
 ## Existing project
 
-Read the README, the package manifest, the routes or entry points, and any `docs/`. Draft every section you can from what is there and mark each one **from the repo** or **gap**. A section the code shows but the README contradicts is a gap.
+Read the README, the package manifest, the routes or entry points, any `docs/`, and any file at the root that describes the product. Draft every section you can from what is there and mark each one **from the repo** or **gap**. A section the code shows but a document contradicts is a gap. Stack and architecture stay out, wherever they are written.
 
 Show the draft, then grill only the gaps, in rounds. Same confirm, same write.
+
+Another document may now cover the same ground as the brief. Two descriptions of the product drift apart, so after writing, recommend what happens to it (trim it, or keep it for detail with a line pointing to the brief) and change it only on their yes.
 
 ## Change
 
@@ -88,10 +90,11 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 
 ## After writing
 
-Offer the next stage in one line:
+Offer the next stage in one line. A stage whose file already exists is done, so go past it:
 
-- Surface is site or app → `design-direction`.
-- No UI → stages 2 and 3 are skipped. Next is Architecture: `grill-with-docs`.
+- Site or app, no `DESIGN.md` → `design-direction`.
+- No UI, or `DESIGN.md` exists → stages 2 and 3 are skipped. Next is Architecture: they type `/grill-with-docs`.
+- `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
 
 Do not start it until they say so.
 

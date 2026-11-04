@@ -3,6 +3,11 @@
 ## Unreleased
 
 - `design-direction` calls itself the inspiration step, and its wording and the README's say so plainly.
+- A project that joins with some stages done no longer gets sent back through them. The router starts Direction only when there is no `DESIGN.md`, and `idea` offers the first stage still to do.
+- The router and our skills say to type a command like `/grill-with-docs` when the agent cannot start that skill itself, instead of promising to start it on yes.
+- `idea` reads any file at the root that describes the product, keeps stack and architecture out of the brief, and asks what happens to a document that now covers the same ground.
+- `design` checks and marks a screen Ready when a feature touches it, for projects whose frames were never marked. `design-check` reports a screen with no Ready frame as "not checked".
+- The README says how to catch up a project you already have.
 
 ## 0.10.0 — 2026-11-04
 

@@ -599,9 +599,9 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 |---|---|---|---|
 ${rows.join("\n")}
 
-Each stage offers the next; start it on yes. No UI: skip Direction and Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
+Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Direction and Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
 
-UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame. A mismatch with the frame is a bug.
+UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.
 
 ${helpers.join("\n")}
 ${offer}

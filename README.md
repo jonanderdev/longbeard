@@ -81,7 +81,17 @@ Open your agent in the project and say what you want to make:
 
 > I want to build a shared shopping list for flatmates.
 
-It reads `AGENTS.md`, sees there is no brief, and starts at Idea. Each stage ends by offering the next, and nothing moves on without your yes. In a project that already has code, ask for a brief: the agent drafts it from the repo and asks only about the gaps.
+It reads `AGENTS.md`, sees there is no brief, and starts at Idea. Each stage ends by offering the next, and nothing moves on without your yes. A few steps start only when you type them, such as `/grill-with-docs` and `/to-spec`. The agent tells you when.
+
+### A project you already have
+
+Ask for a brief:
+
+> Catch this project up to the pipeline. Draft the brief from what is here and skip the stages it already has.
+
+The agent drafts `docs/brief.md` from your documents and code, asks only about the gaps, and asks what happens to any document that now says the same thing. A stage whose file exists is done: with a `DESIGN.md`, it goes past Direction and Design.
+
+Then type `/grill-with-docs`, and say what already names things in your project and where your decisions live, if that is not `docs/adr/`. Screens you already have in Figma are marked Ready one at a time, when a feature touches them.
 
 ## Update
 

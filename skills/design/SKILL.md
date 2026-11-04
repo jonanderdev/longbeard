@@ -113,7 +113,7 @@ If a Figma decision changes a rule (a new token, a component variant, a spacing 
 
 Offer to delete `design-exploration/<slug>/`. `DESIGN.md` and Figma now carry the result. On no, leave it. It is gitignored either way.
 
-Then offer the next stage: architecture (`grill-with-docs`). Tell it to seed `GLOSSARY.md` from the brief and the copy in the Figma screens, and to ask before renaming a term the screens show.
+Then offer the next stage: architecture. They start it by typing `/grill-with-docs`. When it runs, seed `GLOSSARY.md` from the brief and the copy in the Figma screens, and ask before renaming a term the screens show.
 
 ## Feature loop
 
@@ -125,6 +125,7 @@ A feature with screens, once `DESIGN.md` exists.
 - `DESIGN.md` gets entries (a token, a component, a decision with date and reason). It is never rewritten in a feature.
 - **Identity changes need their own yes.** A new colour role, a typeface, a change to the idea or the voice: ask for each one separately, after showing it rendered. Two such changes are approved one at a time, never bundled.
 - A rebrand is not a feature: that is `design-direction` again, then a first pass.
+- **A screen with no Ready frame.** A project that joined with its screens already in Figma has frames nobody marked. When a feature touches one, run `design-check` frame mode on it, add what it lacks, and mark it Ready on their yes. Only the screens the feature touches, never the whole file.
 
 ## Do not
 
