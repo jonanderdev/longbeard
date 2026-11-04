@@ -44,10 +44,11 @@ Read `DESIGN.md` first: its tokens, components and decisions are what "follows t
 Called by `design` after it composes or changes a Figma screen. Input: the file key, the node IDs of the screen and its state frames, and the approved prototype shot of that screen when there is one.
 
 1. Load `figma-use` for any `use_figma` call. Screenshot each frame (`get_screenshot`, `maxDimension` 1440 so text is readable). Read structure with `get_metadata` when spacing or alignment needs numbers.
-2. Find the states: frames named `<screen> — empty`, `— loading`, `— error` next to the default. A missing one is a rule 8 hard finding.
-3. Check tokens where the screenshot cannot tell: in one read-only `use_figma` call, list fills, gaps and text styles that are not bound to a variable or style. An unbound value is a rule 7 soft finding when a token exists for it.
-4. Compare with the prototype shot, side by side. The frame must be faithful to what they approved. Anything lost or changed without their yes is a hard finding, under rule 0. Pixels do not count. No shot: say "not compared".
-5. Return the findings. `design` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
+2. Find the states: the frames next to the default, whatever they are called. Decide from what each frame shows whether it is the screen's empty, loading or error state, not from its name. A reachable state with no frame is a rule 8 hard finding. So is a "not needed" under Decisions in `DESIGN.md` when a person can reach that state after all.
+3. Check tokens where the screenshot cannot tell: in one read-only `use_figma` call, list fills, gaps and text styles that are not bound to a variable or style. An unbound value is a rule 7 soft finding when a token exists for it. With more than one theme, an unbound colour is a rule 6 hard finding, because it will not change with the theme.
+4. Check the themes, when `DESIGN.md` lists more than one. Themes built as separate colour sets or as a frame per theme, instead of modes on one collection, are a rule 6 hard finding. For each mode, set it on a temporary copy of the frame, screenshot the copy, delete it, and run the rules on that shot. If the shot does not change with the mode, report that theme as "not checked", never as passed.
+5. Compare with the prototype shot, side by side. The frame must be faithful to what they approved. Anything lost or changed without their yes is a hard finding, under rule 0. Pixels do not count. No shot: say "not compared".
+6. Return the findings. `design` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
 
 ## Build mode
 
@@ -59,7 +60,7 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
    node <skill>/scripts/capture.mjs <url> --out <scratch>/<screen>-1440.png --strict
    ```
    Behind a login, pass `--cookie "name=value"` from a dev session the project already uses (a seed user, a test token). Never ask for real credentials. `--strict` exits 1 when the page lands elsewhere: a shot of the login page is not a check. Report it and stop for that screen.
-2. **Reach the states.** Render empty, loading and error the way the app allows: a fixture, a seed, a query flag, a test route. A state that cannot be reached is reported as "not checked", never as passed.
+2. **Reach the states.** Render each state that has a frame the way the app allows: a fixture, a seed, a query flag, a test route. A state that cannot be reached is reported as "not checked", never as passed. With more than one theme, render each one too, the way the app sets it (a cookie, a query flag). The same applies to a theme that cannot be reached.
 3. **Compare with the Ready frame on meaning, not pixels:**
    - structure: the same sections, in the same order, with the same hierarchy
    - tokens: colours, type and spacing are `DESIGN.md`'s values (`scripts/contrast.mjs` for any pair that looks off)

@@ -54,4 +54,5 @@ Contrast (scripts/contrast.mjs):
 
 - Every token name is its code name, and the same name in Figma.
 - Every colour pair in the table has been through `scripts/contrast.mjs`. No FAIL is written.
+- More than one theme: one row per token, with a value column per theme. Every pair is checked in each theme.
 - A section with nothing to say is left out, not filled with a guess.

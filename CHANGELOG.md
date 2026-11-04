@@ -8,6 +8,10 @@
 - `idea` reads any file at the root that describes the product, keeps stack and architecture out of the brief, and asks what happens to a document that now covers the same ground.
 - `design` checks and marks a screen Ready when a feature touches it, for projects whose frames were never marked. `design-check` reports a screen with no Ready frame as "not checked".
 - The README says how to catch up a project you already have.
+- Themes are Figma modes on one colour collection, and each screen is built once. `design` builds them that way, and `design-check` flags separate colour sets or a frame per theme, flags unbound colours as hard, and checks each theme. A screen with a copy per theme becomes one frame when a feature touches it.
+- Frame names take a device when the layout differs: `<screen> · <device> — <state>`.
+- Empty, loading and error are required only when a person can reach them. A state nobody can reach is recorded under Decisions in `DESIGN.md`, with the reason.
+- `design-check` finds states by what a frame shows, so state names can be descriptive.
 
 ## 0.10.0 — 2026-11-04
 
