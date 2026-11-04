@@ -21,7 +21,7 @@ It prints `id-slug`, likes, views, image URL, and title. It drops merch, CVs, wo
 
 - Use a category path and the form, not the word: `/product-design?q=…`, `/mobile?q=…`, `/web-design?q=…`.
 - If most of what gets through is off-form, the query is wrong. Fix the query rather than scrolling further.
-- A product's category can be swamped by stores ("grocery" returns delivery apps). Query the thing people do with it, and `--drop` what the brief rules out.
+- A product's category can be swamped by stores. Query the thing people do with it, and `--drop` what the brief rules out.
 - A thin query ignores `timeframe=year`: the shot ids show it. An old shot is fine when its idea still holds.
 - Run one query at a time. If a query returns 0 cards, retry after 8 s, then 30 s. If it is still 0, note it under `Sources:` as a possible rate limit.
 - Keep a shot when you can name what is worth taking in one line, and people actually saved it. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
