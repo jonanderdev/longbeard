@@ -14,7 +14,7 @@
     },
     {
       "name": "Direction",
-      "when": "A brief with UI",
+      "when": "A brief with UI, no DESIGN.md",
       "skills": [
         "design-direction"
       ],
@@ -32,7 +32,7 @@
     },
     {
       "name": "Architecture",
-      "when": "No GLOSSARY.md yet",
+      "when": "No GLOSSARY.md",
       "skills": [
         "grill-with-docs"
       ],
@@ -40,7 +40,7 @@
     },
     {
       "name": "Plan",
-      "when": "A flow or feature to build",
+      "when": "A flow or feature",
       "skills": [
         "setup-matt-pocock-skills",
         "to-spec",

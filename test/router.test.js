@@ -14,6 +14,11 @@ test("AGENTS.md is the router init writes", () => {
   assert.equal(shipped, generated.stdout, "AGENTS.md drifted from bin/long-beard.js. Edit the generator, then run npm run router.");
 });
 
+test("a project with a DESIGN.md is not sent to Direction", () => {
+  const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
+  assert.match(generated.stdout, /^\| Direction \| [^|]*no DESIGN\.md/m);
+});
+
 test("the router stays under 200 words", () => {
   const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
   // Table pipes and separators are not words.
