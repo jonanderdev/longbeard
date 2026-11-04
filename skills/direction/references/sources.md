@@ -8,7 +8,7 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
-- **Pinterest.** Keep a pin that is one real screen or page. Drop boards, collages, and AI mush. If you hit a login wall, write `Pinterest: login wall` under `Sources:` and move on.
+- **Pinterest.** Search works without a login: `https://www.pinterest.com/search/pins/?q=<form>`. Logged out, pins have no link: you get the picture, not the pin page or the site it came from. Take the image straight from the page, at full size: swap `/236x/` in its `i.pinimg.com` URL for `/736x/` (or `/originals/`). The card's `link` is the search URL. Keep a pin that is one real screen or page. Drop boards, collages, and AI mush.
 
 ## Dribbble
 
