@@ -19,7 +19,7 @@ The brief says what and for whom, never how. No framework, database, host or lib
 
 Look at the repo. Do not ask what is there.
 
-1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature with `grilling`, then `to-spec`. The brief stays as it is.
+1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature with `grill-with-docs` when it brings new terms, otherwise `grilling`; then `to-spec`. The brief stays as it is.
 2. `docs/brief.md` exists and the product itself changes (new people, new surface, a flow dropped) → **Change**.
 3. No brief, and the repo has code or a README → **Existing project**.
 4. Otherwise → **New idea**.
