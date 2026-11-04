@@ -14,7 +14,7 @@ description: >
 
 One file comes out: `design-exploration/<slug>/direction.md`, a proposal for how the product should look and sound. It is not official. `design` turns it into screens, and only an approved prototype becomes `DESIGN.md`.
 
-Direction finds ideas and patterns. It never picks a colour, a typeface, a size or a spacing value, and it never writes `DESIGN.md`.
+Direction is the inspiration step: it looks at good work to find ideas and patterns for something new. It never picks a colour, a typeface, a size or a spacing value, and it never writes `DESIGN.md`.
 
 ## Gate
 
@@ -29,7 +29,7 @@ Look at the repo. Do not ask what is there.
 
 Everything goes in `design-exploration/<slug>/`: `board.md`, `refs/`, `moodboard.html`, `direction.md`. The first pass is `identity/`. One piece uses its own slug (`pricing`, `empty-state`). If the folder exists, use `<slug>-2`. Two explorations never share a folder.
 
-On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: the shots are other people's work. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
+On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
 
 ## Identity
 
@@ -80,7 +80,7 @@ Missing: <what the search could not find, or none>
 ### <name>
 - link: <the page a person can open, or "none (shared in chat)">
 - shot: design-exploration/<slug>/refs/<file>
-- pattern: <the idea worth taking, about six words: a layout, an arrangement, a way of showing data, a voice>
+- pattern: <the idea that inspires, about six words: a layout, an arrangement, a way of showing data, a voice>
 - why: <why it fits this brief, one line>
 ```
 
@@ -109,10 +109,10 @@ Proposal, not official. design turns this into screens. Only an approved prototy
 
 - idea: <the one thing this product's look says, in one sentence>
 - feel: <their words for feel and never feel>
-- patterns: <what we take, each from which reference: a layout, an arrangement, a kind of picture, a way of moving>
+- patterns: <what inspires us, each with its reference: a layout, an arrangement, a kind of picture, a way of moving>
 - ownable: <one concrete element made from the brief's identity nouns, so this is not the lead. For a lighthouse logbook: a lamp-glow marker on the active item. Unconfirmed until seen rendered>
 - voice: <how it talks: three adjectives and one sample line in that voice>
-- leave: <what we do not take: their names, their colours and typefaces, and whatever they said feels wrong>
+- leave: <what stays behind: each reference's name, colours and typefaces, and whatever they said feels wrong>
 
 ## References
 - leads: <card> — <link>

@@ -4,8 +4,8 @@
   <p><strong>Designs like an Art director. Codes like a senior.</strong></p>
 </div>
 
-You show him a ticket. He has been shipping longer than the ticket has existed.  
-He keeps a short kit, and he drops a piece the day it stops earning its place.
+A beard like this takes years: moving logos two pixels left, reviewing pull requests at midnight.  
+Your agent gets it on day one. It asks before it draws, and it draws before it codes.
 
 Long Beard is a pipeline for the agents you already use — Cursor, Claude Code, and the rest.  
 You start with an idea in an empty folder. You end with reviewed pull requests built from a design you approved.  
@@ -57,7 +57,7 @@ A kit is an author's whole flow, taken as they publish it: the skills in their p
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-`design-exploration/` holds other people's screenshots, so `design-direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
+`design-exploration/` is your working folder for inspiration, moodboards and prototypes. It stays on your machine, out of git. `DESIGN.md` is the result you keep.
 
 ## You need
 
