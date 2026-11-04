@@ -35,19 +35,19 @@ On the first write, add `design-exploration/` to `.gitignore` if it is missing, 
 
 ### 1. Three questions, one round
 
-Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, and the identity nouns. Do not ask for any of that again. Send one message and wait. Do not search in that turn.
+Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, and the identity nouns. Do not ask for any of that again. Send one message and wait. Do not search in that turn. These questions are how they steer the look, so always ask them, however the run was set up. Only they can say "go".
 
 ```
 Before I look, three questions. Skip any with "go" and I'll decide.
 
 1. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
 2. Pictures or links you already like? Screenshots, links or files.
-3. Where should I look, and how many should I bring back? [x] <source> — <what it gives> … [ ] your own. Default 8.
+3. Where should I look, and how many should I bring back? [x] <source> — <what it gives> … [ ] your own. Default 12.
 ```
 
 Default sources:
 
-- **App:** popular Dribbble, Pinterest. No award galleries.
+- **App:** popular Dribbble. No award galleries.
 - **Site:** Awwwards, siteinspire, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
 - **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
 
@@ -61,7 +61,7 @@ A picture they gave is a **seed**: a card with `link: none (shared in chat)` or 
 
 Read [sources.md](references/sources.md) before keeping anything. Do not narrate while looking. One line at the end is enough ("Found 8, building the moodboard.").
 
-- **The keep is the number they chose** (default 8). Eight strong beat twenty adequate. A thin field stays thin: say what was missing rather than lowering the filter.
+- **The keep is the number they chose** (default 12). The moodboard is their only say on the look, so give them enough to react to. Before calling a field thin, search at least three more forms, and the objects in the brief's identity nouns: the product's world often beats its category. Still thin: say what was missing rather than lowering the filter.
 - **Query the form, not the word.** "writing app" returns T-shirts. `product-design?q=text+editor+screen` returns screens.
 - **Thumbnails are the first cut.** Use `scripts/contact-sheet.mjs` in scratch, then open the shortlist at full size. Nothing is kept from a thumbnail.
 - **Capture only a keep:** `node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg`.
@@ -74,7 +74,7 @@ A few header lines, then one card per keep.
 
 ```
 Asked: <feel, never feel, loves, or none>
-Sources: <what was searched, and any skip: "Pinterest: login wall">
+Sources: <what was searched, and any skip: "Awwwards: no fit">
 Missing: <what the search could not find, or none>
 
 ### <name>
@@ -122,9 +122,9 @@ Proposal, not official. design turns this into screens. Only an approved prototy
 - **The lead is the closest**, not the boldest: the subject's world is in the shot. It leads the feeling. It is not the brand.
 - **No values.** No hex, no font name, no size. If a reference's colour or type is the point, describe the quality ("near-black ink on a warm page", "a condensed display face") and let `design` choose the value.
 
-Then say the direction in chat in four lines (idea, patterns, ownable, leave), and end with one question:
+Then say the direction in chat in four lines (idea, patterns, ownable, leave), and end with one question. Wait for the answer, however the run was set up: the direction is theirs to correct before anything is built on it.
 
-> Take this into design?
+> Change anything, or take this into design?
 
 Yes → load `design`. No → stop. The folder stays on this machine.
 
@@ -143,14 +143,14 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
    - <…>
    ```
 
-3. Keep up to the number asked (default 8), from at least 30 looked at. Include the same piece in other subjects. For a gap software has not solved, search outside software for the same form.
+3. Keep up to the number asked (default 8 for one piece), from at least 30 looked at. Include the same piece in other subjects. For a gap software has not solved, search outside software for the same form.
 4. Write `design-exploration/<slug>/board.md`, run the moodboard, and ask which they would take.
 5. Write a short `direction.md` for the piece: `patterns`, `leave`, and the references. Hand back to `design`.
 
 ## Do not
 
 - Pick colour, type, spacing, or any value. Write `DESIGN.md`. Code or lay out a page.
-- Search before the three questions are answered, or ask a second round.
+- Search before the three questions are answered, answer them yourself, or ask a second round.
 - Pad the keep by lowering the filter, or keep a shot you only saw as a thumbnail.
 - Screenshot a listing, a search grid, or a candidate you are not keeping. Never stitch screenshots.
 - Name a reference in `direction.md`'s idea, patterns or ownable as the thing to copy. Name the pattern.

@@ -354,7 +354,7 @@ if (target === url) {
     return `${u.origin}${u.pathname.replace(/\/$/, "")}`;
   };
   if (where(landed) !== where(url)) {
-    console.error(`landed on ${landed}, not ${url}. Behind a login? Pass --cookie.`);
+    console.error(`landed on ${landed}, not ${url}.${/^https?:/.test(landed) ? " Behind a login? Pass --cookie." : " Check the address."}`);
     if (strict) {
       drop();
       process.exit(1);
