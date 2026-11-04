@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.10.0 — 2026-11-04
+
 Long Beard is now a pipeline: Idea → Direction → Design → Architecture → Plan → Build. Each stage writes one file the next one reads (`docs/brief.md`, `design-exploration/<slug>/direction.md`, `DESIGN.md` and Ready Figma frames, `GLOSSARY.md`, specs and tickets, one PR per spec), and ends by offering the next. The `AGENTS.md` block is a stage table the agent reads to know where it is, under 200 words.
 
 - New: `idea` grills an idea, or an existing repo, into a one-page `docs/brief.md`. `design` prototypes the brief's key screens in plain HTML, writes `DESIGN.md` in one go when you approve one, and builds the screens in Figma from it, with their empty, loading and error states. `design-check` checks a Figma screen, or a built one against its Ready frame, using the new design rules (`rules/design-rules.md`): hard findings block, soft ones are reported, and it never redesigns.

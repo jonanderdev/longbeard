@@ -99,7 +99,7 @@ If a Figma decision changes a rule (a new token, a component variant, a spacing 
 
 Offer to delete `design-exploration/<slug>/`. `DESIGN.md` and Figma now carry the result. On no, leave it. It is gitignored either way.
 
-Then offer the next stage: architecture (`grill-with-docs`).
+Then offer the next stage: architecture (`grill-with-docs`). Tell it to seed `GLOSSARY.md` from the brief and the copy in the Figma screens, and to ask before renaming a term the screens show.
 
 ## Feature loop
 

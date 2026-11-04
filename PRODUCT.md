@@ -42,6 +42,10 @@ The rules live in each skill's SKILL.md. Change them there. This is what the pro
 
 **Design rules.** `rules/design-rules.md` is our own text: an Idea check, then 14 sections of checks you can pass or fail from a screenshot, a site list, an app list, and dated tells. Hard rules (structure, contrast, targets, focus, states) are the floor. Soft rules can be overridden in `DESIGN.md` on purpose, with a reason. The rules never suggest a look.
 
+**Architecture, Plan, Build.** Matt's skills, as he publishes them. `GLOSSARY.md` is born at Architecture, seeded from the brief and the copy already in the Figma screens, so it records the words the product uses. Renaming a term the screens already show is a question, never silent. `codebase-design` shapes module interfaces. The first pass writes one spec per core flow, later one spec per feature, on the tracker `setup-matt-pocock-skills` chose. `implement-spec` runs as published: an integration branch, a fresh agent per ticket, `tdd`, `code-review` at the end, one PR per spec. `pr` writes the body, and design-check's evidence goes in its Before/After.
+
+**Where files live.** `DESIGN.md` and `GLOSSARY.md` at the root, `docs/brief.md`, ADRs in `docs/adr/`. These are Matt's defaults: `setup-matt-pocock-skills` records them in `docs/agents/domain.md`, and `code-review` searches the repo for its standards, so ADRs are found without anything of ours.
+
 **Glue.** UI tickets link their Ready Figma frame. UI work follows `DESIGN.md` and that frame. A mismatch with the frame is a bug.
 
 ## Shape
@@ -83,10 +87,11 @@ A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, a
 
 Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
 
-1. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
-2. Set that same number in `package.json`.
-3. Commit that, and push `main`. Stay on that commit.
-4. From the repo root, run `./scripts/release.sh`.
+1. Review the tells in `rules/design-rules.md`: add new ones, retire stale ones, update the date, run `npm run share`.
+2. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
+3. Set that same number in `package.json`.
+4. Commit that, and push `main`. Stay on that commit.
+5. From the repo root, run `./scripts/release.sh`.
 
 The script runs `npm test`, reads `package.json`, tags that number, and publishes it. It does not rewrite `CHANGELOG.md`. It stops if a test fails, if that section is missing, if the tag exists, or if npm already has the version. After `npm publish`, the site can lag. If the next attempt says the version is already staged, wait and run `npm view @jonandev/longbeard version`. Do not publish that number again.
 
