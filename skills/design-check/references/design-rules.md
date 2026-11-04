@@ -73,6 +73,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 - [hard] Body text has a contrast ratio of at least 4.5:1 against its background. Large text (24px, or 18.66px bold, and up) and the visible parts of controls and icons have at least 3:1.
 - [hard] Colour is never the only signal. An error, a selected item or a required field also changes shape, weight, an icon or text.
 - [soft] Every colour on the screen is a token in `DESIGN.md`. Pick three at random: each maps to a named token.
+- [hard] A product with more than one theme has one set of colour tokens, with a value for each theme, and passes every check here in each theme. A colour that stays the same when the theme changes, and should not, fails.
 - [soft] The accent colour marks action or state, and is not also used for decoration on the same screen.
 - [soft] Status colours (error, warning, success) are used for status only.
 
@@ -89,7 +90,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 **Principle:** every screen is shown in every state a person will meet.
 
-- [hard] The screen has frames for empty, loading and error, next to the default. A missing state is a failure, not a later task.
+- [hard] The screen has a frame for each of empty, loading and error that a person can reach, next to the default. A state nobody can reach is recorded as not needed, with the reason. A reachable state with no frame is a failure, not a later task.
 - [hard] Empty says what goes here and gives the one action that fills it. Error says what went wrong in plain words and how to recover.
 - [hard] Interactive components show hover (pointer surfaces), focus, pressed, disabled, and selected where they apply. Each state is visibly different from default.
 - [soft] Loading keeps the layout's shape (skeleton or reserved space), so content does not jump when it arrives.

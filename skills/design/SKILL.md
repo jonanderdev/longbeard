@@ -58,7 +58,7 @@ Load Matt's `prototype`, UI branch, and tell it:
 - **Real content, not polish skipped.** Real copy in the voice from `direction.md`, real or properly chosen imagery (local files in `prototype/img/`), the longest real names. No lorem, no grey boxes.
 - **No throwaway branch.** The folder is gitignored. The winner goes into `DESIGN.md`, not into git.
 
-The default state is not enough. Each key screen also gets empty, loading and error, as frames in the same file (`?variant=B&state=empty`).
+The default state is not enough. Each key screen also gets the empty, loading and error states a person can reach, as frames in the same file (`?variant=B&state=empty`). A product with more than one theme shows each one, so they approve every theme, not only the first.
 
 ### 3. Self-check, then show
 
@@ -69,7 +69,7 @@ node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototyp
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/today.html?variant=B&capture" --out <scratch>/today-b-mobile.png --width 390
 ```
 
-Shoot every state of every variant, not only the default. Check them against the rules: Idea first, then hard, then soft. That includes the hard rules about controls: every input has a visible label, focus and pressed exist, and what looks tappable has a stated result. A hard finding after approval reopens an approved screen. Fix what fails before they see it. Then give the paths and the `?variant=` keys, name the colours and faces each variant uses, and ask which leads, what to take from the others, and whether the colour and type are right. Expect "the header from B with the list from C": that is the design. Iterate on the prototype until they say it is right.
+Shoot every state of every variant, in every theme, not only the default. Check them against the rules: Idea first, then hard, then soft. That includes the hard rules about controls: every input has a visible label, focus and pressed exist, and what looks tappable has a stated result. A hard finding after approval reopens an approved screen. Fix what fails before they see it. Then give the paths and the `?variant=` keys, name the colours and faces each variant uses, and ask which leads, what to take from the others, and whether the colour and type are right. Expect "the header from B with the list from C": that is the design. Iterate on the prototype until they say it is right.
 
 A pattern can bring a feature the brief does not have. Name it when you show it. If they keep it, that is a product change: `idea`, Change, before `DESIGN.md`.
 
@@ -85,6 +85,7 @@ Only on their yes to a rendered prototype. Write the whole file from [design-md-
   ```
   node <skill>/scripts/contrast.mjs "#1b1b1f on #fafaf7" "#c2410c on #fafaf7:mark"
   ```
+- **Themes.** A product with more than one theme lists each colour token once, with a value per theme, and every pair passes the contrast check in each theme.
 - **Ideas, not sources.** `DESIGN.md` is committed and often public. It never names a product, site, studio or designer from the exploration, and never cites a `design-exploration/` path. Turn each into the idea: "a quiet reading page", not whose.
 - **Write down what makes it this design.** Whatever someone would need to rebuild it without the prototype open goes under Components, with values, not adjectives.
 - **Tokens are code names.** Name each colour, type and spacing token as it will be named in code (`color/ink`, `space/md`). Figma variables use the same names, with code syntax `var(--color-ink)`.
@@ -97,15 +98,17 @@ Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and foll
 - **One file per product.** A new one if the project has none (`figma-create-new-file`). Put its URL in `DESIGN.md`.
 - **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files may come with community kits attached (Material, Apple, Simple Design System). Their discovery steps tell you to reuse them. Do not: search the file only (no `includeLibraryKeys`), and build what is missing from `DESIGN.md`.
 - **Build, do not capture.** Compose screens from the tokens and components. Do not run `generate_figma_design` on the prototype. It is a throwaway with a switcher. For pictures, create the image frames, then `upload_assets` the prototype's own files with those `nodeIds`.
+- **Themes are modes.** One colour collection with a mode per theme. Each screen is built once and switches with the mode, never a colour set or a frame per theme. If Figma refuses the modes, stop and ask. Never fall back to separate sets.
 - **Pages:** Cover, Foundations, Components; one `Screens — <flow>` page per flow from the brief; `Explorations` for anything kept for later, by date.
 - **Order:** tokens and styles from `DESIGN.md` → only the components the key screens need → the key screens → their states. The library grows with features. It is not built ahead.
-- **States:** every screen has empty, loading and error frames next to the default, named `<screen> — <state>`.
+- **States:** every screen has a frame for each of empty, loading and error that a person can reach, next to the default. A state nobody can reach gets no frame: add the screen, the state and the reason under Decisions in `DESIGN.md`.
+- **Names:** `<screen> — <state>`. When a screen's layout differs by device, `<screen> · <device> — <state>`. The state can describe itself. Theme is never in the name.
 - **Components have their states too:** focus and pressed for every control, before a screen uses it.
 - **One text style per weight used.** Changing a font on styled text detaches it. A weight `DESIGN.md` does not list is a new style, and a new row there.
 - **Trust the file, not the picture.** Take a screenshot only after the edit has returned, and read text back from the nodes. A cloned variant loses its text property links: wire them again. Swapping an instance can keep old overrides: replace it with a fresh one.
 - **Be faithful to the approved prototype.** It is what they said yes to, and Figma is that design, not a new reading of it. Tokens carry the values, not the whole design, so work with the approved variant open and match it. If something cannot be built the same way, say so and ask. Never simplify it silently.
 - **Check each screen** with `design-check` frame mode before showing it, passing the prototype shot. Fix its hard findings.
-- **Ready:** when they approve a frame, rename it `<screen> — <state> — Ready`. Tickets link Ready frames, and build is checked against them.
+- **Ready:** when they approve a frame, add `— Ready` to its name. Tickets link Ready frames, and build is checked against them.
 
 If a Figma decision changes a rule (a new token, a component variant, a spacing step), update `DESIGN.md` in the same turn and say what changed.
 
@@ -125,7 +128,7 @@ A feature with screens, once `DESIGN.md` exists.
 - `DESIGN.md` gets entries (a token, a component, a decision with date and reason). It is never rewritten in a feature.
 - **Identity changes need their own yes.** A new colour role, a typeface, a change to the idea or the voice: ask for each one separately, after showing it rendered. Two such changes are approved one at a time, never bundled.
 - A rebrand is not a feature: that is `design-direction` again, then a first pass.
-- **A screen with no Ready frame.** A project that joined with its screens already in Figma has frames nobody marked. When a feature touches one, run `design-check` frame mode on it, add what it lacks, and mark it Ready on their yes. Only the screens the feature touches, never the whole file.
+- **A screen with no Ready frame.** A project that joined with its screens already in Figma has frames nobody marked. When a feature touches one, run `design-check` frame mode on it, add what it lacks, and mark it Ready on their yes. A screen with a copy per theme becomes one frame on modes. Only the screens the feature touches, never the whole file.
 
 ## Do not
 
@@ -133,4 +136,4 @@ A feature with screens, once `DESIGN.md` exists.
 - Name a reference or a `design-exploration/` path in `DESIGN.md`.
 - Use a community kit's components or variables in Figma.
 - Build the whole component library before the screens need it.
-- Mark a frame Ready that has no empty, loading and error states, or that has open hard findings.
+- Mark a frame Ready that lacks a state a person can reach, or that has open hard findings.
