@@ -22,7 +22,7 @@ It is a base. You keep going from here.
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
 | 2. Direction | Three questions about what you like, a small search, a moodboard you pick from | `design-exploration/<slug>/direction.md`: ideas and patterns, not colours |
-| 3. Design | Two or three prototypes of the key screens; you pick and iterate | `DESIGN.md` on your yes, then the screens in Figma, checked and marked Ready |
+| 3. Design | Questions on colour and type, then two or three prototypes of the key screens; you pick and iterate | `DESIGN.md` on your yes, then the screens in Figma, checked and marked Ready |
 | 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
 | 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
@@ -36,7 +36,7 @@ Four skills are written here, in [`skills/`](skills/). `init` copies them from t
 | Skill | What it is for | Author |
 |---|---|---|
 | [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
-| [direction](skills/direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
+| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
 | [design](skills/design/SKILL.md) | Prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
@@ -57,7 +57,12 @@ A kit is an author's whole flow, taken as they publish it: the skills in their p
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-`design-exploration/` holds other people's screenshots, so `direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
+`design-exploration/` holds other people's screenshots, so `design-direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
+
+## You need
+
+- Node 22 or newer, and Chrome, for the screenshots `design-direction`, `design` and `design-check` take.
+- The Figma connection in your agent, for a project with a UI.
 
 ## Install
 
@@ -70,13 +75,21 @@ npx longbeard init
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes every add-on; `--skill <name>` takes one.
 
+## Start
+
+Open your agent in the project and say what you want to make:
+
+> I want to build a shared shopping list for flatmates.
+
+It reads `AGENTS.md`, sees there is no brief, and starts at Idea. Each stage ends by offering the next, and nothing moves on without your yes. In a project that already has code, ask for a brief: the agent drafts it from the repo and asks only about the gaps.
+
 ## Update
 
 ```bash
 npx longbeard update
 ```
 
-That uses the Long Beard already installed. It adds skills that are new in that copy, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
+That uses the Long Beard already installed. It adds skills that are new in that copy, removes ones the kit dropped, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
 A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.
 
 To take a newer Long Beard, install it, then update:
@@ -93,7 +106,7 @@ npx longbeard update
 Skip one:
 
 ```bash
-npx longbeard remove web-design-guidelines
+npx longbeard remove wayfinder
 ```
 
 Add one:

@@ -11,7 +11,7 @@ description: >
 
 # Idea
 
-One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `direction` for the people, surface and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
+One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
 
 The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's.
 
@@ -90,7 +90,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 
 Offer the next stage in one line:
 
-- Surface is site or app → `direction`.
+- Surface is site or app → `design-direction`.
 - No UI → stages 2 and 3 are skipped. Next is Architecture: `grill-with-docs`.
 
 Do not start it until they say so.

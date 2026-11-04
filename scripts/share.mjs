@@ -4,7 +4,7 @@ import { cpSync } from "node:fs";
 
 export const shared = [
   ["rules/design-rules.md", ["design/references", "design-check/references"]],
-  ["skills/direction/scripts/capture.mjs", ["design/scripts", "design-check/scripts"]],
+  ["skills/design-direction/scripts/capture.mjs", ["design/scripts", "design-check/scripts"]],
   ["skills/design/scripts/contrast.mjs", ["design-check/scripts"]],
 ];
 

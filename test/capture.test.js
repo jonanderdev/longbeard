@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const capture = join(dirname(fileURLToPath(import.meta.url)), "../skills/direction/scripts/capture.mjs");
+const capture = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-direction/scripts/capture.mjs");
 
 // A dev app with a login: /app needs the session cookie, /spa sends you to
 // /login from the page itself, faster than the old navigated-away check.
