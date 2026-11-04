@@ -21,7 +21,7 @@ Look at the repo. Do not ask what is there.
 
 1. No `docs/brief.md` → `idea` first. Stop.
 2. The brief says no UI → nothing to design. Stop.
-3. No `design-exploration/identity*/direction.md` and no `DESIGN.md` → `direction` first. Stop.
+3. No `design-exploration/identity*/direction.md` and no `DESIGN.md` → `design-direction` first. Stop.
 4. `DESIGN.md` exists and an identity `direction.md` is newer than it → a rebrand: **First pass**. On approval its `DESIGN.md` replaces the old one.
 5. `DESIGN.md` exists → **Feature loop**.
 6. Otherwise → **First pass**.
@@ -61,7 +61,7 @@ A pattern can bring a feature the brief does not have. Name it when you show it.
 
 An `ownable` from `direction.md` is unconfirmed until they have seen it rendered. Confirm it or replace it here.
 
-A gap no reference covers (a screen, a control) → `direction` one-piece mode with its own slug, then back here.
+A gap no reference covers (a screen, a control) → `design-direction` one-piece mode with its own slug, then back here.
 
 ### 3. Approve: write `DESIGN.md` in one go
 
@@ -105,12 +105,12 @@ Then offer the next stage: architecture (`grill-with-docs`). Tell it to seed `GL
 
 A feature with screens, once `DESIGN.md` exists.
 
-- **Only existing parts?** Compose the screens in Figma from the library, with their states, and skip the prototype and `direction`.
+- **Only existing parts?** Compose the screens in Figma from the library, with their states, and skip the prototype and `design-direction`.
 - **New parts?** Prototype only the new parts, on the real screens around them, in `design-exploration/<feature>/prototype/`, then as above.
 - New page `Screens — <feature>`. Reuse components. New ones are added to Components.
 - `DESIGN.md` gets entries (a token, a component, a decision with date and reason). It is never rewritten in a feature.
 - **Identity changes need their own yes.** A new colour role, a typeface, a change to the idea or the voice: ask for each one separately, after showing it rendered. Two such changes are approved one at a time, never bundled.
-- A rebrand is not a feature: that is `direction` again, then a first pass.
+- A rebrand is not a feature: that is `design-direction` again, then a first pass.
 
 ## Do not
 

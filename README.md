@@ -36,7 +36,7 @@ Four skills are written here, in [`skills/`](skills/). `init` copies them from t
 | Skill | What it is for | Author |
 |---|---|---|
 | [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
-| [direction](skills/direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
+| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
 | [design](skills/design/SKILL.md) | Prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
@@ -57,7 +57,7 @@ A kit is an author's whole flow, taken as they publish it: the skills in their p
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-`design-exploration/` holds other people's screenshots, so `direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
+`design-exploration/` holds other people's screenshots, so `design-direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
 
 ## Install
 

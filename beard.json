@@ -16,7 +16,7 @@
       "name": "Direction",
       "when": "A brief with UI",
       "skills": [
-        "direction"
+        "design-direction"
       ],
       "writes": "design-exploration/<slug>/direction.md"
     },
@@ -69,7 +69,7 @@
       "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
     },
     {
-      "name": "direction",
+      "name": "design-direction",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",

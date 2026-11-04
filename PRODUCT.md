@@ -17,7 +17,7 @@ The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm p
 | Stage | Runs | Reads → writes |
 |---|---|---|
 | 1. Idea | `idea` (ours), with Matt's `grilling` | the idea, or the repo → `docs/brief.md` |
-| 2. Direction | `direction` (ours) | brief → `design-exploration/<slug>/direction.md`, a proposal |
+| 2. Direction | `design-direction` (ours) | brief → `design-exploration/<slug>/direction.md`, a proposal |
 | 3. Design | `design` (ours): a code prototype → approve → `DESIGN.md` → Figma; `design-check` on each frame | direction → `DESIGN.md`, official → Ready Figma frames |
 | 4. Architecture | Matt's `grill-with-docs`, plus a framework add-on | brief, `DESIGN.md` → `GLOSSARY.md`, ADRs |
 | 5. Plan | Matt's `setup-matt-pocock-skills` (once), `to-spec`, `to-tickets` | brief flows → specs → tickets |
@@ -51,7 +51,7 @@ The rules live in each skill's SKILL.md. Change them there. This is what the pro
 ## Shape
 
 - Curated catalog in `beard.json`: `stages` (the router's table) and `items` (optional `kind`, default `skill`). An item with `"kit": true` is an author's whole published set: the skills in their plugin manifest, else every folder in their `skills/`. Its `routes` are the router's helper lines. Skills stay with their authors. Do not vendor other people's skills.
-- Kit: Long Beard's four (`idea`, `direction`, `design`, `design-check`), Matt Pocock's whole kit as one entry, Figma's four (`figma-use`, `figma-generate-library`, `figma-generate-design`, `figma-design-to-code`). Add-ons are `optional`: they install with `--skill <name>` or `--all`, and the router offers each one once, when it is needed. A taken add-on stays and refreshes.
+- Kit: Long Beard's four (`idea`, `design-direction`, `design`, `design-check`), Matt Pocock's whole kit as one entry, Figma's four (`figma-use`, `figma-generate-library`, `figma-generate-design`, `figma-design-to-code`). Add-ons are `optional`: they install with `--skill <name>` or `--all`, and the router offers each one once, when it is needed. A taken add-on stays and refreshes.
 - Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `init` asks which agents on a TTY (catalog defaults pre-checked). `--agent` skips the list and installs for that tool. `--yes` uses the catalog agents.
 - One block in the project's `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. Under 200 words; `npm test` checks it. Do not write `CLAUDE.md` or Copilot files unless asked.
 - Local skills live under `skills/` with `"source": "local"` and ship with the package. A new skill we own is another folder here, not another package. Files more than one of them needs (`rules/design-rules.md`, `capture.mjs`, `contrast.mjs`) have one source and are copied in by `npm run share`; `npm test` fails on drift. Edit the source, never a copy.

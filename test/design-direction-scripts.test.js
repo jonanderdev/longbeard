@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const scripts = join(dirname(fileURLToPath(import.meta.url)), "../skills/direction/scripts");
+const scripts = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-direction/scripts");
 
 // A project outside any git tree, so the scripts resolve paths against it.
 function project(files) {

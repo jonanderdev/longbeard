@@ -1,5 +1,5 @@
 ---
-name: direction
+name: design-direction
 description: >
   Find the direction for a product's look from what they like and from real
   references, picked by looking at a moodboard. Ideas and patterns, never
@@ -10,7 +10,7 @@ description: >
   into design.
 ---
 
-# Direction
+# Design direction
 
 One file comes out: `design-exploration/<slug>/direction.md`, a proposal for how the product should look and sound. It is not official. `design` turns it into screens, and only an approved prototype becomes `DESIGN.md`.
 

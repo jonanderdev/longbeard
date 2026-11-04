@@ -5,7 +5,7 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 | Stage | Starts when | Skills | Writes |
 |---|---|---|---|
 | Idea | No docs/brief.md, or the product changes | idea | docs/brief.md |
-| Direction | A brief with UI | direction | design-exploration/<slug>/direction.md |
+| Direction | A brief with UI | design-direction | design-exploration/<slug>/direction.md |
 | Design | A direction, no DESIGN.md | design → figma-generate-library → figma-generate-design | DESIGN.md, Ready Figma frames |
 | Architecture | No GLOSSARY.md yet | grill-with-docs | GLOSSARY.md, ADRs |
 | Plan | A flow or feature to build | setup-matt-pocock-skills → to-spec → to-tickets | specs, tickets |
