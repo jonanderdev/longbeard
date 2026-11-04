@@ -14,7 +14,7 @@ description: >
 
 One file comes out: `design-exploration/<slug>/direction.md`, a proposal for how the product should look and sound. It is not official. `design` turns it into screens, and only an approved prototype becomes `DESIGN.md`.
 
-Direction is the inspiration step: it looks at good work to find ideas and patterns for something new. It never picks a colour, a typeface, a size or a spacing value, and it never writes `DESIGN.md`.
+Direction is the inspiration step: it looks at good designs and works to find ideas and patterns for something new. It never picks a colour, a typeface, a size or a spacing value, and it never writes `DESIGN.md`.
 
 ## Gate
 
