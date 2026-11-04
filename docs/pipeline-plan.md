@@ -103,7 +103,7 @@ In order. Tick as done.
 4. [x] **`direction`**: rewrite `skills/design-reference-hunt` (rename, slimmer, `design-exploration/<slug>/`, new cards, `direction.md` output). Check `references/sources.md` while there.
 5. [x] **`design`**: new skill. Absorbs what is still needed from `skills/design-md` (contrast, ideas-not-sources, the `DESIGN.md` template), then delete `skills/design-md`.
 6. [x] **`design-check`**: new skill, two modes.
-7. [ ] **`idea`**: new skill, small.
+7. [x] **`idea`**: new skill, small.
 8. [ ] **Router**: change the generator in `bin/long-beard.js`, run `npm run router`, check it is under 200 words.
 9. [ ] **Docs**: rewrite PRODUCT.md (job, shape, stages, design stack); README kit table; CHANGELOG `Unreleased` with the migration note (what is gone, what replaced it, what to run).
 10. [ ] **Tests**: `npm test` green; add a case for removed skills if step 1 shows `update` needs it. (Removed-skills case done in S2: `test/update.test.js`.)
@@ -128,6 +128,7 @@ What each session learned that a later one needs. One or two lines each, newest 
 - **S5 shared files (→ S6).** `scripts/share.mjs` (`npm run share`) copies `rules/design-rules.md` and `skills/direction/scripts/capture.mjs` into design and design-check, plus `contrast.mjs` into design-check. S5 added `--width N` to capture (below 768 it uses a phone viewport at 2x; checked at 390). S6 adds only the cookie flag and the final-URL check, in the `direction/` source, then runs `npm run share`.
 - **S6 design-check (→ S8, S9).** Frame mode ran on S1's `1:17`: 6 hard and 3 soft findings, 3 tool calls (screenshot, one read-only `use_figma` for state frames and unbound values, contrast). The hard ones were missing states, missing component states and focus, equal gaps across groups, no primary action, and a 16 px target, so the rules catch what S1's quick screen skipped. Two hard fixes came out as "needs a design decision", which `design` has to bring to Jon, not invent.
 - **S6 capture (→ S9).** `--cookie "a=1; b=2"` sets cookies for the page's origin. A page that lands at another address is named on stderr, and with `--strict` exits 1 (design-check build uses it). Strict is opt-in because hunts hit canonical redirects (details.so → www.details.so/inspo). `test/capture.test.js` covers the server redirect, a fast client redirect and the cookie, and skips without Chrome.
+- **S7 idea (→ S8, S9).** `skills/idea/` has four gates: a feature with a brief goes to `grilling` then `to-spec`; a product change edits only the sections it touches and adds a dated **Changes** line; a repo with code drafts from the repo and grills the gaps; else a new idea. The brief's headings are fixed (Problem, For, Flows, Key screens, Surface, V1 and later, Constraints, Identity nouns, Out of scope) because direction, design and design-check read them by name. Dry run on "a shared shopping list for flatmates", every recommendation accepted: 3 rounds, 9 questions, a 355-word brief with every section. It found one gap, now fixed: nothing asked for a name, so the working name joined the first round. The router (S8) should send "a feature" to `grilling` → `to-spec` when a brief exists, not to `idea`.
 
 ## Open
 
