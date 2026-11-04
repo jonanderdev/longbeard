@@ -59,6 +59,11 @@ A skill for one stack belongs in the project that uses that stack. The list `ini
 
 `design-exploration/` holds other people's screenshots, so `design-direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
 
+## You need
+
+- Node 22 or newer, and Chrome, for the screenshots `design-direction`, `design` and `design-check` take.
+- The Figma connection in your agent, for a project with a UI.
+
 ## Install
 
 In a project:
@@ -70,13 +75,21 @@ npx longbeard init
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes every add-on; `--skill <name>` takes one.
 
+## Start
+
+Open your agent in the project and say what you want to make:
+
+> I want to build a shared shopping list for flatmates.
+
+It reads `AGENTS.md`, sees there is no brief, and starts at Idea. Each stage ends by offering the next, and nothing moves on without your yes. In a project that already has code, ask for a brief: the agent drafts it from the repo and asks only about the gaps.
+
 ## Update
 
 ```bash
 npx longbeard update
 ```
 
-That uses the Long Beard already installed. It adds skills that are new in that copy, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
+That uses the Long Beard already installed. It adds skills that are new in that copy, removes ones the kit dropped, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
 A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.
 
 To take a newer Long Beard, install it, then update:
@@ -93,7 +106,7 @@ npx longbeard update
 Skip one:
 
 ```bash
-npx longbeard remove web-design-guidelines
+npx longbeard remove wayfinder
 ```
 
 Add one:
