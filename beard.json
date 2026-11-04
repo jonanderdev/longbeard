@@ -3,6 +3,62 @@
     "cursor",
     "claude-code"
   ],
+  "stages": [
+    {
+      "name": "Idea",
+      "when": "No docs/brief.md, or the product changes",
+      "skills": [
+        "idea"
+      ],
+      "writes": "docs/brief.md"
+    },
+    {
+      "name": "Direction",
+      "when": "A brief with UI",
+      "skills": [
+        "direction"
+      ],
+      "writes": "design-exploration/<slug>/direction.md"
+    },
+    {
+      "name": "Design",
+      "when": "A direction, no DESIGN.md",
+      "skills": [
+        "design",
+        "figma-generate-library",
+        "figma-generate-design"
+      ],
+      "writes": "DESIGN.md, Ready Figma frames"
+    },
+    {
+      "name": "Architecture",
+      "when": "No GLOSSARY.md yet",
+      "skills": [
+        "grill-with-docs"
+      ],
+      "writes": "GLOSSARY.md, ADRs"
+    },
+    {
+      "name": "Plan",
+      "when": "A flow or feature to build",
+      "skills": [
+        "setup-matt-pocock-skills",
+        "to-spec",
+        "to-tickets"
+      ],
+      "writes": "specs, tickets"
+    },
+    {
+      "name": "Build",
+      "when": "Tickets",
+      "skills": [
+        "implement-spec",
+        "design-check",
+        "pr"
+      ],
+      "writes": "one PR per spec"
+    }
+  ],
   "items": [
     {
       "name": "idea",
@@ -41,23 +97,35 @@
       "kit": true,
       "author": "Matt Pocock",
       "license": "MIT",
-      "source": "https://github.com/mattpocock/skills"
+      "source": "https://github.com/mattpocock/skills",
+      "routes": [
+        {
+          "skill": "diagnosing-bugs",
+          "when": "A hard bug"
+        },
+        {
+          "skill": "tdd",
+          "when": "Test-first, when asked"
+        },
+        {
+          "skill": "handoff",
+          "when": "Handing off, when asked"
+        }
+      ]
     },
     {
       "name": "figma-use",
       "author": "Figma",
       "license": "see repository",
       "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
-      "when": "Before any use_figma call",
-      "why": "The Plugin API rules every Figma write follows."
+      "when": "Before any use_figma call"
     },
     {
       "name": "figma-generate-library",
       "author": "Figma",
       "license": "see repository",
       "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
-      "when": "Tokens, styles, or components in Figma",
-      "why": "Variables, text styles, and components that match the code."
+      "when": "Figma tokens, styles, or components"
     },
     {
       "name": "figma-generate-design",
@@ -65,15 +133,14 @@
       "license": "see repository",
       "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
       "when": "A screen in Figma",
-      "why": "Compose it from the file's components and tokens."
+      "why": "From the file's components and tokens."
     },
     {
       "name": "figma-design-to-code",
       "author": "Figma",
       "license": "see repository",
       "source": "https://github.com/figma/mcp-server-guide/tree/main/skills",
-      "when": "A Figma file or link",
-      "why": "A designer handed it over. Needs the Figma connection. Reuse this project's components."
+      "when": "A Figma link to build"
     },
     {
       "name": "animate",
@@ -81,8 +148,9 @@
       "license": "MIT",
       "source": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
       "when": "They asked to animate a control or a transition",
-      "why": "Read the Behaviour section of DESIGN.md first. A page design-taste-frontend is building keeps that skill’s motion. Decide this one move, then build it.",
-      "optional": true
+      "why": "Read DESIGN.md's decisions first. Decide this one move, then build it.",
+      "optional": true,
+      "hint": "motion"
     },
     {
       "name": "jury",
@@ -90,8 +158,9 @@
       "license": "MIT",
       "source": "https://github.com/juliobsz/skills/tree/main/jury",
       "when": "They asked to jury, score, judge, or roast the design (or a live URL / local build)",
-      "why": "Blind evidence scorecard. Do not redesign. Fixes stay on the board, DESIGN.md, or Figma. Do not run after every build unless they asked.",
-      "optional": true
+      "why": "Blind evidence scorecard. Do not redesign. Fixes go to DESIGN.md or Figma. Only when asked.",
+      "optional": true,
+      "hint": "scored review"
     },
     {
       "name": "web-design-guidelines",
@@ -118,7 +187,8 @@
       "source": "https://github.com/Leonxlnx/imagegen-skills",
       "when": "A picture you already have",
       "why": "Build the page from that picture.",
-      "optional": true
+      "optional": true,
+      "hint": "from a picture"
     }
   ]
 }

@@ -76,3 +76,12 @@ test("update --force also removes a dropped skill you edited", { skip: process.p
   assert.match(removed[0], / remove gone gone-edited -y/);
   assert.deepEqual(kept, ["add-on", "keep", "omitted"]);
 });
+
+test("update --skill takes one add-on, and refuses a name that is not one", { skip: process.platform === "win32" }, () => {
+  const more = [...catalog, { name: "motion", source: "https://github.com/example/motion", author: "Example", why: "Moves.", optional: true }];
+  const { calls } = outcome(setup(more, ["--skill", "motion"]));
+  assert.match(calls, /add https:\/\/github.com\/example\/motion .*--skill motion/, calls);
+  const { result } = setup(more, ["--skill", "keep"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /keep is not an add-on/);
+});
