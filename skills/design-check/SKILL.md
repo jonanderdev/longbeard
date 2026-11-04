@@ -41,12 +41,13 @@ Read `DESIGN.md` first: its tokens, components and decisions are what "follows t
 
 ## Frame mode
 
-Called by `design` after it composes or changes a Figma screen. Input: the file key and the node IDs of the screen and its state frames.
+Called by `design` after it composes or changes a Figma screen. Input: the file key, the node IDs of the screen and its state frames, and the approved prototype shot of that screen when there is one.
 
 1. Load `figma-use` for any `use_figma` call. Screenshot each frame (`get_screenshot`, `maxDimension` 1440 so text is readable). Read structure with `get_metadata` when spacing or alignment needs numbers.
 2. Find the states: frames named `<screen> — empty`, `— loading`, `— error` next to the default. A missing one is a rule 8 hard finding.
 3. Check tokens where the screenshot cannot tell: in one read-only `use_figma` call, list fills, gaps and text styles that are not bound to a variable or style. An unbound value is a rule 7 soft finding when a token exists for it.
-4. Return the findings. `design` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
+4. Compare with the prototype shot, side by side, on what was approved: structure, copy, and the details that give it its feel (tilts, overlaps, tape, edges, shadows). A detail the frame lost is a hard finding, under rule 0: it was approved, and the frame changed it without a yes. Pixels still do not count. No shot: say "not compared".
+5. Return the findings. `design` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
 
 ## Build mode
 

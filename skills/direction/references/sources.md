@@ -8,7 +8,7 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
-- **Pinterest.** Search works without a login: `https://www.pinterest.com/search/pins/?q=<form>`. Logged out, pins have no link: you get the picture, not the pin page or the site it came from. Take the image straight from the page, at full size: swap `/236x/` in its `i.pinimg.com` URL for `/736x/` (or `/originals/`). The card's `link` is the search URL. Keep a pin that is one real screen or page. Drop boards, collages, and AI mush.
+- **Pinterest.** Search works without a login, and pins have no link there. Run `node <skill>/scripts/pinterest-pins.mjs "<form>"`: it prints each pin's label, its image at 736 wide, and a Google Lens link that looks the image up. Feed it to `contact-sheet.mjs`. The card's `link` is the Lens link, never the search page. Keep a pin that is one real screen or page. Drop boards, collages, and AI mush.
 
 ## Dribbble
 
@@ -22,6 +22,8 @@ It prints `id-slug`, likes, views, image URL, and title. It drops merch, CVs, wo
 
 - Use a category path and the form, not the word: `/product-design?q=…`, `/mobile?q=…`, `/web-design?q=…`.
 - If most of what gets through is off-form, the query is wrong. Fix the query rather than scrolling further.
+- A product's category can be swamped by stores ("grocery" returns delivery apps). Query the thing people do with it, and `--drop` what the brief rules out.
+- A thin query ignores `timeframe=year`: the shot ids show it. An old shot is fine when its idea still holds.
 - Run one query at a time. If a query returns 0 cards, retry after 8 s, then 30 s. If it is still 0, note it under `Sources:` as a possible rate limit.
 - Keep a shot when you can name what is worth taking in one line, and people actually saved it. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
 - A Dribbble illustration is imagery, never a site.
