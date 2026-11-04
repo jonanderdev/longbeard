@@ -4,67 +4,79 @@ Read this before changing the catalog, the installer, or a skill we own. The pub
 
 ## Job
 
-A drop-in kit so agents you already use (Cursor, Claude Code, and the rest) produce small, correct, well-designed work. Two commands: `init`, then later `update`.
+A pipeline for agents you already use (Cursor, Claude Code, and the rest): start in a fresh project with an idea and end with reviewed pull requests. The router tells the agent which stage it is in from the files that exist, and each stage ends by offering the next. Two commands: `init`, then later `update`.
 
-It is not an agent runtime. It is not a marketplace. It is not a replacement for Cursor or Claude commands. It is not Ruflo.
+Public on npm, built for Jon's daily use first. Where the two disagree, daily use wins.
+
+It is not an agent runtime. It is not a marketplace. It is not a replacement for Cursor or Claude commands.
 
 The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonandev/longbeard`. The command is `longbeard`.
 
+## Stages
+
+| Stage | Runs | Reads → writes |
+|---|---|---|
+| 1. Idea | `idea` (ours), with Matt's `grilling` | the idea, or the repo → `docs/brief.md` |
+| 2. Direction | `design-direction` (ours) | brief → `design-exploration/<slug>/direction.md`, a proposal |
+| 3. Design | `design` (ours): a code prototype → approve → `DESIGN.md` → Figma; `design-check` on each frame | direction → `DESIGN.md`, official → Ready Figma frames |
+| 4. Architecture | Matt's `grill-with-docs`, plus a framework add-on | brief, `DESIGN.md` → `GLOSSARY.md`, ADRs |
+| 5. Plan | Matt's `setup-matt-pocock-skills` (once), `to-spec`, `to-tickets` | brief flows → specs → tickets |
+| 6. Build | Matt's `implement-spec` → `design-check` build mode → Matt's `pr` | tickets → one PR per spec; Jon merges |
+
+- Every stage writes one file the next stage reads. No stage depends on chat history, so any stage can start once its input exists and an existing project can join mid-pipeline.
+- No UI (CLI, API, library): the brief says so, and Direction and Design are skipped.
+- After the first pass, a feature loops: grill it (`grill-with-docs` when it brings new terms, so they land in `GLOSSARY.md`; plain `grilling` otherwise) → Direction for one piece, if needed → Design (prototype optional) → Plan → Build. Direction and Architecture rerun only for a rebrand or a new stack.
+- Long Beard owns everything before code. Matt Pocock's kit owns code, as he publishes it. Figma's skills own Figma mechanics. We do not rewire a step inside their flows.
+
+## What each stage promises
+
+The rules live in each skill's SKILL.md. Change them there. This is what the product promises.
+
+**Idea.** `docs/brief.md` is one page, about 500 words, with fixed headings later stages read by name: problem, who it is for, 3–5 flows, 2–4 key screens, surface (site, app, or no UI), v1 and later, constraints, identity nouns, out of scope. No tech choices. Features get specs, not brief edits; the brief changes only when the product does. An existing project gets a brief drafted from its README and code, then grilled on the gaps.
+
+**Direction.** Ideas and patterns, never tokens: no colour, face, size or spacing. One round of three questions (feel and never-feel, pictures already liked, where to look and how many), always asked, then a small search into cards (link, shot, pattern, why). They pick by looking at the moodboard, and can correct the direction before anything is built on it. `direction.md` is a proposal, not official, and names patterns, not sources to copy. Sources are only ones checked to work without a login. `design-exploration/` holds other people's work and is gitignored.
+
+**Design.** Colour, type, spacing and copy are chosen here, on rendered screens. It always asks first what they want for colour, type and the rest of the look, with options from the direction, then names those choices when it shows the variants. The brief's key screens are prototyped in plain HTML, 2–3 variations, with real copy and imagery. A pattern that brings a feature the brief lacks goes back to Idea. Nothing is official until they approve; then `DESIGN.md` is written in one go, with contrast checked and ideas instead of source names. Figma is then built from `DESIGN.md`'s tokens, not the community kits Figma attaches: tokens, the components the key screens need, the screens, and their empty, loading and error states. An approved frame is named `… — Ready`. Figma is the truth for screens; `DESIGN.md` is the written summary of the rules behind them. Figma stays faithful to the approved prototype, and `DESIGN.md` records what makes it this design, with values. Figma is required for UI projects. A feature adds to `DESIGN.md` and never rewrites it; an identity change needs its own yes.
+
+**design-check.** Checks a screen against `rules/design-rules.md` and `DESIGN.md`, and reports. It never redesigns. Frame mode runs after each Figma screen; build mode renders the built screen at phone and desktop and compares it with its Ready frame on meaning (structure, tokens, copy, states), not pixels. Hard findings block: one fresh fix pass, one re-check, and what remains goes in the PR. Soft findings are reported. Anything lost or changed from the approved prototype without a yes is a hard finding. A state it could not see is "not checked", never passed.
+
+**Design rules.** `rules/design-rules.md` is our own text: an Idea check, then 14 sections of checks you can pass or fail from a screenshot, a site list, an app list, and dated tells. Hard rules (structure, contrast, targets, focus, states) are the floor. Soft rules can be overridden in `DESIGN.md` on purpose, with a reason. The rules never suggest a look.
+
+**Architecture, Plan, Build.** Matt's skills, as he publishes them. `GLOSSARY.md` is born at Architecture, seeded from the brief and the copy already in the Figma screens, so it records the words the product uses. Renaming a term the screens already show is a question, never silent. `codebase-design` shapes module interfaces. The first pass writes one spec per core flow, later one spec per feature, on the tracker `setup-matt-pocock-skills` chose. `implement-spec` runs as published: an integration branch, a fresh agent per ticket, `tdd`, `code-review` at the end, one PR per spec. `pr` writes the body, and design-check's evidence goes in its Before/After.
+
+**Where files live.** `DESIGN.md` and `GLOSSARY.md` at the root, `docs/brief.md`, ADRs in `docs/adr/`. These are Matt's defaults: `setup-matt-pocock-skills` records them in `docs/agents/domain.md`, and `code-review` searches the repo for its standards, so ADRs are found without anything of ours.
+
+**Glue.** UI tickets link their Ready Figma frame. UI work follows `DESIGN.md` and that frame. A mismatch with the frame is a bug.
+
 ## Shape
 
-- Curated catalog in `beard.json` (`items`, optional `kind`, default `skill`). An item with `"kit": true` is an author's whole published set: the skills in their plugin manifest, else every folder in their `skills/`. Its `routes` are the router lines. Skills stay with their authors. Do not vendor other people’s skills.
+- Curated catalog in `beard.json`: `stages` (the router's table) and `items` (optional `kind`, default `skill`). An item with `"kit": true` is an author's whole published set: the skills in their plugin manifest, else every folder in their `skills/`. Its `routes` are the router's helper lines. Skills stay with their authors. Do not vendor other people's skills.
+- Kit: Long Beard's four (`idea`, `design-direction`, `design`, `design-check`), Matt Pocock's whole kit as one entry, Figma's four (`figma-use`, `figma-generate-library`, `figma-generate-design`, `figma-design-to-code`). Add-ons are `optional`: they install with `--skill <name>` or `--all`, and the router offers each one once, when it is needed. A taken add-on stays and refreshes.
+- Runtime: the installer needs Node 18. The scripts in the skills need Node 22 and Chrome, and `design` needs the Figma connection; the README says so.
 - Installer: `bin/long-beard.js`. Pins Skills CLI `skills@1.7.2`. `init` asks which agents on a TTY (catalog defaults pre-checked). `--agent` skips the list and installs for that tool. `--yes` uses the catalog agents.
-- One block in the project’s `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. Do not write `CLAUDE.md` or Copilot files unless asked.
-- Local skills we own live under `skills/` and use `"source": "local"`. They stay in this repository and ship with the package. Today: `design-md` and `design-reference-hunt`. A new skill we own is another folder here, not another package.
+- One block in the project's `AGENTS.md`, between `<!-- longbeard:start -->` and `<!-- longbeard:end -->`. The default block is under 200 words, and `npm test` checks it. Each add-on a project takes adds a line. Do not write `CLAUDE.md` or Copilot files unless asked.
+- Local skills live under `skills/` with `"source": "local"` and ship with the package. A new skill we own is another folder here, not another package. Files more than one of them needs (`rules/design-rules.md`, `capture.mjs`, `contrast.mjs`) have one source and are copied in by `npm run share`; `npm test` fails on drift. Edit the source, never a copy.
 - A project can omit or add skills in `beard.local.json`. Init is blocked inside this repository.
-- `beard-lock.json` records a content hash per skill. `update` treats a skill as edited when its files differ from that hash, not when its mtime moved.
+- `beard-lock.json` records a content hash per skill. `update` treats a skill as edited when its files differ from that hash. It removes any skill the catalog or its kit no longer lists, unless edited; `--force` removes edited ones too.
 - Do not edit `AGENTS.md` by hand. Change the generator or `beard.json`, then `npm run router`. `add` and `remove` in this repo rewrite it. `npm test` fails when the two drift, and `scripts/release.sh` runs it.
 
-Few skills. Few tokens. Where two skills overlap, the router says which one a plain ask goes to; it does not rewire a step inside an author's flow. A kit or skill that stops earning its place is dropped.
+Few skills. Few tokens. A kit or skill that stops earning its place is dropped.
 
-`kind` is the door to grow past skills later. Until a new kind has an installer, do not catalog it. MCP servers (for example Awwwards search) are not a `skill` and `init` cannot wire them yet.
-
-## Design stack
-
-Official look wins, in this order:
-
-1. This project’s `DESIGN.md` → `design-md` (follow). Write or update that file only when they **confirm** after a hunt (whole look primary pick, or an accepted later pass). Expand colour, type, control, layout principles, leave from the board or hunt note. Do not invent.
-2. A Figma file or link → `figma-design-to-code`.
-3. A picture they already have → `image-to-code` (optional).
-4. No official look (no `DESIGN.md`, no Figma, no board), or they asked to hunt / define direction → `design-reference-hunt`. **Whole look:** one round of questions, with a Figma link on the first line → a small search into `.design/board.md` → the moodboard opens **before** the pick, and they pick on it → the adaptation (take, change, leave, ownable, gaps) → the persist ask as its own message → **stop** unless they also asked to build. A website hunts live pages. An application hunts app screens, not award sites. A later hunt (one piece) writes `.design/hunts/<slug>/` and asks the same way to update `DESIGN.md`. `.design/` is scratch: once `DESIGN.md` exists it may be deleted, and a later hunt works without it.
-5. They asked to **build or code** a page or screen, or to prototype the gaps → `design-taste-frontend` when that skill is in the project. With `DESIGN.md`, taste builds and checks; it does not art-direct (no `draw.mjs`, no dealt references, palette, or type). Else the board. A Figma file stays with `figma-design-to-code` (step 2). Taste still runs `inspect.mjs`, with `--app` and its app-screen house rules for an app screen. Direction-only is not a build ask. Decisions they approve on a prototype go back into `DESIGN.md` through `design-md`.
-6. `web-design-guidelines` only when they ask for a UI review.
-7. `jury` only when they ask to jury, score, judge, or roast the design (or a live URL / local build). Blind evidence scorecard. Do not redesign. Fixes stay on the board, `DESIGN.md`, or Figma. Do not run after every build unless they asked.
-8. A control or transition they asked to animate → `animate`. A page already being built keeps that skill’s motion rules when both apply.
-9. A security review they asked for → `security-audit` (optional, `--all`). The full audit runs only when they ask for an audit or a pen-test.
-
-Hunt writes references and a direction proposal. It does not lay the page out. Cards use a stable shape (idea, hero, type, colour, worth taking) so a person can read them and so a later builder can follow the same file. Persisting is `design-md` on confirm. Building is the router only when they asked to build. Do not add a second “build an Awwwards site” skill.
-
-Hunt writes one board. There is no second board. A later pass is a suggestion set in `.design/hunts/<slug>/`, and neither replaces the other. When a builder runs, it uses `DESIGN.md` or the cards. The control a card describes is the control. Do not add a filled button the card does not show. Taste still runs `inspect.mjs` when it builds.
-
-The hunt's rules — the questions, sources, keep counts, card fields, quality filter, and file layout — live in [skills/design-reference-hunt/SKILL.md](skills/design-reference-hunt/SKILL.md) and its references. Change them there. This file holds only what the product promises:
-
-- The direction starts as a conversation, and they choose by looking at the moodboard, not from a list of links.
-- The closest reference leads the feeling. It does not become the brand. `DESIGN.md` is an adaptation with a reason for each change and one `ownable` element from the project's own identity, never the reference's exact palette or faces.
-- Nothing is official until they say yes to `DESIGN.md`. A direction is not yet a design: the hunt ends by offering to prototype its gaps.
-- `DESIGN.md` is published and names ideas, never the sources the hunt looked at. `.design/` holds other people's work and stays out of git.
-- Fewer, stronger references beat a padded board. A short board names its drops.
-
-`design-reference-hunt` stays here, with `"source": "local"`. Do not move it to its own repository. Do not ship public hunt skills we already tried: they wrote Claude paths, mixed imagery with sites, and searched with stale years.
+`kind` is the door to grow past skills later. Until a new kind has an installer, do not catalog it. MCP servers are not a `skill` and `init` cannot wire them yet.
 
 Do not put model-picker warnings in the kit. A skill that needs the current year should say so.
 
 ## How to know it worked
 
-Installed ≠ used. There is no usage logger in v1 (Cursor has no reliable skill-used hook we will ship). Judge the work: ponytail ends with what it did not check; hunt asks one round before it searches, writes `.design/board.md` (or a hunt board), opens the moodboard before the pick, says the adaptation, asks to persist `DESIGN.md` as its own message, and does not code the page on a direction-only ask; `DESIGN.md` appears only after confirm and does not copy the reference’s exact palette or faces; a build skill runs only when they asked to build and prefers `DESIGN.md`; jury runs only when they asked to score or judge, and does not redesign.
+Installed ≠ used. There is no usage logger. Judge the files: each stage's file appears only after its yes (`docs/brief.md`, `direction.md`, `DESIGN.md`, Ready frames, specs, tickets, a PR); `direction.md` has no tokens; `DESIGN.md` names no reference; Ready frames have their states; the PR carries design-check's shots and findings.
 
-Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project’s `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. Do not run `longbeard init` in *this* repo.
+Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project's `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. A full smoke run starts fresh: one idea through brief, direction, prototype, `DESIGN.md` and a Figma key screen, then one small spec through Build and `design-check`. Do not run `longbeard init` in *this* repo.
 
 ## Do not
 
 - Discuss skills in the README that are not in the catalog.
-- Treat Awwwards as a style to copy (gates, WebGL, custom cursors). It is a jury, and only when quoted.
-- Monitor skill use, or add competing design builders, “for completeness.”
+- Treat an award gallery as a style to copy (gates, WebGL, custom cursors). References give patterns.
+- Monitor skill use, or add competing design builders, "for completeness."
 
 ## Releases
 
@@ -76,10 +88,11 @@ A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, a
 
 Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
 
-1. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
-2. Set that same number in `package.json`.
-3. Commit that, and push `main`. Stay on that commit.
-4. From the repo root, run `./scripts/release.sh`.
+1. Review the tells in `rules/design-rules.md`: add new ones, retire stale ones, update the date, run `npm run share`.
+2. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
+3. Set that same number in `package.json`.
+4. Commit that, and push `main`. Stay on that commit.
+5. From the repo root, run `./scripts/release.sh`.
 
 The script runs `npm test`, reads `package.json`, tags that number, and publishes it. It does not rewrite `CHANGELOG.md`. It stops if a test fails, if that section is missing, if the tag exists, or if npm already has the version. After `npm publish`, the site can lag. If the next attempt says the version is already staged, wait and run `npm view @jonandev/longbeard version`. Do not publish that number again.
 
@@ -87,6 +100,6 @@ There is no publish workflow. A GitHub Action would earn its place only to prove
 
 While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
 
-`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin ponytail, taste, Figma, the guidelines, jury, animate, Matt's skills, or the security audit.
+`update` refreshes other people's skills from their current repositories. A Long Beard version pins the skills in this repo and the `AGENTS.md` block. It does not pin Matt's kit, Figma's skills, or the add-ons.
 
 `0.0.0-stage` was a registry check. It is not a release. Deprecate it when convenient: `npm deprecate @jonandev/longbeard@0.0.0-stage "Registry check. Install 0.1.0 or later."`

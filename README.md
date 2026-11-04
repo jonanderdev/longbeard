@@ -7,105 +7,62 @@
 You show him a ticket. He has been shipping longer than the ticket has existed.  
 He keeps a short kit, and he drops a piece the day it stops earning its place.
 
-Long Beard is a starting point for the agents you already use — Cursor, Claude Code, and the rest.  
-One block in `AGENTS.md`, and a short list of skills, so the code stays small and the page is actually designed.  
-Two commands: `init`, then later `update`.
+Long Beard is a pipeline for the agents you already use — Cursor, Claude Code, and the rest.  
+You start with an idea in an empty folder. You end with reviewed pull requests built from a design you approved.  
+One block in `AGENTS.md` tells the agent which stage it is in. Two commands: `init`, then later `update`.
 
 It is not an agent runtime.  
 It is not a marketplace.  
 It does not replace the commands you already use, or the skills you add yourself.   
 It is a base. You keep going from here.
 
+## The pipeline
+
+| Stage | What happens | You get |
+|---|---|---|
+| 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
+| 2. Direction | Three questions about what you like, a small search, a moodboard you pick from | `design-exploration/<slug>/direction.md`: ideas and patterns, not colours |
+| 3. Design | Questions on colour and type, then two or three prototypes of the key screens; you pick and iterate | `DESIGN.md` on your yes, then the screens in Figma, checked and marked Ready |
+| 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
+| 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
+| 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
+
+Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Direction and Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
+
 ## The kit
 
-Two of these are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
+Four skills are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
 
-Writing stays small. A risky change is named before it is built. Design direction is hunted and written down before code, unless a `DESIGN.md` or Figma file already wins.
+| Skill | What it is for | Author |
+|---|---|---|
+| [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
+| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
+| [design](skills/design/SKILL.md) | Prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
+| [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
+| [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
+| [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design` writes tokens, components and screens in Figma | Figma |
+| [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file a designer handed over | Figma |
 
-<table>
-  <thead>
-    <tr>
-      <th>Group</th>
-      <th>Skill</th>
-      <th>What it is for</th>
-      <th>Author</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Plan</td>
-      <td><a href="https://github.com/mattpocock/skills">mattpocock-skills</a></td>
-      <td>A picked set, not his whole repo. Grill a feature, write it as a spec, split it into vertical-slice tickets on GitHub Issues or local files, build each test-first, then review against the spec. Run <code>/setup-matt-pocock-skills</code> once per repo first. Also diagnosing-bugs, prototype, improve-codebase-architecture, handoff, retro. Most run only when you type their command</td>
-      <td>Matt Pocock</td>
-    </tr>
-    <tr>
-      <td rowspan="7">Design</td>
-      <td><a href="skills/design-md/SKILL.md">design-md</a></td>
-      <td>Follows the project's <code>DESIGN.md</code>. Writes or updates it only when you confirm. Does not invent a look</td>
-      <td>Long Beard</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code">figma-design-to-code</a></td>
-      <td>Builds from a Figma file. Needs the Figma connection</td>
-      <td>Figma</td>
-    </tr>
-    <tr>
-      <td><a href="skills/design-reference-hunt/SKILL.md">design-reference-hunt</a></td>
-      <td>Finds references and proposes a direction. Does not code</td>
-      <td>Long Beard</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/Leonxlnx/taste-skill">design-taste-frontend</a></td>
-      <td>Builds websites and app screens when you ask to code, with real pictures, and checks them in a browser. Follows an existing direction; does not invent one</td>
-      <td>Leonxlnx</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/emilkowalski/skills/tree/main/skills/animate">animate</a></td>
-      <td>Builds one control or transition you asked to animate</td>
-      <td>emilkowalski</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines">web-design-guidelines</a></td>
-      <td>Reviews UI and accessibility when you ask. Does not redesign</td>
-      <td>Vercel</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/juliobsz/skills/tree/main/jury">jury</a></td>
-      <td>Scores a live or local build when you ask. Does not redesign</td>
-      <td>juliobsz</td>
-    </tr>
-    <tr>
-      <td rowspan="2">Code</td>
-      <td><a href="https://github.com/joetawil7/first-pass/tree/main/skills/premortem">premortem</a></td>
-      <td>Names where a change will break before you write</td>
-      <td>GeorgeT</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/DietrichGebert/ponytail">ponytail</a></td>
-      <td>Kit: every skill he publishes. Smallest change that finishes the job, plus review, audit, and debt</td>
-      <td>DietrichGebert</td>
-    </tr>
-    <tr>
-      <td rowspan="2">Optional</td>
-      <td><a href="https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code">image-to-code</a></td>
-      <td>With <code>--all</code>. Builds a page from a picture you have</td>
-      <td>Leonxlnx</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit">security-audit</a></td>
-      <td>With <code>--all</code>. Reviews a trust boundary when you ask</td>
-      <td>Cloudflare</td>
-    </tr>
-  </tbody>
-</table>
+Add-ons are not installed by default. The agent offers one when it is needed; take it with `npx longbeard update --skill <name>`, or all of them with `--all`.
 
-A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. Ponytail is one. `update` installs a skill they add and removes one they retire, unless you edited it. Where an author publishes more than this kit needs, the catalog takes single skills instead, as with Matt Pocock's. The router in `AGENTS.md` only says which flow a plain ask goes to where two overlap; inside a flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
+| Add-on | What it is for | Author |
+|---|---|---|
+| [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | One control or transition you asked to animate | emilkowalski |
+| [jury](https://github.com/juliobsz/skills/tree/main/jury) | Scores a live or local build when you ask. Does not redesign | juliobsz |
+| [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews UI and accessibility when you ask | Vercel |
+| [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Reviews a trust boundary when you ask | Cloudflare |
+| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Builds a page from a picture you have | Leonxlnx |
+
+A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. `update` installs a skill they add and removes one they retire, unless you edited it. Inside a kit's flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-## Design, from no look to a build
+`design-exploration/` holds other people's screenshots, so `design-direction` keeps it out of git. `DESIGN.md` is the file you publish, and it names ideas, not the references.
 
-With no `DESIGN.md` and no Figma, ask to define the direction. The hunt asks one round of questions, shows a moodboard of real references, and writes `DESIGN.md` when you say yes. Then prototype the screens no reference covered (the hunt lists them as gaps), and record what you approve in `DESIGN.md`. When you ask to build, `design-taste-frontend` follows `DESIGN.md` instead of choosing a look of its own; a Figma file is built with `figma-design-to-code`. `.design/` holds other people's screenshots, so the hunt keeps it out of git; `DESIGN.md` is the file you publish. Once it exists you can delete `.design/`. A later hunt for one piece (a pricing section, an empty state) starts its own folder there.
+## You need
+
+- Node 22 or newer, and Chrome, for the screenshots `design-direction`, `design` and `design-check` take.
+- The Figma connection in your agent, for a project with a UI.
 
 ## Install
 
@@ -116,7 +73,15 @@ npm install --save-dev @jonandev/longbeard
 npx longbeard init
 ```
 
-`init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes the optional skills.
+`init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes every add-on; `--skill <name>` takes one.
+
+## Start
+
+Open your agent in the project and say what you want to make:
+
+> I want to build a shared shopping list for flatmates.
+
+It reads `AGENTS.md`, sees there is no brief, and starts at Idea. Each stage ends by offering the next, and nothing moves on without your yes. In a project that already has code, ask for a brief: the agent drafts it from the repo and asks only about the gaps.
 
 ## Update
 
@@ -124,7 +89,7 @@ npx longbeard init
 npx longbeard update
 ```
 
-That uses the Long Beard already installed. It adds skills that are new in that copy, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
+That uses the Long Beard already installed. It adds skills that are new in that copy, removes ones the kit dropped, rewrites the `AGENTS.md` block, and refreshes skills this command installed. Skills written by other people are refreshed from their repositories. The skills in this repository stay with the version you installed.  
 A skill you edited stays, unless you pass `--force`. Skills you installed on your own are left alone.
 
 To take a newer Long Beard, install it, then update:
@@ -141,7 +106,7 @@ npx longbeard update
 Skip one:
 
 ```bash
-npx longbeard remove web-design-guidelines
+npx longbeard remove wayfinder
 ```
 
 Add one:

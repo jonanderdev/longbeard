@@ -1,6 +1,6 @@
 {
   "name": "@jonandev/longbeard",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "description": "Designs like an Art director. Codes like a senior.",
   "license": "MIT",
   "repository": {
@@ -42,6 +42,7 @@
   "scripts": {
     "longbeard": "node ./bin/long-beard.js",
     "router": "node ./bin/long-beard.js router > AGENTS.md",
-    "test": "node --test"
+    "test": "node --test",
+    "share": "node scripts/share.mjs"
   }
 }

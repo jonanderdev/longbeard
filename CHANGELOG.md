@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased 
+## Unreleased
+
+## 0.10.0 — 2026-11-04
+
+Long Beard is now a pipeline: Idea → Direction → Design → Architecture → Plan → Build. Each stage writes one file the next one reads (`docs/brief.md`, `design-exploration/<slug>/direction.md`, `DESIGN.md` and Ready Figma frames, `GLOSSARY.md`, specs and tickets, one PR per spec), and ends by offering the next. The `AGENTS.md` block is a stage table the agent reads to know where it is, under 200 words.
+
+- New: `idea` grills an idea, or an existing repo, into a one-page `docs/brief.md`. `design` asks about colour and type, prototypes the brief's key screens in plain HTML, writes `DESIGN.md` in one go when you approve one, and builds the screens in Figma from it, with their empty, loading and error states. `design-check` checks a Figma screen, or a built one against its Ready frame, using the new design rules (`rules/design-rules.md`): hard findings block, soft ones are reported, and it never redesigns.
+- `design-direction` replaces `design-reference-hunt`. It finds ideas and patterns, never colours or type, which are chosen in `design` on rendered screens. Cards are link, shot, pattern and why. It writes `design-exploration/<slug>/direction.md`, a proposal, instead of `.design/board.md`, and no longer asks to write `DESIGN.md`. Its sources are only ones that work without a login: Awwwards, siteinspire, Recent, Dark Mode Design, Dribbble, Muzli, and Wikimedia Commons. It brings back 12 references by default.
+- `design` replaces `design-md`. An existing `DESIGN.md` stays official; `design` adds to it for a feature and never rewrites it without your yes.
+- Matt Pocock's skills are a kit again: all 27, including `grill-with-docs` (Architecture) and `pr` (Build).
+- Figma's `figma-use`, `figma-generate-library` and `figma-generate-design` join `figma-design-to-code`. Figma is required for a project with a UI.
+- Gone: ponytail (all of it), `premortem`, `design-taste-frontend`, `design-md`, `design-reference-hunt`.
+- `animate`, `jury` and `web-design-guidelines` are add-ons now, with `security-audit` and `image-to-code`. The agent offers one when it is needed. `init` and `update` take one with `--skill <name>`, or all with `--all`. An add-on you already have stays and keeps refreshing.
+- `update` removes any skill the catalog or its kit no longer lists, not only kit skills. One you edited stays unless you pass `--force`.
+- `capture.mjs` takes `--width` (below 768 it shoots a phone at 2x), `--cookie` for a page behind a login, and `--strict`, which exits 1 when the page lands at another address.
+
+People who already ran `init`:
+
+```bash
+npm install --save-dev @jonandev/longbeard@latest
+npx longbeard update            # installs the new skills, removes the dropped ones you did not edit
+npx longbeard update --force    # only if update listed dropped skills it kept because you edited them
+```
+
+`.design/` is no longer read. Keep it for your own reference or delete it; new explorations go to `design-exploration/`, which `design-direction` adds to `.gitignore`.
 
 ## 0.9.0 — 2026-10-30
 
