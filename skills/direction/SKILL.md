@@ -47,7 +47,7 @@ Before I look, three questions. Skip any with "go" and I'll decide.
 
 Default sources:
 
-- **App:** popular Dribbble, Pinterest. No award galleries.
+- **App:** popular Dribbble. No award galleries.
 - **Site:** Awwwards, siteinspire, Recent. Dribbble for screens. Dark Mode Design only when the feel is dark.
 - **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
 
@@ -74,7 +74,7 @@ A few header lines, then one card per keep.
 
 ```
 Asked: <feel, never feel, loves, or none>
-Sources: <what was searched, and any skip: "Pinterest: login wall">
+Sources: <what was searched, and any skip: "Awwwards: no fit">
 Missing: <what the search could not find, or none>
 
 ### <name>

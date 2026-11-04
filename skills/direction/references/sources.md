@@ -8,7 +8,6 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 - **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
-- **Pinterest.** Search works without a login, and pins have no link there. Run `node <skill>/scripts/pinterest-pins.mjs "<form>"`: it prints each pin's label, its image at 736 wide, and a Google Lens link that looks the image up. Feed it to `contact-sheet.mjs`. The card's `link` is the Lens link, never the search page. Keep a pin that is one real screen or page. Drop boards, collages, and AI mush.
 
 ## Dribbble
 
