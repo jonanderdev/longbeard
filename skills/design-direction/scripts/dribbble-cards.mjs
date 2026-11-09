@@ -1,14 +1,20 @@
 #!/usr/bin/env node
 // List Dribbble search/popular cards from a listing URL.
-// Headless Chrome; prints TSV: id-slug\tlikes\tviews\timageURL\ttitle
+// Headless Chrome; prints TSV: id-slug\tlikes\tviews\tdesigner\timageURL\ttitle
 // Counts come from the card's own stat elements. A column it cannot read
 // stays empty. It never guesses a count from the title.
+//
+// Dribbble's "popular" order mixes likes with recency, so page order is not
+// quality. Rows come out sorted by likes, most first, and a card under
+// --min-likes (default 100) is dropped. A card whose likes cannot be read
+// is kept, last.
 //
 // Off-topic cards (merch, resumes, worksheets, posters) are dropped by slug
 // and title before anything is fetched, and the noise rate goes to stderr.
 //
 //   node dribbble-cards.mjs "https://dribbble.com/search/shots/popular/product-design?q=writing+app&timeframe=year" --scrolls 4
 //   node dribbble-cards.mjs "<url>" --drop "mood,habit" --keep "font,illustration"
+//   node dribbble-cards.mjs "<url>" --min-likes 300
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -31,6 +37,7 @@ const has = (name) => {
 const url = args[0];
 const scrolls = Math.max(0, Number(flag("scrolls", "3")) || 3);
 const noFilter = has("no-filter");
+const minLikes = Math.max(0, Number(flag("min-likes", "100")) || 0);
 const words = (s) =>
   String(s || "")
     .toLowerCase()
@@ -56,7 +63,7 @@ const keep = words(flag("keep", ""));
 const dropWords = [...OFF_TOPIC.filter((w) => !keep.includes(w)), ...words(flag("drop", ""))];
 if (!url || !/^https?:\/\/(www\.)?dribbble\.com\//i.test(url)) {
   console.error(
-    'usage: node dribbble-cards.mjs "https://dribbble.com/search/..." [--scrolls 4] [--drop "a,b"] [--keep "a,b"] [--no-filter]',
+    'usage: node dribbble-cards.mjs "https://dribbble.com/search/..." [--scrolls 4] [--min-likes 100] [--drop "a,b"] [--keep "a,b"] [--no-filter]',
   );
   process.exit(2);
 }
@@ -66,6 +73,14 @@ if (!url || !/^https?:\/\/(www\.)?dribbble\.com\//i.test(url)) {
 function offTopic(text) {
   const hay = ` ${String(text).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()} `;
   return dropWords.find((word) => hay.includes(` ${word.replace(/[^a-z0-9]+/g, " ")} `)) || "";
+}
+
+// "15.7k" -> 15700. An unreadable count is NaN, never 0.
+function count(text) {
+  const m = String(text || "").replace(/,/g, "").match(/^([\d.]+)([kKmM]?)$/);
+  if (!m) return NaN;
+  const n = Number(m[1]) * ({ k: 1e3, m: 1e6 }[m[2].toLowerCase()] || 1);
+  return Number.isFinite(n) ? n : NaN;
 }
 
 function findChrome() {
@@ -264,8 +279,11 @@ const { result } = await page("Runtime.evaluate", {
         likes = counts[0] || "";
         views = counts[1] || "";
       }
+      // The profile handle, from the card's own designer link.
+      const who = li.querySelector('.user-information a[href^="/"]');
+      const designer = who ? (who.getAttribute("href") || "").replace(/^\\/|[?#].*$/g, "") : "";
       const title = (img.getAttribute("alt") || a.getAttribute("title") || idSlug).replace(/\\t/g, " ").trim();
-      rows.push([idSlug, likes, views, imageURL, title].join("\\t"));
+      rows.push([idSlug, likes, views, designer, imageURL, title].join("\\t"));
     }
     return rows.join("\\n");
   })()`,
@@ -286,7 +304,7 @@ const reasons = new Map();
 const kept = noFilter
   ? all
   : all.filter((row) => {
-      const [idSlug, , , , title = ""] = row.split("\t");
+      const [idSlug, , , , , title = ""] = row.split("\t");
       const word = offTopic(`${idSlug} ${title}`);
       if (!word) return true;
       reasons.set(word, (reasons.get(word) ?? 0) + 1);
@@ -310,6 +328,21 @@ if (!kept.length) {
   drop();
   process.exit(1);
 }
-console.log(kept.join("\n"));
+// Likes are the signal people valued a shot. Sort by them, and drop the
+// ones under the floor. An unreadable count is kept, last, so a markup
+// change shows as empty columns instead of an empty list.
+const likesOf = (row) => count(row.split("\t")[1]);
+const strong = kept.filter((row) => !(likesOf(row) < minLikes));
+const weak = kept.length - strong.length;
+if (weak > 0) {
+  console.error(`${weak} of ${kept.length} under ${minLikes} likes, dropped (lower it with --min-likes)`);
+}
+if (!strong.length) {
+  console.error("every card was under the likes floor — try a broader form or timeframe before lowering it");
+  drop();
+  process.exit(1);
+}
+strong.sort((a, b) => (likesOf(b) || -1) - (likesOf(a) || -1));
+console.log(strong.join("\n"));
 drop();
 process.exit(0);

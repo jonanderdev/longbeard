@@ -13,6 +13,7 @@
 - Empty, loading and error are required only when a person can reach them. A state nobody can reach is recorded under Decisions in `DESIGN.md`, with the reason.
 - `design-check` finds states by what a frame shows, so state names can be descriptive.
 - When `init` or `update` cannot list a kit from GitHub, it says why: the network error (like `ENOTFOUND`), the HTTP status, a reply that is not JSON, or a kit with no skills. Before, a failed connection said only "Check the network".
+- `design-direction` keeps Dribbble shots people valued, not just new ones. `dribbble-cards.mjs` sorts by likes, drops shots under 100 likes (`--min-likes` changes that), and prints each shot's designer. The skill ranks by likes rather than page order, compares likes between shots of a similar age, drops dated shots, and keeps at most one shot from a studio that posts near-identical concepts.
 
 ## 0.10.0 — 2026-11-04
 
