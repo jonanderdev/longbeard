@@ -15,7 +15,7 @@ function write(path, text) {
 
 // A copy of the package with its own catalog, a project that installed more
 // than that catalog lists, and an npx that only logs what it was asked to do.
-function setup(items, flags = []) {
+function setup(items, flags = [], env = {}) {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-update-"));
   const pkg = join(dir, "pkg");
   cpSync(join(root, "bin"), join(pkg, "bin"), { recursive: true });
@@ -45,7 +45,7 @@ function setup(items, flags = []) {
   const result = spawnSync(process.execPath, [join(pkg, "bin/long-beard.js"), "update", "--yes", ...flags], {
     cwd: project,
     encoding: "utf8",
-    env: { ...process.env, HOME: dir, PATH: `${fake}:${process.env.PATH}`, NO_COLOR: "1" },
+    env: { ...process.env, HOME: dir, PATH: `${fake}:${process.env.PATH}`, NO_COLOR: "1", ...env },
   });
   return { result, project, log };
 }
@@ -84,4 +84,17 @@ test("update --skill takes one add-on, and refuses a name that is not one", { sk
   const { result } = setup(more, ["--skill", "keep"]);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /keep is not an add-on/);
+});
+
+test("update names why it could not list a kit", { skip: process.platform === "win32" }, () => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-offline-"));
+  const offline = join(dir, "offline.mjs");
+  write(
+    offline,
+    'globalThis.fetch = async () => { throw new TypeError("fetch failed", { cause: Object.assign(new Error("getaddrinfo ENOTFOUND"), { code: "ENOTFOUND" }) }); };\n',
+  );
+  const kit = [...catalog, { name: "some-kit", kit: true, source: "https://github.com/example/kit", author: "Example" }];
+  const { result } = setup(kit, [], { NODE_OPTIONS: `--import=${offline}` });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Could not list the some-kit kit from GitHub: ENOTFOUND reaching https:\/\/raw\.githubusercontent\.com\/example\/kit\//);
 });

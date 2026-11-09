@@ -245,15 +245,22 @@ async function fetchKit(item) {
   if (!repo) fail(`${item.name}: a kit needs a GitHub source.`);
   // update retires what this list leaves out, so a failed fetch must stop here,
   // never fall through to a guess. Only a missing manifest (404) falls back.
-  const cannot = `Could not list the ${item.name} kit from GitHub. Check the network and try again.`;
+  // Every stop names its reason, so a failure is never just "check the network".
+  const cannot = `Could not list the ${item.name} kit from GitHub`;
   const get = async (url) => {
+    let res;
     try {
-      const res = await fetch(url);
-      if (res.status === 404) return null;
-      if (!res.ok) fail(`${cannot} (${res.status} from ${url})`);
+      res = await fetch(url);
+    } catch (error) {
+      const reason = error.cause?.code ?? error.cause?.message ?? error.message;
+      fail(`${cannot}: ${reason} reaching ${url}. Check the network and try again.`);
+    }
+    if (res.status === 404) return null;
+    if (!res.ok) fail(`${cannot}: ${res.status} ${res.statusText} from ${url}.`);
+    try {
       return await res.json();
     } catch {
-      fail(cannot);
+      fail(`${cannot}: ${url} did not return JSON.`);
     }
   };
   const manifest = await get(`https://raw.githubusercontent.com/${repo}/HEAD/.claude-plugin/plugin.json`);
@@ -262,7 +269,7 @@ async function fetchKit(item) {
     : ((await get(`https://api.github.com/repos/${repo}/git/trees/HEAD?recursive=1`))?.tree ?? [])
         .map((entry) => entry.path.match(/^skills\/([^/]+)\/SKILL\.md$/)?.[1])
         .filter(Boolean);
-  if (names.length === 0) fail(cannot);
+  if (names.length === 0) fail(`${cannot}: ${repo} lists no skills.`);
   return names;
 }
 
