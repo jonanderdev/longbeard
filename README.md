@@ -21,7 +21,7 @@ It is a base. You keep going from here.
 | Stage | What happens | You get |
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
-| 2. Direction | Three questions about what you like, a small search, a moodboard you pick from | `design-exploration/<slug>/direction.md`: ideas and patterns, not colours |
+| 2. Direction | Three questions about what you like, a wide search you mark like or no on a picker page, a sharper second search from your picks, then a moodboard | `design-exploration/<slug>/direction.md`: ideas and patterns, not colours |
 | 3. Design | Questions on colour and type, then two or three prototypes of the key screens; you pick and iterate | `DESIGN.md` on your yes, then the screens in Figma, checked and marked Ready |
 | 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
 | 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |

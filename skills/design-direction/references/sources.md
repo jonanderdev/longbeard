@@ -1,5 +1,21 @@
 # Sources: what to keep, and how to get the shot
 
+## Thumbnails for the picker
+
+Each picker row takes its title, thumbnail and link from the same card on the listing page, so a pick always opens the thing that was picked. Hotlink the thumbnail and never save it. Use the smallest size that still reads at about 400 px wide. The link is the item's own page, never the listing. These were checked by reading the plain listing HTML, without a login (2026-11-14):
+
+- **Dribbble:** `dribbble-cards.mjs --picker` prints the rows.
+- **Awwwards:** use `/websites/sites_of_the_day/`, which already meets the award floor. Each card's `figure-rollover__link` has the title (`aria-label`) and the site page (`/sites/<slug>`), and its image's `data-srcset` has the `thumb_440_330` size.
+- **Recent:** each card's image is the poster (`…/recording/poster/640.webp`). The link next to it is labelled `View post: <title>` and goes to `/i/<id>-<slug>`.
+- **Dark Mode Design:** each card is a link to the live site around an image whose `alt` is the title.
+- **Wikimedia Commons:** `thumburl`, with `descriptionurl` as the link.
+
+**siteinspire** refuses scripted requests to its listing (429), so it is not in the picker. Do not work around a site that refuses scripts. If they tick it anyway, say so, and take any siteinspire page they paste as a seed.
+
+A source whose cards you cannot read is not in the picker. Say so under `Sources:`. Never screenshot a listing to fake one.
+
+## Keeping
+
 A nominee is not a reference. Open it full size and drop anything weak before it goes on the board. A weak pass means fewer keeps, not a lower bar.
 
 ## Galleries
@@ -17,7 +33,7 @@ Listing pages render in the browser, and shot pages hit human verification. Use 
 node <skill>/scripts/dribbble-cards.mjs "https://dribbble.com/search/shots/popular/product-design?q=text+editor+screen&timeframe=year" --scrolls 4
 ```
 
-It prints `id-slug`, likes, views, designer, image URL, and title, sorted by likes. It drops shots under 100 likes (`--min-likes` changes that), and merch, CVs, worksheets, posters, logos, and tool ads by slug and title. Extend that list with `--drop "a,b"` and relax it with `--keep "a,b"`. Save the image from `cdn.dribbble.com` (`<url>?resize=1600x1200`).
+It prints `id-slug`, likes, views, designer, image URL, and title, sorted by likes. With `--picker` it prints picker rows instead (title, thumbnail, shot page, `dribbble`, designer and likes), ready to append to `candidates.tsv`. It drops shots under 100 likes (`--min-likes` changes that), and merch, CVs, worksheets, posters, logos, and tool ads by slug and title. Extend that list with `--drop "a,b"` and relax it with `--keep "a,b"`. Save the image from `cdn.dribbble.com` (`<url>?resize=1600x1200`).
 
 - Use a category path and the form, not the word: `/product-design?q=…`, `/mobile?q=…`, `/web-design?q=…`.
 - If most of what gets through is off-form, the query is wrong. Fix the query rather than scrolling further.
@@ -27,7 +43,7 @@ It prints `id-slug`, likes, views, designer, image URL, and title, sorted by lik
 - **Popular is not good.** Dribbble's popular order mixes likes with recency, so the top of a listing is often just new. Rank by likes, never by position on the page.
 - **Likes grow with age.** Shot ids rise over time, so compare likes between shots of similar id. A shot whose id is far below the rest is years old: keep it only if nothing about it looks dated.
 - **Judge the designer, not only the shot.** One designer with several near-identical shots in a listing is a concept studio: keep at most one of theirs.
-- Keep a shot when you can name its idea in one line, it stands out on likes in its own listing, and it looks current. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
+- For the pool, the mechanical cuts are enough: off-topic, the likes floor, one per near-identical designer. At the shortlist, keep a shot when you can name its idea in one line, it stands out on likes in its own listing, and it looks current. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
 - A Dribbble illustration is imagery, never a site.
 
 ## Cropping a downloaded image
