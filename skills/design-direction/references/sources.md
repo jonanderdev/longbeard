@@ -17,14 +17,17 @@ Listing pages render in the browser, and shot pages hit human verification. Use 
 node <skill>/scripts/dribbble-cards.mjs "https://dribbble.com/search/shots/popular/product-design?q=text+editor+screen&timeframe=year" --scrolls 4
 ```
 
-It prints `id-slug`, likes, views, image URL, and title. It drops merch, CVs, worksheets, posters, logos, and tool ads by slug and title. Extend that list with `--drop "a,b"` and relax it with `--keep "a,b"`. Save the image from `cdn.dribbble.com` (`<url>?resize=1600x1200`).
+It prints `id-slug`, likes, views, designer, image URL, and title, sorted by likes. It drops shots under 100 likes (`--min-likes` changes that), and merch, CVs, worksheets, posters, logos, and tool ads by slug and title. Extend that list with `--drop "a,b"` and relax it with `--keep "a,b"`. Save the image from `cdn.dribbble.com` (`<url>?resize=1600x1200`).
 
 - Use a category path and the form, not the word: `/product-design?q=…`, `/mobile?q=…`, `/web-design?q=…`.
 - If most of what gets through is off-form, the query is wrong. Fix the query rather than scrolling further.
 - A product's category can be swamped by stores. Query the thing people do with it, and `--drop` what the brief rules out.
-- A thin query ignores `timeframe=year`: the shot ids show it. An old shot is fine when its idea still holds.
+- A thin query ignores `timeframe=year`: the shot ids show it.
 - Run one query at a time. If a query returns 0 cards, retry after 8 s, then 30 s. If it is still 0, note it under `Sources:` as a possible rate limit.
-- Keep a shot when you can name its idea in one line, and people actually saved it. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
+- **Popular is not good.** Dribbble's popular order mixes likes with recency, so the top of a listing is often just new. Rank by likes, never by position on the page.
+- **Likes grow with age.** Shot ids rise over time, so compare likes between shots of similar id. A shot whose id is far below the rest is years old: keep it only if nothing about it looks dated.
+- **Judge the designer, not only the shot.** One designer with several near-identical shots in a listing is a concept studio: keep at most one of theirs.
+- Keep a shot when you can name its idea in one line, it stands out on likes in its own listing, and it looks current. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
 - A Dribbble illustration is imagery, never a site.
 
 ## Cropping a downloaded image
