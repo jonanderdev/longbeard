@@ -172,6 +172,17 @@
       "optional": true
     },
     {
+      "name": "modern-web-guidance",
+      "author": "Google Chrome",
+      "license": "Apache-2.0",
+      "source": "https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/modern-web-guidance",
+      "when": "Writing HTML, CSS, or client-side JS",
+      "why": "Current browser APIs; DESIGN.md decides the look.",
+      "optional": true,
+      "preselected": true,
+      "hint": "current browser APIs, needs the network"
+    },
+    {
       "name": "security-audit",
       "author": "Cloudflare",
       "license": "MIT",
