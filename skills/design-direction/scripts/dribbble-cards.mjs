@@ -15,6 +15,7 @@
 //   node dribbble-cards.mjs "https://dribbble.com/search/shots/popular/product-design?q=writing+app&timeframe=year" --scrolls 4
 //   node dribbble-cards.mjs "<url>" --drop "mood,habit" --keep "font,illustration"
 //   node dribbble-cards.mjs "<url>" --min-likes 300
+//   node dribbble-cards.mjs "<url>" --picker >> candidates.tsv   # rows for picker.mjs
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -37,6 +38,7 @@ const has = (name) => {
 const url = args[0];
 const scrolls = Math.max(0, Number(flag("scrolls", "3")) || 3);
 const noFilter = has("no-filter");
+const forPicker = has("picker");
 const minLikes = Math.max(0, Number(flag("min-likes", "100")) || 0);
 const words = (s) =>
   String(s || "")
@@ -63,7 +65,7 @@ const keep = words(flag("keep", ""));
 const dropWords = [...OFF_TOPIC.filter((w) => !keep.includes(w)), ...words(flag("drop", ""))];
 if (!url || !/^https?:\/\/(www\.)?dribbble\.com\//i.test(url)) {
   console.error(
-    'usage: node dribbble-cards.mjs "https://dribbble.com/search/..." [--scrolls 4] [--min-likes 100] [--drop "a,b"] [--keep "a,b"] [--no-filter]',
+    'usage: node dribbble-cards.mjs "https://dribbble.com/search/..." [--scrolls 4] [--min-likes 100] [--drop "a,b"] [--keep "a,b"] [--no-filter] [--picker]',
   );
   process.exit(2);
 }
@@ -343,6 +345,12 @@ if (!strong.length) {
   process.exit(1);
 }
 strong.sort((a, b) => (likesOf(b) || -1) - (likesOf(a) || -1));
-console.log(strong.join("\n"));
+// --picker prints picker.mjs rows: title, thumbnail, shot page, source, meta.
+const asPicker = (row) => {
+  const [idSlug, likes, , designer, imageURL, title] = row.split("\t");
+  const meta = [designer, likes && `${likes} likes`].filter(Boolean).join(" · ");
+  return [title, `${imageURL}?resize=400x300`, `https://dribbble.com/shots/${idSlug}`, "dribbble", meta].join("\t");
+};
+console.log((forPicker ? strong.map(asPicker) : strong).join("\n"));
 drop();
 process.exit(0);

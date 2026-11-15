@@ -57,3 +57,71 @@ test("moodboard: a missing shot is named and skipped", () => {
   assert.match(result.stderr, /missing shot design-exploration\/identity\/refs\/gone\.jpg/);
   assert.equal(readFileSync(join(dir, "m.html"), "utf8").match(/class="tile"/g)?.length, 1);
 });
+
+const candidates = (rows) => ({ "design-exploration/identity/candidates.tsv": rows.join("\n") });
+const pick = (dir, extra = []) =>
+  run("picker.mjs", dir, ["design-exploration/identity/candidates.tsv", "--out", "design-exploration/identity/picker.html", ...extra]);
+const pickerHtml = (dir) => readFileSync(join(dir, "design-exploration/identity/picker.html"), "utf8");
+
+test("picker: one tile per row from any source, ids by row number, linked to the source", () => {
+  const dir = project(
+    candidates([
+      "# comment, not a row",
+      "Ledger app\thttps://cdn.dribbble.com/a.png?resize=400x300\thttps://dribbble.com/shots/1-ledger\tdribbble\tana · 300 likes",
+      "Field notes\thttps://assets.awwwards.com/b.jpg\thttps://www.awwwards.com/sites/field\tawwwards",
+      "No link\thttps://cdn.recent.design/c.webp\t\trecent",
+    ]),
+  );
+  pick(dir);
+  const html = pickerHtml(dir);
+  assert.equal(html.match(/<figure class="tile"/g)?.length, 3);
+  assert.match(html, /data-id="a1" data-title="Ledger app"/);
+  assert.match(html, /data-id="a3" data-title="No link"/);
+  assert.match(html, /<a class="name" href="https:\/\/www\.awwwards\.com\/sites\/field"/);
+  assert.match(html, /<span class="name" title="No link">No link<\/span>/);
+  assert.match(html, /<span class="src">recent<\/span>/);
+  assert.match(html, /<span class="meta">ana · 300 likes<\/span>/);
+});
+
+test("picker: scraped text is escaped, and only http links become links", () => {
+  const dir = project(
+    candidates(['<script>alert(1)</script>"x\thttps://cdn.example.com/a.jpg\tjavascript:alert(1)\tawwwards']),
+  );
+  pick(dir);
+  const html = pickerHtml(dir);
+  assert.doesNotMatch(html, /<script>alert/);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;&quot;x/);
+  assert.doesNotMatch(html, /href="javascript:/);
+});
+
+test("picker: a seed starts liked and may use a project file; round 2 uses b ids", () => {
+  const files = candidates([
+    "Their screenshot\tdesign-exploration/identity/refs/seed.jpg\t\tseed",
+    "Gone\tdesign-exploration/identity/refs/missing.jpg\t\tseed",
+    "Shot\thttps://cdn.example.com/a.jpg\thttps://example.com/a\tdribbble",
+  ]);
+  files["design-exploration/identity/refs/seed.jpg"] = "jpg";
+  const dir = project(files);
+  const result = pick(dir, ["--round", "2"]);
+  const html = pickerHtml(dir);
+  assert.match(html, /data-id="b1" data-title="Their screenshot" data-seed="1"/);
+  assert.match(html, /<img src="\.\/refs\/seed\.jpg"/);
+  assert.match(result.stderr, /b2 has no image/);
+  assert.match(html, /data-id="b3"/);
+  assert.match(html, /Pick, round 2/);
+});
+
+test("picker: its page script parses", () => {
+  const dir = project(candidates(["Shot\thttps://cdn.example.com/a.jpg\thttps://example.com/a\tdribbble"]));
+  pick(dir);
+  const js = pickerHtml(dir).match(/<script>([\s\S]*?)<\/script>/)[1];
+  writeFileSync(join(dir, "page.js"), js);
+  const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
+  assert.equal(check.status, 0, check.stderr);
+});
+
+test("picker: wrong usage exits 2", () => {
+  const dir = project({});
+  const result = spawnSync(process.execPath, [join(scripts, "picker.mjs"), "x.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(result.status, 2);
+});
