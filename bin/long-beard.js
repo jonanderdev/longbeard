@@ -37,7 +37,7 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
   npx longbeard list
   npx longbeard --version
 
-  npx longbeard init [--global] [--all] [--skill add-on] [--yes] [--agent cursor]
+  npx longbeard init [--global] [--all] [--skill add-on] [--no-addons] [--yes] [--agent cursor]
   npx longbeard update [--global] [--all] [--skill add-on] [--force] [--yes]
   npx longbeard add <source> --skill <name> --author <name> --why <text> [--when text]
   npx longbeard remove <name>
@@ -48,10 +48,11 @@ A skill written here is copied from the installed package when its version moved
 A kit (Matt Pocock's) is every skill its author publishes. update adds new ones, and removes any skill the catalog or its kit no longer lists, unless you edited it.
 Install the package first (npm install -D @jonandev/longbeard@latest); update does not fetch it.
 add in a project writes beard.local.json (an extra, not a second kit). remove omits a kit skill here.
---all takes every add-on; --skill takes one. An add-on you took stays and refreshes on update.
+init lists the add-ons in a terminal, some already ticked. --all takes every add-on; --skill takes one; --no-addons takes none.
+Each of those skips the list. An add-on you took stays and refreshes on update.
 --agent skips the agent list and installs for that tool. Repeat it.
 --force replaces local edits of skills this command installed, and removes edited ones the catalog dropped.
---yes skips prompts and uses the catalog agents (cursor, claude-code).
+--yes skips prompts and uses the catalog agents (cursor, claude-code) and, on a first init, the ticked add-ons.
 This does not install marketplace plugins or replace Cursor or Claude commands.
 `;
 
@@ -143,6 +144,7 @@ function parseArgs(argv) {
     force: false,
     yes: false,
     optional: false,
+    noAddons: false,
     agents: [],
     skill: [],
     why: "",
@@ -158,6 +160,7 @@ function parseArgs(argv) {
     else if (arg === "--force") flags.force = true;
     else if (arg === "--yes" || arg === "-y") flags.yes = true;
     else if (arg === "--optional") flags.optional = true;
+    else if (arg === "--no-addons") flags.noAddons = true;
     else if (arg === "--help" || arg === "-h") flags.help = true;
     else if (arg === "--version" || arg === "-V") flags.version = true;
     else if (arg === "--agent" || arg === "-a") flags.agents.push(take(argv, ++i, arg));
@@ -361,25 +364,22 @@ function readKey() {
   return "";
 }
 
-function pickAgents(options, selected) {
+// One checkbox list for both questions init asks. An option is { name, label, detail }.
+function pickList(title, options, selected, { min = 0 } = {}) {
   const on = new Set(selected);
   let index = 0;
   const height = options.length + 1;
+  const width = Math.max(16, ...options.map((option) => option.label.length));
   const paintList = (first) => {
     if (!first) process.stdout.write(`\x1b[${height}A`);
-    process.stdout.write(`  Which agents?  ${dim("space toggle · enter continue")}\x1b[K\n`);
+    process.stdout.write(`  ${title}  ${dim("space toggle · enter continue")}\x1b[K\n`);
     for (let i = 0; i < options.length; i += 1) {
-      const name = options[i];
+      const option = options[i];
       const arrow = i === index ? "❯" : " ";
-      const mark = on.has(name) ? "x" : " ";
-      const label = (agentNames[name] ?? name).padEnd(16);
-      const path = flagsPath(name);
-      process.stdout.write(`  ${arrow} [${mark}] ${label}  ${dim(path)}\x1b[K\n`);
+      const mark = on.has(option.name) ? "x" : " ";
+      process.stdout.write(`  ${arrow} [${mark}] ${option.label.padEnd(width)}  ${dim(option.detail ?? "")}\x1b[K\n`);
     }
   };
-  function flagsPath(name) {
-    return agentDirs[name].project;
-  }
   process.stdin.setRawMode(true);
   paintList(true);
   try {
@@ -387,11 +387,11 @@ function pickAgents(options, selected) {
       const key = readKey();
       if (key === "ctrl-c") fail("Aborted.");
       if (key === "enter") {
-        if (on.size === 0) continue;
-        return options.filter((name) => on.has(name));
+        if (on.size < min) continue;
+        return options.filter((option) => on.has(option.name)).map((option) => option.name);
       }
       if (key === "space") {
-        const name = options[index];
+        const { name } = options[index];
         if (on.has(name)) on.delete(name);
         else on.add(name);
       } else if (key === "up") index = (index + options.length - 1) % options.length;
@@ -402,6 +402,27 @@ function pickAgents(options, selected) {
     process.stdin.setRawMode(false);
     say();
   }
+}
+
+function pickAgents(options, selected) {
+  const rows = options.map((name) => ({ name, label: agentNames[name] ?? name, detail: agentDirs[name].project }));
+  return pickList("Which agents?", rows, selected, { min: 1 });
+}
+
+// init asks which add-ons, with the catalog's `preselected` ones ticked. Naming
+// add-ons with a flag is the answer, so it skips the list. Ticks are for a
+// first init only: after that, what you took stays and nothing comes back.
+function chooseAddons(flags) {
+  if (flags.all || flags.noAddons || flags.skill.length) return [];
+  const taken = readLock(flags).skills;
+  const omitted = new Set(extraState(flags).omit);
+  const open = catalog(curated()).filter((item) => item.optional && !taken[item.name] && !omitted.has(item.name));
+  if (open.length === 0) return [];
+  const first = !existsSync(lockFile(flags));
+  const ticked = first ? open.filter((item) => item.preselected).map((item) => item.name) : [];
+  if (flags.yes || !process.stdin.isTTY) return ticked;
+  const rows = open.map((item) => ({ name: item.name, label: item.name, detail: item.hint ?? item.when ?? "" }));
+  return pickList("Which add-ons?", rows, ticked);
 }
 
 function chooseAgents(manifest, flags, { pick, lock } = {}) {
@@ -593,7 +614,8 @@ function generateRouter(items, manifest = curated()) {
     return [line(item.when?.trim() || item.name, item.name, item.why)];
   });
   const have = new Set(items.map((item) => item.name));
-  const addons = catalog(manifest).filter((item) => item.optional && !have.has(item.name));
+  // A preselected add-on was decided at init, so it is never offered again.
+  const addons = catalog(manifest).filter((item) => item.optional && !item.preselected && !have.has(item.name));
   const rows = stages.map((stage) => `| ${stage.name} | ${stage.when} | ${stage.skills.join(" → ")} | ${stage.writes} |`);
   const offer = addons.length
     ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}. At Architecture, a framework skill.\n`
@@ -748,8 +770,9 @@ function remember(lock, flags, skills, agents) {
 async function init(flags) {
   requireProject(flags);
   knownAddons(flags);
-  const { manifest, extra, items, later, ...picked } = chosen(flags);
-  const agents = chooseAgents(manifest, flags, { pick: true, lock: readLock(flags) });
+  const agents = chooseAgents(curated(), flags, { pick: true, lock: readLock(flags) });
+  flags.skill.push(...chooseAddons(flags));
+  const { extra, items, later, ...picked } = chosen(flags);
   const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;

@@ -43,13 +43,14 @@ Four skills are written here, in [`skills/`](skills/). `init` copies them from t
 | [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design` writes tokens, components and screens in Figma | Figma |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file a designer handed over | Figma |
 
-Add-ons are not installed by default. The agent offers one when it is needed; take it with `npx longbeard update --skill <name>`, or all of them with `--all`.
+Add-ons are your choice. In a terminal, `init` lists them and you tick the ones you want; `modern-web-guidance` starts ticked, the rest start empty. Later the agent offers one when it is needed; take it with `npx longbeard update --skill <name>`, or all of them with `--all`.
 
 | Add-on | What it is for | Author |
 |---|---|---|
 | [animate](https://github.com/emilkowalski/skills/tree/main/skills/animate) | One control or transition you asked to animate | emilkowalski |
 | [jury](https://github.com/juliobsz/skills/tree/main/jury) | Scores a live or local build when you ask. Does not redesign | juliobsz |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews UI and accessibility when you ask | Vercel |
+| [modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/modern-web-guidance) | Current browser APIs instead of legacy patterns when writing HTML, CSS or client-side JS. Ticked at `init`. It looks each guide up with `npx`, so it needs the network | Google Chrome |
 | [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Reviews a trust boundary when you ask | Cloudflare |
 | [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Builds a page from a picture you have | Leonxlnx |
 
@@ -73,7 +74,7 @@ npm install --save-dev @jonandev/longbeard
 npx longbeard init
 ```
 
-`init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. `--all` includes every add-on; `--skill <name>` takes one.
+`init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. It then asks which add-ons. When it cannot ask, or with `--yes`, a first `init` takes the ticked ones. `--all` includes every add-on, `--skill <name>` takes one, and `--no-addons` takes none; each skips the list. An add-on you turn down at `init` is not offered again; take it later with `npx longbeard update --skill <name>`.
 
 ## Start
 
