@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.0 — 2026-11-15
+
 - `design-direction` calls itself the inspiration step, and its wording and the README's say so plainly.
 - A project that joins with some stages done no longer gets sent back through them. The router starts Direction only when there is no `DESIGN.md`, and `idea` offers the first stage still to do.
 - The router and our skills say to type a command like `/grill-with-docs` when the agent cannot start that skill itself, instead of promising to start it on yes.
