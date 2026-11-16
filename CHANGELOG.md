@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The brief has a **Position** section: what the product is up against, the one concrete thing it is remembered for, and its personality. `idea` recommends it from what people do today instead, and `design-direction` builds `ownable`, `voice` and `leave` from it, so the look aims at being distinctive rather than guessing.
+
 ## 0.11.0 — 2026-11-15
 
 - `design-direction` calls itself the inspiration step, and its wording and the README's say so plainly.

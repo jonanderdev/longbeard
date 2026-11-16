@@ -14,10 +14,25 @@
 // shot is of the page asked for.
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
 //   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
+//
+// Before the shot it waits out loaders: until no loader covers the screen and
+// the screen is not one flat colour, for at most --wait ms (15 s on the web,
+// 2 s for files and localhost). If a full page comes back blank at the top
+// where the screen was not (a canvas that redraws only what is on screen),
+// it keeps the one screen it saw, and says so.
+//
+// Motion: --frames N writes N screen-sized frames, --every ms apart (500), to
+// the folder --out names: 01-0000ms.jpg, 02-0500ms.jpg… Without --scroll they
+// start as the page opens, so the loader and the intro are in them. With
+// --scroll they start once it has loaded, and each frame scrolls half a
+// screen by the wheel, so scroll-driven motion plays.
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-intro --frames 12
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-scroll --frames 12 --every 400 --scroll
 import { spawn, execSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
+import { inflateSync } from "node:zlib";
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {
@@ -34,19 +49,51 @@ const clipArg = flag("clip", "") || "";
 const clipSelector = flag("clip-selector", "") || "";
 // Sent with every request to the page's own origin, as a logged-in browser would.
 const cookieArg = flag("cookie", "") || "";
-const strictAt = args.indexOf("--strict");
-const strict = strictAt !== -1;
-if (strict) args.splice(strictAt, 1);
+const bool = (name) => {
+  const i = args.indexOf(`--${name}`);
+  if (i !== -1) args.splice(i, 1);
+  return i !== -1;
+};
+const strict = bool("strict");
+const scrollFrames = bool("scroll");
+const framesArg = flag("frames", "") || "";
+const everyArg = flag("every", "") || "";
+const waitArg = flag("wait", "") || "";
 // Below 768 the page gets a phone viewport: mobile layout, 2x pixels.
 const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict]',
+    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--frames N [--every ms] [--scroll]]',
   );
   process.exit(2);
 }
 if (!Number.isFinite(width) || width < 200 || width > 3840) {
   console.error("width must be a number from 200 to 3840");
+  process.exit(2);
+}
+const frames = framesArg ? Number(framesArg) : 0;
+const every = everyArg ? Number(everyArg) : 500;
+if (framesArg && (!Number.isInteger(frames) || frames < 2 || frames > 60)) {
+  console.error("frames must be a whole number from 2 to 60");
+  process.exit(2);
+}
+if (!Number.isInteger(every) || every < 100 || every > 10000) {
+  console.error("every must be a whole number of ms from 100 to 10000");
+  process.exit(2);
+}
+if ((everyArg || scrollFrames) && !frames) {
+  console.error("--every and --scroll go with --frames");
+  process.exit(2);
+}
+if (frames && (reviewArg || clipArg || clipSelector)) {
+  console.error("--frames takes whole screens: drop --review, --clip and --clip-selector");
+  process.exit(2);
+}
+// A local page has no loader worth waiting for, so a sparse screen costs little.
+const local = /^file:/.test(url) || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url);
+const maxWait = waitArg ? Number(waitArg) : local ? 2000 : 15000;
+if (!Number.isFinite(maxWait) || maxWait < 0 || maxWait > 120000) {
+  console.error("wait must be ms from 0 to 120000");
   process.exit(2);
 }
 const mobile = width < 768;
@@ -148,6 +195,8 @@ proc = spawn(
     "--hide-scrollbars",
     "--mute-audio",
     "--force-color-profile=srgb",
+    // Without a GPU, Chrome no longer falls back to software WebGL on its own.
+    "--enable-unsafe-swiftshader",
     `--window-size=${width},${height}`,
     "about:blank",
   ],
