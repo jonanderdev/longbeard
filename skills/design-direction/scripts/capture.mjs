@@ -16,18 +16,26 @@
 //   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
 //
 // Before the shot it waits out loaders: until no loader covers the screen and
-// the screen is not one flat colour, for at most --wait ms (15 s on the web,
+// the screen is not one flat colour and the network is quiet, for at most --wait ms (15 s on the web,
 // 2 s for files and localhost). If a full page comes back blank at the top
 // where the screen was not (a canvas that redraws only what is on screen),
-// it keeps the one screen it saw, and says so.
+// it keeps the screen it saw as the shot, the full page beside it as
+// <name>-full.jpg, and says so.
 //
 // Motion: --frames N writes N screen-sized frames, --every ms apart (500), to
-// the folder --out names: 01-0000ms.jpg, 02-0500ms.jpg… Without --scroll they
+// the folder --out names: 01-00000ms.jpg, 02-00500ms.jpg… Without --scroll they
 // start as the page opens, so the loader and the intro are in them. With
 // --scroll they start once it has loaded, and each frame scrolls half a
 // screen by the wheel, so scroll-driven motion plays.
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name-intro --frames 12
 //   node capture.mjs <url> --out design-exploration/<slug>/refs/name-scroll --frames 12 --every 400 --scroll
+//
+// --click "css" clicks that element once the page has loaded, as a person
+// would. Alone it keeps the screen after the click (an open menu). With
+// --frames the first frame is before the click and the rest record what the
+// click does (a menu opening, a page transition).
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu.jpg --click "button[aria-label*=menu i]"
+//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu-open --frames 10 --every 150 --click "header button"
 import { spawn, execSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -57,13 +65,15 @@ const bool = (name) => {
 const strict = bool("strict");
 const scrollFrames = bool("scroll");
 const framesArg = flag("frames", "") || "";
+// Clicks this element once the page has loaded: a menu button, a link, a tab.
+const clickArg = flag("click", "") || "";
 const everyArg = flag("every", "") || "";
 const waitArg = flag("wait", "") || "";
 // Below 768 the page gets a phone viewport: mobile layout, 2x pixels.
 const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--frames N [--every ms] [--scroll]]',
+    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--click "css"] [--frames N [--every ms] [--scroll]]',
   );
   process.exit(2);
 }
@@ -85,11 +95,17 @@ if ((everyArg || scrollFrames) && !frames) {
   console.error("--every and --scroll go with --frames");
   process.exit(2);
 }
-if (frames && (reviewArg || clipArg || clipSelector)) {
-  console.error("--frames takes whole screens: drop --review, --clip and --clip-selector");
+if (clickArg && scrollFrames) {
+  console.error("pass --click or --scroll, not both");
+  process.exit(2);
+}
+if ((frames || clickArg) && (reviewArg || clipArg || clipSelector)) {
+  console.error("--frames and --click take whole screens: drop --review, --clip and --clip-selector");
   process.exit(2);
 }
 // A local page has no loader worth waiting for, so a sparse screen costs little.
+// A full page stops at 14000 px; our own files (a picker, a moodboard) can run longer.
+const tallest = /^file:/.test(url) ? 30000 : 14000;
 const local = /^file:/.test(url) || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url);
 const maxWait = waitArg ? Number(waitArg) : local ? 2000 : 15000;
 if (!Number.isFinite(maxWait) || maxWait < 0 || maxWait > 120000) {
@@ -227,8 +243,20 @@ await new Promise((res, rej) => {
 });
 let nextId = 1;
 const pending = new Map();
+// Requests in flight, so the wait can tell a loader still fetching its assets.
+// A request open for over 10 s is a stream or a poll, not a load.
+const inflight = new Map();
+let lastNetwork = Date.now();
 ws.onmessage = (ev) => {
   const msg = JSON.parse(typeof ev.data === "string" ? ev.data : Buffer.from(ev.data).toString());
+  // A hot-reload stream or a socket stays open by design, so it is not a load.
+  if (msg.method === "Network.requestWillBeSent" && !/^(EventSource|WebSocket)$/.test(msg.params.type || "")) {
+    inflight.set(msg.params.requestId, Date.now());
+    lastNetwork = Date.now();
+  } else if (msg.method === "Network.loadingFinished" || msg.method === "Network.loadingFailed") {
+    inflight.delete(msg.params.requestId);
+    lastNetwork = Date.now();
+  }
   if (msg.id && pending.has(msg.id)) {
     const { resolve: ok, reject: bad } = pending.get(msg.id);
     pending.delete(msg.id);
@@ -263,6 +291,7 @@ const page = (method, params, timeoutMs) => send(method, params, sessionId, time
 
 await page("Page.enable");
 await page("Runtime.enable");
+await page("Network.enable");
 await page("Emulation.setDeviceMetricsOverride", {
   width,
   height,
@@ -292,50 +321,276 @@ if (cookieArg && /^https?:/.test(url)) {
   }
   await page("Network.setCookies", { cookies });
 }
-await page("Page.navigate", { url: target }, 40000);
-await sleep(2500);
+const evalValue = async (expression, timeoutMs) =>
+  (await page("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }, timeoutMs)).result?.value;
 
-const beforeHref = (
-  await page("Runtime.evaluate", {
-    expression: "location.href",
-    returnByValue: true,
-  })
-).result.value;
-
-await page("Runtime.evaluate", {
-  expression: `(() => {
-    const labels = /^(accept( all)?( cookies)?|agree|ok|okay|got it|allow( all)?|i understand|acepto|aceptar)$/i;
-    const clickable = document.querySelectorAll("button, [role=button]");
-    for (const el of clickable) {
-      const t = (el.innerText || el.textContent || "").trim().replace(/\\s+/g, " ");
-      if (t.length < 40 && labels.test(t)) { el.click(); break; }
+// Share of a PNG's pixels in its most common colour, so 1 is one flat colour.
+// Chrome writes 8-bit RGB or RGBA, not interlaced; anything else counts as not flat.
+function flatShare(png) {
+  if (png.readUInt32BE(12) !== 0x49484452) return 0;
+  const w = png.readUInt32BE(16);
+  const h = png.readUInt32BE(20);
+  const depth = png[24];
+  const type = png[25];
+  const bpp = type === 6 ? 4 : type === 2 ? 3 : 0;
+  if (depth !== 8 || !bpp || png[28] !== 0) return 0;
+  const chunks = [];
+  for (let at = 8; at < png.length; ) {
+    const len = png.readUInt32BE(at);
+    const kind = png.toString("latin1", at + 4, at + 8);
+    if (kind === "IDAT") chunks.push(png.subarray(at + 8, at + 8 + len));
+    at += len + 12;
+  }
+  const raw = inflateSync(Buffer.concat(chunks));
+  const stride = w * bpp;
+  let prev = Buffer.alloc(stride);
+  const counts = new Map();
+  for (let y = 0; y < h; y++) {
+    const filter = raw[y * (stride + 1)];
+    const line = Buffer.from(raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1)));
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? line[i - bpp] : 0;
+      const b = prev[i];
+      const c = i >= bpp ? prev[i - bpp] : 0;
+      let add = 0;
+      if (filter === 1) add = a;
+      else if (filter === 2) add = b;
+      else if (filter === 3) add = (a + b) >> 1;
+      else if (filter === 4) {
+        const p = a + b - c;
+        const pa = Math.abs(p - a);
+        const pb = Math.abs(p - b);
+        const pc = Math.abs(p - c);
+        add = pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      }
+      line[i] = (line[i] + add) & 255;
     }
-    // Strip short privacy/cookie dialogs (e.g. Google Fonts "×" banner).
-    const privacy = /uses cookies|privacy and google fonts|cookie settings/i;
+    for (let i = 0; i < stride; i += bpp) {
+      const key = ((line[i] >> 3) << 10) | ((line[i + 1] >> 3) << 5) | (line[i + 2] >> 3);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    prev = line;
+  }
+  return Math.max(...counts.values()) / (w * h);
+}
+
+// How flat the screen is: a small PNG of what a person sees right now, or of
+// the top of the full page once it has been laid out for the full shot.
+const FLAT = 0.985;
+const screenFlat = async (beyond = false) => {
+  const { data } = await page(
+    "Page.captureScreenshot",
+    { format: "png", clip: { x: 0, y: 0, width, height, scale: 0.25 }, captureBeyondViewport: beyond },
+    20000,
+  );
+  return flatShare(Buffer.from(data, "base64"));
+};
+
+// A loader is a fixed or absolute layer named like one that covers most of
+// the screen, or a visible count to 100%. A canvas or a video is the page.
+const loaderCheck = `(() => {
+  const vw = innerWidth, vh = innerHeight;
+  const named = /(^|[-_\\s])(pre-?)?load(er|ing)?([-_\\s]|$)|preload|intro|splash|curtain/i;
+  for (const el of document.body ? document.body.querySelectorAll("*") : []) {
+    if (el.tagName === "CANVAS" || el.tagName === "VIDEO") continue;
+    const label = ((typeof el.className === "string" ? el.className : "") + " " + el.id).trim();
+    const count = el.childElementCount === 0 && /^\\s*\\d{1,3}\\s*%\\s*$/.test(el.textContent || "");
+    if (!count && !named.test(label)) continue;
+    const s = getComputedStyle(el);
+    if (s.display === "none" || s.visibility === "hidden" || Number(s.opacity) < 0.05) continue;
+    if (!count && s.position !== "fixed" && s.position !== "absolute") continue;
+    const r = el.getBoundingClientRect();
+    const seen = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+    if (count ? seen > 0 : seen >= vw * vh * 0.6) return (label || el.tagName).slice(0, 60);
+  }
+  return "";
+})()`;
+
+// Waits for the load event and fonts, then until two checks in a row see no
+// loader, a screen that is not one flat colour (or has stayed flat with the
+// network quiet for 2.5 s), and no request for a second.
+// Returns why it gave up.
+async function settle() {
+  const start = Date.now();
+  const left = () => Math.max(0, maxWait - (Date.now() - start));
+  await evalValue(
+    `new Promise((done) => {
+      const t = setTimeout(done, ${Math.max(1500, Math.min(maxWait, 20000))});
+      const fonts = () => (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { clearTimeout(t); done(); });
+      if (document.readyState === "complete") fonts(); else addEventListener("load", fonts, { once: true });
+    })`,
+    25000,
+  ).catch(() => {});
+  const busy = () => {
+    for (const [id, at] of inflight) if (Date.now() - at > 10000) inflight.delete(id);
+    return inflight.size > 0 || Date.now() - lastNetwork < 1000;
+  };
+  let good = 0;
+  let fetched = false;
+  let flatSince = 0;
+  for (;;) {
+    const loader = await evalValue(loaderCheck).catch(() => "");
+    const flat = loader ? 1 : await screenFlat().catch(() => 0);
+    const fetching = busy();
+    fetched ||= fetching;
+    // A flat screen with nothing left to fetch for 2.5 s is a sparse page, not a loader.
+    flatSince = flat >= FLAT && !loader && !fetching ? flatSince || Date.now() : 0;
+    const sparse = flatSince && Date.now() - flatSince >= 2500;
+    good = !loader && !fetching && (flat < FLAT || sparse) ? good + 1 : 0;
+    if (good >= 2) break;
+    if (!left()) {
+      return loader
+        ? `a loader still covers the screen (${loader})`
+        : flat >= FLAT
+          ? "the screen is still one flat colour"
+          : "the page is still fetching";
+    }
+    await sleep(Math.min(500, left()));
+  }
+  // A loader that waited on its assets usually plays a reveal once they land.
+  if (fetched && !local) await sleep(Math.min(1500, left()));
+  return "";
+}
+
+// Clicks a consent button, which can be any element, or else strips a short
+// privacy notice. Rejecting comes first: a script has no use for tracking,
+// and accepting can start scripts that redraw the page.
+// A local page is a state someone set up on purpose, so it is left as it is.
+const dismissConsent = () =>
+  local ? Promise.resolve(false) : evalValue(`(() => {
+    const accept = /^(accept( all)?( cookies)?|accept (and|&) close|agree|i agree|ok|okay|got it|allow( all)?( cookies)?|i understand|acepto|aceptar)$/i;
+    const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?)$/i;
+    const clickable = [...document.querySelectorAll("button, [role=button], a, input[type=button], input[type=submit], [onclick], div, span")]
+      .filter((el) => el.childElementCount <= 2 && el.getClientRects().length);
+    // Only inside a notice about cookies or privacy, so a menu or a gate is never clicked.
+    const notice = (el) => {
+      for (let up = el, i = 0; up && i < 8; up = up.parentElement, i++) {
+        const t = up.innerText || "";
+        if (t.length < 1500 && /cookie|consent|privacy|gdpr|datenschutz/i.test(t)) return true;
+      }
+      return false;
+    };
+    const text = (el) => (el.innerText || el.value || el.textContent || "").trim().replace(/\\s+/g, " ");
+    const pick = (re) => clickable.find((el) => text(el).length < 40 && re.test(text(el)) && notice(el));
+    const hit = pick(reject) || pick(accept);
+    if (hit) {
+      hit.click();
+      return true;
+    }
+    // No button: strip a short privacy notice that floats over the page (e.g.
+    // Google Fonts "×" banner). Only a fixed or sticky layer with no canvas or
+    // video, because a wrapper whose only text is the notice can hold the page.
+    const privacy = /uses cookies|uses essential cookies|privacy and google fonts|cookie settings/i;
     for (const el of [...document.querySelectorAll("div, section, aside, dialog")]) {
       const t = (el.innerText || el.textContent || "").trim();
-      if (t.length > 0 && t.length < 300 && privacy.test(t) && el.children.length < 12) {
+      const pos = getComputedStyle(el).position;
+      if (t.length > 0 && t.length < 300 && privacy.test(t) && el.children.length < 12 &&
+          (pos === "fixed" || pos === "sticky") && !el.querySelector("canvas, video")) {
         el.remove();
       }
     }
-  })()`,
-  awaitPromise: true,
-  returnByValue: true,
-});
-await sleep(800);
+    return false;
+  })()`).catch(() => false);
 
-const afterHref = (
-  await page("Runtime.evaluate", {
-    expression: "location.href",
-    returnByValue: true,
-  })
-).result.value;
+// A real press and release in the middle of the element, as a person would click.
+async function clickOn(selector) {
+  const box = await evalValue(`(() => {
+    const el = document.querySelector(${JSON.stringify(selector)});
+    if (!el) return null;
+    el.scrollIntoView({ block: "center", inline: "center" });
+    const r = el.getBoundingClientRect();
+    return r.width && r.height ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
+  })()`);
+  if (!box) {
+    console.error(`no visible element matches ${selector}`);
+    drop();
+    process.exit(1);
+  }
+  const at = { x: Math.round(box.x), y: Math.round(box.y), button: "left", clickCount: 1 };
+  await page("Input.dispatchMouseEvent", { type: "mouseMoved", x: at.x, y: at.y });
+  await page("Input.dispatchMouseEvent", { type: "mousePressed", ...at });
+  await page("Input.dispatchMouseEvent", { type: "mouseReleased", ...at });
+}
+
+const navigateStarted = Date.now();
+await page("Page.navigate", { url: target }, 40000);
+
+if (frames) {
+  // The frames are the record of motion, so nothing is paused, unstuck or cleaned up.
+  const folder = out.replace(/\.(png|jpe?g|webp)$/i, "");
+  mkdirSync(folder, { recursive: true });
+  let t0 = navigateStarted;
+  if (scrollFrames || clickArg) {
+    const why = await settle();
+    if (why) console.error(`waited ${maxWait} ms: ${why}`);
+    if (await dismissConsent()) {
+      await sleep(800);
+      await settle();
+    }
+    await sleep(600);
+    t0 = Date.now();
+  }
+  for (let i = 0; i < frames; i++) {
+    const due = t0 + i * every;
+    if (Date.now() < due) await sleep(due - Date.now());
+    if (scrollFrames && i > 0) {
+      await page("Input.dispatchMouseEvent", { type: "mouseWheel", x: Math.round(width / 2), y: Math.round(height / 2), deltaX: 0, deltaY: Math.round(height / 2) });
+    }
+    // While the page is still swapping in, Chrome refuses a shot for a moment.
+    let data = "";
+    for (let tries = 0; !data && tries < 10; tries++) {
+      data = await page("Page.captureScreenshot", { format: "jpeg", quality: 70 }, 20000).then((r) => r.data, () => "");
+      if (!data) await sleep(150);
+    }
+    if (!data) continue;
+    const at = Date.now() - t0;
+    const file = join(folder, `${String(i + 1).padStart(2, "0")}-${String(at).padStart(5, "0")}ms.jpg`);
+    writeFileSync(file, Buffer.from(data, "base64"));
+    // The first frame is the page before the click; the rest are what it does.
+    if (clickArg && i === 0) await clickOn(clickArg);
+  }
+  console.log(folder);
+  drop();
+  process.exit(0);
+}
+
+const waited = await settle();
+if (waited) console.error(`waited ${maxWait} ms: ${waited}`);
+
+const beforeHref = await evalValue("location.href");
+// A consent click can make a page redraw from black, so the wait runs again.
+if (await dismissConsent()) {
+  await sleep(800);
+  const again = await settle();
+  if (again) console.error(`after the consent click, waited ${maxWait} ms: ${again}`);
+} else await sleep(800);
+const afterHref = await evalValue("location.href");
 
 if (afterHref !== beforeHref) {
   console.error(`navigated away: ${afterHref}`);
   drop();
   process.exit(1);
 }
+
+// After a click the page is a new state, often an overlay: the screen is the shot.
+if (clickArg) {
+  await clickOn(clickArg);
+  await sleep(1500);
+  const format = /\.png$/i.test(out) ? "png" : /\.webp$/i.test(out) ? "webp" : "jpeg";
+  const { data } = await page("Page.captureScreenshot", { format, ...(format === "png" ? {} : { quality: 70 }) }, 20000);
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, Buffer.from(data, "base64"));
+  console.log(out);
+  drop();
+  process.exit(0);
+}
+
+// The screen as a person first sees it, kept in case the full page loses it.
+const firstFormat = /\.png$/i.test(out) ? "png" : /\.webp$/i.test(out) ? "webp" : "jpeg";
+const firstScreen = (
+  await page("Page.captureScreenshot", { format: firstFormat, ...(firstFormat === "png" ? {} : { quality: 70 }) }, 20000)
+).data;
+const firstFlat = await screenFlat().catch(() => 1);
 
 await page(
   "Runtime.evaluate",
@@ -349,7 +604,7 @@ await page(
       const step = Math.max(480, Math.round(window.innerHeight * 0.65));
       const limit = Math.min(
         Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0),
-        14000
+        ${tallest}
       );
       let y = 0;
       while (y < limit) {
@@ -445,7 +700,7 @@ if (clipSelector) {
 const metrics = await page("Page.getLayoutMetrics");
 const size = metrics.cssContentSize || metrics.contentSize;
 const fullWidth = Math.max(1, Math.ceil(size.width || width));
-const fullHeight = Math.max(1, Math.min(Math.ceil(size.height || height), 14000));
+const fullHeight = Math.max(1, Math.min(Math.ceil(size.height || height), tallest));
 const clipBox = clip || (selected ? { ...selected, scale: 1 } : null);
 const shotClip = clipBox
   ? {
@@ -459,7 +714,7 @@ const shotClip = clipBox
 
 // The file is what its name says, so a reader that trusts the extension is right.
 const format = /\.png$/i.test(out) ? "png" : /\.webp$/i.test(out) ? "webp" : "jpeg";
-const { data } = await page(
+let { data } = await page(
   "Page.captureScreenshot",
   {
     format,
@@ -469,6 +724,22 @@ const { data } = await page(
   },
   60000,
 );
+
+// A canvas that draws only what is on screen goes blank when the page is laid
+// out full length. Then the screen seen first is the honest shot, and the
+// full page is kept beside it for what lies below.
+let fullOut = "";
+if (!clipBox && firstFlat < FLAT && (await screenFlat(true).catch(() => 0)) >= FLAT) {
+  if (fullHeight > height * 1.2) {
+    fullOut = out.replace(/(\.[a-z]+)?$/i, (ext) => `-full${ext || ".jpg"}`);
+    mkdirSync(dirname(fullOut), { recursive: true });
+    writeFileSync(fullOut, Buffer.from(data, "base64"));
+  }
+  data = firstScreen;
+  console.error(
+    `the full page came back blank at the top (a canvas that draws only what is on screen): kept the first screen${fullOut ? `, and the full page as ${fullOut}` : ""}`,
+  );
+}
 
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, Buffer.from(data, "base64"));

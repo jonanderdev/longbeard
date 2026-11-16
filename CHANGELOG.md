@@ -3,6 +3,10 @@
 ## Unreleased
 
 - The brief has a **Position** section: what the product is up against, the one concrete thing it is remembered for, and its personality. `idea` recommends it from what people do today instead, and `design-direction` builds `ownable`, `voice` and `leave` from it, so the look aims at being distinctive rather than guessing.
+- `design-direction` keeps about 100 references by default instead of 12, spread across the whole site (home, navigation, index, case study, article, blog, photography, motion) or an app's key screens, and reaches back to older award winners. The pool and the second round grow to match, and a keep is the page that shows its part, not just the home page.
+- The moodboard is a picker. Tiles are grouped by part, each with Lead (one per part), Like, No and a note, and a copy-out for the chat. `direction.md` lists its references by part. Recorded motion plays on the tile.
+- `design` lays the approved look out as a bento board in Figma before any component: the name in the display face, the type styles, the colour tokens and themes, real pictures from the prototype, a line in the voice, a key screen, the ownable, and a big number if the product has one. Every tile is bound to the tokens, and they say yes to it before the screens are built.
+- `capture.mjs` waits out loaders and intros (no loader covering the screen, not one flat colour, the network quiet; up to 15 s on the web, 2 s locally, `--wait` to change), turns down cookie banners without removing the page around them, and keeps the first screen when a canvas page comes back blank at full length. `--frames N` records timed frames of an intro, a scroll (`--scroll`) or a click (`--click`), and `--click` alone captures the screen after a click, such as an open menu. Local pages are left as they are (no consent clicks), and a local file can be captured up to 30000 px tall, so a moodboard of 100 fits. WebGL and intro-heavy sites came back blank before, and transitions could not be judged from stills.
 
 ## 0.11.0 — 2026-11-15
 

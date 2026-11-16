@@ -5,7 +5,7 @@
 Each picker row takes its title, thumbnail and link from the same card on the listing page, so a pick always opens the thing that was picked. Hotlink the thumbnail and never save it. Use the smallest size that still reads at about 400 px wide. The link is the item's own page, never the listing. These were checked by reading the plain listing HTML, without a login (2026-11-14):
 
 - **Dribbble:** `dribbble-cards.mjs --picker` prints the rows.
-- **Awwwards:** use `/websites/sites_of_the_day/`, which already meets the award floor. Each card's `figure-rollover__link` has the title (`aria-label`) and the site page (`/sites/<slug>`), and its image's `data-srcset` has the `thumb_440_330` size.
+- **Awwwards:** use `/websites/sites_of_the_day/`, which already meets the award floor. For older winners, `?page=N` goes back through the years (around page 120 is 2016), and `/websites/sites_of_the_year/` holds each year's best in two pages (from 2014, checked 2026-11-16). Each card's `figure-rollover__link` has the title (`aria-label`) and the site page (`/sites/<slug>`), and its image's `data-srcset` has the `thumb_440_330` size.
 - **Recent:** each card's image is the poster (`…/recording/poster/640.webp`). The link next to it is labelled `View post: <title>` and goes to `/i/<id>-<slug>`.
 - **Dark Mode Design:** each card is a link to the live site around an image whose `alt` is the title.
 - **Wikimedia Commons:** `thumburl`, with `descriptionurl` as the link.
@@ -20,7 +20,7 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 
 ## Galleries
 
-- **Awwwards.** Open the site page, not the listing card. Keep Site of the Day, Month, or Year, or an Honorable Mention with overall and Design ≥ 7.5. Drop any 4s, and any gate or password wall.
+- **Awwwards.** Open the site page, not the listing card. Keep Site of the Day, Month, or Year, or an Honorable Mention with overall and Design ≥ 7.5. Drop any 4s, and any gate or password wall. An older winner is captured live: drop it if the domain is dead, parked, or now another site (capture names a redirect). Never reach it through an archive.
 - **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
@@ -78,9 +78,11 @@ Only for a keep, run from the project root:
 node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg
 ```
 
-The script dismisses cookie banners, scrolls so reveals load, unsticks fixed headers, and takes one full-page JPEG. Node 22+ and an installed Chrome are required (set `CHROME_PATH` if Chrome is somewhere unusual). Options:
+Node 22+ and an installed Chrome are required (set `CHROME_PATH` if Chrome is somewhere unusual). Before the shot the script waits out loaders and intros: until no loader covers the screen, the screen is not one flat colour, and the network is quiet, for up to 15 s (`--wait ms` changes that). It turns down cookie banners, scrolls so reveals load, unsticks fixed headers, and takes one full-page JPEG. A page that draws in a canvas often goes blank when laid out full length: then the shot is the first screen, the full page is kept beside it as `<name>-full.jpg`, and it says so on stderr. Options:
 
+- `--click "css"` clicks that element once the page has loaded and keeps the screen after it: a menu open, a filter, a tab. One site's inner pages are their own captures, by their own URL.
+- `--frames N` records motion: N screens, `--every ms` apart (500), into the folder `--out` names, each file named by when it was taken. Alone, the frames start as the page opens: the loader and the intro. With `--scroll`, each frame scrolls half a screen. With `--click "css"`, the first frame is before the click and the rest are what it does: a menu opening, a page transition. The card's `frames:` is that folder, and the moodboard plays it.
 - `--review <scratch>/x.jpg` writes a readable side-by-side version of a tall page.
 - `--clip-selector "main"` or `--clip x,y,w,h` crops to a type specimen.
 
-Open the file. Delete it and run again if it repeats a band, still shows a cookie dialog, or is mostly empty. If a page will not scroll (WebGL, a locked canvas), keep one viewport and say so on the card. Never stitch screenshots.
+Open the file. Delete it and run again if it repeats a band, still shows a cookie dialog, or is mostly empty. A message on stderr that it waited the full time means the page may still be loading: look before keeping it. Never stitch screenshots.
