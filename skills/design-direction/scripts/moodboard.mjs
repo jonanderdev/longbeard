@@ -1,13 +1,17 @@
 #!/usr/bin/env node
-// A moodboard of the references: every card with a shot, its name, its
-// pattern, and a link to its source. The layout is this file. It shows what
-// we saw. It does not paint a brand, a logo, a line, or a stat.
+// A moodboard of the references, built to be marked: every card with a shot
+// or recorded frames, grouped by its topic (the part of the product it shows),
+// with Lead, Like and No, a note per tile, and a copy-out for the chat. The
+// layout is this file. It shows what we saw. It does not paint a brand.
+//
+// A card's fields in board.md: link, shot, frames (a folder that
+// capture.mjs --frames wrote, played on hover), topic, pattern, why.
 //
 //   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
 //   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 
 const args = process.argv.slice(2);
 const outAt = args.indexOf("--out");
@@ -40,7 +44,12 @@ const esc = (s) =>
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+const href = (abs) => {
+  const src = relative(dirname(outPath), abs).split("\\").join("/");
+  return src.startsWith(".") ? src : `./${src}`;
+};
 
 function fieldsOf(text) {
   const fields = {};
@@ -49,6 +58,37 @@ function fieldsOf(text) {
     if (m) fields[m[1].toLowerCase()] = m[2].trim();
   }
   return fields;
+}
+
+// The parts of a site, in the order a visitor meets them. A topic not here
+// (an app's key screen, say) keeps the order it first appears in on the board.
+const TOPICS = [
+  ["Home", /^(home|homepage|landing|hero)$/],
+  ["Navigation", /^(nav|navigation|menu|header)$/],
+  ["Index", /^(index|listing|list|work|archive|grid|catalogue|catalog)$/],
+  ["Case study", /^(case[ -]?stud(y|ies)|project|work detail)$/],
+  ["Article", /^(article|editorial|reading|long[ -]?read|story)$/],
+  ["Blog", /^(blog|journal|news|notes)$/],
+  ["Photography", /^(photo|photos|photography|imagery|image|pictures)$/],
+  ["Motion", /^(motion|animation|transition|transitions|interaction)$/],
+];
+function topicOf(raw) {
+  const t = String(raw || "").trim().toLowerCase();
+  if (!t) return { label: "Other", rank: 1e6 };
+  const at = TOPICS.findIndex(([, re]) => re.test(t));
+  if (at !== -1) return { label: TOPICS[at][0], rank: at };
+  return { label: t.charAt(0).toUpperCase() + t.slice(1), rank: 1000 };
+}
+
+// Frames from capture.mjs --frames: 01-00000ms.jpg, 02-00500ms.jpg…
+function framesOf(folder) {
+  const abs = resolvePath(folder.trim().replace(/\/$/, ""));
+  if (!existsSync(abs) || !statSync(abs).isDirectory()) return null;
+  const files = readdirSync(abs)
+    .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+    .sort();
+  if (!files.length) return null;
+  return files.map((f, i) => ({ src: href(join(abs, f)), ms: Number(f.match(/(\d+)ms\./)?.[1] ?? i * 500) }));
 }
 
 const md = readFileSync(boardPath, "utf8");
@@ -61,30 +101,68 @@ const cards = md
     return { name, ...fieldsOf((nl === -1 ? "" : chunk.slice(nl + 1)).split(/^## /m)[0]) };
   });
 
-const tiles = [];
+const sections = new Map();
+let n = 0;
 for (const card of cards) {
-  if (!card.shot) continue;
-  const abs = resolvePath(card.shot.trim());
-  if (!existsSync(abs)) {
-    console.error(`moodboard: missing shot ${card.shot.trim()}`);
-    continue;
+  const frames = card.frames ? framesOf(card.frames) : null;
+  if (card.frames && !frames) console.error(`moodboard: no frames in ${card.frames.trim()}`);
+  let poster = "";
+  if (card.shot) {
+    const abs = resolvePath(card.shot.trim());
+    if (existsSync(abs)) poster = href(abs);
+    else console.error(`moodboard: missing shot ${card.shot.trim()}`);
   }
-  let src = relative(dirname(outPath), abs).split("\\").join("/");
-  if (!src.startsWith(".")) src = `./${src}`;
-  // A seed shared in chat has no URL, so its tile has no link.
+  if (!poster && frames) poster = frames[frames.length - 1].src;
+  if (!poster) continue;
+  const id = `m${++n}`;
+  const topic = topicOf(card.topic);
+  // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
-  const img = `<img src="${esc(src)}" alt="${esc(card.name)}" loading="lazy">`;
-  const frame = /^https?:\/\//i.test(url)
-    ? `<a class="frame" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${img}</a>`
-    : `<div class="frame">${img}</div>`;
+  const name = /^https?:\/\//i.test(url)
+    ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
+    : `<span class="name">${esc(card.name)}</span>`;
   const line = card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "";
-  tiles.push(`<figure class="tile">${frame}<figcaption><p class="name">${esc(card.name)}</p>${line}</figcaption></figure>`);
+  const play = frames
+    ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
+    : "";
+  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}"${
+    frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
+  }>
+        <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
+        <figcaption>
+          ${name}${line}
+          <div class="marks" role="group" aria-label="Mark ${esc(card.name)}">
+            <button type="button" data-mark="lead" aria-pressed="false">Lead</button>
+            <button type="button" data-mark="like" aria-pressed="false">Like</button>
+            <button type="button" data-mark="no" aria-pressed="false">No</button>
+          </div>
+          <input class="why" type="text" placeholder="Note (optional)" aria-label="Note on ${esc(card.name)}">
+        </figcaption>
+      </figure>`;
+  if (!sections.has(topic.label)) sections.set(topic.label, { rank: topic.rank, order: sections.size, tiles: [] });
+  sections.get(topic.label).tiles.push(tile);
 }
 
-if (!tiles.length) {
-  console.error("moodboard: no card on the board has a shot");
+if (!n) {
+  console.error("moodboard: no card on the board has a shot or frames");
   process.exit(1);
 }
+
+const ordered = [...sections.entries()].sort(([, a], [, b]) => a.rank - b.rank || a.order - b.order);
+const slug = (s) => `t-${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+const jump = ordered
+  .map(([label, s]) => `<a href="#${slug(label)}">${esc(label)} <span>${s.tiles.length}</span></a>`)
+  .join("");
+const body = ordered
+  .map(
+    ([label, s]) => `<section id="${slug(label)}">
+    <h2>${esc(label)} <span>${s.tiles.length}</span></h2>
+    <div class="grid">
+      ${s.tiles.join("\n      ")}
+    </div>
+  </section>`,
+  )
+  .join("\n  ");
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -93,47 +171,206 @@ const html = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moodboard</title>
 <style>
-  :root { --canvas: #e4e4e2; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6f6a; }
+  :root { --canvas: #e4e4e2; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6f6a; --line: #c8c8c4; --lead: #8a5a00; --like: #1f7a3a; --no: #b3261e; }
   * { box-sizing: border-box; }
-  html { color-scheme: light; }
-  body {
-    margin: 0;
-    background: var(--canvas);
-    color: var(--ink);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  main { max-width: 1200px; margin: 0 auto; padding: 52px 28px 80px; }
-  h1 {
-    margin: 0 0 20px 2px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
-  .tile { margin: 0; display: flex; flex-direction: column; background: var(--paper); border-radius: 22px; overflow: hidden; }
-  /* The picture sits inside a square frame, so a tall shot cannot stretch its tile. */
-  .frame { position: relative; display: block; aspect-ratio: 1; overflow: hidden; background: #141414; }
-  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-  figcaption { flex: 1; padding: 16px 18px 18px; }
-  .name { margin: 0; font-size: 15px; line-height: 1.3; }
-  .line { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
-  @media (max-width: 600px) { main { padding: 28px 16px 48px; } .grid { gap: 16px; } }
+  html { color-scheme: light; scroll-padding-top: 64px; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1400px; margin: 0 auto; padding: 0 24px 300px; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--canvas); padding: 20px 2px 12px; }
+  h1 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .how { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  nav a, .filters button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-family: inherit; }
+  nav a span, h2 span { color: var(--muted); }
+  .filters { display: flex; gap: 8px; margin-top: 8px; }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  section { margin-top: 28px; }
+  section[hidden] { display: none; }
+  h2 { margin: 0 0 12px 2px; font-size: 18px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .tile { margin: 0; display: flex; flex-direction: column; background: var(--paper); border-radius: 18px; overflow: hidden; outline: 3px solid transparent; outline-offset: -3px; }
+  .tile[hidden] { display: none; }
+  .tile[data-state="lead"] { outline-color: var(--lead); }
+  .tile[data-state="like"] { outline-color: var(--like); }
+  .tile[data-state="no"] .frame img { opacity: 0.3; filter: grayscale(1); }
+  /* A tall page shows its top, where a person starts; the picture opens in full. */
+  .frame { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #141414; }
+  .frame .open { position: absolute; inset: 0; display: block; }
+  .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .id, .clock, .play { position: absolute; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: rgba(0,0,0,0.65); color: #fff; }
+  .id { top: 8px; left: 8px; pointer-events: none; }
+  .play { bottom: 8px; left: 8px; border: 0; cursor: pointer; font-family: inherit; }
+  .clock { bottom: 8px; right: 8px; pointer-events: none; }
+  .clock:empty { display: none; }
+  figcaption { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 14px; }
+  .name { font-size: 15px; line-height: 1.3; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+  a.name:hover { text-decoration: underline; }
+  .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .marks { display: flex; gap: 6px; margin-top: auto; }
+  .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
+  .marks button[data-mark="like"][aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
+  .marks button[data-mark="no"][aria-pressed="true"] { background: var(--no); border-color: var(--no); color: #fff; }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
+  .why { font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; width: 100%; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,0.08); }
+  .bar-in { max-width: 1400px; margin: 0 auto; padding: 14px 24px 16px; display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 14px; align-items: start; }
+  .bar label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .bar textarea { width: 100%; font: 13px/1.4 ui-monospace, Menlo, monospace; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; resize: vertical; height: 96px; }
+  #note { font-family: inherit; font-size: 14px; }
+  #out { background: #f6f6f4; }
+  .side { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; min-width: 150px; }
+  #count { font-size: 13px; color: var(--muted); }
+  #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
+  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } header { position: static; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>Moodboard</h1>
-  <div class="grid">
-    ${tiles.join("\n    ")}
-  </div>
+  <header>
+    <h1>Moodboard</h1>
+    <p class="how">Lead what should set the tone for its part (one per part), Like what belongs, No what feels wrong. Add a note where you have one. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <nav aria-label="Parts">${jump}</nav>
+    <div class="filters" role="group" aria-label="Show">
+      <button type="button" data-show="all" aria-pressed="true">All</button>
+      <button type="button" data-show="open" aria-pressed="false">Not marked</button>
+      <button type="button" data-show="marked" aria-pressed="false">Marked</button>
+    </div>
+  </header>
+  ${body}
 </main>
+<div class="bar">
+  <div class="bar-in">
+    <div><label for="note">Overall, in your words (optional)</label><textarea id="note" placeholder="What the board says, what is missing, what to leave behind"></textarea></div>
+    <div><label for="out">Copy this into the chat</label><textarea id="out" readonly></textarea></div>
+    <div class="side"><span id="count"></span><button type="button" id="copy">Copy picks</button></div>
+  </div>
+</div>
+<script>
+(() => {
+  const key = "longbeard-moodboard:" + location.pathname;
+  const tiles = [...document.querySelectorAll(".tile")];
+  const note = document.getElementById("note");
+  const out = document.getElementById("out");
+  const count = document.getElementById("count");
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { saved = {}; }
+  // Saved by id and title, so a card dropped and the board rebuilt never moves a mark.
+  const tag = (t) => t.dataset.id + "|" + t.dataset.title;
+  const marks = saved.marks || {};
+  const notes = saved.notes || {};
+  note.value = saved.note || "";
+  for (const t of tiles) {
+    if (marks[tag(t)]) t.dataset.state = marks[tag(t)];
+    t.querySelector(".why").value = notes[tag(t)] || "";
+  }
+  let show = "all";
+  const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
+  const label = (t) => t.dataset.id + " " + short(t.dataset.title) + " (" + t.dataset.topic + ")";
+  const list = (state) => tiles.filter((t) => t.dataset.state === state).map(label);
+  function render() {
+    const lines = ["Moodboard picks", "lead: " + (list("lead").join("; ") || "none"), "like: " + (list("like").join("; ") || "none"), "no: " + (list("no").join("; ") || "none")];
+    const written = tiles.filter((t) => t.querySelector(".why").value.trim());
+    if (written.length) {
+      lines.push("notes:");
+      for (const t of written) lines.push("- " + t.dataset.id + " " + short(t.dataset.title) + ": " + t.querySelector(".why").value.trim().replace(/\\s+/g, " "));
+    }
+    if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
+    out.value = lines.join("\\n");
+    const marked = tiles.filter((t) => t.dataset.state).length;
+    count.textContent = list("lead").length + " lead · " + list("like").length + " like · " + list("no").length + " no · " + (tiles.length - marked) + " open";
+    const keepMarks = {};
+    const keepNotes = {};
+    for (const t of tiles) {
+      const s = t.dataset.state || "";
+      for (const b of t.querySelectorAll(".marks button")) b.setAttribute("aria-pressed", b.dataset.mark === s ? "true" : "false");
+      t.hidden = !(show === "all" || (show === "open" ? !s : !!s));
+      if (s) keepMarks[tag(t)] = s;
+      const w = t.querySelector(".why").value;
+      if (w.trim()) keepNotes[tag(t)] = w;
+    }
+    for (const sec of document.querySelectorAll("section")) sec.hidden = ![...sec.querySelectorAll(".tile")].some((t) => !t.hidden);
+    try { localStorage.setItem(key, JSON.stringify({ marks: keepMarks, notes: keepNotes, note: note.value })); } catch (e) {}
+  }
+  for (const t of tiles) {
+    for (const b of t.querySelectorAll(".marks button")) {
+      b.addEventListener("click", () => {
+        const mark = b.dataset.mark;
+        if (t.dataset.state === mark) delete t.dataset.state;
+        else {
+          // One lead per part: a new lead turns the old one into a like.
+          if (mark === "lead") for (const o of tiles) if (o !== t && o.dataset.topic === t.dataset.topic && o.dataset.state === "lead") o.dataset.state = "like";
+          t.dataset.state = mark;
+        }
+        render();
+      });
+    }
+    t.querySelector(".why").addEventListener("input", render);
+  }
+  for (const b of document.querySelectorAll(".filters button")) {
+    b.addEventListener("click", () => {
+      show = b.dataset.show;
+      for (const o of document.querySelectorAll(".filters button")) o.setAttribute("aria-pressed", o === b ? "true" : "false");
+      render();
+    });
+  }
+  note.addEventListener("input", render);
+  // Recorded frames play at the times they were taken, on hover or on Play.
+  for (const t of tiles) {
+    if (!t.dataset.frames) continue;
+    const frames = JSON.parse(t.dataset.frames);
+    const img = t.querySelector(".frame img");
+    const clock = t.querySelector(".clock");
+    const button = t.querySelector(".play");
+    const poster = img.getAttribute("src");
+    let timer = 0;
+    let playing = false;
+    for (const f of frames) new Image().src = f.src;
+    const stop = () => {
+      clearTimeout(timer);
+      playing = false;
+      img.src = poster;
+      clock.textContent = "";
+      button.textContent = "Play";
+    };
+    const step = (i) => {
+      img.src = frames[i].src;
+      clock.textContent = (frames[i].ms / 1000).toFixed(1) + " s";
+      const next = (i + 1) % frames.length;
+      const wait = next ? Math.max(80, frames[next].ms - frames[i].ms) : 1200;
+      timer = setTimeout(() => step(next), wait);
+    };
+    const start = () => {
+      if (playing) return;
+      playing = true;
+      button.textContent = "Stop";
+      step(0);
+    };
+    button.addEventListener("click", () => (playing ? stop() : start()));
+    // Hover plays only for people who have not asked for less motion; Play always works.
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      t.querySelector(".frame").addEventListener("mouseenter", start);
+      t.querySelector(".frame").addEventListener("mouseleave", stop);
+    }
+  }
+  // The text box is the real path: the clipboard API can be refused on a file:// page.
+  document.getElementById("copy").addEventListener("click", async (e) => {
+    out.focus();
+    out.select();
+    let ok = false;
+    try { await navigator.clipboard.writeText(out.value); ok = true; } catch (err) {}
+    if (!ok) { try { ok = document.execCommand("copy"); } catch (err) {} }
+    e.target.textContent = ok ? "Copied" : "Selected, press Cmd/Ctrl+C";
+    setTimeout(() => { e.target.textContent = "Copy picks"; }, 1800);
+  });
+  render();
+})();
+</script>
 </body>
 </html>
 `;
 
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, html);
+console.error(`moodboard: ${n} tiles in ${ordered.length} parts`);
 console.log(outArg);

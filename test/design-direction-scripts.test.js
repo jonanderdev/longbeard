@@ -37,16 +37,58 @@ function board(cards) {
   return files;
 }
 
-test("moodboard: one tile per card with a shot, linked to its source", () => {
+test("moodboard: one tile per card with a shot, its name linked to its source", () => {
   const seed = card("Seed").replace(/- link: .*/, "- link: none (shared in chat)");
   const dir = project(board([card("Ledger, ruled & plain"), seed]));
   run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "design-exploration/identity/moodboard.html"]);
   const html = readFileSync(join(dir, "design-exploration/identity/moodboard.html"), "utf8");
-  assert.equal(html.match(/class="tile"/g)?.length, 2);
-  assert.match(html, /<a class="frame" href="https:\/\/example\.com\/Ledger/);
-  assert.match(html, /<div class="frame"><img src="\.\/refs\/4\.jpg" alt="Seed"/);
-  assert.match(html, /class="name">Ledger, ruled &amp; plain</);
+  assert.equal(html.match(/<figure class="tile"/g)?.length, 2);
+  assert.match(html, /<a class="name" href="https:\/\/example\.com\/Ledger/);
+  assert.match(html, /<span class="name">Seed<\/span>/);
+  assert.match(html, /<img src="\.\/refs\/4\.jpg" alt="Seed"/);
   assert.match(html, /class="line">Seed</);
+  assert.equal(html.match(/<button type="button" data-mark="lead"/g)?.length, 2);
+  assert.equal(html.match(/class="why"/g)?.length, 2);
+});
+
+test("moodboard: tiles group by topic, parts of a site first, then others, then Other", () => {
+  const dir = project(
+    board([
+      card("Aa", "- topic: Pricing"),
+      card("Bbb", "- topic: nav"),
+      card("Cccc"),
+      card("Ddddd", "- topic: home"),
+    ]),
+  );
+  run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "m.html"]);
+  const html = readFileSync(join(dir, "m.html"), "utf8");
+  const parts = [...html.matchAll(/<h2>([^<]+) <span>/g)].map((m) => m[1]);
+  assert.deepEqual(parts, ["Home", "Navigation", "Pricing", "Other"]);
+  assert.match(html, /data-id="m2" data-title="Bbb" data-topic="Navigation"/);
+});
+
+test("moodboard: a card with recorded frames plays them, and needs no shot", () => {
+  const files = {
+    "design-exploration/identity/board.md": `### Intro\n- link: https://example.com\n- frames: design-exploration/identity/refs/intro/\n- topic: motion\n`,
+    "design-exploration/identity/refs/intro/01-00000ms.jpg": "jpg",
+    "design-exploration/identity/refs/intro/02-00480ms.jpg": "jpg",
+  };
+  const dir = project(files);
+  run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "design-exploration/identity/moodboard.html"]);
+  const html = readFileSync(join(dir, "design-exploration/identity/moodboard.html"), "utf8");
+  assert.match(html, /<img src="\.\/refs\/intro\/02-00480ms\.jpg"/);
+  assert.match(html, /data-frames="\[\{&quot;src&quot;:&quot;\.\/refs\/intro\/01-00000ms\.jpg&quot;,&quot;ms&quot;:0\}/);
+  assert.match(html, /&quot;ms&quot;:480/);
+  assert.match(html, /class="play"/);
+});
+
+test("moodboard: its page script parses", () => {
+  const dir = project(board([card("Kept")]));
+  run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "m.html"]);
+  const js = readFileSync(join(dir, "m.html"), "utf8").match(/<script>([\s\S]*?)<\/script>/)[1];
+  writeFileSync(join(dir, "page.js"), js);
+  const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
+  assert.equal(check.status, 0, check.stderr);
 });
 
 test("moodboard: a missing shot is named and skipped", () => {
@@ -55,7 +97,7 @@ test("moodboard: a missing shot is named and skipped", () => {
   const dir = project(files);
   const result = run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "m.html"]);
   assert.match(result.stderr, /missing shot design-exploration\/identity\/refs\/gone\.jpg/);
-  assert.equal(readFileSync(join(dir, "m.html"), "utf8").match(/class="tile"/g)?.length, 1);
+  assert.equal(readFileSync(join(dir, "m.html"), "utf8").match(/<figure class="tile"/g)?.length, 1);
 });
 
 const candidates = (rows) => ({ "design-exploration/identity/candidates.tsv": rows.join("\n") });
