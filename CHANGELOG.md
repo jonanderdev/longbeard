@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.1 — 2026-11-17
+
 - The brief has a **Position** section: what the product is up against, the one concrete thing it is remembered for, and its personality. `idea` recommends it from what people do today instead, and `design-direction` builds `ownable`, `voice` and `leave` from it, so the look aims at being distinctive rather than guessing.
 - `design-direction` keeps about 100 references by default instead of 12, spread across the whole site (home, navigation, index, case study, article, blog, photography, motion) or an app's key screens, and reaches back to older award winners. The pool and the second round grow to match, and a keep is the page that shows its part, not just the home page.
 - The moodboard is a picker. Tiles are grouped by part, each with Lead (one per part), Like, No and a note, and a copy-out for the chat. `direction.md` lists its references by part. Recorded motion plays on the tile.
