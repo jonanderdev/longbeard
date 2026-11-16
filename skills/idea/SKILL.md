@@ -11,7 +11,7 @@ description: >
 
 # Idea
 
-One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
+One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface, position and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
 
 The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's.
 
@@ -26,12 +26,13 @@ Look at the repo. Do not ask what is there.
 
 ## New idea
 
-Load Matt's `grilling` and run it. The design tree is the brief's sections below. Start with the frontier: a working name, problem, who it is for, surface. Flows, screens and scope hang off those. A working name is enough; it can change.
+Load Matt's `grilling` and run it. The design tree is the brief's sections below. Start with the frontier: a working name, problem, who it is for, surface. Flows, screens, position and scope hang off those. A working name is enough; it can change.
 
 - One round per message, numbered, a recommended answer on each, as `grilling` says.
 - Recommend from the idea itself. A one-line idea still has a likely person and a likely first flow: propose them, they correct.
+- Position comes from what they do today instead. Name those alternatives, then recommend the one thing this product is remembered for. Most people have not thought about it, so propose it; they correct.
 - A section they do not care about gets your recommendation and a "yes" settles it. Never leave one blank.
-- Stop asking when every section has an answer. Then say the brief in chat in six lines (problem, for, flows, surface, v1, out) and ask "Write `docs/brief.md`?" Write on yes.
+- Stop asking when every section has an answer. Then say the brief in chat in seven lines (problem, for, flows, surface, remembered for, v1, out) and ask "Write `docs/brief.md`?" Write on yes.
 
 ## Existing project
 
@@ -76,6 +77,11 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 ## Constraints
 - <What is fixed: devices, offline, languages, accessibility needs, a deadline, a budget. Not tech choices.>
 
+## Position
+- against: <what they use today instead, by name: "the phone's notes app, a paper logbook">
+- remembered for: <one concrete thing someone would describe to a friend: "the tide line that runs down every entry". Not a value word>
+- personality: <three adjectives>. Says: "<a line it would say>". Never: "<a line it would never say>"
+
 ## Identity nouns
 <4–8 concrete nouns from the product's world: the things, places, tools and materials its people know. "Tide, buoy, logbook, brass", not "trust, speed, simple".>
 
@@ -85,6 +91,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 
 - Every section has content. "None" is an answer. A guess is not.
 - **Changes** is added under Out of scope by the first Change, never before.
+- Position is concrete. "Fast, simple, trustworthy" says nothing every rival would not say. `remembered for` is a thing you could point at on a screen or in a sentence; `against` names real products or habits.
 - Content is real: the longest names the people will type, the likely numbers, the real empty case. `design` uses them as copy.
 - Over a page means a flow is really two products, or a section is doing Architecture's job. Cut it.
 
@@ -102,5 +109,5 @@ Do not start it until they say so.
 
 - Pick a stack, or write a requirement as one ("uses Postgres").
 - Ask a question the repo or the idea already answers.
-- Write the brief before they confirm the six-line summary.
+- Write the brief before they confirm the seven-line summary.
 - Edit the brief for a feature. Features get specs.

@@ -37,7 +37,7 @@ On the first write, add `design-exploration/` to `.gitignore` if it is missing, 
 
 ### 1. Three questions, one round
 
-Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, and the identity nouns. Do not ask for any of that again. Send one message and wait. Do not search in that turn. These questions are how they steer the look, so always ask them, however the run was set up. Only they can say "go".
+Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, the position, and the identity nouns. Do not ask for any of that again. Send one message and wait. Do not search in that turn. These questions are how they steer the look, so always ask them, however the run was set up. Only they can say "go".
 
 ```
 Before I look, three questions. Skip any with "go" and I'll decide.
@@ -142,9 +142,9 @@ Proposal, not official. design turns this into screens. Only an approved prototy
 - idea: <the one thing this product's look says, in one sentence>
 - feel: <their words for feel and never feel>
 - patterns: <what inspires us, each with its reference: a layout, an arrangement, a kind of picture, a way of moving>
-- ownable: <one concrete element made from the brief's identity nouns, so this is not the lead. For a lighthouse logbook: a lamp-glow marker on the active item. Unconfirmed until seen rendered>
-- voice: <how it talks: three adjectives and one sample line in that voice>
-- leave: <what stays behind: each reference's name, colours and typefaces, what their noes share, and whatever they said feels wrong>
+- ownable: <one concrete element made from the brief's `remembered for` and identity nouns, so this is not the lead. For a lighthouse logbook: a lamp-glow marker on the active item. Unconfirmed until seen rendered>
+- voice: <how it talks: the brief's personality, and one sample line in that voice>
+- leave: <what stays behind: each reference's name, colours and typefaces, what the brief's `against` looks like, what their noes share, and whatever they said feels wrong>
 
 ## References
 - leads: <card> — <link>
