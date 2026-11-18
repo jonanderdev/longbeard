@@ -53,7 +53,7 @@ Read the brief's key screens (2–4) and `direction.md`. Prototype only those, w
 
 Open the shots `direction.md` lists under References, the anchor or leads first, and keep them open while you prototype. Text carries a direction's structure. The pictures carry its finish: the type's character, the spacing's rhythm, the texture. Take the move, never the design: they rank below design-rules, and nothing in the prototype is lifted from one reference whole.
 
-A reference that moves is felt again, not remembered. A still and a caption cannot carry timing. Before prototyping the part it inspires, play its recorded frames, and open its live link again: record it with `capture.mjs <url> --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion into the variants in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
+A reference that moves is felt again, not remembered. A still and a caption cannot carry timing. Before prototyping the part it inspires, play its recorded frames, and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion into the variants in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
 
 Load Matt's `prototype`, UI branch, and tell it:
 

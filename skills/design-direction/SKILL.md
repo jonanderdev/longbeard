@@ -7,8 +7,8 @@ description: >
   reference's move. Without one: a wide pool from every source they choose,
   which they mark like or no on a picker page, a sharper second search from
   those picks, then a moodboard of about 100 across every part of the
-  product, which they mark lead, like or no. Ideas and patterns, never tokens: colour and type are chosen
-  later, in design, on rendered screens.
+  product, which they mark lead, like or no. Ideas and patterns, never
+  tokens: colour and type are chosen later, in design, on rendered screens.
   Runs after docs/brief.md exists and the brief has a UI, or when design hits
   a gap and needs references for one piece. Writes
   design-exploration/<slug>/direction.md, a proposal, then offers to take it
@@ -46,7 +46,7 @@ Read `docs/brief.md` first. It gives the subject, the people, the surface (site 
 Before I look, three questions. Skip any with "go" and I'll decide.
 
 1. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
-2. Do you already have a moodboard? A Figma link (file, page or section), a folder of images, or links. If you do, I'll work from it.
+2. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
 3. No moodboard, or a small one: where should I look, and how many should end up on the moodboard? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
 ```
 
@@ -89,7 +89,7 @@ Both met → go on, and say so in one line ("Your board covers it: 34 fits, ever
 
 > Search for these, or go with what your board has?
 
-- **A gap:** search only what is missing (the parts it lacks, or more anchors in the spirit of their board), a pool of 20 to 60, one picker round as in step 3, their board's fits as seeds. Their likes join the shortlist.
+- **A gap:** search only what is missing (the parts it lacks, or more anchors in the spirit of their board), a pool of 20 to 60 new candidates plus their board's fits as seeds, one picker round as in step 3. Their likes are opened at full size and captured as in step 3, then join `shortlist.md` with a `move`.
 - **Too thin to make even one direction:** the full search, steps 2 to 5, with their board's fits as seeds.
 - **"Go":** work with the board. What it lacks goes under `Missing`, and a key screen that depends on it gets **One piece** after they choose.
 
@@ -110,10 +110,9 @@ The `move` is what the directions are built from. Write it from the full-size im
 - **Distinct:** each direction differs from every other on at least two of type character, colour strategy, layout and density, imagery.
 - **As good as the references.** A direction that falls below their level is not a direction.
 
+**Show them.** Write `board.md`: the header from step 4, with `Sources: their moodboard (<what it was>)` and `Picked` and `Noes` left out, then only the directions' cards: one per reference per direction, copied from the shortlist, with `topic: <letter> · <direction name>` and `pattern:` the move it gives that direction, the anchor first. Run `moodboard.mjs` and look at it yourself, one direction at a time, as in step 5: `A · Ink and paper` is `#t-a-ink-and-paper`. Then say where it is and, in chat, each direction in two lines: its anchor and what the others add. Ask one line:
 
-**Show them.** Write `board.md`: the header from step 4, with `Sources: their moodboard (<what it was>)` and `Picked` and `Noes` left out, then only the directions' cards: one per reference per direction, copied from the shortlist, with `topic: <letter> · <direction name>` and `pattern:` the move it gives that direction, the anchor first. Run `moodboard.mjs` and look at it yourself, one direction at a time, as in step 5. Then say where it is and, in chat, each direction in two lines: its anchor and what the others add. Ask one line:
-
-> Which direction? Mix if you like ("A with C's type"). On the board, Lead the anchor where you'd change it, No what doesn't belong.
+> Which direction? Mix if you like ("A with C's type"). On the board, Lead a different reference if you'd anchor that direction on it, and No what doesn't belong.
 
 Read their answer back in up to three lines and wait for their yes. Then step 6.
 
@@ -228,13 +227,13 @@ Proposal, not official. design turns this into screens. Only an approved prototy
 - also: <their likes in this part> — <links> — <shots or frames>
 ```
 
-From their moodboard, `patterns` is the direction's moves, each with its reference, and `References` lists the direction's references (anchor first) with their shots. `design` opens the shots while prototyping, so every reference names its file in `refs/`, and a moving one its frames folder and the live link it was recorded from.
+From their moodboard, `patterns` is the chosen direction's moves, each with its reference. `References` keeps the parts: each of the direction's references goes under the part its shortlist card names, the anchor first wherever it appears. A part none of them fits gets the closest card from the shortlist, marked as your pick. `design` opens the shots while prototyping, so every reference names its file in `refs/`, and a moving one its frames folder and the live link it was recorded from.
 
 - **The leads are theirs.** A part they did not lead gets the closest to the brief, marked as your pick: the closest, not the boldest. Each lead sets the feeling of its part. None is the brand.
 - **Notes count.** A tile note is about that reference: it goes into `patterns` or `leave`. Their moodboard noes are not references.
 - **No values.** No hex, no font name, no size. If a reference's colour or type is the point, describe the quality ("near-black ink on a warm page", "a condensed display face") and let `design` choose the value.
 
-Then say the direction in chat in four lines (idea, patterns, ownable, leave), and end with one question. Wait for the answer, however the run was set up: the direction is theirs to correct before anything is built on it.
+Then say the direction in chat in four lines (idea, patterns, ownable, leave), with the anchor first when there is one, and end with one question. Wait for the answer, however the run was set up: the direction is theirs to correct before anything is built on it.
 
 > Change anything, or take this into design?
 
