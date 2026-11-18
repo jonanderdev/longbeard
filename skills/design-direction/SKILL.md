@@ -2,10 +2,12 @@
 name: design-direction
 description: >
   Find the direction for a product's look from what they like and from real
-  references: a wide pool from every source they choose, which they mark like
-  or no on a picker page, a sharper second search from those picks, then a
-  moodboard of about 100 across every part of the product, which they mark
-  lead, like or no. Ideas and patterns, never tokens: colour and type are chosen
+  references. With their own moodboard (a Figma board, a folder, links), that
+  is the pool: proposes 3 directions as small boards, each anchored on one
+  reference's move. Without one: a wide pool from every source they choose,
+  which they mark like or no on a picker page, a sharper second search from
+  those picks, then a moodboard of about 100 across every part of the
+  product, which they mark lead, like or no. Ideas and patterns, never tokens: colour and type are chosen
   later, in design, on rendered screens.
   Runs after docs/brief.md exists and the brief has a UI, or when design hits
   a gap and needs references for one piece. Writes
@@ -30,9 +32,9 @@ Look at the repo. Do not ask what is there.
 
 ## Folder
 
-Everything goes in `design-exploration/<slug>/`: `candidates.tsv` and `picker.html` (and `-2` for round 2), `board.md`, `refs/`, `moodboard.html`, `direction.md`. The first pass is `identity/`. One piece uses its own slug (`pricing`, `empty-state`). If the folder exists, use `<slug>-2`. Two explorations never share a folder.
+Everything goes in `design-exploration/<slug>/`: `candidates.tsv` and `picker.html` (and `-2` for round 2), or `shortlist.md` from their moodboard, `board.md`, `refs/`, `moodboard.html`, `direction.md`. The first pass is `identity/`. One piece uses its own slug (`pricing`, `empty-state`). If the folder exists, use `<slug>-2`. Two explorations never share a folder.
 
-On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
+On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. References, their links, their authors and their shots stay in this folder and in chat. Nothing the product keeps (`DESIGN.md`, Figma, code, commits) ever names one. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
 
 ## Identity
 
@@ -44,9 +46,11 @@ Read `docs/brief.md` first. It gives the subject, the people, the surface (site 
 Before I look, three questions. Skip any with "go" and I'll decide.
 
 1. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
-2. Pictures or links you already like? Screenshots, links or files.
-3. Where should I look, and how many should end up on the moodboard? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
+2. Do you already have a moodboard? A Figma link (file, page or section), a folder of images, or links. If you do, I'll work from it.
+3. No moodboard, or a small one: where should I look, and how many should end up on the moodboard? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
 ```
+
+A moodboard → **Their moodboard**, below, then step 6. Skip steps 2 to 5. A few pictures or links, not a board → seeds for the search, below.
 
 Default sources:
 
@@ -58,9 +62,60 @@ Each of these was checked to work with this skill's scripts, without a login (20
 
 **The parts.** The moodboard covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, blog, photography, motion. Drop a part the brief has no use for, and add one it needs. For an app: the brief's key screens, its navigation, and motion. Every keep has one part, its `topic`.
 
-Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link pasted before the search means the look already exists: say so, and offer `design` instead. If their answers contradict the brief, that is `grilling`, not a second round.
+Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link to the product's own screens means the look already exists: say so, and offer `design` instead. A Figma link to a board of other people's work is a moodboard. If their answers contradict the brief, that is `grilling`, not a second round.
 
 A picture they gave is a **seed**: a picker row with source `seed`, which starts liked, then a card with `link: none (shared in chat)` or its URL, never dropped. Seeds steer the queries ("more like this").
+
+### Their moodboard
+
+Their board already holds their taste, so it is the base. A rich board is the whole pool: no search, no picker, no board of 100. A thin one is topped up with a search sized to what it lacks.
+
+**Read it.** A folder: open every image. Links: capture each page (sources.md has the options). Figma, a section at a time:
+
+- `create_session` with the file key first.
+- **Find the sections.** A section link: start there. A page or file link: `get_metadata` on the page. A board of hundreds of cards returns about 100K tokens, saved to a file: read only its section lines from it (name, id, size), never the whole dump into context.
+- **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
+
+**Shortlist** 20 to 40 that fit the brief, across its parts. Then open each at full size. A card's render on the board is a thumbnail. For Figma, `download_assets` on the image node: `rawImages` is the original upload at full size, GIFs included. Save it to `refs/<name>.<format>`. Nothing is judged from a thumbnail.
+
+**Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
+
+**Is it enough?** After the shortlist, check what it can carry:
+
+- **Distinct anchors:** three references, each different from the others on at least two of type character, colour strategy, layout and density, imagery, each able to set a direction.
+- **The product's parts:** every key screen and part in the brief has at least one fit: a reference that shows that kind of screen, or a move that clearly carries over to it.
+
+Both met → go on, and say so in one line ("Your board covers it: 34 fits, every part, room for three directions."). Otherwise say what it lacks in up to three lines, with what it does hold ("12 cards, all print posters: strong on type and colour, nothing for navigation or a data screen, room for one direction"), and offer a search sized to the gap. Then wait.
+
+> Search for these, or go with what your board has?
+
+- **A gap:** search only what is missing (the parts it lacks, or more anchors in the spirit of their board), a pool of 20 to 60, one picker round as in step 3, their board's fits as seeds. Their likes join the shortlist.
+- **Too thin to make even one direction:** the full search, steps 2 to 5, with their board's fits as seeds.
+- **"Go":** work with the board. What it lacks goes under `Missing`, and a key screen that depends on it gets **One piece** after they choose.
+
+**Write `shortlist.md`**: one card per shortlisted reference, in the card shape from step 4, with one more field:
+
+```
+- move: <what a designer would take from it, concrete enough to apply to other content · why it works>
+```
+
+The `move` is what the directions are built from. Write it from the full-size image: the type's character, the spacing, the texture are the finish a thumbnail hides.
+
+**Propose directions.** Three by default. Up to five only when the board holds that many distinct fits. Never pad one to reach a number. "Show me more" gives the next distinct one. Each direction:
+
+- **An anchor:** one reference's defining move, kept whole. If its colour strategy or its type pairing is what makes it work, take it intact.
+- **5 to 7 more references**, each giving one move that suits the anchor.
+- **Never the whole concept.** Colour, type, placement, layout and content never all come from one reference. The brief brings its own content and its ownable.
+- **Combine, never average.** Never half this serif and half that grotesk. A move that weakens the anchor is dropped.
+- **Distinct:** each direction differs from every other on at least two of type character, colour strategy, layout and density, imagery.
+- **As good as the references.** A direction that falls below their level is not a direction.
+
+
+**Show them.** Write `board.md`: the header from step 4, with `Sources: their moodboard (<what it was>)` and `Picked` and `Noes` left out, then only the directions' cards: one per reference per direction, copied from the shortlist, with `topic: <letter> · <direction name>` and `pattern:` the move it gives that direction, the anchor first. Run `moodboard.mjs` and look at it yourself, one direction at a time, as in step 5. Then say where it is and, in chat, each direction in two lines: its anchor and what the others add. Ask one line:
+
+> Which direction? Mix if you like ("A with C's type"). On the board, Lead the anchor where you'd change it, No what doesn't belong.
+
+Read their answer back in up to three lines and wait for their yes. Then step 6.
 
 ### 2. Search wide
 
@@ -160,6 +215,7 @@ From their answer. Short: it is read by `design`, not by a client.
 Proposal, not official. design turns this into screens. Only an approved prototype becomes DESIGN.md.
 
 - idea: <the one thing this product's look says, in one sentence>
+- anchor: <from their moodboard: the anchor move, kept whole, and its reference. Leave out otherwise>
 - feel: <their words for feel and never feel>
 - patterns: <what inspires us, each with its reference: a layout, an arrangement, a kind of picture, a way of moving>
 - ownable: <one concrete element made from the brief's `remembered for` and identity nouns, so this is not the lead. For a lighthouse logbook: a lamp-glow marker on the active item. Unconfirmed until seen rendered>
@@ -168,9 +224,11 @@ Proposal, not official. design turns this into screens. Only an approved prototy
 
 ## References
 ### <part>
-- lead: <card> — <link>
-- also: <their likes in this part> — <links>
+- lead: <card> — <link> — <shot, or frames for motion>
+- also: <their likes in this part> — <links> — <shots or frames>
 ```
+
+From their moodboard, `patterns` is the direction's moves, each with its reference, and `References` lists the direction's references (anchor first) with their shots. `design` opens the shots while prototyping, so every reference names its file in `refs/`, and a moving one its frames folder and the live link it was recorded from.
 
 - **The leads are theirs.** A part they did not lead gets the closest to the brief, marked as your pick: the closest, not the boldest. Each lead sets the feeling of its part. None is the brand.
 - **Notes count.** A tile note is about that reference: it goes into `patterns` or `leave`. Their moodboard noes are not references.
@@ -186,7 +244,7 @@ Yes → load `design`. No → stop. The folder stays on this machine.
 
 Usually called from `design` when a key screen has a gap no reference covers. Same card shape, same moodboard, its own slug.
 
-1. Read `DESIGN.md` if it exists, and the brief. They are the base: the piece fits the colour, type and voice already chosen and never changes them.
+1. Read `DESIGN.md` if it exists, and the brief. If they gave a moodboard, look there first: a fit on their board beats a search. They are the base: the piece fits the colour, type and voice already chosen and never changes them.
 2. Ask once, then wait, unless the caller already said what is needed:
 
    ```
@@ -205,7 +263,7 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 ## Do not
 
 - Pick colour, type, spacing, or any value. Write `DESIGN.md`. Code or lay out a page.
-- Search before the three questions are answered, answer them yourself, or ask them a second round of questions. Run a third picker round.
+- Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the three questions are answered, answer them yourself, or ask them a second round of questions. Run a third picker round.
 - Cut the pool for taste before they pick. Pad the keep by lowering the filter. Keep a shot nobody opened at full size.
 - Screenshot a source's listing or search page, or a candidate you are not keeping. Never stitch screenshots or frames into one picture.
 - Judge motion from a still.
