@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `design-direction` asks whether you already have a moodboard: a Figma link (file, page or section), a folder of images, or links. If you do, it is the base. The agent reads the board and checks whether it is enough: three distinct anchors, and every part of the product covered. If it is, there is no search. If not, it says what the board lacks and offers a search for only that (a pool of 20 to 60, one picker round), or the full search when the board is too thin for even one direction. It opens the shortlisted references at full size (from Figma, the original upload, GIFs included, with motion recorded as frames), and proposes 3 directions as small boards of 6 to 8 references. Each direction is anchored on one reference's move, kept whole, with moves from other references combined around it and never averaged, and never one reference's whole concept. The search, the picker and the board of 100 stay for people without a moodboard.
+- `design` keeps the direction's reference shots open while prototyping, for the finish text cannot carry: type character, spacing, texture. They rank below the design rules and are never copied. A reference that moves is replayed before the part it inspires is prototyped: its frames, and its live page recorded again, so the prototype's motion has the same feel.
+
 ## 0.11.1 — 2026-11-17
 
 - The brief has a **Position** section: what the product is up against, the one concrete thing it is remembered for, and its personality. `idea` recommends it from what people do today instead, and `design-direction` builds `ownable`, `voice` and `leave` from it, so the look aims at being distinctive rather than guessing.

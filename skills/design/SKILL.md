@@ -51,6 +51,10 @@ Propose from the direction, so they react rather than start from nothing: for ea
 
 Read the brief's key screens (2–4) and `direction.md`. Prototype only those, with their main states. Other screens are composed later in Figma from the components.
 
+Open the shots `direction.md` lists under References, the anchor or leads first, and keep them open while you prototype. Text carries a direction's structure. The pictures carry its finish: the type's character, the spacing's rhythm, the texture. Take the move, never the design: they rank below design-rules, and nothing in the prototype is lifted from one reference whole.
+
+A reference that moves is felt again, not remembered. A still and a caption cannot carry timing. Before prototyping the part it inspires, play its recorded frames, and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion into the variants in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
+
 Load Matt's `prototype`, UI branch, and tell it:
 
 - **No app.** Sub-shape B, in `design-exploration/<slug>/prototype/`: one `index.html` per key screen, plain HTML and CSS, no build step, no router, no NODE_ENV gate. It runs by opening the file.
@@ -87,7 +91,7 @@ Only on their yes to a rendered prototype. Write the whole file from [design-md-
   node <skill>/scripts/contrast.mjs "#1b1b1f on #fafaf7" "#c2410c on #fafaf7:mark"
   ```
 - **Themes.** A product with more than one theme lists each colour token once, with a value per theme, and every pair passes the contrast check in each theme.
-- **Ideas, not sources.** `DESIGN.md` is committed and often public. It never names a product, site, studio or designer from the exploration, and never cites a `design-exploration/` path. Turn each into the idea: "a quiet reading page", not whose.
+- **Ideas, not sources.** References live only in `design-exploration/` on this machine, and only for this step. Nothing that outlives it names one: not `DESIGN.md`, not Figma (layers, descriptions, comments), not code or its comments, not a commit, PR, spec or ticket. No product, site, studio, designer or link from the exploration, and no `design-exploration/` path. Turn each into the idea: "a quiet reading page", not whose. Which reference a move came from is said in chat only.
 - **Write down what makes it this design.** Whatever someone would need to rebuild it without the prototype open goes under Components, with values, not adjectives.
 - **Tokens are code names.** Name each colour, type and spacing token as it will be named in code (`color/ink`, `space/md`). Figma variables use the same names, with code syntax `var(--color-ink)`.
 - **Soft rules overridden on purpose** go under Decisions with the reason. Hard rules cannot be overridden.
@@ -143,7 +147,7 @@ A feature with screens, once `DESIGN.md` exists.
 ## Do not
 
 - Write `DESIGN.md` before they approve a rendered prototype, or rewrite it during a feature. Only a rebrand's first pass replaces it.
-- Name a reference or a `design-exploration/` path in `DESIGN.md`.
+- Name a reference, its link, its author or a `design-exploration/` path in anything that outlives the exploration: `DESIGN.md`, Figma, code, comments, commits, PRs, specs, tickets.
 - Use a community kit's components or variables in Figma.
 - Build the whole component library before the screens need it.
 - Mark a frame Ready that lacks a state a person can reach, or that has open hard findings.

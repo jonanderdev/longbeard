@@ -229,7 +229,7 @@ const html = `<!DOCTYPE html>
 <main>
   <header>
     <h1>Moodboard</h1>
-    <p class="how">Lead what should set the tone for its part (one per part), Like what belongs, No what feels wrong. Add a note where you have one. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <p class="how">Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>
@@ -298,7 +298,7 @@ const html = `<!DOCTYPE html>
         const mark = b.dataset.mark;
         if (t.dataset.state === mark) delete t.dataset.state;
         else {
-          // One lead per part: a new lead turns the old one into a like.
+          // One lead per group (a part, or a direction): a new lead turns the old one into a like.
           if (mark === "lead") for (const o of tiles) if (o !== t && o.dataset.topic === t.dataset.topic && o.dataset.state === "lead") o.dataset.state = "like";
           t.dataset.state = mark;
         }
