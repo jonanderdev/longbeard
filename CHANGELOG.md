@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- New skill, `framework-skills`, at Architecture: it reads the stack from the ADRs and manifests (`pubspec.yaml`, `package.json`, `Cargo.toml` and others), searches with `skills find`, prefers the framework's own published skills and then the most installed, reads each one, and proposes the few this project needs with a reason for each. On yes it installs them with `longbeard add`. The router reruns Architecture for a new stack, so a project that turns to Flutter later gets the offer then. It replaces the old "At Architecture, a framework skill." hint, which named nothing.
+
 ## 0.11.2 — 2026-11-18
 
 - `design-direction` asks whether you already have a moodboard: a Figma link (file, page or section), a folder of images, or links. If you do, it is the base. The agent reads the board and checks whether it is enough: three distinct anchors, and every part of the product covered. If it is, there is no search. If not, it says what the board lacks and offers a search for only that (a pool of 20 to 60, one picker round), or the full search when the board is too thin for even one direction. It opens the shortlisted references at full size (from Figma, the original upload, GIFs included, with motion recorded as frames), and proposes 3 directions as small boards of 6 to 8 references. Each direction is anchored on one reference's move, kept whole, with moves from other references combined around it and never averaged, and never one reference's whole concept. The search, the picker and the board of 100 stay for people without a moodboard.
