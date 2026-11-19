@@ -37,8 +37,9 @@
 // the colour it came from (its share, in how many pictures), how it was tuned,
 // its contrast. --json prints { signature, colours, proposals, library, notes }:
 // colours are the pooled colours that survived the noise rules, and library
-// holds one or two grounds and one accent in deal.mjs's format, from
-// ["subject"], to add to library.json.
+// holds one or two grounds in deal.mjs's format, from ["subject"], to add to
+// library.json, and an accent only when the subject has a second hue of its own
+// (a one-hue accent stays in the proposals, for design-identity to offer).
 //
 // --sheet out.html writes a page: each proposal's colours as large swatches,
 // and beside each, every picture with the pixels near its source colour lit
@@ -241,14 +242,17 @@ function accent(on, label) {
   if (C > source.C + 0.001) how.push("chroma raised to read as an accent");
   if (Math.abs(L - start) > 0.001) how.push(`${L > start ? "lightened" : "darkened"} to reach 3:1 on the ground`);
   else if (Math.abs(L - source.L) > 0.01) how.push(`${L > source.L ? "lightened" : "darkened"} into the accent range`);
-  return colour("accent", { L, C, h: source.h }, source, how.join(", ") || "as found");
+  const made = colour("accent", { L, C, h: source.h }, source, how.join(", ") || "as found");
+  // An accent of the ground's own hue makes a one-hue palette: fine to offer, but not a second colour.
+  made.ownHue = !pick;
+  return made;
 }
 
 const proposal = (name, g, i) => {
   const a = accent(g, name);
   const rows = [g, i, ...(a ? [a] : [])];
   for (const r of rows) if (r.role !== "ground") r.contrast = r2(contrast(r.hex, g.hex));
-  return { name, ground: g.hex, ink: i.hex, accent: a?.hex || null, colours: rows };
+  return { name, ground: g.hex, ink: i.hex, accent: a?.hex || null, ownHue: a ? a.ownHue : null, colours: rows };
 };
 const proposals = [proposal("light", light, darkInk(light)), proposal("dark", dark, lightInk(dark))];
 
@@ -276,7 +280,11 @@ const proposals = [proposal("light", light, darkInk(light)), proposal("dark", da
 // One or two grounds and an accent for the library: the light one, and the signature (else the dark).
 const second = proposals.find((p) => p.name === "signature") || proposals.find((p) => p.name === "dark");
 const grounds = [proposals[0], second].map((p) => ({ id: `subject-${p.name}`, ground: p.ground, panel: null, ink: p.ink, gradient: null, pattern: null, from: ["subject"] }));
-const acc = proposals.find((p) => p.accent);
+// The library takes an accent only when the subject has a second hue of its own. One that is the
+// signature with more chroma would make every subject screen one hue: then accents come from the
+// references, and the one-hue palettes stay in the proposals for design-identity to offer.
+const acc = proposals.find((p) => p.accent && !p.ownHue);
+if (!acc && proposals.some((p) => p.accent)) notes.push("no second hue in the subject: the library takes no subject accent, so accents come from the references; the one-hue palettes are still proposed");
 const library = { grounds, accents: acc ? [{ id: "subject-accent", colour: acc.accent, device: "the subject's own colour", from: ["subject"] }] : [] };
 
 if (sheetArg) writeSheet(sheetArg);

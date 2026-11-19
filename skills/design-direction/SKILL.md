@@ -54,7 +54,7 @@ The lead's arrangement is dealt twice; the likes are the donors. **The spread co
 
 ## 2. Read the references into the library
 
-Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones), navigation, type (with its `kind`), ground and accent, measured where a live page exists, never judged by eye when it can be measured; the family they share; their controls; one or two grounds and an accent from the subject; what they own. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones), navigation, type (with its `kind`), ground and accent, measured where a live page exists, never judged by eye when it can be measured; the family they share; their controls; one or two grounds from the subject (an accent too when it has a second hue); what they own. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
 
 Then deal:
 

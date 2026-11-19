@@ -100,18 +100,35 @@ test("subject-colours: grounds keep the subject's hue, inks and accents read", (
   assert.ok(out.proposals.filter((p) => p.accent).length >= 1);
 });
 
-test("subject-colours: the library holds one or two grounds and one accent from the subject", () => {
-  const { library } = JSON.parse(run("--json").stdout);
+test("subject-colours: the library holds one or two grounds, and no accent when the subject has one hue", () => {
+  const out = JSON.parse(run("--json").stdout);
+  const { library } = out;
   assert.ok(library.grounds.length >= 1 && library.grounds.length <= 2);
   assert.equal(library.grounds[0].id, "subject-light");
-  assert.equal(library.accents.length, 1);
   for (const g of library.grounds) {
     assert.deepEqual(g.from, ["subject"]);
     assert.deepEqual([g.panel, g.gradient, g.pattern], [null, null, null]);
     assert.ok(contrast(g.ink, g.ground) >= 4.5);
   }
-  assert.deepEqual(library.accents[0].from, ["subject"]);
-  assert.equal(library.accents[0].device, "the subject's own colour");
+  // Bread is one hue: its accents are the crust with more chroma, so the library takes none.
+  assert.ok(out.proposals.some((p) => p.accent && p.ownHue));
+  assert.equal(library.accents.length, 0);
+  assert.ok(out.notes.some((n) => /no second hue/.test(n)), out.notes.join("\n"));
+});
+
+test("subject-colours: a second hue of the subject's own becomes the library's accent", () => {
+  // The same loaves with a sprig of green herb on each, near the centre.
+  const herb = bread.map((p) => ({ ...p, swatches: [...p.swatches, { hex: "#4f8a3a", share: 7, edge: 0.2 }] }));
+  const out = JSON.parse(run("--data", herb, "--json").stdout);
+  assert.equal(out.library.accents.length, 1);
+  const [acc] = out.library.accents;
+  assert.deepEqual(acc.from, ["subject"]);
+  const p = out.proposals.find((x) => x.accent === acc.colour);
+  assert.equal(p.ownHue, false);
+  assert.ok(contrast(acc.colour, p.ground) >= 3);
+  // Green, not the crust's brown.
+  const g = parseInt(acc.colour.slice(3, 5), 16), r = parseInt(acc.colour.slice(1, 3), 16);
+  assert.ok(g > r, acc.colour);
 });
 
 test("subject-colours: a colour lying at the edges is background, never the signature or accent", () => {

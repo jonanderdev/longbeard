@@ -22,6 +22,6 @@ Open the lead and every like at full size. Write `.longbeard/design/direction/li
 - **Family:** what the lead and likes share, as ranges, measured where a page exists (`measure.mjs <link>`), never averaged. It is not dealt: every screen gets it, so eight screens stay one look.
 - **Type:** one per reference: the face it uses (`by: page`, read from the page), or from a picture only the nearest free face (`by: eye`, a stand-in). Its `kind`, so the deal can spread kinds. The body face it is paired with.
 - **Grounds and accents:** one per reference, measured: the ground, the ink on it, a panel, a gradient or pattern as written. An accent is a colour and what carries it; none is an entry too.
-- **The subject's colours:** one or two grounds and an accent from the subject pictures, chosen and tuned by rule, never sampled raw, and each named as part of the subject after a look: [subject.md](subject.md).
+- **The subject's colours:** one or two grounds from the subject pictures (and an accent only when the subject has a second hue; otherwise accents come from the references), chosen and tuned by rule, never sampled raw, and each named as part of the subject after a look: [subject.md](subject.md).
 - **What is fixed:** a face or colour they own is an entry with `"from": ["theirs"]`; a refused one is left out; light or dark only drops the other grounds.
 - **Record, never judge.** A gradient, a glow, a typeface the rules call a tell: if a reference uses it, it is an entry. Ids are plain words, never a reference's name. Merge only twins.
