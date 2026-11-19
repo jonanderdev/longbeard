@@ -27,10 +27,10 @@ It is a base. You keep going from here.
 | 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
 
-### Why a family, not a reference
+### Why it designs this way
 
-Designers work from many references that share a look, and make something new inside it.  
-Long Beard does the same, from your moodboard or from fresh references it finds for you. Every screen mixes several, so none is copied and all of them belong.  
+A product's look should be chosen by the people who own it, and built with a designer's care.  
+So Long Beard works like a designer: it gathers references that share a look, from your moodboard or fresh ones it finds, and makes something new inside them. Every screen mixes several, so none is copied and all of them belong.  
 The agent builds; you choose. Taste rules give everyone the same good-looking site; your references and your choices give you yours.  
 Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
 
