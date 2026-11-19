@@ -11,6 +11,13 @@
 //
 //   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
 //   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
+//
+// A big pool is chosen in two steps. --overview 6 shows each family as its
+// first six tiles (families.mjs writes the most typical first), how many more
+// it has, and its measured ranges from a "Families:" header line, with one
+// Take button and a note per family. The copy-out lists the families taken.
+// Then a board of only those families is marked as usual.
+//   node moodboard.mjs design-exploration/identity/board.md --overview 6 --out design-exploration/identity/families.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
@@ -18,6 +25,12 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 const args = process.argv.slice(2);
 const outAt = args.indexOf("--out");
 const outArg = outAt === -1 ? "" : (args.splice(outAt, 2)[1] ?? "");
+const overAt = args.indexOf("--overview");
+const overview = overAt === -1 ? 0 : Number(args.splice(overAt, 2)[1]);
+if (overAt !== -1 && !(Number.isInteger(overview) && overview >= 1 && overview <= 24)) {
+  console.error("moodboard: --overview takes how many tiles to show per family, 1 to 24");
+  process.exit(2);
+}
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
   console.error("usage: node moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html");
@@ -94,6 +107,13 @@ function framesOf(folder) {
 }
 
 const md = readFileSync(boardPath, "utf8");
+// Ranges per family, from board.md's header: "Families: f1 (light · empty 55–70%) — 42; f2 (…) — 18".
+const ranges = new Map();
+const familiesLine = md.match(/^Families:\s*(.*)$/m)?.[1] || "";
+for (const part of familiesLine.split(";")) {
+  const m = part.trim().match(/^(.+?)\s*\((.+)\)/);
+  if (m) ranges.set(m[1].trim().toLowerCase(), m[2].trim());
+}
 const cards = md
   .split(/^### /m)
   .slice(1)
@@ -156,14 +176,21 @@ const jump = ordered
   .map(([label, s]) => `<a href="#${slug(label)}">${esc(label)} <span>${s.tiles.length}</span></a>`)
   .join("");
 const body = ordered
-  .map(
-    ([label, s]) => `<section id="${slug(label)}">
-    <h2>${esc(label)} <span>${s.tiles.length}</span></h2>
+  .map(([label, s]) => {
+    const shown = overview ? s.tiles.slice(0, overview) : s.tiles;
+    const more = s.tiles.length - shown.length;
+    const head = overview
+      ? `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>
+    ${ranges.has(label.toLowerCase()) ? `<p class="ranges">${esc(ranges.get(label.toLowerCase()))}</p>` : ""}
+    <div class="take"><button type="button" class="fam" data-family="${esc(label)}" aria-pressed="false">Take this family</button><input class="fam-note" type="text" data-family="${esc(label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
+      : `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>`;
+    return `<section id="${slug(label)}">
+    ${head}
     <div class="grid">
-      ${s.tiles.join("\n      ")}
+      ${shown.join("\n      ")}
     </div>
-  </section>`,
-  )
+  </section>`;
+  })
   .join("\n  ");
 
 const html = `<!DOCTYPE html>
@@ -224,15 +251,23 @@ const html = `<!DOCTYPE html>
   #out { background: #f6f6f4; }
   .side { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; min-width: 150px; }
   #count { font-size: 13px; color: var(--muted); }
+  [data-overview] .marks, [data-overview] .why, [data-overview] .filters { display: none; }
+  .ranges { margin: -6px 0 10px 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .take { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px 2px; }
+  .fam { font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .fam[aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
+  .fam-note { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  .more { font-size: 13px; color: var(--muted); }
   #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
   @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } header { position: static; } }
 </style>
 </head>
-<body>
+<body${overview ? " data-overview" : ""}>
 <main>
   <header>
-    <h1>Moodboard</h1>
-    <p class="how">Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <h1>${overview ? "Families" : "Moodboard"}</h1>
+    ${overview ? `<p class="how">Each family shows its most typical ${overview}. Take the ones you want to see in full, any number. Note a family that looks like two, or that belongs with another.</p>` : ""}
+    <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>
@@ -271,7 +306,32 @@ const html = `<!DOCTYPE html>
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
   const label = (t) => t.dataset.id + " " + short(t.dataset.title) + " (" + t.dataset.topic + ")";
   const list = (state) => tiles.filter((t) => t.dataset.state === state).map(label);
+  const fams = [...document.querySelectorAll(".fam")];
+  const famNotes = [...document.querySelectorAll(".fam-note")];
+  if (fams.length) {
+    const taken = new Set(saved.taken || []);
+    for (const b of fams) if (taken.has(b.dataset.family)) b.setAttribute("aria-pressed", "true");
+    for (const i of famNotes) i.value = (saved.famNotes || {})[i.dataset.family] || "";
+  }
+  function renderFamilies() {
+    const taken = fams.filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.family);
+    const lines = ["Family picks", "take: " + (taken.join("; ") || "none")];
+    const written = famNotes.filter((i) => i.value.trim());
+    if (written.length) {
+      lines.push("notes:");
+      for (const i of written) lines.push("- " + i.dataset.family + ": " + i.value.trim().replace(/\\s+/g, " "));
+    }
+    if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
+    out.value = lines.join("\\n");
+    count.textContent = taken.length + " of " + fams.length + " families taken";
+    const keep = {};
+    for (const i of written) keep[i.dataset.family] = i.value;
+    try { localStorage.setItem(key, JSON.stringify({ taken, famNotes: keep, note: note.value })); } catch (e) {}
+  }
+  for (const b of fams) b.addEventListener("click", () => { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); render(); });
+  for (const i of famNotes) i.addEventListener("input", () => render());
   function render() {
+    if (fams.length) return renderFamilies();
     const lines = ["Moodboard picks", "lead: " + (list("lead").join("; ") || "none"), "like: " + (list("like").join("; ") || "none"), "no: " + (list("no").join("; ") || "none")];
     const written = tiles.filter((t) => t.querySelector(".why").value.trim());
     if (written.length) {

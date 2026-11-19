@@ -294,3 +294,16 @@ test("measure: an image gives its colours with their share of the picture", asyn
   assert.deepEqual([traits.ground, traits.tone, traits.empty, traits.loud], ["#fdfdfd", "light", 75, 25]);
   assert.equal((await measured(["notes.txt"])).status, 2);
 });
+
+test("measure: a folder in one browser, as one TSV row per image", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-measure-"));
+  writeFileSync(join(dir, "a.png"), png(2, 1, [255, 255, 255, 255, 255, 255]));
+  writeFileSync(join(dir, "b.png"), png(2, 1, [10, 10, 10, 10, 10, 10]));
+  writeFileSync(join(dir, "notes.txt"), "skip me");
+  const result = await measured([dir, "--tsv"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const [head, ...rows] = result.stdout.trim().split("\n").map((l) => l.split("\t"));
+  assert.deepEqual(head.slice(0, 6), ["ref", "tone", "lum", "empty", "loud", "busy"]);
+  assert.deepEqual(rows.map((r) => [r[0].split("/").pop(), r[1]]), [["a.png", "light"], ["b.png", "dark"]]);
+});

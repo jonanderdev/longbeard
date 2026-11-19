@@ -175,3 +175,46 @@ test("picker: wrong usage exits 2", () => {
   const result = spawnSync(process.execPath, [join(scripts, "picker.mjs"), "x.tsv"], { cwd: dir, encoding: "utf8" });
   assert.equal(result.status, 2);
 });
+
+test("families: splits on measured traits, keeps groups of at least --min, and writes a board skeleton", () => {
+  const head = "ref\ttone\tlum\tempty\tloud\tbusy\tground\tdisplay\tbody\tscale\tpictures\tmargin\tradius";
+  const row = (name, lum, empty, loud, busy) => `refs/${name}.jpg\t\t${lum}\t${empty}\t${loud}\t${busy}\t#000000\t\t\t\t\t\t`;
+  const rows = [];
+  for (let i = 0; i < 8; i++) rows.push(row(`paper${i}`, 0.85, 80 + i, 1, 2));
+  for (let i = 0; i < 7; i++) rows.push(row(`night${i}`, 0.01, 85 + i, 2, 1));
+  for (let i = 0; i < 6; i++) rows.push(row(`poster${i}`, 0.5, 20 + i, 60, 12));
+  rows.push(row("odd", 0.5, 50, 30, 8));
+  const dir = project({ "traits.tsv": [head, ...rows].join("\n") });
+  const result = run("families.mjs", dir, ["traits.tsv", "--board", "board.md"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  const groups = families.map((f) => f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")).sort().join(","));
+  assert.ok(groups.some((g) => /^(paper,?)+$/.test(g)), result.stdout);
+  assert.ok(groups.some((g) => /^(night,?)+$/.test(g)), result.stdout);
+  assert.ok(families.every((f) => f.size >= 3));
+  assert.match(result.stdout, /22 references, \d+ families/);
+  const board = readFileSync(join(dir, "board.md"), "utf8");
+  assert.match(board, /^Families: f1 \(/);
+  assert.equal(board.match(/^### /gm).length, 22);
+  assert.match(board, /- measured: light · empty 8\d% · loud 1% · busy 2/);
+  assert.match(readFileSync(join(dir, "families/f1.tsv"), "utf8"), /\t\/.+\.jpg/);
+  // A skeleton never overwrites a board.
+  const again = spawnSync(process.execPath, [join(scripts, "families.mjs"), "traits.tsv", "--board", "board.md"], { cwd: dir, encoding: "utf8" });
+  assert.equal(again.status, 1);
+});
+
+test("moodboard --overview: a few tiles per family, its ranges, and one Take per family", () => {
+  const cards = [];
+  for (let i = 0; i < 9; i++) cards.push(card(`Paper ${i}`, "- topic: f1\n"));
+  for (let i = 0; i < 3; i++) cards.push(card(`Night ${i}`, "- topic: f2\n"));
+  const files = board(cards);
+  files["design-exploration/identity/board.md"] = files["design-exploration/identity/board.md"].replace("# Board", "Families: f1 (light · empty 80–88%) — 9; f2 (dark) — 3");
+  const dir = project(files);
+  run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--overview", "6", "--out", "f.html"]);
+  const html = readFileSync(join(dir, "f.html"), "utf8");
+  assert.match(html, /<body data-overview>/);
+  assert.equal(html.match(/<figure class="tile"/g).length, 9);
+  assert.equal(html.match(/class="fam"/g).length, 2);
+  assert.match(html, /<p class="ranges">light · empty 80–88%<\/p>/);
+  assert.match(html, /\+3 more not shown/);
+});
+

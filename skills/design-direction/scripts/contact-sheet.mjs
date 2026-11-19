@@ -1,9 +1,12 @@
 #!/usr/bin/env node
-// Build labelled contact sheets from a TSV of label\timageURL.
+// Build labelled contact sheets from a TSV of label\timageURL. The image can
+// be a local file too, so a family's references are sorted by eye from a few
+// sheets of thumbnails, not opened one at a time.
 // Writes JPEG grids (~36 per sheet) into an output directory (scratch, not design-exploration/).
 // Viewing listing thumbnails is allowed; this is not a capture.
 //
 //   node contact-sheet.mjs candidates.tsv --out /tmp/hunt-sheets
+//   node contact-sheet.mjs family-f3.tsv --out <scratch>/f3 --contain   # TSV: label<TAB>refs/name.jpg
 import { spawn } from "node:child_process";
 import {
   existsSync,
@@ -15,6 +18,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {
@@ -27,6 +31,9 @@ const flag = (name, def) => {
 const tsvPath = args[0];
 const outDir = resolve(flag("out", "") || "");
 const perSheet = Math.max(1, Number(flag("per", "36")) || 36);
+const containAt = args.indexOf("--contain");
+const contain = containAt !== -1;
+if (contain) args.splice(containAt, 1);
 if (!tsvPath || !outDir) {
   console.error("usage: node contact-sheet.mjs candidates.tsv --out /tmp/hunt-sheets [--per 36]");
   process.exit(2);
@@ -42,7 +49,8 @@ const lines = readFileSync(tsvPath, "utf8")
     if (cols.length === 1) return { label: l, url: l };
     return { label: cols[0], url: cols[1] };
   })
-  .filter((r) => /^https?:\/\//i.test(r.url));
+  .map((r) => (/^https?:\/\//i.test(r.url) || !existsSync(r.url) ? r : { ...r, url: pathToFileURL(resolve(r.url)).href }))
+  .filter((r) => /^(https?|file):\/\//i.test(r.url));
 
 if (!lines.length) {
   console.error("no label\timageURL rows found");
@@ -204,7 +212,7 @@ for (let s = 0; s < sheets.length; s++) {
   body { margin: 16px; background: #1a1a1a; color: #eee; font: 11px/1.2 system-ui, sans-serif; }
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
   figure { margin: 0; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
-  img { display: block; width: 100%; height: 140px; object-fit: cover; background: #111; }
+  img { display: block; width: 100%; height: ${contain ? 200 : 140}px; object-fit: ${contain ? "contain" : "cover"}; background: #111; }
   figcaption { padding: 6px 8px; word-break: break-word; max-height: 2.4em; overflow: hidden; }
 </style>
 <div class="grid">${cells}</div>

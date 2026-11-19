@@ -76,7 +76,9 @@ Their board already holds their taste, so it is the pool. A rich board needs no 
 - **Find the sections.** A section link: start there. A page or file link: `get_metadata` on the page. A board of hundreds of cards returns about 100K tokens, saved to a file: read only its section lines from it (name, id, size), never the whole dump into context.
 - **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
 
-**Keep** every card that fits the brief, 20 to 60, across its parts. Marks they already made on the board (a star, a tag, a "yes" section) are their picks: keep those first. Then open each at full size. A card's render on the board is a thumbnail. For Figma, `download_assets` on the image node: `rawImages` is the original upload at full size, GIFs included. Save it to `refs/<name>.<format>`. Nothing is judged from a thumbnail.
+**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line. Marks they already made on the board (a star, a tag, a "yes" section) are their picks: they stay, and are named on the families board.
+
+Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets` returns `rawImages`, the original uploads at full size, GIFs included, up to 20 from anywhere under the node: call it on the card, or on a frame holding up to 20 cards when the result shows which card each image belongs to. A card's render on the board is a thumbnail, so it is never what is saved.
 
 **Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
 
@@ -150,21 +152,33 @@ If they say "go" or "you choose" instead of picking, pick from the pool yourself
 
 A family is a group of references that look alike: what a person would see from across a room. How large the type is against the pictures, how much of the screen is empty, how loud the colour is, what kind of face, how things sit together. It is not a part (a menu and an article can be one family) and not a subject.
 
-**Measure every keep first**, before any grouping, so every keep is compared on the same numbers and none is sorted on a glance:
+**Measure every keep first**, before any grouping, so every keep is compared on the same numbers and none is sorted on a glance. One call measures the whole folder in one browser, and the links in a few tabs at a time:
 
 ```
-node <skill>/scripts/measure.mjs design-exploration/<slug>/refs/<name>.jpg
-node <skill>/scripts/measure.mjs <its live link>
+node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --tsv > design-exploration/<slug>/traits.tsv
+node <skill>/scripts/measure.mjs <link> <link> … --jobs 4 --tsv > design-exploration/<slug>/traits-pages.tsv
 ```
 
-Run up to four at a time. From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground) and `loud` (how much is saturated colour). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
+Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
 
-**Sort by the numbers, then by eye.** Tone, emptiness, loudness and, on pages, scale and pictures are most of what is seen from across a room: start there. The eye adds what numbers miss: the kind of face, how things sit together, how the pictures are treated. Say in the family's line what the eye added.
+**Sort by the numbers, then by eye.** Tone, emptiness, loudness, busyness and, on pages, scale and pictures are most of what is seen from across a room: start there.
 
-- **Three to six families.** Fewer means the grouping is too coarse to choose from; more means it has been split on details.
+```
+node <skill>/scripts/families.mjs design-exploration/<slug>/traits.tsv --board design-exploration/<slug>/board.md
+```
+
+It proposes families, prints one line per family (size, ranges, the most typical six), and writes a board skeleton with every keep in its family, most typical first. Then the eye, family by family, from contact sheets, never from each picture opened alone:
+
+```
+node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
+```
+
+A family is seen from across a room, so thumbnails are the right size for this step. The eye adds what the numbers miss (the kind of face, how things sit together, how pictures are treated): split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
+
+- **As many families as there are looks.** The count comes from the pool, not from a fixed number: a varied board of a thousand can hold twenty, a tight board of thirty can hold two. `families.mjs` splits while a family spreads wide; `--spread` lower splits finer. Never merge two looks to reach a number, and never split one look on a detail.
 - **Named for what is seen**, in plain words a person outside design would use, with one line saying what its members share. Never a reference's name or a style label.
 - **Every keep is in exactly one family.** A keep that was saved for one detail (a control, a mark, a single card) and shows no whole look goes in a last group, `One detail`.
-- **Do not force a fit.** A keep that belongs nowhere is its own small family or goes under `One detail`. Say which families are too small to deal from (under six).
+- **Do not force a fit.** A keep that belongs nowhere is its own small family or goes under `One detail`. A family under six is small: it is shown, but cannot be dealt from alone.
 - **Check the spread.** Write each family's traits as ranges. A family wide on one trait (light and dark together, a scale of 2 beside one of 9) is two families or has a stray: split it, move the stray, or say in its line why it still holds.
 
 Write `board.md`: a few header lines, then one card per keep.
@@ -191,6 +205,16 @@ Families: <each family, what its members share, its measured ranges ("light · e
 `pattern` is the tile's caption, so write it as a pattern ("one column, the date as the spine"), never as their brand ("Linear's purple").
 
 ### 5. They mark the anchor and the donors
+
+**A big pool is chosen in two steps.** Over about 60 keeps or 8 families, one board to mark is too long to read. First the families board: each family as its six most typical, its size and its ranges, with Take and a note.
+
+```
+node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
+```
+
+> Open the families board. Take the families you want to see in full, any number, and note one that looks like two or belongs with another. Then paste the copy-out here.
+
+Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. A small board skips the first step.
 
 ```
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html
@@ -311,8 +335,10 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 - Choose a colour, a typeface, a size or a spacing value, or propose a combination. The library records what references use. Write `DESIGN.md`. Code or lay out a page.
 - Pick the family, the anchor or the donors for them, or rank the references, unless they say "you choose". Merge two families into one library.
 - Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
+- Measure one image per call, open every keep at full size to sort it, or read a big pool's traits into the chat. One browser for the folder, contact sheets for the eye, `families.mjs` for the numbers.
+- Cut their moodboard to a number, or force its families to one.
 - Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the three questions are answered, answer them yourself, or ask them a second round of questions. Run a third picker round.
-- Cut the pool for taste before they pick. Pad the keep by lowering the filter. Keep a shot nobody opened at full size.
+- Cut the pool for taste before they pick. Pad the keep by lowering the filter. Save a thumbnail as a shot, or read a reference into the library from one.
 - Screenshot a source's listing or search page, or a candidate you are not keeping. Never stitch screenshots or frames into one picture.
 - Judge motion from a still.
 - Name a reference in `direction.md`'s subject, or in a library entry's `id` or `what`. Name the thing it does.
