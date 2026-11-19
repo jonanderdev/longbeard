@@ -39,18 +39,8 @@
 // - No recipe is dealt twice, in any round.
 //
 // --choose n records recipe n of the last round as the screen they settled on,
-//   and deals nothing. On a --part round it records that screen's layout, so
-//   the screens after it are dealt knowing it.
-// --part <name> deals layouts for another key screen (a menu, a list, an
-//   article) from the library's parts, each carrying the chosen look, so only
-//   the layout differs: up to --count (4), each from a different reference,
-//   ones not shown yet first. A layout from "first screen" (one that follows
-//   from the chosen screen) is always dealt when the part has one. A layout's
-//   optional "needs" lists the entries it only works with (the navigation it
-//   grows from, a layout chosen for an earlier screen): it is dealt only when
-//   every one is already chosen.
+//   and deals nothing.
 //   node deal.mjs .longbeard/design/direction/library.json --choose 3
-//   node deal.mjs .longbeard/design/direction/library.json --part navigation
 //
 // --vary, --more and --mix take recipe numbers from the last round, whatever
 // its kind, so a variation can be varied again.
@@ -87,13 +77,12 @@ const varyArg = flag("vary");
 const moreArg = flag("more");
 const mixArg = flag("mix");
 const chooseArg = flag("choose");
-const partArg = flag("part");
 const colsArg = flag("cols");
 const outArg = flag("out");
 const identityArg = flag("identity");
 const libArg = args[0];
-const usage = "usage: node deal.mjs <library.json> [--identity docs/design/design-identity.md] [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix 7,zone.side=4 | --mix chosen,accent=theirs-red | --choose 3 | --part navigation] [--out deal.json]";
-if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg, chooseArg, partArg].filter(Boolean).length > 1) {
+const usage = "usage: node deal.mjs <library.json> [--identity docs/design/design-identity.md] [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix 7,zone.side=4 | --mix chosen,accent=theirs-red | --choose 3] [--out deal.json]";
+if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg, chooseArg].filter(Boolean).length > 1) {
   console.error(usage);
   process.exit(2);
 }
@@ -124,13 +113,6 @@ const outPath = outArg ? resolve(outArg) : join(dirname(libPath), "deal.json");
 
 const lists = ["arrangements", "navigation", "type", "grounds", "accents"];
 const field = { arrangements: "arrangement", navigation: "navigation", type: "type", grounds: "ground", accents: "accent" };
-for (const [part, entries] of Object.entries(lib.parts || {})) {
-  if (!Array.isArray(entries)) fail(`parts.${part} must be a list of layouts`);
-  for (const entry of entries) {
-    if (!entry.id || !Array.isArray(entry.from) || !entry.from.length) fail(`every layout in parts.${part} needs an id and a from list of references`);
-    if (entry.needs !== undefined && !Array.isArray(entry.needs)) fail(`parts.${part}.${entry.id}: needs is a list of entry ids`);
-  }
-}
 for (const list of lists) {
   if (!Array.isArray(lib[list]) || !lib[list].length) fail(`the library has no ${list}`);
   const ids = new Set();
@@ -141,7 +123,7 @@ for (const list of lists) {
   }
 }
 if (!lib.family) console.error("deal: the library has no family, so nothing holds the screens together: write it in design-direction step 2");
-const count = countArg ? Number(countArg) : partArg ? 4 : 8;
+const count = countArg ? Number(countArg) : 8;
 if (!Number.isInteger(count) || count < 2 || count > 16) fail("count must be a whole number from 2 to 16");
 const seed = seedArg ? Number(seedArg) >>> 0 : (Date.now() ^ (process.pid << 8)) >>> 0;
 
@@ -246,7 +228,7 @@ const recipes = [];
 const used = { navigation: {}, type: {}, grounds: {}, accents: {} };
 const noAccent = new Set();
 const pairs = new Set();
-const kind = varyArg ? "vary" : moreArg ? "more" : mixArg ? "mix" : partArg ? "part" : "deal";
+const kind = varyArg ? "vary" : moreArg ? "more" : mixArg ? "mix" : "deal";
 const save = () => {
   writeFileSync(outPath, `${JSON.stringify({ rounds, chosen: saved.chosen || null }, null, 2)}\n`);
   writeFileSync(outPath.replace(/\.json$/, "") + ".js", `window.DEAL = ${JSON.stringify({ library: lib, rounds, chosen: saved.chosen || null })};\n`);
@@ -255,17 +237,8 @@ if (chooseArg) {
   const last = rounds.at(-1);
   if (!last) fail("nothing dealt yet: deal a round before --choose");
   const r = last.recipes.find((x) => x.n === Number(chooseArg)) || fail(`round ${last.round} has no recipe ${chooseArg}`);
-  if (last.kind === "part") {
-    if (!saved.chosen) fail("no first screen chosen: --choose it before a part's layout");
-    saved.chosen.parts = { ...(saved.chosen.parts || {}), [last.part]: r.arrangement };
-    save();
-    console.log(`chosen for ${last.part}: ${r.arrangement} (round ${last.round}, ${r.n}). Screens so far: ${Object.entries(saved.chosen.parts).map(([k, v]) => `${k} ${v}`).join(", ")}`);
-    process.exit(0);
-  }
   for (const list of lists) entry(list, r[field[list]]);
-  // A new first screen starts the other screens over: what was chosen for them was chosen next to another look.
-  if (saved.chosen?.parts && Object.keys(saved.chosen.parts).length) console.error(`deal: a new first screen; the layouts chosen for ${Object.keys(saved.chosen.parts).join(", ")} are cleared`);
-  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, ...(r.zones ? { zones: r.zones } : {}), round: last.round, n: r.n, parts: {} };
+  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, ...(r.zones ? { zones: r.zones } : {}), round: last.round, n: r.n };
   save();
   console.log(`chosen: ${lists.map((list) => r[field[list]]).join(" · ")} (round ${last.round}, ${r.n})`);
   process.exit(0);
@@ -282,33 +255,7 @@ const legible = (r) => standsOff(entry("accents", r.accent), entry("grounds", r.
 // A list named the way a person would say it: type, ground, grounds, accent, nav.
 const listOf = (word) => lists.find((list) => list === word || field[list] === word || (word === "nav" && list === "navigation")) || fail(`no list called ${word}: use ${Object.values(field).join(", ")}`);
 
-if (kind === "part") {
-  const layouts = (lib.parts || {})[partArg];
-  if (!layouts || !layouts.length) fail(`the library has no layouts for ${partArg}: read them from direction.md's Other parts, or run design-direction's one piece for it`);
-  if (!saved.chosen) fail("no screen chosen yet: --choose the one they settled on first");
-  const shown = new Map();
-  for (const round of rounds) for (const r of round.recipes) if (r.part === partArg) shown.set(r.arrangement, (shown.get(r.arrangement) || 0) + 1);
-  // Only layouts that fit what is already chosen: the first screen's entries and the earlier screens' layouts.
-  const have = new Set([...lists.map((list) => saved.chosen[field[list]]), ...Object.values(saved.chosen.parts || {})]);
-  const fits = layouts.filter((x) => (x.needs || []).every((id) => have.has(id)));
-  const left = layouts.length - fits.length;
-  if (left) console.error(`deal: ${left} layout${left === 1 ? "" : "s"} for ${partArg} left out: ${left === 1 ? "it needs" : "they need"} what was not chosen (${[...new Set(layouts.filter((x) => !fits.includes(x)).flatMap((x) => x.needs.filter((id) => !have.has(id))))].join(", ")})`);
-  const follows = fits.filter((x) => x.from.includes("first screen"));
-  const others = shuffle(fits.filter((x) => !x.from.includes("first screen"))).sort((a, b) => (shown.get(a.id) || 0) - (shown.get(b.id) || 0));
-  const taken = new Set();
-  const picked = [];
-  // Each layout from a different reference, so no one reference lays out the whole part.
-  for (const x of [...follows, ...others]) {
-    if (picked.length === count) break;
-    if (x.from.some((ref) => taken.has(ref))) continue;
-    picked.push(x);
-    x.from.forEach((ref) => taken.add(ref));
-  }
-  // Each layout carries the chosen look and the screens chosen so far, so the page builds it among them.
-  const { round: _round, n: _n, parts: chosenParts = {}, arrangement: firstScreen, ...look } = saved.chosen;
-  for (const x of picked) recipes.push({ ...look, first: firstScreen, parts: chosenParts, part: partArg, arrangement: x.id });
-  if (recipes.length < 2) console.error(`deal: only ${recipes.length} layout for ${partArg}: the references show little of this part, so offer a search for more (design-direction, one piece)`);
-} else if (kind !== "deal") {
+if (kind !== "deal") {
   const last = rounds.at(-1);
   if (!last) fail(`nothing dealt yet: deal a round before --${kind}`);
   const base = (n) => last.recipes.find((r) => r.n === n) || fail(`round ${last.round} has no recipe ${n}`);
@@ -429,14 +376,14 @@ if (kind === "part") {
 }
 
 recipes.forEach((r, i) => (r.n = i + 1));
-const round = { round: rounds.length + 1, kind, seed, ...(partArg ? { part: partArg } : {}), recipes };
+const round = { round: rounds.length + 1, kind, seed, recipes };
 rounds.push(round);
 save();
 
 const pad = (text, n) => String(text).padEnd(n);
 console.log(`round ${round.round} · ${round.kind} · seed ${seed}`);
 for (const r of recipes) {
-  const lead = kind === "part" ? `${pad(r.n, 3)}${pad(r.part, 14)}` : kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
+  const lead = kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
   console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}${zoneKey(r) ? `  zones ${zoneKey(r)}` : ""}`);
 }
 

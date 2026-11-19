@@ -412,82 +412,6 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
   }
 });
 
-test("deal --choose then --part: layouts for another screen carry the chosen look, each from another reference", () => {
-  const lib = library({
-    parts: {
-      navigation: [
-        { id: "follows", what: "the first screen's bar, opened", from: ["first screen"] },
-        { id: "overlay", what: "x", from: ["a"] },
-        { id: "drawer", what: "x", from: ["b"] },
-        { id: "inline", what: "x", from: ["a", "c"] },
-        { id: "dock", what: "x", from: ["d"] },
-        { id: "tabs", what: "x", from: ["e"] },
-      ],
-    },
-  });
-  const dir = project(lib);
-  const early = run(deal, dir, ["library.json", "--part", "navigation"]);
-  assert.equal(early.status, 1);
-  run(deal, dir, ["library.json", "--seed", "4"]);
-  assert.match(run(deal, dir, ["library.json", "--part", "navigation"]).stderr, /no screen chosen yet/);
-  const chose = run(deal, dir, ["library.json", "--choose", "3"]);
-  assert.equal(chose.status, 0, chose.stderr);
-  const { chosen } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
-  const result = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "5"]);
-  assert.equal(result.status, 0, result.stderr);
-  const part = rounds(dir).at(-1);
-  assert.equal(part.kind, "part");
-  assert.equal(part.recipes.length, 4);
-  assert.equal(part.recipes[0].arrangement, "follows");
-  for (const r of part.recipes) for (const k of ["navigation", "type", "ground", "accent"]) assert.equal(r[k], chosen[k]);
-  const refs = part.recipes.flatMap((r) => lib.parts.navigation.find((x) => x.id === r.arrangement).from);
-  assert.equal(new Set(refs).size, refs.length);
-  // Asked again, the layouts not shown yet come first.
-  run(deal, dir, ["library.json", "--part", "navigation", "--seed", "6"]);
-  const again = rounds(dir).at(-1).recipes.map((r) => r.arrangement);
-  const before = part.recipes.map((r) => r.arrangement);
-  const unseen = lib.parts.navigation.map((x) => x.id).filter((id) => !before.includes(id));
-  assert.ok(unseen.every((id) => again.includes(id) || lib.parts.navigation.find((x) => x.id === id).from.some((ref) => again.some((a) => lib.parts.navigation.find((x) => x.id === a).from.includes(ref)))), `${again}`);
-  assert.equal(run(deal, dir, ["library.json", "--part", "footer"]).status, 1);
-});
-
-test("deal --part: earlier choices carry forward, and a layout that needs what was not chosen is left out", () => {
-  const lib = library({
-    parts: {
-      navigation: [
-        { id: "follows-nav", what: "x", from: ["first screen"] },
-        { id: "overlay", what: "x", from: ["a"], needs: ["nav-1"] },
-        { id: "sidebar", what: "x", from: ["b"], needs: ["nav-3"] },
-        { id: "sheet", what: "x", from: ["c"] },
-      ],
-      index: [
-        { id: "follows-index", what: "x", from: ["first screen"] },
-        { id: "cards", what: "x", from: ["d"], needs: ["overlay"] },
-        { id: "rows", what: "x", from: ["e"], needs: ["sheet"] },
-      ],
-    },
-  });
-  const dir = project(lib);
-  // A first screen with nav-1, chosen by writing a round whose recipe 1 has it.
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-b", navigation: "nav-1", type: "type-2", ground: "dark", accent: "red" }] }] }));
-  run(deal, dir, ["library.json", "--choose", "1"]);
-  const nav = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "2"]);
-  assert.match(nav.stderr, /1 layout for navigation left out: it needs what was not chosen \(nav-3\)/);
-  const navRound = rounds(dir).at(-1);
-  assert.deepEqual(navRound.recipes.map((r) => r.arrangement).sort(), ["follows-nav", "overlay", "sheet"]);
-  assert.ok(navRound.recipes.every((r) => r.navigation === "nav-1" && r.first === "arr-b"));
-  // They pick the overlay menu; the index is dealt knowing it.
-  const overlay = navRound.recipes.find((r) => r.arrangement === "overlay").n;
-  assert.match(run(deal, dir, ["library.json", "--choose", String(overlay)]).stdout, /chosen for navigation: overlay/);
-  run(deal, dir, ["library.json", "--part", "index", "--seed", "3"]);
-  const indexRound = rounds(dir).at(-1);
-  assert.deepEqual(indexRound.recipes.map((r) => r.arrangement).sort(), ["cards", "follows-index"]);
-  assert.ok(indexRound.recipes.every((r) => r.parts.navigation === "overlay"));
-  // A new first screen clears what was chosen for the other screens.
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ ...JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")), rounds: [...rounds(dir), { round: 9, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-c", navigation: "nav-3", type: "type-4", ground: "cream", accent: "none" }] }] }));
-  assert.match(run(deal, dir, ["library.json", "--choose", "1"]).stderr, /layouts chosen for navigation are cleared/);
-});
-
 test("grid template: its script parses, and it marks what a run writes", () => {
   const html = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
   const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -495,13 +419,14 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements", "parts (design-prototype forks)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
+  for (const part of ["content", "navigation", "arrangements"]) assert.match(html, new RegExp(`WRITE: ${part}`));
+  assert.doesNotMatch(html, /CONCEPTS|PARTS|\?concept=|--part/);
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
-test("grid template: hero concepts, must-carry and zones are wired", () => {
+test("grid template: must-carry and zones are wired", () => {
   const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
-  for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
+  for (const hook of ["function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
 });
 
 test("deal: their own entries are not one shared reference", () => {
