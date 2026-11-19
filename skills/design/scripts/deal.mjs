@@ -21,7 +21,9 @@
 // - The anchor's arrangement is dealt twice. No other arrangement repeats in
 //   a round, and arrangements dealt in earlier rounds come last.
 // - An accent that does not stand off the surface it sits on is passed over.
-// - Navigation, type, ground and accent are used as evenly as the library allows.
+// - Navigation, type, ground and accent are used as evenly as the library allows,
+//   and a type and ground already paired in this round are not paired again
+//   while another ground can be had: two screens on the same pair look alike.
 // - No recipe is dealt twice, in any round.
 //
 // --vary, --more and --mix take recipe numbers from the last round, whatever
@@ -131,10 +133,25 @@ const note = (list, item, used) => {
 
 function recipeFor(arrangement, used) {
   const sources = new Set(arrangement.from);
-  const type = pick("type", used, (x) => !overlaps(x, sources));
+  // Type and ground are chosen together: the least used type that still has a ground from another
+  // reference, not yet paired with it in this round; failing that, any type with any such ground.
+  const types = shuffle(lib.type).filter((x) => !overlaps(x, sources));
+  types.sort((x, y) => (used.type[x.id] || 0) - (used.type[y.id] || 0));
+  let type = null;
+  let ground = null;
+  for (const fresh of [true, false]) {
+    for (const t of types) {
+      const withType = new Set([...sources, ...t.from]);
+      const g = pick("grounds", used, (x) => !overlaps(x, withType) && (!fresh || !pairs.has(`${t.id}|${x.id}`)));
+      if (g) {
+        type = t;
+        ground = g;
+        break;
+      }
+    }
+    if (type) break;
+  }
   if (!type) return null;
-  const withType = new Set([...sources, ...type.from]);
-  const ground = pick("grounds", used, (x) => !overlaps(x, withType));
   if (!ground) return null;
   const navigation = pick("navigation", used, (x) => !overlaps(x, sources)) || pick("navigation", used, () => true);
   const accent = pick("accents", used, (x) => !overlaps(x, sources) && standsOff(x, ground)) || pick("accents", used, (x) => standsOff(x, ground)) || pick("accents", used, () => true);
@@ -144,12 +161,14 @@ function recipeFor(arrangement, used) {
   note("type", type, used);
   note("grounds", ground, used);
   note("accents", accent, used);
+  pairs.add(`${type.id}|${ground.id}`);
   dealt.add(key(recipe));
   return recipe;
 }
 
 const recipes = [];
 const used = { navigation: {}, type: {}, grounds: {}, accents: {} };
+const pairs = new Set();
 const kind = varyArg ? "vary" : moreArg ? "more" : mixArg ? "mix" : "deal";
 const strip = ({ arrangement, navigation, type, ground, accent }) => ({ arrangement, navigation, type, ground, accent });
 // Arrangement, type and ground from three different references.

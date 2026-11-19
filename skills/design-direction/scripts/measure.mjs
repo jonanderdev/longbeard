@@ -241,19 +241,36 @@ const readPage = `(() => {
     }
     const filled = cs.backgroundColor !== "rgba(0, 0, 0, 0)" && r.width < W - 40;
     if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30)
-      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r) });
+      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage) });
   }
   out.fonts = [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family.replace(/["']/g, "") + " " + f.weight + " " + f.style))];
-  // Traits. The body size is the size most text is set in, by count of pieces.
+  // Traits. The body size is the size most text is set in, by characters: a title split into one
+  // element per letter is still a few characters, and a paragraph is many.
   const sizes = out.text.map((t) => parseFloat(t.size)).filter((x) => x > 0);
   const tally = new Map();
-  for (const x of sizes) tally.set(x, (tally.get(x) || 0) + 1);
+  for (const t of out.text) {
+    const x = parseFloat(t.size);
+    if (x > 0) tally.set(x, (tally.get(x) || 0) + t.text.length);
+  }
   const body = [...tally].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] || 0;
-  const largest = sizes.length ? Math.max(...sizes) : 0;
+  // Lettering drawn as an SVG or an image (a wordmark, a title set as a picture) is display type too:
+  // a box at least a quarter of the screen wide and at least three times as wide as it is tall.
+  // Its height stands for its size: a cap height is about 0.7 of the size it was set at.
+  const words = [];
+  for (const el of document.querySelectorAll("svg, img")) {
+    const r = el.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > H || r.width < W / 4 || r.height < 24 || r.width / r.height < 3) continue;
+    if (el.closest("svg") !== el && el.tagName.toLowerCase() !== "img") continue;
+    words.push(Math.round(r.height / 0.7));
+  }
+  const largestText = sizes.length ? Math.max(...sizes) : 0;
+  const largestWord = words.length ? Math.max(...words) : 0;
+  const largest = Math.max(largestText, largestWord);
   // Picture cover is counted on a coarse grid, so overlapping pictures count once.
+  // Only real pictures: an image, a video, a canvas or a url() background, never a gradient or a panel.
   const cells = new Set();
   for (const b of out.boxes) {
-    if (b.kind === "div" && b.fill !== "rgba(0, 0, 0, 0)") continue;
+    if (!b.picture) continue;
     const [x, y, w, h] = b.box;
     for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
       for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) cells.add(gx + "," + gy);
@@ -267,7 +284,8 @@ const readPage = `(() => {
     scale: body ? Math.round((10 * largest) / body) / 10 : null,
     pictures: Math.round((1000 * cells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
     margin: lefts.length ? Math.round((1000 * Math.min(...lefts)) / W) / 10 : null,
-    radius,
+    radius: parseFloat(radius) > 999 ? "pill" : radius,
+    lettering: largestWord > largestText ? "picture" : "text",
   };
   return out;
 })()`;
@@ -308,7 +326,7 @@ ws.close();
 const failed = results.filter((r) => r.error);
 for (const r of failed) console.error(`measure: ${r.target}: ${r.error}`);
 if (tsv) {
-  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius"];
+  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering"];
   const lines = [["ref", ...cols].join("\t")];
   for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => r.traits?.[c] ?? "")].join("\t"));
   console.log(lines.join("\n"));

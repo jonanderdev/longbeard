@@ -190,7 +190,9 @@ test("families: splits on measured traits, keeps groups of at least --min, and w
   const groups = families.map((f) => f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")).sort().join(","));
   assert.ok(groups.some((g) => /^(paper,?)+$/.test(g)), result.stdout);
   assert.ok(groups.some((g) => /^(night,?)+$/.test(g)), result.stdout);
-  assert.ok(families.every((f) => f.size >= 3));
+  assert.ok(families.filter((f) => !f.stray).every((f) => f.size >= 3));
+  // The one far from every group is set aside for the eye, not forced into a family.
+  assert.deepEqual(families.find((f) => f.stray)?.members, ["refs/odd.jpg"]);
   assert.match(result.stdout, /22 references, \d+ families/);
   const board = readFileSync(join(dir, "board.md"), "utf8");
   assert.match(board, /^Families: f1 \(/);

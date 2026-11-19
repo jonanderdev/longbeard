@@ -257,7 +257,7 @@ function measured(args) {
 }
 
 test("measure: a page gives its ground, and each text's face, size and colour", async (t) => {
-  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase;margin:0 0 0 32px">Quiet</h1><p style="font:16px Georgia;margin:0 0 0 32px">One</p><p style="font:16px Georgia;margin:0 0 0 32px">Two</p><div style="width:720px;height:450px;background-image:linear-gradient(red,blue);border-radius:6px"></div></body>`;
+  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase;margin:0 0 0 32px">Quiet</h1><p style="font:16px Georgia;margin:0 0 0 32px">One</p><p style="font:16px Georgia;margin:0 0 0 32px">Two</p><div style="width:720px;height:200px;background-image:linear-gradient(red,blue)"></div><img style="display:block;width:720px;height:450px;border-radius:6px" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></body>`;
   const server = await new Promise((done) => {
     const s = createServer((req, res) => res.end(page));
     s.listen(0, () => done(s));
@@ -307,3 +307,14 @@ test("measure: a folder in one browser, as one TSV row per image", async (t) => 
   assert.deepEqual(head.slice(0, 6), ["ref", "tone", "lum", "empty", "loud", "busy"]);
   assert.deepEqual(rows.map((r) => [r[0].split("/").pop(), r[1]]), [["a.png", "light"], ["b.png", "dark"]]);
 });
+
+test("deal: a type and ground pair repeats at most once in a round, even in a tight library", () => {
+  for (let seed = 1; seed <= 30; seed++) {
+    const dir = project();
+    run(deal, dir, ["library.json", "--seed", String(seed)]);
+    const recipes = rounds(dir)[0].recipes;
+    const pairs = recipes.map((r) => `${r.type}|${r.ground}`);
+    assert.ok(pairs.length - new Set(pairs).size <= 1, `seed ${seed}: ${pairs}`);
+  }
+});
+

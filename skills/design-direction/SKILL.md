@@ -159,21 +159,23 @@ node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --tsv > design-e
 node <skill>/scripts/measure.mjs <link> <link> … --jobs 4 --tsv > design-exploration/<slug>/traits-pages.tsv
 ```
 
-Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
+Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. Measure the live pages whenever the keeps have links: how large the largest type is, read only from a page, is what a person sees first from across a room, and pictures alone sort big-type and small-type references together. A title drawn as an SVG or an image counts as type (`lettering: picture`). From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
 
 **Sort by the numbers, then by eye.** Tone, emptiness, loudness, busyness and, on pages, scale and pictures are most of what is seen from across a room: start there.
 
 ```
-node <skill>/scripts/families.mjs design-exploration/<slug>/traits.tsv --board design-exploration/<slug>/board.md
+node <skill>/scripts/families.mjs design-exploration/<slug>/traits.tsv --links design-exploration/<slug>/links.tsv --pages design-exploration/<slug>/traits-pages.tsv --board design-exploration/<slug>/board.md
 ```
 
-It proposes families, prints one line per family (size, ranges, the most typical six), and writes a board skeleton with every keep in its family, most typical first. Then the eye, family by family, from contact sheets, never from each picture opened alone:
+`links.tsv` is `name<TAB>link`, one row per keep, so each picture is joined to its page. It proposes families, prints one line per family (size, ranges, the most typical six), and writes a board skeleton with every keep in its family, most typical first. Then the eye, family by family, from contact sheets, never from each picture opened alone:
 
 ```
 node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
 ```
 
-A family is seen from across a room, so thumbnails are the right size for this step. The eye adds what the numbers miss (the kind of face, how things sit together, how pictures are treated): split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
+A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, but only the sheet confirms them.
+
+**Strays are not noise.** `families.mjs` sets aside the few far from every family. They are often the most distinctive keeps on the board, the ones a designer looks at first: place each by eye, into a family or as the seed of one, and never drop one for being a stray. The numbers tend to split a varied board finely; merging is the eye's job too. The eye adds what the numbers miss (the kind of face, how things sit together, how pictures are treated): split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
 - **As many families as there are looks.** The count comes from the pool, not from a fixed number: a varied board of a thousand can hold twenty, a tight board of thirty can hold two. `families.mjs` splits while a family spreads wide; `--spread` lower splits finer. Never merge two looks to reach a number, and never split one look on a detail.
 - **Named for what is seen**, in plain words a person outside design would use, with one line saying what its members share. Never a reference's name or a style label.

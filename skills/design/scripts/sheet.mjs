@@ -40,9 +40,10 @@ writeFileSync(
 <style>
   body { margin: 0; padding: 24px; background: #6f6f6f; font: 600 22px/1 system-ui, sans-serif; }
   main { display: grid; grid-template-columns: repeat(${cols}, 720px); gap: 24px; width: max-content; }
-  figure { margin: 0; position: relative; }
+  figure { margin: 0; display: flex; flex-direction: column-reverse; gap: 8px; }
   img { display: block; width: 720px; height: auto; }
-  figcaption { position: absolute; left: 0; top: 0; min-width: 44px; padding: 11px 0; text-align: center; background: #111; color: #fff; }
+  /* The number sits above the screen, never on it: a corner of a screen is where its name or menu is. */
+  figcaption { align-self: flex-start; min-width: 44px; padding: 8px 10px; text-align: center; background: #111; color: #fff; }
 </style>
 <main>
 ${tiles}
