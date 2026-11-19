@@ -325,7 +325,8 @@ test("deal: a type and ground pair repeats at most once in a round, even in a ti
 
 
 test("measure --profiles: a picture and its page in one profile, and the tags already there kept", async (t) => {
-  const page = `<!doctype html><body style="margin:0;background:rgb(20,20,20)"><h1 style="font:700 120px Georgia;color:#fff;margin:40px">Kiln</h1><video style="display:block;width:720px;height:300px"></video></body>`;
+  const icon = `<svg width="24" height="24"><circle cx="12" cy="12" r="10"/></svg>`;
+  const page = `<!doctype html><body style="margin:0;background:rgb(20,20,20)"><main style="background:rgb(20,20,20);min-height:900px"><h1 style="font:700 120px Georgia;color:#fff;margin:40px">Kiln</h1><video style="display:block;width:720px;height:300px"></video><div style="background:rgb(255,80,0);width:1440px;height:180px"></div>${icon.repeat(5)}</main></body>`;
   const server = await new Promise((done) => {
     const s = createServer((req, res) => res.end(page));
     s.listen(0, () => done(s));
@@ -347,6 +348,9 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
     assert.ok(p.image.figure.share > 0 && p.image.figure.colours >= 1);
     assert.equal(p.page.traits.display, "120px");
     assert.ok(p.page.media.video > 15, JSON.stringify(p.page.media));
+    // Five small drawings are icons; the orange band is a solid block; the full-screen main is the ground.
+    assert.equal(p.page.traits.icons, 5);
+    assert.ok(p.page.traits.blocks > 15 && p.page.traits.blocks < 25, `blocks ${p.page.traits.blocks}`);
     assert.equal(p.page.texts[0].text, "Kiln");
     assert.deepEqual([p.tags.picture, p.note], [["lettering"], "kept"]);
   } finally {

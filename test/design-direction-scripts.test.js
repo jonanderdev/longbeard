@@ -255,7 +255,8 @@ test("families: from profiles, what the picture is separates references the numb
   const refs = {};
   // Three looks with the same tone and emptiness: photographs, 3D renders, and type alone on the ground.
   for (let i = 0; i < 5; i++) refs[`photo${i}`] = profile(`photo${i}`, { lum: 0.02, empty: 60 + i, picture: "photo", layout: "full-bleed", colours: 150, soft: 30, sharp: 35, grid: 70 });
-  for (let i = 0; i < 4; i++) refs[`render${i}`] = profile(`render${i}`, { lum: 0.02, empty: 61 + i, picture: "render", layout: "scattered", colours: 300, soft: 50, sharp: 20, grid: 35 });
+  // The renders are on dark and on light grounds: the same look, one family, its grounds dealt later.
+  for (let i = 0; i < 4; i++) refs[`render${i}`] = profile(`render${i}`, { lum: i < 2 ? 0.02 : 0.95, empty: 61 + i, picture: "render", layout: "scattered", colours: 300, soft: 50, sharp: 20, grid: 35 });
   for (let i = 0; i < 4; i++) refs[`type${i}`] = profile(`type${i}`, { lum: 0.02, empty: 62 + i, picture: "none", layout: "left", colours: 6, soft: 2, sharp: 60, grid: 10 });
   refs.pairA = profile("pairA", { lum: 0.95, empty: 30, loud: 60, picture: "collage", layout: "collage", colours: 200 });
   refs.pairB = profile("pairB", { lum: 0.95, empty: 31, loud: 61, picture: "collage", layout: "collage", colours: 200 });
@@ -267,5 +268,5 @@ test("families: from profiles, what the picture is separates references the numb
   const strays = families.find((f) => f.stray);
   assert.deepEqual(strays.pairs, [["refs/pairA.jpg", "refs/pairB.jpg"]]);
   assert.match(result.stdout, /pairs, each a family seed: pairA\+pairB/);
-  assert.match(result.stdout, /render · scattered · sans · neutral · flat \| dark/);
+  assert.match(result.stdout, /render · scattered · sans · neutral · flat \| dark and light/);
 });

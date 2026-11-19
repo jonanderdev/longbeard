@@ -22,12 +22,14 @@ import { fileURLToPath } from "node:url";
 export const VOCABULARY = {
   picture: {
     photo: "a photograph",
-    illustration: "drawn or painted, flat or textured",
+    illustration: "drawn or painted scenes, characters, objects",
     render: "3D: rendered objects, glass, clay, blobs",
     lettering: "the type itself is the picture",
     ui: "screens of a product, a device mock-up",
     product: "an object cut out on the ground, packshot",
     pattern: "a repeat: grid, dots, lines, tiles",
+    icon: "small symbols: icons, logos, emoji, pictograms",
+    shape: "solid flat shapes or colour blocks, no drawing in them",
     collage: "cut-outs, stickers, layered scraps",
     none: "no picture: type and ground only",
   },

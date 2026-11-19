@@ -298,7 +298,7 @@ const readImage = (src) => `(async () => {
 
 const readPage = `(() => {
   const W = innerWidth, H = innerHeight, box = (r) => [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
-  const out = { screen: [W, H], ground: getComputedStyle(document.body).backgroundColor, root: getComputedStyle(document.documentElement).backgroundColor, text: [], boxes: [] };
+  const out = { screen: [W, H], ground: getComputedStyle(document.body).backgroundColor, root: getComputedStyle(document.documentElement).backgroundColor, text: [], boxes: [], icons: 0, solids: [] };
   const seen = new Set();
   for (const el of document.querySelectorAll("body *")) {
     const r = el.getBoundingClientRect();
@@ -310,6 +310,12 @@ const readPage = `(() => {
       seen.add(own.slice(0, 24) + cs.fontSize);
       out.text.push({ text: own.slice(0, 40), face: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), size: cs.fontSize, weight: cs.fontWeight, style: cs.fontStyle, tracking: cs.letterSpacing, leading: cs.lineHeight, case: cs.textTransform, colour: cs.color, box: box(r) });
     }
+    // Icons: small pictures and drawings, a logo row, emoji, pictograms.
+    const tag = el.tagName.toLowerCase();
+    if ((tag === "img" || (tag === "svg" && !el.parentElement.closest("svg"))) && r.width >= 12 && r.height >= 12 && r.width <= 72 && r.height <= 72) out.icons++;
+    // Solid blocks: an opaque fill of its own colour, at least a fortieth of the screen. A band, a card, a shape.
+    const alpha = (cs.backgroundColor.match(/rgba?[(]([^)]*)[)]/) || [, ""])[1].split(",").map(Number)[3];
+    if (cs.backgroundColor !== "rgba(0, 0, 0, 0)" && !(alpha < 0.9) && r.width * r.height >= (W * H) / 40) out.solids.push({ fill: cs.backgroundColor, box: box(r), radius: cs.borderRadius });
     const filled = cs.backgroundColor !== "rgba(0, 0, 0, 0)" && r.width < W - 40;
     if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30 && r.height > 2)
       out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage), gradient: /gradient\\(/.test(cs.backgroundImage) ? cs.backgroundImage.slice(0, 240) : "" });
@@ -398,6 +404,18 @@ const readPage = `(() => {
     for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
       for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) media[kind].add(gx + "," + gy);
   }
+  // Blocks: how much of the screen is solid colour other than the ground.
+  // A fill over most of the screen is the ground, whatever element carries it (a wrapper, a main).
+  const grounds = new Set([out.ground, out.root, ...out.solids.filter((b) => b.box[2] * b.box[3] >= 0.85 * W * H).map((b) => b.fill)]);
+  const bcells = new Set();
+  for (const b of out.solids) {
+    if (grounds.has(b.fill)) continue;
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) bcells.add(gx + "," + gy);
+  }
+  out.blocks = Math.round((1000 * bcells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10;
+  delete out.solids;
   out.media = Object.fromEntries(Object.entries(media).map(([k, v]) => [k, Math.round((1000 * v.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10]));
   const radii = out.boxes.map((b) => b.radius).filter((r) => r && r !== "0px");
   const radius = radii.length ? [...radii.reduce((m, r) => m.set(r, (m.get(r) || 0) + 1), new Map())].sort((a, b) => b[1] - a[1])[0][0] : "0px";
@@ -412,6 +430,8 @@ const readPage = `(() => {
     lettering: largestWord > largestText ? "picture" : "text",
     gradient: Math.round((1000 * gcells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
     pattern: Math.round((1000 * pcells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
+    icons: out.icons,
+    blocks: out.blocks,
     align,
   };
   return out;
@@ -476,7 +496,7 @@ if (profilesArg) {
   const tagged = Object.values(store.refs).filter((p) => p.tags).length;
   console.log(`profiles: ${profilesArg}, ${n} references, ${withPage} with their page, ${tagged} tagged`);
 } else if (tsv) {
-  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "align"];
+  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "icons", "blocks", "align"];
   const lines = [["ref", ...cols].join("\t")];
   for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => r.traits?.[c] ?? "")].join("\t"));
   console.log(lines.join("\n"));

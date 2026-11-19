@@ -165,7 +165,7 @@ A family is a group of references that look alike: what a person would see from 
    node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --links design-exploration/<slug>/links.tsv --profiles design-exploration/<slug>/profiles.json --jobs 6
    ```
 
-   From the picture: `tone`, `empty`, `loud`, `busy`, and its **figure**, everything that is not the ground: how many colours, how colourful, how grey, how much is soft surface or hard edge, its palette, and a 6 by 4 grid of where things sit. That is what tells a photograph from a 3D render from chrome lettering, which share "the picture fills the screen". From the page: the largest type and where it sits, what the screen is made of (`media`: images, video, canvas, SVG), visible `gradient` and `pattern` with their CSS, the loaded fonts and the largest texts with their face, size, weight and tracking. Never one call per image: each call starts a browser. Never read the profiles into the chat: the scripts read them.
+   From the picture: `tone`, `empty`, `loud`, `busy`, and its **figure**, everything that is not the ground: how many colours, how colourful, how grey, how much is soft surface or hard edge, its palette, and a 6 by 4 grid of where things sit. That is what tells a photograph from a 3D render from chrome lettering, which share "the picture fills the screen". From the page: the largest type and where it sits, what the screen is made of (`media`: images, video, canvas, SVG), how many icons (small pictures and drawings), how much is solid colour blocks, visible `gradient` and `pattern` with their CSS, the loaded fonts and the largest texts with their face, size, weight and tracking. Never one call per image: each call starts a browser. Never read the profiles into the chat: the scripts read them.
 3. **Tag**, what numbers cannot see, in a fixed vocabulary:
 
    ```
@@ -173,7 +173,7 @@ A family is a group of references that look alike: what a person would see from 
    node <skill>/scripts/tag.mjs design-exploration/<slug>/profiles.json design-exploration/<slug>/tags.tsv
    ```
 
-   The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
+   The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, icon, shape, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
 
 **Sort by the profiles, then by eye.**
 
@@ -181,7 +181,7 @@ A family is a group of references that look alike: what a person would see from 
 node <skill>/scripts/families.mjs design-exploration/<slug>/profiles.json --board design-exploration/<slug>/board.md
 ```
 
-It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait counts once, weighted by how much it shows from across a room: light or dark most, then what the picture is and the layout, then type, colour and surface. `--spread` lower splits finer.
+It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait counts once, weighted by how much it shows from across a room: what the picture is and the layout most, then type, colour and surface. Light or dark counts half: the same look on a dark and on a light ground is one family, and its library keeps both grounds for `design` to deal (they choose light, dark or both there). `--spread` lower splits finer.
 
 Then the eye, family by family, from contact sheets, never from each picture opened alone:
 

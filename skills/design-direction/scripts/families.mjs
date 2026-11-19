@@ -147,15 +147,25 @@ if (fromProfiles) {
     block("where", 24);
   }
   if (refs.some((r) => profileOf.get(r.ref)?.page?.media)) block("video or canvas", 1);
+  if (refs.some((r) => profileOf.get(r.ref)?.page?.traits?.icons !== undefined)) {
+    block("icons", 1);
+    block("solid blocks", 1);
+  }
   if (tagged.length >= refs.length / 2) for (const field of Object.keys(TAGW)) block(field, Object.keys(VOCAB[field]).length);
   for (const r of refs) {
     const p = profileOf.get(r.ref) || {};
     const f = p.image?.figure;
-    // Light or dark is the first thing seen from across a room: among this many traits it counts twice.
-    r.x[0] *= 2;
+    // Light or dark counts half: the same look on a dark and a light ground is one family, and the
+    // library deals its grounds. What the picture is and where things sit decide the family.
+    r.x[0] *= 0.5;
     if (blocks.some((b) => b.name === "colours"))
       r.x.push(...(f ? [0.7 * Math.min(1, Math.log2(f.colours + 1) / 9), 0.7 * Math.min(1, f.colourful / 150), 0.7 * (f.grey / 100), 0.7 * (f.soft / 100), 0.7 * (f.sharp / 100)] : [0.35, 0.35, 0.35, 0.35, 0.35]), ...(f ? f.grid.map((v) => 0.2 * (v / 100)) : new Array(24).fill(0.1)));
     if (blocks.some((b) => b.name === "video or canvas")) r.x.push(Math.min(1, ((p.page?.media?.video || 0) + (p.page?.media?.canvas || 0)) / 100));
+    if (blocks.some((b) => b.name === "icons")) {
+      const t = p.page?.traits;
+      // Icons on a log scale: none, a few, a row, a wall of them. Solid blocks by how much they cover.
+      r.x.push(t ? Math.min(1, Math.log2((t.icons || 0) + 1) / 5) : 0.3, t ? Math.min(1, (t.blocks || 0) / 60) : 0.1);
+    }
     if (blocks.some((b) => b.name === "picture"))
       for (const [field, w] of Object.entries(TAGW)) {
         const words = Object.keys(VOCAB[field]);
