@@ -53,9 +53,14 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 const args = process.argv.slice(2);
+// A flag given with nothing after it is a mistake, not a request for a fresh round.
+const empty = [];
 const flag = (name) => {
   const i = args.indexOf(`--${name}`);
-  return i === -1 ? "" : (args.splice(i, 2)[1] ?? "");
+  if (i === -1) return "";
+  const value = args.splice(i, 2)[1];
+  if (value === undefined || value === "" || value.startsWith("--")) empty.push(name);
+  return value && !value.startsWith("--") ? value : "";
 };
 const countArg = flag("count");
 const seedArg = flag("seed");
@@ -64,9 +69,10 @@ const moreArg = flag("more");
 const mixArg = flag("mix");
 const chooseArg = flag("choose");
 const partArg = flag("part");
+const colsArg = flag("cols");
 const outArg = flag("out");
 const libArg = args[0];
-const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --choose 3 | --part navigation] [--out deal.json]";
+const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix chosen,accent=theirs-red | --choose 3 | --part navigation] [--out deal.json]";
 if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg, chooseArg, partArg].filter(Boolean).length > 1) {
   console.error(usage);
   process.exit(2);
@@ -75,6 +81,17 @@ const fail = (text) => {
   console.error(`deal: ${text}`);
   process.exit(1);
 };
+if (empty.length) {
+  console.error(`deal: --${empty.join(", --")} needs a value\n${usage}`);
+  process.exit(2);
+}
+if (seedArg && !/^\d+$/.test(seedArg)) {
+  console.error(`deal: --seed takes a whole number, not ${seedArg}`);
+  process.exit(2);
+}
+// The sheet's columns, so the anchor's two screens are kept apart on the grid, not only in the list.
+const cols = colsArg ? Number(colsArg) : 2;
+if (!Number.isInteger(cols) || cols < 1 || cols > 8) fail("--cols is the sheet's columns, 1 to 8");
 const libPath = resolve(libArg);
 if (!existsSync(libPath)) fail(`no library at ${libArg}`);
 const lib = JSON.parse(readFileSync(libPath, "utf8"));
@@ -129,11 +146,14 @@ const contrast = (a, b) => {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (hi + 0.05) / (lo + 0.05);
 };
+// #abc is #aabbcc: a short hex is checked like a long one.
+const hex6 = (value) => (typeof value === "string" && /^#[0-9a-f]{3}$/i.test(value) ? `#${[...value.slice(1)].map((c) => c + c).join("")}` : value);
 const isHex = (value) => typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
-// The surface an accent sits on: the panel when the design has one, else the ground.
+// The surface an accent sits on: the panel when the design has one, else the ground. 1.4 lets a
+// tint on a ground through (a highlighter on pink is 1.6) and stops a near-white on white (1.2).
 const standsOff = (accent, ground) => {
-  const surface = ground.panel || ground.ground;
-  return !isHex(accent.colour) || !isHex(surface) || contrast(accent.colour, surface) >= 1.15;
+  const colour = hex6(accent.colour), surface = hex6(ground.panel || ground.ground);
+  return !isHex(colour) || !isHex(surface) || contrast(colour, surface) >= 1.4;
 };
 
 const saved = existsSync(outPath) ? JSON.parse(readFileSync(outPath, "utf8")) : { rounds: [] };
@@ -141,7 +161,9 @@ const rounds = saved.rounds || [];
 const key = (r) => lists.map((list) => r[field[list]]).join("|");
 const dealt = new Set(rounds.flatMap((round) => round.recipes.map(key)));
 const entry = (list, id) => lib[list].find((x) => x.id === id) || fail(`${list} has no entry called ${id}`);
-const overlaps = (item, taken) => item.from.some((ref) => taken.has(ref));
+// "theirs" is not a reference: a face and a ground they own are two of their choices, not one source.
+const refs = (item) => item.from.filter((ref) => ref !== "theirs");
+const overlaps = (item, taken) => refs(item).some((ref) => taken.has(ref));
 
 // The least used entry that passes, in a shuffled order so ties fall differently each time.
 function pick(list, used, passes) {
@@ -155,7 +177,7 @@ const note = (list, item, used) => {
 };
 
 function recipeFor(arrangement, used) {
-  const sources = new Set(arrangement.from);
+  const sources = new Set(refs(arrangement));
   // Type and ground are chosen together: the least used type that still has a ground from another
   // reference, not yet paired with it in this round; failing that, any type with any such ground.
   const types = shuffle(lib.type).filter((x) => !overlaps(x, sources));
@@ -164,7 +186,7 @@ function recipeFor(arrangement, used) {
   let ground = null;
   for (const fresh of [true, false]) {
     for (const t of types) {
-      const withType = new Set([...sources, ...t.from]);
+      const withType = new Set([...sources, ...refs(t)]);
       const g = pick("grounds", used, (x) => !overlaps(x, withType) && (!fresh || !pairs.has(`${t.id}|${x.id}`)));
       if (g) {
         type = t;
@@ -177,7 +199,12 @@ function recipeFor(arrangement, used) {
   if (!type) return null;
   if (!ground) return null;
   const navigation = pick("navigation", used, (x) => !overlaps(x, sources)) || pick("navigation", used, () => true);
-  const accent = pick("accents", used, (x) => !overlaps(x, sources) && standsOff(x, ground)) || pick("accents", used, (x) => standsOff(x, ground)) || pick("accents", used, () => true);
+  // Never an accent that does not stand off: one without a colour carries nothing, so it always fits.
+  const accent = pick("accents", used, (x) => !overlaps(x, sources) && standsOff(x, ground)) || pick("accents", used, (x) => standsOff(x, ground));
+  if (!accent) {
+    noAccent.add(ground.id);
+    return null;
+  }
   const recipe = { arrangement: arrangement.id, navigation: navigation.id, type: type.id, ground: ground.id, accent: accent.id };
   if (dealt.has(key(recipe))) return null;
   note("navigation", navigation, used);
@@ -191,6 +218,7 @@ function recipeFor(arrangement, used) {
 
 const recipes = [];
 const used = { navigation: {}, type: {}, grounds: {}, accents: {} };
+const noAccent = new Set();
 const pairs = new Set();
 const kind = varyArg ? "vary" : moreArg ? "more" : mixArg ? "mix" : partArg ? "part" : "deal";
 const save = () => {
@@ -219,7 +247,7 @@ if (chooseArg) {
 const strip = ({ arrangement, navigation, type, ground, accent }) => ({ arrangement, navigation, type, ground, accent });
 // Arrangement, type and ground from three different references.
 const threeSources = (r) => {
-  const [a, t, g] = [entry("arrangements", r.arrangement).from, entry("type", r.type).from, entry("grounds", r.ground).from];
+  const [a, t, g] = [refs(entry("arrangements", r.arrangement)), refs(entry("type", r.type)), refs(entry("grounds", r.ground))];
   return !a.some((ref) => t.includes(ref)) && !a.some((ref) => g.includes(ref)) && !t.some((ref) => g.includes(ref));
 };
 const legible = (r) => standsOff(entry("accents", r.accent), entry("grounds", r.ground));
@@ -284,6 +312,10 @@ if (kind === "part") {
     recipes.push({ ...pickRecipe, of: n, change: "the pick" });
     const had = new Set(rounds.flatMap((round) => round.recipes).filter((r) => lists.every((l) => l === list || r[field[l]] === pickRecipe[field[l]])).map((r) => r[name]));
     for (const x of shuffle(lib[list])) {
+      if (recipes.length === count) {
+        console.error(`deal: ${count} screens is a round; ask for more again to see the rest of the ${name}s`);
+        break;
+      }
       const r = { ...pickRecipe, [name]: x.id };
       if (had.has(x.id) || !threeSources(r) || !legible(r)) continue;
       dealt.add(key(r));
@@ -292,8 +324,10 @@ if (kind === "part") {
     if (recipes.length === 1) console.error(`deal: recipe ${n} has had every ${name} it can take`);
   } else {
     const [nText, ...swaps] = mixArg.split(",");
-    const n = Number(nText);
-    const mixed = strip(base(n));
+    // "chosen" is the screen they settled on (--choose), whatever round is last.
+    if (nText === "chosen" && !saved.chosen) fail("nothing chosen yet: --choose the screen first");
+    const n = nText === "chosen" ? "chosen" : Number(nText);
+    const mixed = nText === "chosen" ? strip(saved.chosen) : strip(base(n));
     const from = [];
     for (const swap of swaps) {
       const [word, value] = swap.split("=").map((x) => (x || "").trim());
@@ -314,26 +348,39 @@ if (kind === "part") {
   const anchor = lib.anchor ? lib.arrangements.find((a) => a.from.includes(lib.anchor)) : null;
   if (lib.anchor && !anchor) fail(`no arrangement comes from the anchor, ${lib.anchor}`);
   const others = shuffle(lib.arrangements.filter((a) => a !== anchor)).sort((a, b) => (before[a.id] || 0) - (before[b.id] || 0));
-  const order = anchor && count >= 4 ? [anchor, anchor, ...others] : anchor ? [anchor, ...others] : others;
+  // The anchor twice in the first round; once a round after that, since every round so far showed it.
+  const firstRound = !rounds.some((round) => round.kind === "deal");
+  if (!firstRound && others.every((a) => before[a.id])) console.error("deal: every arrangement has been shown: this round deals them again with other type, ground and accent. New arrangements need the next family, or more references");
+  const order = anchor && count >= 4 && firstRound ? [anchor, anchor, ...others] : anchor ? [anchor, ...others] : others;
   for (const arrangement of order) {
     if (recipes.length === count) break;
     const recipe = recipeFor(arrangement, used);
     if (recipe) recipes.push(recipe);
     else console.error(`deal: no fresh recipe for the arrangement ${arrangement.id}: its type and ground must come from two other references`);
   }
+  if (noAccent.size) console.error(`deal: no accent stands off ${[...noAccent].join(", ")}: add one that does, or an accent with colour null`);
   if (recipes.length < 2) fail("the library is too thin to deal from: an arrangement, a type and a ground from three different references are needed");
-  // The anchor's two screens should not sit side by side.
-  if (anchor) {
-    const shuffled = shuffle(recipes);
-    const twice = shuffled.filter((r) => r.arrangement === anchor.id);
-    const rest = shuffled.filter((r) => r.arrangement !== anchor.id);
-    if (twice.length === 2 && rest.length) {
-      const at = 1 + Math.floor(random() * rest.length);
-      rest.splice(at, 0, twice[1]);
-      rest.splice(Math.floor(random() * at), 0, twice[0]);
-      recipes.splice(0, recipes.length, ...rest);
-    } else recipes.splice(0, recipes.length, ...shuffled);
+  // The anchor is promised: a round without it is a failure, with the reason, not a quiet gap.
+  if (anchor && !recipes.some((r) => r.arrangement === anchor.id)) {
+    if (firstRound) fail(`the anchor's arrangement (${anchor.id}) cannot be dealt: every type or ground it could take comes from ${lib.anchor} too. Add a type and a ground from other references, or mark another anchor`);
+    console.error(`deal: the anchor's arrangement (${anchor.id}) has been dealt with every type and ground it can take, so this round goes without it`);
   }
+  // The anchor's two screens never touch on the sheet: not beside each other, not one above the other.
+  if (anchor) {
+    const touching = (p, q) => (Math.floor(p / cols) === Math.floor(q / cols) && Math.abs(p - q) === 1) || Math.abs(p - q) === cols;
+    let order2 = shuffle(recipes);
+    for (let tries = 0; tries < 200; tries++) {
+      const at = order2.map((r, i) => (r.arrangement === anchor.id ? i : -1)).filter((i) => i >= 0);
+      if (at.length < 2 || !touching(at[0], at[1])) break;
+      order2 = shuffle(recipes);
+    }
+    recipes.splice(0, recipes.length, ...order2);
+  }
+  // In a library with few types or grounds, a pair can come round again: say so, never quietly.
+  const pairCount = {};
+  for (const r of recipes) pairCount[`${r.type} on ${r.ground}`] = (pairCount[`${r.type} on ${r.ground}`] || 0) + 1;
+  const repeated = Object.entries(pairCount).filter(([, n]) => n > 1);
+  if (repeated.length) console.error(`deal: the library has few types or grounds, so ${repeated.map(([pair, n]) => `${pair} comes ${n} times`).join(", ")}`);
   if (recipes.length < count) console.error(`deal: ${recipes.length} recipes, not ${count}: the library has no more arrangements to give`);
 }
 

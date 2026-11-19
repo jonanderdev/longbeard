@@ -135,13 +135,17 @@ test("deal --vary: each variation changes one list and keeps the three sources",
   }
 });
 
-test("deal: the anchor's two screens never sit side by side", () => {
-  for (let seed = 1; seed <= 40; seed++) {
-    const dir = project();
-    run(deal, dir, ["library.json", "--seed", String(seed)]);
-    const order = rounds(dir)[0].recipes.map((r) => r.arrangement);
-    assert.equal(order.filter((a) => a === "arr-a").length, 2);
-    assert.ok(!order.some((a, i) => i && a === "arr-a" && order[i - 1] === "arr-a"), `seed ${seed}: ${order}`);
+test("deal: the anchor's two screens never touch on the sheet, beside or above each other", () => {
+  for (const cols of [2, 4]) {
+    for (let seed = 1; seed <= 40; seed++) {
+      const dir = project();
+      run(deal, dir, ["library.json", "--seed", String(seed), "--cols", String(cols)]);
+      const at = rounds(dir)[0].recipes.filter((r) => r.arrangement === "arr-a").map((r) => r.n - 1);
+      assert.equal(at.length, 2);
+      const [p, q] = at;
+      const besides = Math.floor(p / cols) === Math.floor(q / cols) && Math.abs(p - q) === 1;
+      assert.ok(!besides && Math.abs(p - q) !== cols, `cols ${cols}, seed ${seed}: ${at}`);
+    }
   }
 });
 
@@ -444,3 +448,72 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   for (const part of ["content", "navigation", "arrangements", "parts (step 7)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
+
+test("deal: their own entries are not one shared reference", () => {
+  const lib = library();
+  lib.type = [{ id: "their-face", from: ["theirs"] }];
+  lib.grounds = [{ id: "their-ground", ground: "#ffffff", ink: "#000000", from: ["theirs"] }];
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(rounds(dir)[0].recipes.every((r) => r.type === "their-face" && r.ground === "their-ground"));
+  const mix = run(deal, dir, ["library.json", "--mix", "1,accent=red"]);
+  assert.doesNotMatch(mix.stderr, /fewer than three references/);
+});
+
+test("deal: an empty flag or a seed that is not a number is a usage error, not a fresh round", () => {
+  const dir = project();
+  run(deal, dir, ["library.json", "--seed", "1"]);
+  assert.equal(run(deal, dir, ["library.json", "--vary"]).status, 2);
+  assert.equal(run(deal, dir, ["library.json", "--seed", "abc"]).status, 2);
+  assert.equal(rounds(dir).length, 1);
+});
+
+test("deal: an anchor that cannot be dealt fails with the reason; a later round deals it once", () => {
+  const lib = library();
+  lib.type = lib.type.map((t) => ({ ...t, from: [...t.from, "a"] }));
+  const result = run(deal, project(lib), ["library.json", "--seed", "1"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /the anchor's arrangement \(arr-a\) cannot be dealt/);
+  const dir = project();
+  run(deal, dir, ["library.json", "--seed", "1"]);
+  run(deal, dir, ["library.json", "--seed", "2"]);
+  assert.ok(rounds(dir)[1].recipes.filter((r) => r.arrangement === "arr-a").length <= 1);
+});
+
+test("deal: a tight library says when a type and ground pair comes round again", () => {
+  const lib = library();
+  lib.type = [{ id: "t1", from: ["x"] }, { id: "t2", from: ["y"] }];
+  lib.grounds = [{ id: "g1", ground: "#ffffff", ink: "#000000", from: ["z"] }, { id: "g2", ground: "#000000", ink: "#ffffff", from: ["w"] }];
+  const result = run(deal, project(lib), ["library.json", "--seed", "3"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /the library has few types or grounds, so .* comes \d times/);
+});
+
+test("deal: an accent that does not stand off is never dealt, short hex included", () => {
+  const lib = library();
+  lib.grounds = [{ id: "white", ground: "#ffffff", ink: "#000000", from: ["z"] }];
+  lib.type = [{ id: "t", from: ["y"] }];
+  lib.accents = [{ id: "ghost", colour: "#ececec", from: ["q"] }, { id: "short", colour: "#fff", from: ["r"] }, { id: "none", colour: null, from: ["s"] }];
+  const dir = project(lib);
+  run(deal, dir, ["library.json", "--seed", "1"]);
+  assert.deepEqual([...new Set(rounds(dir)[0].recipes.map((r) => r.accent))], ["none"]);
+});
+
+test("deal --more stops at one round, and --mix chosen works after any round", () => {
+  const lib = library();
+  for (let i = 0; i < 30; i++) lib.type.push({ id: `extra${i}`, from: [`z${i}`] });
+  const dir = project(lib);
+  run(deal, dir, ["library.json", "--seed", "1"]);
+  const more = run(deal, dir, ["library.json", "--more", "1:type"]);
+  assert.equal(rounds(dir).at(-1).recipes.length, 8);
+  assert.match(more.stderr, /8 screens is a round/);
+  run(deal, dir, ["library.json", "--choose", "2"]);
+  const { chosen } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
+  run(deal, dir, ["library.json", "--vary", "1"]);
+  const mix = run(deal, dir, ["library.json", "--mix", "chosen,accent=none"]);
+  assert.equal(mix.status, 0, mix.stderr);
+  const mixed = rounds(dir).at(-1).recipes[0];
+  assert.deepEqual([mixed.arrangement, mixed.type, mixed.accent], [chosen.arrangement, chosen.type, "none"]);
+});
+
