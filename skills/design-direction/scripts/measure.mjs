@@ -7,7 +7,7 @@
 // picture is that ground (empty), and how much is loud colour. A screen shown
 // on a plain grey or black surround (a presentation frame) is read inside the
 // frame, and "frame" names the surround and the box that was read.
-//   node measure.mjs design-exploration/<slug>/refs/name.jpg
+//   node measure.mjs .longbeard/design/moodboard/refs/name.jpg
 //
 // A live page: its ground colour, the fonts it loaded, and every piece of text
 // on the first screen with its face, size, weight, style, tracking, case,
@@ -28,7 +28,7 @@
 // page, live pages in up to --jobs tabs at a time. A folder means every image
 // in it. --tsv prints one row of numbers per reference, with a header, which
 // is what families.mjs reads and costs far fewer tokens than the JSON.
-//   node measure.mjs design-exploration/<slug>/refs --tsv > design-exploration/<slug>/traits.tsv
+//   node measure.mjs .longbeard/design/moodboard/refs --tsv > .longbeard/design/<step>/traits.tsv
 //   node measure.mjs refs/a.jpg refs/b.png https://example.com --jobs 4 --tsv
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";

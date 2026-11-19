@@ -9,9 +9,9 @@ import { deflateSync } from "node:zlib";
 import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const deal = join(root, "skills/design/scripts/deal.mjs");
-const sheet = join(root, "skills/design/scripts/sheet.mjs");
-const measure = join(root, "skills/design-direction/scripts/measure.mjs");
+const deal = join(root, "skills/design-direction/scripts/deal.mjs");
+const sheet = join(root, "skills/design-direction/scripts/sheet.mjs");
+const measure = join(root, "skills/design-families/scripts/measure.mjs");
 
 // Eight references, a to h. Each gives one arrangement; type, grounds and the rest are shared out.
 const library = (extra = {}) => ({
@@ -489,18 +489,18 @@ test("deal --part: earlier choices carry forward, and a layout that needs what w
 });
 
 test("grid template: its script parses, and it marks what a run writes", () => {
-  const html = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  const html = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
   const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements", "parts (step 7)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
+  for (const part of ["content", "navigation", "arrangements", "parts (design-screens forks)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
 test("grid template: hero concepts, must-carry and zones are wired", () => {
-  const grid = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
   for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
 });
 
@@ -653,8 +653,8 @@ test("measure: a tall capture is read on its first screen, a folder of frames by
   assert.deepEqual([wideOut.traits.tone, wideOut.traits.loud], ["light", 0]);
 });
 
-test("colours: step 5's colour rows are made by rule, every option passes contrast, and a failing one is left out", () => {
-  const colours = join(root, "skills/design/scripts/colours.mjs");
+test("colours: design-identity's colour options are made by rule, every option passes contrast, and a failing one is left out", () => {
+  const colours = join(root, "skills/design-identity/scripts/colours.mjs");
   const out = spawnSync(process.execPath, [colours, "--ground", "#f1ede4", "--ink", "#111111", "--accent", "#fe2601", "--family", "#ebe4e0,#fec704", "--theirs", "#2b4c7e", "--json"], { encoding: "utf8" });
   assert.equal(out.status, 0, out.stderr);
   const { rows } = JSON.parse(out.stdout);
@@ -701,7 +701,7 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
     ],
   };
   writeFileSync(join(dir, "fonts.json"), JSON.stringify(list));
-  const fonts = join(root, "skills/design/scripts/fonts.mjs");
+  const fonts = join(root, "skills/design-identity/scripts/fonts.mjs");
   const run = (args) => new Promise((done) => {
     const child = spawn(process.execPath, [fonts, ...args, "--metadata", join(dir, "fonts.json"), "--local"]);
     let stdout = "", stderr = "";
@@ -725,4 +725,35 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   // --kind wins over the list's kind: a face Google files wrongly gets a row of what it is.
   const sans = JSON.parse((await run(["DejaVu Serif", "--kind", "sans", "--json"])).stdout);
   assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
+});
+
+test("deal --identity: type, grounds and accents come from the identity, composition from the references", () => {
+  const { type: _t, grounds: _g, accents: _a, ...composition } = library();
+  const dir = project(composition);
+  writeFileSync(join(dir, "identity.md"), `# Identity\n\n\`\`\`json identity\n${JSON.stringify({
+    display: { face: "Unbounded", weight: 500, case: "uppercase" },
+    body: { face: "Inter", size: "16px", leading: "1.5" },
+    colours: [
+      { name: "lime", hex: "#C0FF00", role: ["accent", "ground"] },
+      { name: "paper", hex: "#EEE", role: "ground" },
+      { name: "mid", hex: "#737373", role: "ground" },
+      { name: "ink", hex: "#000000", role: ["ink", "ground"] },
+    ],
+  })}\n\`\`\`\n`);
+  const result = run(deal, dir, ["library.json", "--identity", "identity.md", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  // Grey #737373 has no identity colour at 4.5:1 on it, so it is not a ground, and it is said.
+  assert.match(result.stderr, /mid is left out as a ground/);
+  const lib = JSON.parse(readFileSync(join(dir, "library.json"), "utf8"));
+  assert.deepEqual(lib.grounds.map((g) => g.id), ["lime", "paper", "ink"]);
+  // Each ground takes the identity colour that reads best on it: dark ink on the light ones, a light one on black.
+  assert.equal(lib.grounds.find((g) => g.id === "paper").ink, "#000000");
+  assert.notEqual(lib.grounds.find((g) => g.id === "ink").ink, "#000000");
+  assert.deepEqual(lib.accents.map((a) => a.id), ["lime", "none"]);
+  const { rounds } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
+  assert.equal(rounds[0].recipes.length, 8);
+  for (const r of rounds[0].recipes) assert.equal(r.type, "identity");
+  // Later rounds read the lists written back, with no --identity.
+  const again = run(deal, dir, ["library.json", "--vary", "1"]);
+  assert.equal(again.status, 0, again.stderr);
 });

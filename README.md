@@ -21,33 +21,39 @@ It is a base. You keep going from here.
 | Stage | What happens | You get |
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
-| 2. Direction | One round of questions, like a studio's brief: what the first screen must do, personality sliders, feel, who to stand apart from, what is fixed, and where to look. Your own moodboard, or a wide search you mark like or no on a picker page. The agent sorts the result into families that look alike, and on one board you mark an anchor and the references to draw from | `design-exploration/<slug>/direction.md` and `library.json`: what your references use, measured, with nothing chosen yet |
-| 3. Design | Eight first screens dealt from your references, with your real content. You pick, see each pick varied one thing at a time, and pick again, then tune its colours and fonts from options rendered on it. The agent finishes that screen and prototypes the other key screens in your look, offering layout options where a screen forks or you ask | `DESIGN.md` on your yes, a bento board of the look in Figma, then the screens, checked and marked Ready |
-| 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
-| 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
-| 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
+| 2. Design | A family of small design skills, each one job, each writing one doc. `design` reads your project and suggests the next one. Design brief: a studio's questions. Moodboard: your board, or a search you mark like or no. Identity: type and colours picked on rendered options. Direction: first screens dealt from your references in your identity; you pick, and a hierarchy pass makes it read right. Screens: the rest, prototyped and approved. Then Figma. [How it flows](assets/design-flow.png) | `docs/design/`: the design brief, moodboard, identity board, direction. `DESIGN.md` on your yes. Figma screens, checked and marked Ready |
+| 3. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
+| 4. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
+| 5. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
 
 ### Why it designs this way
 
 A product's look should be chosen by the people who own it, and built with a designer's care.  
-So Long Beard works like a designer: it gathers references that share a look, from your moodboard or fresh ones it finds, and makes something new inside them. Every screen mixes several, so none is copied and all of them belong.  
-The agent builds; you choose. Taste rules give everyone the same good-looking site; your references and your choices give you yours.  
-Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
+Your taste picks the ingredients: the references you like, the type and colours, the composition. The agent does the craft: it combines moves from several references into compositions none of them has, then makes the one you chose read right (one clear headline, the action easy to find, nothing missing) without changing what you chose.  
+Each design skill does one job, so you run only what you need: skip the moodboard if you have one, sort a big board into families only when it is big, plan copy and pictures only when you want to. Short steps, few questions, a doc at the end of each, so a long run never drifts.
 
-Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Direction and Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
+Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
 
 ## The kit
 
-Four skills are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
+Long Beard's own skills are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
 
 | Skill | What it is for | Author |
 |---|---|---|
 | [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
-| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like, sorts them into families, and reads the ones you mark into a library. Never picks colours or type. [How it flows](assets/design-direction-flow.png) | Long Beard |
-| [design](skills/design/SKILL.md) | Deals first screens from the library for you to pick from, prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
-| [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
+| [design](skills/design/SKILL.md) | The way in: reads the project and suggests the next design skill | Long Beard |
+| [design-brief](skills/design-brief/SKILL.md) | A designer's questions before looking: feel, never, apart from, what is fixed | Long Beard |
+| [design-moodboard](skills/design-moodboard/SKILL.md) | Reads your board and fills its gaps, or finds references you mark like or no | Long Beard |
+| [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks, in Figma too, so choosing is easy | Long Beard |
+| [design-identity](skills/design-identity/SKILL.md) | Type pairing and colours from rendered options; the identity board | Long Beard |
+| [design-direction](skills/design-direction/SKILL.md) | First screens dealt from your references in your identity; you pick; a hierarchy pass | Long Beard |
+| [design-screens](skills/design-screens/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
+| [design-figma](skills/design-figma/SKILL.md) | Tokens, the identity board, components and Ready screens in Figma | Long Beard |
+| [design-content](skills/design-content/SKILL.md) | Optional: what each screen says and shows, with stand-in pictures | Long Beard |
+| [design-wordmark](skills/design-wordmark/SKILL.md) | Optional: a mark made from your type | Long Beard |
+| [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame, and that the design docs name no reference. Reports; does not redesign | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
-| [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design` writes tokens, components and screens in Figma | Figma |
+| [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design-figma` writes tokens, components and screens in Figma | Figma |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file a designer handed over | Figma |
 
 Add-ons are your choice. In a terminal, `init` lists them and you tick the ones you want; `modern-web-guidance` starts ticked, the rest start empty. Later the agent offers one when it is needed; take it with `npx longbeard update --skill <name>`, or all of them with `--all`.
@@ -65,11 +71,11 @@ A kit is an author's whole flow, taken as they publish it: the skills in their p
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-`design-exploration/` is your working folder for inspiration, moodboards and prototypes. It stays on your machine, out of git. `DESIGN.md` is the result you keep.
+`docs/design/` holds the design docs, committed and kept up to date: they describe the style, never the references it came from. `.longbeard/design/` is the agents' working folder (captures, pickers, grids, prototypes), out of git; you never need to open it. `DESIGN.md` is the official result.
 
 ## You need
 
-- Node 22 or newer, and Chrome, for the screenshots `design-direction`, `design` and `design-check` take.
+- Node 22 or newer, and Chrome, for the screenshots the design skills and `design-check` take.
 - The Figma connection in your agent, for a project with a UI.
 
 ## Install
@@ -97,7 +103,7 @@ Ask for a brief:
 
 > Catch this project up to the pipeline. Draft the brief from what is here and skip the stages it already has.
 
-The agent drafts `docs/brief.md` from your documents and code, asks only about the gaps, and asks what happens to any document that now says the same thing. A stage whose file exists is done: with a `DESIGN.md`, it goes past Direction and Design.
+The agent drafts `docs/brief.md` from your documents and code, asks only about the gaps, and asks what happens to any document that now says the same thing. A stage whose file exists is done: with a `DESIGN.md`, it goes past Design.
 
 Then type `/grill-with-docs`, and say what already names things in your project and where your decisions live, if that is not `docs/adr/`. Screens you already have in Figma are marked Ready one at a time, when a feature touches them.
 

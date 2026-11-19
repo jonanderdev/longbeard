@@ -8,7 +8,7 @@ import { deflateSync } from "node:zlib";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const crops = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-direction/scripts/crops.mjs");
+const crops = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-moodboard/scripts/crops.mjs");
 
 // A PNG by hand: rows of RGB pixels, no dependencies.
 function png(width, rows) {

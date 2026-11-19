@@ -1,0 +1,159 @@
+---
+name: design-moodboard
+description: >
+  References for the look. Reads their own moodboard (a Figma board, a folder,
+  links) and fills only what it lacks, or, without one, finds a wide pool from
+  the sources they choose for them to mark like or no on a picker page, with
+  one sharper second round. The keeps are captured privately; the committed doc
+  describes what the board says, move by move, without naming a source. Runs
+  after docs/design/design-brief.md exists, or when a key screen has no
+  reference ("one piece").
+---
+
+# Design moodboard
+
+Two things come out:
+
+- **`docs/design/design-moodboard.md`**, committed: what the board says. The moves it holds, what the likes share, what the noes share, what is missing. Never a source.
+- **`.longbeard/design/moodboard/`**, gitignored: `board.md` (one card per keep, with its link), `refs/` (the captures), the picker pages, contact sheets. The skills read it; nobody needs to open it.
+
+It chooses no look and ranks nothing. It gathers what they like and says what it holds.
+
+## Gate
+
+1. No `docs/design/design-brief.md` → `design-brief` first. Stop.
+2. Called for one piece (a menu, an empty state, "ideas for the pricing table") → **One piece**, below.
+3. A board given in the design brief, or now → **Their board**.
+4. Otherwise → **Search**.
+
+## The parts
+
+The board covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, photography, motion, as the brief needs them. For an app: the brief's key screens, its navigation, motion. Every keep has one `part`.
+
+## Their board
+
+Their board already holds their taste: it is the pool. A rich board needs no search and no picker.
+
+**Read it.** A folder: open every image. Links: capture each page. Figma, a section at a time:
+
+- `create_session` with the file key first. Over about 200 cards, ask once: "The whole file, or one page or section?" Where the board has its own tags, offer to read only the ones that are screens.
+- `get_metadata` on the page, saved to a file; read only its section lines, never the whole dump into context.
+- Captions, tags and stars are read from the nodes with `use_figma`, paged under its 48 KB return cap, never from a screenshot. A star is a keep that is named in the read-back.
+- Save each keep's original to `refs/<card name>.<ext>`: `download_assets` returns the original uploads (up to 20 per call). A card's render on the board is a thumbnail, never what is saved.
+- **Cards cut from shared sheets** (many cards share one `imageHash`, filled with `scaleMode: CROP`): read each card's name, hash, transform, caption and tags into `cards.json`, then
+
+  ```
+  node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --list
+  node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --sheets <scratch>/sheets --out .longbeard/design/moodboard/refs
+  ```
+
+  The first lists each sheet once to download; the second checks each against its hash and crops every card at full size.
+
+**Keep every card that fits.** Never cut their board to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many and why in one line. A poster, a type specimen, packaging or an illustration is kept, marked `screen: no`: it carries colour and picture treatment, not an arrangement.
+
+**Is it enough?** Two checks:
+
+- **Enough to compose from:** at least six keeps that are screens.
+- **Every part:** each key screen in the brief has at least one keep that shows that kind of screen.
+
+Both met → say so in one line ("34 fits, every part covered") and write the doc. Otherwise say what it lacks in up to three lines and ask:
+
+> Search for these, or go with what your board has?
+
+- **A gap:** search only what is missing, 20 to 60 candidates, one picker round. The likes join the keep.
+- **Too thin for six screens:** the full **Search**, with their board's fits as seeds.
+- **"Go":** what it lacks goes under `Missing`.
+
+**Big boards.** Over about 60 keeps, say once: "That's 240 references. `design-families` can sort them into looks before you choose." Their call.
+
+## Search
+
+Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens. The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
+
+1. **A wide pool:** 150 to 250 candidates, across every part. Query the form, not the word ("editorial article layout", not "writing app"). Before calling a field thin, try three more forms and the brief's identity nouns. Cut only what is not a candidate (off-form, broken, under the source's floor); never cut for taste. One row per candidate in `.longbeard/design/moodboard/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
+2. **Check it on contact sheets** (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`): drop non-screens and broken thumbnails only. Thin after that → search again for what is thin.
+3. **The picker:**
+
+   ```
+   node <skill>/scripts/picker.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/picker.html
+   ```
+
+   Look at it yourself first, replace broken rows, then give the path:
+
+   > Open the picker: like what pulls you, no what feels wrong, a why where you have one, then paste the picks here.
+
+4. **Read the picks back** in up to three lines (what the likes share, what the noes share, the next search) and wait.
+5. **Round two, once:** sharper, from the corrected read: the forms the likes share, the same designers, the pattern on other sources. 60 to 100 rows, `picker.mjs … --round 2`. Skip it when they say the likes cover it. Never a third.
+6. **Capture the likes**, all of them. Open each at full size; drop only a dead page, a gate or broken work, and say so. A keep is a page, not a site: capture the page that shows its part.
+
+   ```
+   node <skill>/scripts/capture.mjs <url> --out .longbeard/design/moodboard/refs/<name>.jpg
+   node <skill>/scripts/capture.mjs <url> --out .longbeard/design/moodboard/refs/<name>-menu.jpg --click "<menu button>"
+   node <skill>/scripts/capture.mjs <url> --out .longbeard/design/moodboard/refs/<name>-intro --frames 12
+   ```
+
+   Motion is judged from recorded frames, never a still. Up to four captures at a time; open every file and capture again if it is blank or still loading.
+
+"You choose" instead of picking: pick closest to the design brief, and say so.
+
+## The board
+
+Write `.longbeard/design/moodboard/board.md`, one card per keep:
+
+```
+### <card name>
+- link: <the page, or "none (shared in chat)">
+- part: <home, navigation, article, …>
+- shot: .longbeard/design/moodboard/refs/<file>
+- frames: <for motion, the folder; else leave out>
+- screen: <yes | no>
+- move: <what it does, as a move, about ten words: "headline fills the width, cropped at the right edge">
+- why: <why it fits the design brief, one line>
+```
+
+`move` is the heart of it: the composition, picture treatment or type move that made them like it, written so a person could draw it with the picture closed. Never a brand ("like <studio>'s purple").
+
+Build the page to look through, and check it yourself:
+
+```
+node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/moodboard/moodboard.html
+```
+
+## Write `docs/design/design-moodboard.md`
+
+```markdown
+# Moodboard: <product>
+
+<n> references across <parts>. From <their board / a search of n candidates, two rounds>.
+
+## What it says
+- <a shared move, in plain words: "type is the picture: one word, enormous, cropped">
+- <…, three to six lines>
+
+## Moves worth keeping
+- <part>: <a move, as on its card> (<n> references)
+- <…>
+
+## Not this
+- <what the noes share, and what the design brief says never>
+
+## Missing
+- <a part nothing shows, or none>
+```
+
+No names, links or paths. Then say the doc in five lines and end with one question:
+
+> Anything wrong in how I read your board?
+
+Then the next step, in one line: `design-identity`, or `design-families` first for a board over about 60.
+
+## One piece
+
+For one part (`design-screens` hits a screen nothing shows). Read `DESIGN.md` and the design brief: the piece fits what was chosen and never changes it. Ask once what style or requirements it has (optional), with a few ways to search. A pool of 20 to 40, including the same piece in other subjects and outside software. One picker round. Keep their likes (default up to 8), captured at full size, in `.longbeard/design/<piece>/board.md`. Add a short section to `design-moodboard.md`: the piece and its moves. Hand back.
+
+## Do not
+
+- Cut their board or their likes to a number, or drop for taste.
+- Search past a board that is enough, or before they say yes to a gap search.
+- Save a thumbnail as a shot. Judge motion from a still. Screenshot a listing page.
+- Write a source's name, link or a `.longbeard/` path into the committed doc.

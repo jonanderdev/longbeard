@@ -14,9 +14,9 @@ test("AGENTS.md is the router init writes", () => {
   assert.equal(shipped, generated.stdout, "AGENTS.md drifted from bin/long-beard.js. Edit the generator, then run npm run router.");
 });
 
-test("a project with a DESIGN.md is not sent to Direction", () => {
+test("a project with a DESIGN.md is not sent to Design", () => {
   const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
-  assert.match(generated.stdout, /^\| Direction \| [^|]*no DESIGN\.md/m);
+  assert.match(generated.stdout, /^\| Design \| [^|]*no DESIGN\.md/m);
 });
 
 test("the router stays under 200 words", () => {
@@ -24,4 +24,10 @@ test("the router stays under 200 words", () => {
   // Table pipes and separators are not words.
   const words = generated.stdout.split(/[\s|]+/).filter((token) => /[\p{L}\p{N}]/u.test(token));
   assert.ok(words.length < 200, `${words.length} words`);
+});
+
+test("the design family is reached through design, not a router line each", () => {
+  const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
+  assert.match(generated.stdout, /^\| Design \| [^|]*\| design → /m);
+  for (const name of ["design-brief", "design-moodboard", "design-identity", "design-direction", "design-screens", "design-figma"]) assert.doesNotMatch(generated.stdout, new RegExp(`\\b${name}\\b`));
 });
