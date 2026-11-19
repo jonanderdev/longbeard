@@ -31,20 +31,7 @@ Comes out:
 
 ## 0. Pictures of the subject
 
-Before the grid: three or four pictures of what the product is about (the bakery's bread and its bench, the climbing gym's wall, the app's real data on a desk). Not other designs, which is the moodboard's job: the product's own world. Every screen from here on uses them, so nothing is judged on grey boxes or on another product's pictures, and their colours join the deal (step 2).
-
-- **Theirs first.** The design brief says whether they have pictures. If they do, ask for three or four, and save them to `.longbeard/design/pictures/`.
-- **None yet:** find stand-ins, a few, never a bulk search. Search the subject, not a mood: the brief's identity nouns, one query per picture you need.
-
-  ```
-  node <skill>/scripts/pictures.mjs "sourdough loaf" --out .longbeard/design/pictures --count 2
-  node <skill>/scripts/pictures.mjs "flour on a wooden bench" --out .longbeard/design/pictures --count 2 --orientation landscape
-  ```
-
-  It keeps only clearly licensed pictures (CC0, public domain, CC BY, CC BY-SA) large enough for a screen, and writes `credits.tsv` beside them. Open each; drop one that is off-subject and search again for it.
-- **Of the kind the look uses.** When the moodboard is photographs, look for photographs; when it is illustration or renders, say that those are not searched, and use the closest photographs, cropped and toned as the moodboard does, until theirs exist.
-
-Do not stop to ask: show them on a contact sheet (`contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures`) with the message in step 1, as stand-ins theirs replace.
+Before the grid: three or four pictures of what the product is about (the bakery's bread, the climbing gym's wall, the app's real data), not other designs. Every screen from here on uses them, and their colours join the deal. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How, and what to check: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with the message in step 1, as stand-ins theirs replace.
 
 ## 1. The content and the references, in one message
 
@@ -65,39 +52,9 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 
 The lead's arrangement is dealt twice; the likes are the donors. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before dealing: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A non-screen (a poster) as lead: say it lends picture treatment, not an arrangement, and offer a screen as lead.
 
-## 2. Read the composition into the library
+## 2. Read the references into the library
 
-Open the lead and every like at full size. Write `.longbeard/design/direction/library.json`: what each one uses, measured where a live page exists (`measure.mjs <link>` lists its fonts, sizes, colours, gradients), never judged by eye when it can be measured. Nothing here is a choice.
-
-```
-{
-  "anchor": "<lead's card name>",
-  "family":       { "empty": "55–70%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated>", "edges": "<rules, borders, or none>", "density": "<how much sits on the first screen>", "from": ["…"] },
-  "arrangements": [{ "id": "<a plain word>", "what": "<one sentence>", "zones": { "hero": "…", "side": "…", "band": "…" }, "from": ["<card name>"] }],
-  "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
-  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "kind": "serif | sans | condensed | display | mono | script", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase", "tracking": "-0.02em", "size": null, "body": { "face": "…", "size": "16px", "leading": "1.5" }, "css": null, "from": ["…"] }],
-  "grounds":      [{ "id": "…", "ground": "#…", "panel": null, "ink": "#…", "gradient": null, "pattern": null, "from": ["…"] }],
-  "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }],
-  "controls":     { "button": { "fill": "accent | ink", "radius": "0px", "case": "none", "weight": 600 }, "from": ["…"] }
-}
-```
-
-- **Arrangements:** one per reference. Where the title, pictures and small text sit, how they relate (what overlaps, what runs off an edge, how much is empty). One sentence, complete enough to build with the picture closed. No content, colour or face.
-- **Zones:** name the parts a person could point to (hero, side, band) with the same names across arrangements, so "the left side of 4" is a dealt move.
-- **Family:** what the lead and likes share, as ranges, measured where a page exists (`measure.mjs <link>`), never averaged. It is not dealt: every screen gets it, so eight screens stay one look.
-- **Type:** one per reference: the face it uses (`by: page`, read from the page), or from a picture only the nearest free face (`by: eye`, a stand-in). Its `kind`, so the deal can spread kinds. The body face it is paired with.
-- **Grounds and accents:** one per reference, measured: the ground, the ink on it, a panel, a gradient or pattern as written. An accent is a colour and what carries it; none is an entry too.
-- **The subject's colours:** one or two grounds and an accent proposed from the subject pictures, so some screens wear the product's own colours. Never a colour sampled raw from a photo (that gives background greys and shadow browns): `subject-colours.mjs` reads the pictures' main colours, drops noise, highlights and shadows, finds the signature colour (the crust, the wall, the leaf), and tunes each to its role: an off-white or near-black that keeps the subject's hue, an accent with enough chroma, ink at 4.5:1, the accent at 3:1. Each colour says what it came from and how it was tuned.
-
-  ```
-  node <skill>/scripts/subject-colours.mjs .longbeard/design/pictures --json
-  ```
-
-  **Then look, and name every colour.** Open its sheet (`--sheet <scratch>/subject.html`, captured), which shows each proposed colour beside the pictures with the places it comes from lit up. Every colour must be something a person sees as the subject and can name: "the crust", "the flour", "the oven's black". A colour that lights up the backdrop, a cloth, a wall or a prop is not the subject's, even when it fills the photo: drop it (`--exclude "#hex"`) and run it again. The script already flags colours that sit mostly at the edges as background and never makes them the signature or the accent; the look is the check it cannot do. Write the name beside each colour wherever it is shown ("crust, lightened to carry white text").
-
-  Only then its `library` entries go in, `"from": ["subject"]`.
-- **What is fixed:** a face or colour they own is an entry with `"from": ["theirs"]`; a refused one is left out; light or dark only drops the other grounds.
-- **Record, never judge.** A gradient, a glow, a typeface the rules call a tell: if a reference uses it, it is an entry. Ids are plain words, never a reference's name. Merge only twins.
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones), navigation, type (with its `kind`), ground and accent, measured where a live page exists, never judged by eye when it can be measured; the family they share; their controls; one or two grounds and an accent from the subject; what they own. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
 
 Then deal:
 
@@ -109,20 +66,7 @@ Eight recipes: arrangement, navigation, type, ground, accent. A screen's arrange
 
 ## 3. Build the grid
 
-One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html): it loads `../deal.js`, sets the look as variables, takes overrides in the URL, fits the type and sets the title to `ready`. Write only what it marks WRITE: the content, one function per navigation, one per arrangement (zones through `ZONES` and `zone()`). The first screen only: 1440×900 for a site, the first key screen's device size for an app.
-
-- **The same real content on every screen:** the name, the headline, every must-carry item (`data-must`; the page flags a missing one in red), the ownable, pictures of the product's subject (theirs, or the stand-ins from step 0 in `.longbeard/design/pictures/`; never the references' subject).
-- **Each arrangement is a rule,** built once from its sentence with the shots open; it receives type and colour as variables. Take the arrangement, never the reference's content.
-- **Every offset through `--space`.** Type fills by rule, not by number.
-- **Fix faults, never taste:** an overlap that hides text, a clipped word, a missing item, a repeated sentence, a lone word on a heading's last line, text under 4.5:1 where it sits (`screen-contrast.mjs`). Fix in the rule so the fix holds for every recipe.
-
-```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/grid.html?n=1" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
-node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
-```
-
-For an app, render and capture at the device size instead (`grid.html?n=1&size=390x844`, `--width 390`, a clip of that size), and use the app's navigation (a tab bar, a side rail) as the navigation entries.
+One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html), with the same real content on every screen (the headline, every must-carry item, the ownable, the subject's pictures), each arrangement built once as a rule, and faults fixed in the rule, never taste. How to build, capture and sheet it, for a site or an app: [grid.md](references/grid.md).
 
 Show the sheet, a table of each number's arrangement, navigation, ground and accent in plain words, and any fault you could not fix. Never say which you prefer.
 
