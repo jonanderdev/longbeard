@@ -13,7 +13,7 @@ Design is now a family of small skills, each with one job and one doc, instead o
 - **`design-prototype`** (from `design`): the first screen finished, the other key screens prototyped in one go with drafted copy and the product's own pictures, forks offered, then `DESIGN.md` on your yes. "Beat a plain agent" is gone.
 - **`design-figma`** (from `design`): tokens, the identity board, components, screens and states, each checked and marked Ready.
 - **`design-content`** (new, optional): what each screen says and shows, drafted for you to correct, and the full picture list, with stand-ins found only for the gaps.
-- **`design-wordmark`** (new, optional, late): a mark made from your type, added to the identity.
+- **`design-wordmark`** (new, optional, after the direction): a mark made from your type, judged where the name sits in your chosen screen, added to the identity. No mark is a fine answer.
 - **`design-check`** gains a docs mode: the design docs must not name a reference, link one, or point into the working folder.
 - **Files:** the design docs live in `docs/design/` (`design-brief.md`, `design-moodboard.md`, `design-families.md`, `design-identity.md` and `.html`, `design-direction.md`, `design-content.md`) and are committed: they describe the style, never the source. Captures, pickers, profiles, grids and prototypes live in `.longbeard/design/`, gitignored. Nothing writes to `design-exploration/` any more.
 - The router has one Design row (`design` → Figma) instead of Direction and Design.

@@ -132,7 +132,7 @@ docs/design/design-identity.html
 
 Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
 
-Then the next step in one line: `design-direction`. Offer `design-wordmark` only once a `DESIGN.md` exists.
+Then the next step in one line: `design-direction`. A wordmark waits until the direction is chosen (`design-wordmark`): until then the name is set in the display face.
 
 ## Do not
 

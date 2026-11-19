@@ -53,7 +53,7 @@ If a Figma decision changes a rule (a new token, a variant, a spacing step), upd
 
 ## Then
 
-Offer to delete `.longbeard/design/` working files: the docs, `DESIGN.md` and Figma carry the result. On no, leave them; they are gitignored. Offer `design-wordmark` once if the name is only set in type. Then the next stage: architecture, which they start by typing `/grill-with-docs`.
+Offer to delete `.longbeard/design/` working files: the docs, `DESIGN.md` and Figma carry the result. On no, leave them; they are gitignored. Then the next stage: architecture, which they start by typing `/grill-with-docs`.
 
 ## Do not
 

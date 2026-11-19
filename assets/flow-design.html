@@ -81,8 +81,8 @@
 
   <div class="rows">
     <div class="detour" style="grid-row: 2 / span 2" id="d-families"><b>design-families</b>Sort a big board into looks; you take one or two.<span>Only for a board over ~60</span></div>
-    <div class="detour" style="grid-row: 4 / span 2" id="d-content"><b>design-content</b>Copy and the full picture list, planned. Needs the brief.<span>Any time · copy to plan</span></div>
-    <div class="detour" style="grid-row: 5 / span 2; align-self: end" id="d-wordmark"><b>design-wordmark</b>A mark from your type, added to the identity.<span>After DESIGN.md, if wanted</span></div>
+    <div class="detour" style="grid-row: 3 / span 2" id="d-content"><b>design-content</b>Copy and the full picture list, planned. Needs the brief.<span>Any time · copy to plan</span></div>
+    <div class="detour" style="grid-row: 5 / span 2" id="d-wordmark"><b>design-wordmark</b>A mark from your type, seen in the chosen screen.<span>After the direction, if wanted</span></div>
     <svg class="links" id="links"></svg>
     <div class="row">
       <div class="mid"><div class="card" id="c1"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
@@ -142,16 +142,10 @@ function draw() {
   const f = r("d-families"), c = r("d-content"), w = r("d-wordmark");
   down("c2", "d-families");
   ring(f.r, f.b - 22); back("d-families", "c3", f.b - 22, lane);
-  // design-content feeds two steps from one trunk.
-  {
-    const y4 = r("c4").m, y5 = r("c5").m, t4 = r("c4").l - 3, t5 = r("c5").l - 3;
-    ring(c.r, c.m);
-    line(`M${c.r} ${c.m} H${lane}`);
-    line(`M${t4} ${y4} H${lane + k} Q${lane} ${y4} ${lane} ${y4 + k} V${y5 - k} Q${lane} ${y5} ${lane + k} ${y5} H${t5}`);
-    head(t4, y4, 1, 0); head(t5, y5, 1, 0);
-  }
-  down("c5", "d-wordmark");
-  ring(w.r, w.b - 22); back("d-wordmark", "c6", w.b - 22, lane);
+  // design-content feeds the direction; the prototype reads it from there.
+  ring(c.r, c.m); back("d-content", "c4", c.m, lane);
+  down("c4", "d-wordmark");
+  ring(w.r, w.b - 22); back("d-wordmark", "c5", w.b - 22, lane);
   svg.innerHTML = out.join("");
 }
 document.fonts.ready.then(() => { draw(); setTimeout(() => (document.title = "ready"), 200); });

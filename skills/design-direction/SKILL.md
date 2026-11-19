@@ -156,7 +156,7 @@ No reference names, links or paths. Then the direction in five lines, and one qu
 
 > Change anything, or take this into the screens?
 
-Yes → `design-prototype`.
+Yes → `design-prototype`. If the name is only set in the display face, offer `design-wordmark` once, in the same line; no mark is a fine answer.
 
 ## Do not
 

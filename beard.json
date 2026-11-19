@@ -145,8 +145,8 @@
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "An identity, and a mark wanted",
-      "why": "Optional. A mark from the identity's type.",
+      "when": "A direction chosen, and a mark wanted",
+      "why": "Optional, after the direction. A mark from the identity's type.",
       "via": "design"
     },
     {

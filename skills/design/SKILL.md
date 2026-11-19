@@ -26,7 +26,7 @@ Each skill says at its top what it **Needs**, what it **Uses if there**, and wha
 | `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
 | `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
-| `design-wordmark` | Optional, late. A mark made from the chosen type |
+| `design-wordmark` | Optional, after the direction. A mark made from the chosen type, judged in the chosen screen |
 | `design-check` | Checks a screen against the rules and `DESIGN.md` |
 
 ## Where things go
@@ -55,7 +55,7 @@ Look at the repo. Do not ask what is there. Then say, in up to four lines, where
 
 **Offered once, never pushed:**
 - `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-identity` found.
-- `design-wordmark`, once `DESIGN.md` exists and the name is only set in the display face. Offered once; a no stands.
+- `design-wordmark`, once the direction is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
 
 Example:
 
