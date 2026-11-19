@@ -92,7 +92,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 - Every section has content. "None" is an answer. A guess is not.
 - **Changes** is added under Out of scope by the first Change, never before.
 - Position is concrete. "Fast, simple, trustworthy" says nothing every rival would not say. `remembered for` is a thing you could point at on a screen or in a sentence; `against` names real products or habits.
-- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design-screens` uses them as copy.
+- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design-prototype` uses them as copy.
 - A screen is described by what is on it and what it is for, never by how it is arranged or styled. `remembered for` is a thing the product has or does, in the product's own words. If they describe a look while being grilled, keep it out of the brief and tell them it belongs in `design-brief`, which asks it next.
 - Over a page means a flow is really two products, or a section is doing Architecture's job. Cut it.
 

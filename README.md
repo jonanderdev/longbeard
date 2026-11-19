@@ -47,7 +47,7 @@ Long Beard's own skills are written here, in [`skills/`](skills/). `init` copies
 | [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks, in Figma too, so choosing is easy | Long Beard |
 | [design-identity](skills/design-identity/SKILL.md) | Type pairing and colours from rendered options; the identity board | Long Beard |
 | [design-direction](skills/design-direction/SKILL.md) | First screens dealt from your references in your identity; you pick; a hierarchy pass | Long Beard |
-| [design-screens](skills/design-screens/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
+| [design-prototype](skills/design-prototype/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
 | [design-figma](skills/design-figma/SKILL.md) | Tokens, the identity board, components and Ready screens in Figma | Long Beard |
 | [design-content](skills/design-content/SKILL.md) | Optional: what each screen says and shows, with stand-in pictures | Long Beard |
 | [design-wordmark](skills/design-wordmark/SKILL.md) | Optional: a mark made from your type | Long Beard |

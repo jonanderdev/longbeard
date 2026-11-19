@@ -4,12 +4,12 @@
   Everything that is the same every run is here: loading the deal, the look
   as variables, overrides in the URL, the faces, and the type rules. A run
   writes only three things, marked WRITE below: the content, each navigation,
-  and each arrangement (and, in design-screens, each part's layouts), as small
+  and each arrangement (and, in design-prototype, each part's layouts), as small
   functions that return HTML.
 
   URL: ?n=3 shows recipe 3 of the last round. ?concept=<id> shows a hero
   concept in the chosen look (deal --choose), with the overrides. A --part round shows that
-  screen's layout n. Overrides, for the hierarchy pass and design-screens: &ground=%23f1ede4 &ink=%23111111
+  screen's layout n. Overrides, for the hierarchy pass and design-prototype: &ground=%23f1ede4 &ink=%23111111
   &accent=%23fe2601 &face=Newsreader &body=Inter &weight=300 &space=1.25. &state=empty
   passes a state to the layout. &size=390x844 renders at a phone's size. The page sets document.title to "ready" once
   the faces are in and the type is fitted, so a capture can wait for it.
@@ -47,7 +47,7 @@
   a { color: inherit; text-decoration: none; }
   /* --space scales every offset: the margin --m and the gaps --g (24px), --g2 (12px), --g3 (48px). An arrangement
      writes every margin, gap, padding and inset with these (or calc(… * var(--space))), never in plain px, or
-     design-screens' spacing row shows three screens that look the same. */
+     design-prototype' spacing row shows three screens that look the same. */
   .screen { position: relative; width: var(--w); height: var(--h); overflow: hidden; --m: calc(28px * var(--space)); --g: calc(24px * var(--space)); --g2: calc(12px * var(--space)); --g3: calc(48px * var(--space)); }
   nav { position: absolute; left: var(--m); right: var(--m); z-index: 3; display: flex; align-items: center; gap: var(--g); font-size: 13px; }
   /* Running text breaks evenly, with no word alone on its last line; short lines are balanced. */
@@ -136,7 +136,7 @@ const CONCEPTS = {
   // stamp: { idea: "the claim as a baker's stamp on today's bread", html: (C, ctx) => `…` },
 };
 
-// ---------------------------------------------------------------- WRITE: parts (design-screens forks)
+// ---------------------------------------------------------------- WRITE: parts (design-prototype forks)
 // Layouts for the other key screens, by part, then by layout id, only for screens that fork or
 // that they asked options for. ctx.parts holds the layouts already chosen for earlier screens.
 const PARTS = {

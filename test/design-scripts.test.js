@@ -495,7 +495,7 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements", "parts (design-screens forks)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
+  for (const part of ["content", "navigation", "arrangements", "parts (design-prototype forks)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 

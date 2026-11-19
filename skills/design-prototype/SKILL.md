@@ -1,5 +1,5 @@
 ---
-name: design-screens
+name: design-prototype
 description: >
   Design the product's key screens in the chosen direction and identity: the
   first screen finished, the other key screens prototyped in one go with real
@@ -9,9 +9,9 @@ description: >
   is no DESIGN.md, or for a feature that needs screens once DESIGN.md exists.
 ---
 
-# Design screens
+# Design prototype
 
-Comes out: a prototype they approved (in `.longbeard/design/screens/`, gitignored), then **`DESIGN.md`**, committed, the official look. Then `design-figma`.
+Comes out: a prototype they approved (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed, the official look. Then `design-figma`.
 
 Read [design-rules.md](references/design-rules.md) before the first screen: it is the checklist here and in `design-check`.
 
@@ -27,12 +27,12 @@ Read the brief, `docs/design/design-brief.md`, `design-identity.md`, `design-dir
 
 ### 1. Finish the first screen
 
-Copy `first.html` to `.longbeard/design/screens/home.html` (or the brief's first key screen), keeping its URL overrides, and finish it:
+Copy `first.html` to `.longbeard/design/prototype/home.html` (or the brief's first key screen), keeping its URL overrides, and finish it:
 
 - **The faces** loaded properly at every size. A stand-in face is said again: the product ships it, or the face it stands in for.
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25`), shown on a crop where the margin and the navigation meet as well as whole. They pick.
 - **The rest of the page:** what sits below the first screen, the small text, every width down to the phone. The direction's ranges hold.
-- **Motion:** a reference that moves is played again from its frames or its live link (`capture.mjs <url> --out .longbeard/design/screens/<name>-replay --frames 12`); build that kind of motion in CSS, none of its content.
+- **Motion:** a reference that moves is played again from its frames or its live link (`capture.mjs <url> --out .longbeard/design/prototype/<name>-replay --frames 12`); build that kind of motion in CSS, none of its content.
 - **The ownable**, finished from the product's own world.
 - **The states** a person can reach here (empty, loading, error), and the second theme if the design brief asked for both.
 
@@ -64,9 +64,9 @@ Give the paths and say what each screen is made of. Name every fork: a screen th
 Capture every screen and state at desktop and phone, each theme:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/screens/home.html?capture" --out <scratch>/home.png
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/screens/home.html?capture" --out <scratch>/home-phone.png --width 390
-node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/screens/home.html" --wait-title ready
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/prototype/home.html?capture" --out <scratch>/home.png
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/prototype/home.html?capture" --out <scratch>/home-phone.png --width 390
+node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/prototype/home.html" --wait-title ready
 ```
 
 Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it. Then ask whether this is the product, and iterate until it is.

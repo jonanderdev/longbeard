@@ -49,19 +49,18 @@
   .doc.private { background: #fff; color: var(--ink); border: var(--stroke) solid var(--ink); }
   .opt { max-width: 236px; border: var(--stroke) dashed var(--ink); border-radius: 12px; background: #fff; padding: 9px 12px; font-size: 13px; line-height: 1.4; color: var(--muted); }
   .opt b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
-  .optional { grid-column: 1; grid-row: 1 / span 6; align-self: start; margin: 10px 26px 0 0; border: var(--stroke) dashed var(--ink); border-radius: 16px; background: rgba(255,255,255,0.7); padding: 16px 14px 14px; display: flex; flex-direction: column; gap: 12px; }
-  .optional h4 { font-size: 15px; font-weight: 600; }
-  .optional h4 span { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); margin-top: 3px; line-height: 1.4; }
-  .opt { max-width: none; }
-  .opt .when { display: block; margin-top: 6px; padding-top: 6px; border-top: 1.5px dashed var(--dot); font-size: 12.5px; color: var(--ink); }
+  .rows { position: relative; }
+  .detour { grid-column: 1; align-self: center; justify-self: start; z-index: 1; width: 196px; border: var(--stroke) dashed var(--ink); border-radius: 12px; background: #fff; padding: 9px 12px 10px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .detour b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
+  .detour span { display: block; margin-top: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink); }
+  svg.links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 0; pointer-events: none; }
+  svg.links path { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 2 6; stroke-linecap: round; }
+  svg.links polygon { fill: var(--ink); }
   footer { display: flex; gap: 18px; margin-top: 26px; padding-top: 18px; border-top: 2px solid var(--ink); font-size: 13.5px; color: var(--muted); line-height: 1.45; }
   footer div { flex: 1; }
   footer b { color: var(--ink); font-weight: 600; }
   .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; margin-right: 9px; vertical-align: 2px; }
   .card h3 .t { display: inline-flex; align-items: center; }
-  .dep { display: grid; grid-template-columns: 48px 1fr; gap: 4px 6px; margin-top: 8px; padding-top: 8px; border-top: 1.5px dashed var(--dot); font-size: 12.5px; color: var(--ink); align-items: center; }
-  .dep i { font-style: normal; color: var(--muted); }
-  .dep .n { width: 19px; height: 19px; font-size: 11px; margin: 0 3px 0 0; vertical-align: 0; }
 </style>
 </head>
 <body>
@@ -71,7 +70,7 @@
       <div class="logo"><img src="../logo.png" alt="Long Beard"></div>
       <div><b>Design, one skill at a time</b><span>Each skill does one job, asks little, and writes one doc. Run them in order, skip what you already have, or call any one by name.</span></div>
     </div>
-    <div class="legend"><span class="k"><span class="sw"></span>Skill</span><span class="k"><span class="sw opt"></span>Optional, on its own</span><span class="k"><span class="sw doc"></span>Committed doc</span></div>
+    <div class="legend"><span class="k"><span class="sw"></span>Skill</span><span class="k"><span class="sw opt"></span>Optional detour</span><span class="k"><span class="sw doc"></span>Committed doc</span></div>
   </header>
 
   <div class="hub">
@@ -80,34 +79,32 @@
   </div>
 
   <div class="rows">
-    <div class="optional">
-      <h4>Optional<span>Not steps in the chain. Each needs and feeds numbered steps. Call one by name, or <b>design</b> offers it when it earns its place.</span></h4>
-      <div class="opt"><b>design-families</b>Sort a big board into looks, in Figma too. You take one or two.<span class="dep"><i>Needs</i><span><span class="n">2</span> a board</span><i>Feeds</i><span><span class="n">3</span> <span class="n">4</span> the families you take</span><i>When</i><span>a board over ~60</span></span></div>
-      <div class="opt"><b>design-content</b>What each screen says and shows, and stand-in pictures of your subject.<span class="dep"><i>Needs</i><span><span class="n">1</span> the design brief</span><i>Feeds</i><span><span class="n">4</span> <span class="n">5</span> copy and pictures</span><i>When</i><span>no pictures yet, or copy to plan</span></span></div>
-      <div class="opt"><b>design-wordmark</b>A mark made from your type, added to the identity.<span class="dep"><i>Needs</i><span><span class="n">3</span> the identity</span><i>Feeds</i><span><span class="n">6</span> the Figma Cover</span><i>When</i><span>after DESIGN.md, if wanted</span></span></div>
-    </div>
+    <div class="detour" style="grid-row: 2 / span 2" id="d-families"><b>design-families</b>Sort a big board into looks; you take one or two.<span>Only for a board over ~60</span></div>
+    <div class="detour" style="grid-row: 4 / span 2" id="d-content"><b>design-content</b>Copy and stand-in pictures, planned. Needs the brief.<span>Any time · no pictures yet</span></div>
+    <div class="detour" style="grid-row: 5 / span 2; align-self: end" id="d-wordmark"><b>design-wordmark</b>A mark from your type, added to the identity.<span>After DESIGN.md, if wanted</span></div>
+    <svg class="links" id="links"></svg>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
+      <div class="mid"><div class="card" id="c1"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
       <div class="right"><span class="doc">docs/design/design-brief.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">2</span>design-moodboard</span> <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
+      <div class="mid"><div class="card" id="c2"><h3><span class="t"><span class="n">2</span>design-moodboard</span> <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
       <div class="right"><span class="doc">design-moodboard.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">3</span>design-identity</span> <em>3 stops</em></h3><p>Type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
+      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-identity</span> <em>3 stops</em></h3><p>Type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
       <div class="right"><span class="doc">design-identity.md + .html</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">4</span>design-direction</span> <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a hierarchy pass that fixes reading, never the composition.</p></div></div>
+      <div class="mid"><div class="card" id="c4"><h3><span class="t"><span class="n">4</span>design-direction</span> <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a hierarchy pass that fixes reading, never the composition.</p></div></div>
       <div class="right"><span class="doc">design-direction.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">5</span>design-screens</span> <em>prototype</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
+      <div class="mid"><div class="card" id="c5"><h3><span class="t"><span class="n">5</span>design-prototype</span> <em>you approve</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
       <div class="right"><span class="doc">DESIGN.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3><span class="t"><span class="n">6</span>design-figma</span></h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
+      <div class="mid"><div class="card" id="c6"><h3><span class="t"><span class="n">6</span>design-figma</span></h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
       <div class="right"><span class="doc">Ready Figma frames</span></div>
     </div>
   </div>
@@ -118,6 +115,30 @@
     <div><b>Docs stay clean.</b> <code>docs/design/</code> describes the style, never a source. Captures and grids stay in <code>.longbeard/design/</code>, out of git.</div>
   </footer>
 </div>
-<script>document.fonts.ready.then(() => setTimeout(() => (document.title = "ready"), 200));</script>
+<script>
+function draw() {
+  const box = document.querySelector(".rows").getBoundingClientRect();
+  const svg = document.getElementById("links");
+  const r = (id) => { const b = document.getElementById(id).getBoundingClientRect(); return { l: b.left - box.left, r: b.right - box.left, t: b.top - box.top, b: b.bottom - box.top, m: (b.top + b.bottom) / 2 - box.top }; };
+  const out = [];
+  // From a card's left edge to a detour's right edge, or back: a soft S, arrow at the end.
+  const link = (a, b, toCard, ya, yb) => {
+    const x1 = toCard ? r(a).r : r(a).l, x2 = toCard ? r(b).l : r(b).r;
+    const mx = (x1 + x2) / 2;
+    out.push(`<path d="M${x1} ${ya} C ${mx} ${ya}, ${mx} ${yb}, ${x2} ${yb}"/>`);
+    const d = toCard ? 1 : -1;
+    out.push(`<polygon points="${x2} ${yb} ${x2 - 9 * d} ${yb - 5} ${x2 - 9 * d} ${yb + 5}"/>`);
+  };
+  const f = r("d-families"), c = r("d-content"), w = r("d-wordmark");
+  link("c2", "d-families", false, r("c2").m, f.t + 18);
+  link("d-families", "c3", true, f.b - 18, r("c3").m);
+  link("d-content", "c4", true, c.m - 8, r("c4").m);
+  link("d-content", "c5", true, c.m + 8, r("c5").m);
+  link("c5", "d-wordmark", false, r("c5").b - 18, w.t + 18);
+  link("d-wordmark", "c6", true, w.b - 18, r("c6").m);
+  svg.innerHTML = out.join("");
+}
+document.fonts.ready.then(() => { draw(); setTimeout(() => (document.title = "ready"), 200); });
+</script>
 </body>
 </html>

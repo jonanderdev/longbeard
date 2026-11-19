@@ -29,5 +29,5 @@ test("the router stays under 200 words", () => {
 test("the design family is reached through design, not a router line each", () => {
   const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
   assert.match(generated.stdout, /^\| Design \| [^|]*\| design → /m);
-  for (const name of ["design-brief", "design-moodboard", "design-identity", "design-direction", "design-screens", "design-figma"]) assert.doesNotMatch(generated.stdout, new RegExp(`\\b${name}\\b`));
+  for (const name of ["design-brief", "design-moodboard", "design-identity", "design-direction", "design-prototype", "design-figma"]) assert.doesNotMatch(generated.stdout, new RegExp(`\\b${name}\\b`));
 });

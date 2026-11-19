@@ -16,10 +16,10 @@ Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and foll
 
 ## Gate
 
-1. No `DESIGN.md` → `design-screens` first. Stop.
+1. No `DESIGN.md` → `design-prototype` first. Stop.
 2. No Figma connection → say Figma is required for UI projects, and stop.
 
-Open the approved prototype (`.longbeard/design/screens/`) beside every screen you build. If it is gone, work from `DESIGN.md` and say so.
+Open the approved prototype (`.longbeard/design/prototype/`) beside every screen you build. If it is gone, work from `DESIGN.md` and say so.
 
 ## Rules
 

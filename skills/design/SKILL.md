@@ -21,7 +21,7 @@ The design work is a family of small skills. Each does one job, reads what it ne
 | `design-families` | Optional. Sort a big board or search into looks; they take one or two | a board | `docs/design/design-families.md` |
 | `design-identity` | Type pairing and colours, picked on rendered options, ending in the identity board | design brief (a moodboard helps) | `docs/design/design-identity.md` and `.html` |
 | `design-direction` | First screens dealt from the references in the identity; they pick; a hierarchy pass | brief, moodboard, identity | `docs/design/design-direction.md` |
-| `design-screens` | The key screens and their states in that direction; approved → `DESIGN.md` | direction | `DESIGN.md` |
+| `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` | direction | `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames | `DESIGN.md` | Figma |
 | `design-content` | Optional, any time. What each screen says and shows: copy, pictures, stand-ins | design brief | `docs/design/design-content.md` |
 | `design-wordmark` | Optional, late. A mark made from the chosen type | identity, brief | adds to `design-identity.md` |
@@ -47,9 +47,9 @@ Look at the repo. Do not ask what is there. Then say, in up to four lines, where
    - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only.
 5. No `design-identity.md` → `design-identity`.
 6. No `design-direction.md` → `design-direction`.
-7. A direction and no `DESIGN.md` → `design-screens`.
+7. A direction and no `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
-9. `DESIGN.md` exists → a feature: `design-screens` (feature loop). A rebrand starts again at `design-identity`, and `DESIGN.md` stays until a new one is approved.
+9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-identity`, and `DESIGN.md` stays until a new one is approved.
 
 **Offered once, never pushed:**
 - `design-content`, when they have no pictures of their own (the design brief says "none yet"), or ask about copy or imagery. Stand-ins of the product's own subject make every later screen read as this product.

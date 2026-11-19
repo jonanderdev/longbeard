@@ -148,12 +148,12 @@ No reference names, links or paths. Then the direction in five lines, and one qu
 
 > Change anything, or take this into the screens?
 
-Yes → `design-screens`.
+Yes → `design-prototype`.
 
 ## Do not
 
 - Pick, swap, drop or rank a dealt screen, or say which you prefer.
-- Polish grid screens. Spacing, detail and states wait for `design-screens`.
+- Polish grid screens. Spacing, detail and states wait for `design-prototype`.
 - Move a zone, change an arrangement or add a section in the hierarchy pass.
 - Take a reference's content, pictures or words.
 - Choose type or colour here: they are the identity's. A composition that clearly wants another face is said in one line, never changed silently.

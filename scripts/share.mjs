@@ -4,15 +4,15 @@ import { cpSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 export const shared = [
-  ["rules/design-rules.md", ["design-direction/references", "design-screens/references", "design-check/references"]],
-  ["skills/design-moodboard/scripts/capture.mjs", ["design-families/scripts", "design-identity/scripts", "design-direction/scripts", "design-screens/scripts", "design-content/scripts", "design-wordmark/scripts", "design-check/scripts"]],
+  ["rules/design-rules.md", ["design-direction/references", "design-prototype/references", "design-check/references"]],
+  ["skills/design-moodboard/scripts/capture.mjs", ["design-families/scripts", "design-identity/scripts", "design-direction/scripts", "design-prototype/scripts", "design-content/scripts", "design-wordmark/scripts", "design-check/scripts"]],
   ["skills/design-moodboard/scripts/contact-sheet.mjs", ["design-families/scripts", "design-content/scripts"]],
   ["skills/design-moodboard/scripts/moodboard.mjs", ["design-families/scripts", "design-direction/scripts"]],
   ["skills/design-moodboard/references/sources.md", ["design-content/references"]],
   ["skills/design-families/scripts/measure.mjs", ["design-identity/scripts", "design-direction/scripts"]],
-  ["skills/design-direction/scripts/sheet.mjs", ["design-identity/scripts", "design-screens/scripts", "design-content/scripts", "design-wordmark/scripts"]],
-  ["skills/design-direction/scripts/screen-contrast.mjs", ["design-screens/scripts"]],
-  ["skills/design-screens/scripts/contrast.mjs", ["design-identity/scripts", "design-direction/scripts", "design-check/scripts"]],
+  ["skills/design-direction/scripts/sheet.mjs", ["design-identity/scripts", "design-prototype/scripts", "design-content/scripts", "design-wordmark/scripts"]],
+  ["skills/design-direction/scripts/screen-contrast.mjs", ["design-prototype/scripts"]],
+  ["skills/design-prototype/scripts/contrast.mjs", ["design-identity/scripts", "design-direction/scripts", "design-check/scripts"]],
 ];
 
 if (import.meta.url === `file://${process.argv[1]}`) {

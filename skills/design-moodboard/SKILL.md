@@ -149,7 +149,7 @@ Then the next step, in one line: `design-identity`, or `design-families` first f
 
 ## One piece
 
-For one part (`design-screens` hits a screen nothing shows). Read `DESIGN.md` and the design brief: the piece fits what was chosen and never changes it. Ask once what style or requirements it has (optional), with a few ways to search. A pool of 20 to 40, including the same piece in other subjects and outside software. One picker round. Keep their likes (default up to 8), captured at full size, in `.longbeard/design/<piece>/board.md`. Add a short section to `design-moodboard.md`: the piece and its moves. Hand back.
+For one part (`design-prototype` hits a screen nothing shows). Read `DESIGN.md` and the design brief: the piece fits what was chosen and never changes it. Ask once what style or requirements it has (optional), with a few ways to search. A pool of 20 to 40, including the same piece in other subjects and outside software. One picker round. Keep their likes (default up to 8), captured at full size, in `.longbeard/design/<piece>/board.md`. Add a short section to `design-moodboard.md`: the piece and its moves. Hand back.
 
 ## Do not
 
