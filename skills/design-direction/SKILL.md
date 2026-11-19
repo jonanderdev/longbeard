@@ -111,7 +111,14 @@ Their board already holds their taste, so it is the pool. A rich board needs no 
 
 Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets` returns `rawImages`, the original uploads at full size, GIFs included, up to 20 from anywhere under the node: call it on the card, or on a frame holding up to 20 cards when the result shows which card each image belongs to. A card's render on the board is a thumbnail, so it is never what is saved.
 
-**Cards cut from shared sheets.** Many boards crop each card from a larger uploaded image (a fill with `scaleMode: CROP` and an `imageTransform` `[[a,0,tx],[0,d,ty]]`, the region x from tx to tx+a, y from ty to ty+d of the image, as fractions). Then many cards share one `imageHash`. Read each card's hash and transform with `use_figma` (paged as above), download each distinct image once, check its SHA-1 against the hash, and crop the cards from it locally. A board of 1,300 cards took 115 downloads this way, against about 1,300 card by card. Name each crop by the card's own name, so it stays the same across board versions.
+**Cards cut from shared sheets.** Many boards crop each card from a larger uploaded image (a fill with `scaleMode: CROP` and an `imageTransform` `[[a,0,tx],[0,d,ty]]`, the region x from tx to tx+a, y from ty to ty+d of the image, as fractions). Then many cards share one `imageHash`. Read each card's name, hash, transform, caption and tags with `use_figma` (paged as above) into `cards.json`, then:
+
+  ```
+  node <skill>/scripts/crops.mjs cards.json --list
+  node <skill>/scripts/crops.mjs cards.json --sheets <scratch>/sheets --out design-exploration/<slug>/refs
+  ```
+
+  The first lists each distinct image once: download each to `<scratch>/sheets/<hash>.<ext>`. The second checks each sheet's SHA-1 against its hash, crops every card at the sheet's own size, and writes `crops.tsv` (name, file, caption, tags) for seeding the tags. A sheet that does not match, is missing, or a card that is rotated is named and skipped. A board of 1,300 cards took 115 downloads this way, against about 1,300 card by card. Name each crop by the card's own name, so it stays the same across board versions.
 
 **Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
 
