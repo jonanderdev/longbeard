@@ -87,7 +87,13 @@ Open the lead and every like at full size. Write `.longbeard/design/direction/li
 - **Family:** what the lead and likes share, as ranges, measured where a page exists (`measure.mjs <link>`), never averaged. It is not dealt: every screen gets it, so eight screens stay one look.
 - **Type:** one per reference: the face it uses (`by: page`, read from the page), or from a picture only the nearest free face (`by: eye`, a stand-in). Its `kind`, so the deal can spread kinds. The body face it is paired with.
 - **Grounds and accents:** one per reference, measured: the ground, the ink on it, a panel, a gradient or pattern as written. An accent is a colour and what carries it; none is an entry too.
-- **The subject's colours:** one or two grounds and an accent from the subject pictures' palette (`measure.mjs .longbeard/design/pictures`), `"from": ["subject"]`, so some screens wear the product's own colours. Only where they read (ink at 4.5:1).
+- **The subject's colours:** one or two grounds and an accent proposed from the subject pictures, so some screens wear the product's own colours. Never a colour sampled raw from a photo (that gives background greys and shadow browns): `subject-colours.mjs` reads the pictures' main colours, drops noise, highlights and shadows, finds the signature colour (the crust, the wall, the leaf), and tunes each to its role: an off-white or near-black that keeps the subject's hue, an accent with enough chroma, ink at 4.5:1, the accent at 3:1. Each colour says what it came from and how it was tuned.
+
+  ```
+  node <skill>/scripts/subject-colours.mjs .longbeard/design/pictures --json
+  ```
+
+  Its `library` entries go in as they are, `"from": ["subject"]`.
 - **What is fixed:** a face or colour they own is an entry with `"from": ["theirs"]`; a refused one is left out; light or dark only drops the other grounds.
 - **Record, never judge.** A gradient, a glow, a typeface the rules call a tell: if a reference uses it, it is an entry. Ids are plain words, never a reference's name. Merge only twins.
 
