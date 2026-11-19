@@ -32,9 +32,10 @@
     },
     {
       "name": "Architecture",
-      "when": "No GLOSSARY.md",
+      "when": "No GLOSSARY.md, or new stack",
       "skills": [
-        "grill-with-docs"
+        "grill-with-docs",
+        "framework-skills"
       ],
       "writes": "GLOSSARY.md, ADRs"
     },
@@ -91,6 +92,14 @@
       "source": "local",
       "when": "A Figma screen, or a built UI spec, to check",
       "why": "Against the design rules and the Ready frame. Hard rules block; soft ones are reported."
+    },
+    {
+      "name": "framework-skills",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A framework or language with no skill for it",
+      "why": "Finds the framework's own skills, else the most installed, reads them, and proposes them. Installs on yes."
     },
     {
       "name": "matt-pocock",

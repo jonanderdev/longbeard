@@ -23,7 +23,7 @@ It is a base. You keep going from here.
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
 | 2. Direction | Three questions about what you like, a wide search you mark like or no on a picker page, a sharper second search from your picks, then a moodboard of about 100 across the whole site that you mark lead, like or no | `design-exploration/<slug>/direction.md`: ideas and patterns, not colours |
 | 3. Design | Questions on colour and type, then two or three prototypes of the key screens; you pick and iterate | `DESIGN.md` on your yes, a bento board of the look in Figma, then the screens, checked and marked Ready |
-| 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
+| 4. Architecture | The stack and the words the product uses, then skills for that stack, on your yes | `GLOSSARY.md`, decisions |
 | 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
 
@@ -31,7 +31,7 @@ Each stage writes a file the next one reads, so you can stop anywhere and pick u
 
 ## The kit
 
-Four skills are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
+Five skills are written here, in [`skills/`](skills/). `init` copies them from this package. The others are installed from the originals their authors publish, and `update` pulls a fresh copy of those.
 
 | Skill | What it is for | Author |
 |---|---|---|
@@ -39,6 +39,7 @@ Four skills are written here, in [`skills/`](skills/). `init` copies them from t
 | [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like and proposes a direction. Never picks colours or type | Long Beard |
 | [design](skills/design/SKILL.md) | Prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
+| [framework-skills](skills/framework-skills/SKILL.md) | Finds skills for your stack (the framework's own first, else the most installed), reads them, and installs the ones you say yes to | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
 | [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design` writes tokens, components and screens in Figma | Figma |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file a designer handed over | Figma |

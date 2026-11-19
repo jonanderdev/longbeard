@@ -618,7 +618,7 @@ function generateRouter(items, manifest = curated()) {
   const addons = catalog(manifest).filter((item) => item.optional && !item.preselected && !have.has(item.name));
   const rows = stages.map((stage) => `| ${stage.name} | ${stage.when} | ${stage.skills.join(" → ")} | ${stage.writes} |`);
   const offer = addons.length
-    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}. At Architecture, a framework skill.\n`
+    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}.\n`
     : "";
   return `# Long Beard
 
