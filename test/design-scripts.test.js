@@ -16,6 +16,7 @@ const measure = join(root, "skills/design-direction/scripts/measure.mjs");
 // Eight references, a to h. Each gives one arrangement; type, grounds and the rest are shared out.
 const library = (extra = {}) => ({
   anchor: "a",
+  family: { tone: "light", empty: "55–70%", from: ["a", "b"] },
   arrangements: "abcdefgh".split("").map((ref) => ({ id: `arr-${ref}`, what: "x", from: [ref] })),
   navigation: [
     { id: "nav-1", what: "x", from: ["a", "b"] },
@@ -185,6 +186,14 @@ test("deal --mix records a hand mix as its own round, and warns when it breaks t
   assert.match(broken.stderr, /fewer than three references/);
 });
 
+test("deal: a library with no family still deals, and says what is missing", () => {
+  const lib = library();
+  delete lib.family;
+  const result = run(deal, project(lib), ["library.json", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /no family/);
+});
+
 test("deal: a library with a missing list, or too thin to deal from, fails with the reason", () => {
   const { navigation, ...rest } = library();
   const missing = run(deal, project(rest), ["library.json"]);
@@ -248,7 +257,7 @@ function measured(args) {
 }
 
 test("measure: a page gives its ground, and each text's face, size and colour", async (t) => {
-  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase">Quiet</h1></body>`;
+  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase;margin:0 0 0 32px">Quiet</h1><p style="font:16px Georgia;margin:0 0 0 32px">One</p><p style="font:16px Georgia;margin:0 0 0 32px">Two</p><div style="width:720px;height:450px;background-image:linear-gradient(red,blue);border-radius:6px"></div></body>`;
   const server = await new Promise((done) => {
     const s = createServer((req, res) => res.end(page));
     s.listen(0, () => done(s));
@@ -261,6 +270,9 @@ test("measure: a page gives its ground, and each text's face, size and colour", 
     assert.equal(out.ground, "rgb(238, 230, 222)");
     const [title] = out.text;
     assert.deepEqual([title.text, title.face, title.size, title.weight, title.case, title.colour], ["Quiet", "Georgia", "80px", "700", "uppercase", "rgb(200, 0, 0)"]);
+    assert.deepEqual([out.traits.display, out.traits.body, out.traits.scale, out.traits.radius], ["80px", "16px", 5, "6px"]);
+    assert.ok(out.traits.pictures > 20 && out.traits.pictures < 30, `pictures ${out.traits.pictures}`);
+    assert.equal(out.traits.margin, 2.2);
   } finally {
     server.close();
   }
@@ -276,5 +288,9 @@ test("measure: an image gives its colours with their share of the picture", asyn
   assert.deepEqual([out.width, out.height], [2, 1]);
   assert.deepEqual(out.common.map((c) => c.colour).sort(), ["#ff0000", "#ffffff"]);
   assert.deepEqual(out.loud, [{ colour: "#ff0000", share: 50 }]);
+  const four = join(dir, "four.png");
+  writeFileSync(four, png(4, 1, [255, 255, 255, 255, 255, 255, 250, 250, 250, 255, 0, 0]));
+  const traits = JSON.parse((await measured([four])).stdout).traits;
+  assert.deepEqual([traits.ground, traits.tone, traits.empty, traits.loud], ["#fdfdfd", "light", 75, 25]);
   assert.equal((await measured(["notes.txt"])).status, 2);
 });

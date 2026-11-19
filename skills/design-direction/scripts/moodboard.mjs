@@ -6,7 +6,8 @@
 // layout is this file. It shows what we saw. It does not paint a brand.
 //
 // A card's fields in board.md: link, shot, frames (a folder that
-// capture.mjs --frames wrote, played on hover), topic, pattern, why.
+// capture.mjs --frames wrote, played on hover), topic, pattern, measured
+// (its traits from measure.mjs, shown small under the pattern), why.
 //
 //   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
 //   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
@@ -122,7 +123,7 @@ for (const card of cards) {
   const name = /^https?:\/\//i.test(url)
     ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
     : `<span class="name">${esc(card.name)}</span>`;
-  const line = card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "";
+  const line = (card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
@@ -207,6 +208,7 @@ const html = `<!DOCTYPE html>
   .name { font-size: 15px; line-height: 1.3; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
   a.name:hover { text-decoration: underline; }
   .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .measured { margin: -6px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
   .marks { display: flex; gap: 6px; margin-top: auto; }
   .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
@@ -230,7 +232,7 @@ const html = `<!DOCTYPE html>
 <main>
   <header>
     <h1>Moodboard</h1>
-    <p class="how">Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <p class="how">Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>

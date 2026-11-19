@@ -73,6 +73,7 @@ for (const list of lists) {
     ids.add(entry.id);
   }
 }
+if (!lib.family) console.error("deal: the library has no family, so nothing holds the screens together: read it again from design-direction's library step");
 const count = countArg ? Number(countArg) : 8;
 if (!Number.isInteger(count) || count < 2 || count > 16) fail("count must be a whole number from 2 to 16");
 const seed = seedArg ? Number(seedArg) >>> 0 : (Date.now() ^ (process.pid << 8)) >>> 0;

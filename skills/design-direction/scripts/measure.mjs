@@ -3,12 +3,18 @@
 // nothing is judged by eye. Prints JSON. Node 22+, an installed Chrome.
 //
 // An image: its most common colours and its loud ones, each with its share of
-// the picture.
+// the picture, and its traits: how light the ground is, how much of the
+// picture is that ground (empty), and how much is loud colour.
 //   node measure.mjs design-exploration/<slug>/refs/name.jpg
 //
 // A live page: its ground colour, the fonts it loaded, and every piece of text
 // on the first screen with its face, size, weight, style, tracking, case,
-// colour and box, plus the boxes of its pictures and panels.
+// colour and box, plus the boxes of its pictures and panels, and its traits:
+// the type scale (largest text over the most common size), how much of the
+// first screen is pictures, the left margin, and the corner radius in use.
+//
+// Traits are what families are sorted by and what a family shares, so every
+// keep is measured the same way before anyone judges it by eye.
 //   node measure.mjs https://example.com
 //   node measure.mjs https://example.com --wait 9000 --width 390
 import { spawn } from "node:child_process";
@@ -167,7 +173,19 @@ const readImage = `(async () => {
   const sat = (b) => { const v = [1, 2, 3].map((j) => b[j] / b[0]); return (Math.max(...v) - Math.min(...v)) / 255; };
   const row = (b) => ({ colour: hex(b), share: Math.round((1000 * b[0]) / n) / 10 });
   const all = [...bins.values()].sort((a, b) => b[0] - a[0]);
-  return { width: img.naturalWidth, height: img.naturalHeight, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  const avg = (b) => [1, 2, 3].map((j) => b[j] / b[0]);
+  const lum = (v) => { const c = v.map((x) => x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const top = avg(all[0]);
+  const near = (b) => avg(b).every((x, j) => Math.abs(x - top[j]) <= 24);
+  const pct = (count) => Math.round((1000 * count) / n) / 10;
+  const l = lum(top);
+  const traits = {
+    ground: hex(all[0]),
+    tone: l > 0.6 ? "light" : l < 0.12 ? "dark" : "mid",
+    empty: pct(all.filter(near).reduce((t, b) => t + b[0], 0)),
+    loud: pct(all.filter((b) => sat(b) > 0.5).reduce((t, b) => t + b[0], 0)),
+  };
+  return { width: img.naturalWidth, height: img.naturalHeight, traits, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
 })()`;
 
 const readPage = `(() => {
@@ -189,6 +207,31 @@ const readPage = `(() => {
       out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r) });
   }
   out.fonts = [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family.replace(/["']/g, "") + " " + f.weight + " " + f.style))];
+  // Traits. The body size is the size most text is set in, by count of pieces.
+  const sizes = out.text.map((t) => parseFloat(t.size)).filter((x) => x > 0);
+  const tally = new Map();
+  for (const x of sizes) tally.set(x, (tally.get(x) || 0) + 1);
+  const body = [...tally].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] || 0;
+  const largest = sizes.length ? Math.max(...sizes) : 0;
+  // Picture cover is counted on a coarse grid, so overlapping pictures count once.
+  const cells = new Set();
+  for (const b of out.boxes) {
+    if (b.kind === "div" && b.fill !== "rgba(0, 0, 0, 0)") continue;
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) cells.add(gx + "," + gy);
+  }
+  const radii = out.boxes.map((b) => b.radius).filter((r) => r && r !== "0px");
+  const radius = radii.length ? [...radii.reduce((m, r) => m.set(r, (m.get(r) || 0) + 1), new Map())].sort((a, b) => b[1] - a[1])[0][0] : "0px";
+  const lefts = out.text.map((t) => t.box[0]).filter((x) => x >= 0);
+  out.traits = {
+    display: largest + "px",
+    body: body + "px",
+    scale: body ? Math.round((10 * largest) / body) / 10 : null,
+    pictures: Math.round((1000 * cells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
+    margin: lefts.length ? Math.round((1000 * Math.min(...lefts)) / W) / 10 : null,
+    radius,
+  };
   return out;
 })()`;
 

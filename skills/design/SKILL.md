@@ -25,7 +25,7 @@ Look at the repo. Do not ask what is there.
 
 1. No `docs/brief.md` → `idea` first. Stop.
 2. The brief says no UI → nothing to design. Stop.
-3. No `design-exploration/identity*/direction.md` and no `DESIGN.md` → `design-direction` first. Stop. A `direction.md` with no `library.json` beside it is from before the library: `design-direction` again, from its families step, with the references it already has.
+3. No `design-exploration/identity*/direction.md` and no `DESIGN.md` → `design-direction` first. Stop. A `direction.md` with no `library.json` beside it is from before the library: `design-direction` again, from its families step, with the references it already has. A `library.json` with no `family` is from before the family: `design-direction` again, from its library step, with the same anchor and donors.
 4. `DESIGN.md` exists and an identity `direction.md` is newer than it → a rebrand: **First pass**. On approval its `DESIGN.md` replaces the old one.
 5. `DESIGN.md` exists → **Feature loop**.
 6. Otherwise → **First pass**.
@@ -81,9 +81,10 @@ The grid is the first screen only: for a site, the screen a person lands on, at 
 One page, `design-exploration/<slug>/prototype/grid.html`, plain HTML and CSS, no build step, that shows recipe `n` of the last round at `?n=`. It runs by opening the file, so it loads `../deal.js` with a script tag (`window.DEAL` holds `library` and `rounds`): a page opened as a file cannot fetch JSON.
 
 - **The same real content in every recipe.** The name, the line and the pictures from the brief and `direction.md`'s subject, in its voice. No lorem, no grey boxes. Only the look differs, so the look is what they judge.
+- **The family holds on every recipe.** `library.family` is not dealt: every screen gets it, whatever else was dealt. Its scale, how empty, how much is pictures and how they are treated, its margin, radius, edges and density are variables every arrangement reads. A screen outside the family's ranges is a fault, fixed in the rule.
 - **Each arrangement and each navigation is built once, as a rule.** Write it from its sentence in the library, with the references' shots open for what a sentence cannot carry. It does not know which type, ground or accent it will get: those arrive as variables. An arrangement fills the space the navigation leaves, wherever that is.
 - **Take the arrangement, never the reference.** Nothing of a reference's content, pictures or wording is used.
-- **Type fills by rule, not by number.** Display type that should fill a width is sized to that width with a limit on its height, so a narrow face and a wide one both fit. Type that crosses a picture stays readable on it.
+- **Type fills by rule, not by number.** Display type that should fill a width is sized to that width with a limit on its height, so a narrow face and a wide one both fit. Display over body stays inside the family's `scale`. Running text uses the type entry's `body`. Type that crosses a picture stays readable on it.
 - **Fix faults, never taste.** Capture every recipe and open each at full size. An overlap, a clipped word, a stray element, text that cannot be read: fix it with a rule in the arrangement, so the fix holds for whatever is dealt into it, and capture again. Never tune one recipe, and never change what was dealt.
 
 ```
@@ -120,7 +121,7 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 Until now every screen was a sketch at one size. Now it becomes the design. Read [design-rules.md](references/design-rules.md) again and work through it on this screen.
 
 - **The real faces.** An entry marked `eye` is a stand-in. Where the product can use something closer, show the title in up to six candidates as one more row, and let them pick. Every face is free to license or one they own.
-- **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone.
+- **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone. The family's ranges hold here too: measure the finished screen (`measure.mjs` on its file URL) and say where it falls outside them.
 - **Navigation that works:** the menu open, what it does on scroll, what it becomes on a phone.
 - **Motion.** A reference that moves is felt again, not remembered. Play its recorded frames and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
 - **The ownable.** The one thing `direction.md`'s subject says this screen must show is on it, somewhere you can point to, made from the product's own world and not from a reference. It is unconfirmed until they have seen it rendered: confirm it or replace it here. It is `ownable` in `DESIGN.md`.

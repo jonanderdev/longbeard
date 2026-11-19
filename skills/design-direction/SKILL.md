@@ -150,10 +150,22 @@ If they say "go" or "you choose" instead of picking, pick from the pool yourself
 
 A family is a group of references that look alike: what a person would see from across a room. How large the type is against the pictures, how much of the screen is empty, how loud the colour is, what kind of face, how things sit together. It is not a part (a menu and an article can be one family) and not a subject.
 
+**Measure every keep first**, before any grouping, so every keep is compared on the same numbers and none is sorted on a glance:
+
+```
+node <skill>/scripts/measure.mjs design-exploration/<slug>/refs/<name>.jpg
+node <skill>/scripts/measure.mjs <its live link>
+```
+
+Run up to four at a time. From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground) and `loud` (how much is saturated colour). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
+
+**Sort by the numbers, then by eye.** Tone, emptiness, loudness and, on pages, scale and pictures are most of what is seen from across a room: start there. The eye adds what numbers miss: the kind of face, how things sit together, how the pictures are treated. Say in the family's line what the eye added.
+
 - **Three to six families.** Fewer means the grouping is too coarse to choose from; more means it has been split on details.
 - **Named for what is seen**, in plain words a person outside design would use, with one line saying what its members share. Never a reference's name or a style label.
 - **Every keep is in exactly one family.** A keep that was saved for one detail (a control, a mark, a single card) and shows no whole look goes in a last group, `One detail`.
 - **Do not force a fit.** A keep that belongs nowhere is its own small family or goes under `One detail`. Say which families are too small to deal from (under six).
+- **Check the spread.** Write each family's traits as ranges. A family wide on one trait (light and dark together, a scale of 2 beside one of 9) is two families or has a stray: split it, move the stray, or say in its line why it still holds.
 
 Write `board.md`: a few header lines, then one card per keep.
 
@@ -163,7 +175,7 @@ Sources: <their moodboard (what it was), or what was searched, and any skip: "Aw
 Picked: <the likes, by id, and what they share; leave out with their own moodboard>
 Noes: <what the noes share, or none>
 Missing: <what the pool lacks, or none>
-Families: <each family, what its members share, and how many keeps it has>
+Families: <each family, what its members share, its measured ranges ("light · empty 55–70% · loud under 5% · scale 4–7"), and how many keeps it has>
 
 ### <name>
 - link: <the page a person can open, or "none (shared in chat)">
@@ -172,6 +184,7 @@ Families: <each family, what its members share, and how many keeps it has>
 - shot: design-exploration/<slug>/refs/<file>
 - frames: <for motion: the folder --frames wrote; leave out otherwise>
 - pattern: <what it adds to its family, about six words: an arrangement, a kind of picture, a way of using colour>
+- measured: <its traits from measure.mjs, one line: "light · empty 64% · loud 2% · scale 6.5 · pictures 40% · margin 3% · radius 0px">
 - why: <why it fits this brief, one line>
 ```
 
@@ -194,20 +207,23 @@ Look at it yourself first, one family at a time so every tile stays readable (`c
 - **The marks are theirs.** Say which families fit; never pick the family, the anchor or the donors for them. Only on "you choose": the family closest to their words for feel, its member closest to the brief as anchor, the rest of the family as donors, and say so.
 - **Leads in two families** are two looks: each gets its own library and its own round of screens. Never merge two families into one library. Mixed families are what make a screen look assembled. Ask which comes first.
 
+- **A note "move to <family>"** moves that tile. Move it, run the board again, and say what moved. Their grouping wins over the numbers.
+
 Read the marks back in up to three lines (the family, the anchor, what the donors share, what the noes share) and wait for their yes.
 
 **Enough to deal from?** The anchor and the donors together need to be six or more, because every screen draws on three different references. Fewer: say so, and offer a search for more that look like them (a pool of 20 to 60, one picker round as in step 3, the likes joining the donors). On "go", continue with what there is and say that the round of screens will be smaller.
 
 ### 6. Read the library
 
-The library is what the anchor and the donors use, written down so `design` can deal from it. It has five lists. Reading it is measuring, not judging: nothing here is a choice.
+The library is what the anchor and the donors use, written down so `design` can deal from it. It has what they share, the family, and five lists that are dealt. Reading it is measuring, not judging: nothing here is a choice.
 
 ```
 {
   "anchor": "<the anchor's card name>",
+  "family":       { "tone": "light", "empty": "55–70%", "loud": "under 5%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated: crop, bleed, colour, grain>", "edges": "<rules, borders, or none>", "density": "<one sentence: how much sits on the first screen>", "from": ["<card name>"] },
   "arrangements": [{ "id": "<a short word>", "what": "<one sentence>", "from": ["<card name>"] }],
   "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
-  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase | lowercase", "italic": true, "tracking": "-0.02em", "from": ["…"] }],
+  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase | lowercase", "italic": true, "tracking": "-0.02em", "size": "<the display size at 1440 wide, or null>", "body": { "face": "<the face its running text uses>", "size": "16px", "leading": "1.5" }, "from": ["…"] }],
   "grounds":      [{ "id": "…", "ground": "#…", "panel": "#… or null", "ink": "#…", "from": ["…"] }],
   "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }]
 }
@@ -222,9 +238,10 @@ node <skill>/scripts/measure.mjs <its live link>
 
 The first gives an image's colours with their share of the picture. The second gives a live page's ground, the fonts it loaded, and every piece of text on the first screen with its face, size, weight, tracking, case, colour and box. Measure the live page whenever the reference has one: a size or a weight read from a picture is a guess, and the guess is often far off.
 
+- **Family.** What the anchor and every donor share: their measured traits as ranges, and in words what numbers cannot carry: how pictures are treated, edges, density. A trait they do not share is left out, never averaged. The family is not dealt: every screen gets it, so it is what makes eight different screens one look.
 - **Arrangements.** One per reference: where the title, the pictures and the small text sit on the first screen, and how they relate (what overlaps what, what is centred, what runs off an edge, how much is left empty). One sentence, complete enough to build from with the picture closed. It carries no content, no colour and no typeface: those are other lists.
 - **Navigation.** Where the name and the links sit, how many are shown, and what rides with them (a caption, a button, a count). One sentence, the same rules.
-- **Type.** The kind of face in plain words, and `face`: a face the product can use, free to license or one they own. `by` is `page` when the reference's own face was read from its page and can be used, `eye` when it is the nearest match judged from the picture. Weight, case, italic and tracking as measured, or as seen when there is only a picture.
+- **Type.** The kind of face in plain words, and `face`: a face the product can use, free to license or one they own. `by` is `page` when the reference's own face was read from its page and can be used, `eye` when it is the nearest match judged from the picture. Weight, case, italic and tracking as measured, or as seen when there is only a picture. `size` is the display size from the page, `null` with only a picture. `body` is the face, size and leading its running text uses, so a display face stays with the body face it was paired with.
 - **Grounds.** The ground colour, the ink, and `panel` when the design sits as a panel on a surround of another colour. Measured, never judged by eye.
 - **Accents.** The colour and the device that carries it: a shape, the letters themselves, a panel. Measured. When some of them use no accent, that is an entry too, with `colour: null`.
 - **`from` on every entry:** the card names of the references that show it. `design` needs it to keep any one reference from supplying a whole screen.
@@ -293,7 +310,7 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 
 - Choose a colour, a typeface, a size or a spacing value, or propose a combination. The library records what references use. Write `DESIGN.md`. Code or lay out a page.
 - Pick the family, the anchor or the donors for them, or rank the references, unless they say "you choose". Merge two families into one library.
-- Write a size, a weight or a colour into the library from looking at a picture when it can be measured.
+- Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
 - Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the three questions are answered, answer them yourself, or ask them a second round of questions. Run a third picker round.
 - Cut the pool for taste before they pick. Pad the keep by lowering the filter. Keep a shot nobody opened at full size.
 - Screenshot a source's listing or search page, or a candidate you are not keeping. Never stitch screenshots or frames into one picture.

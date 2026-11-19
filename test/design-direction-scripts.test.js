@@ -51,6 +51,14 @@ test("moodboard: one tile per card with a shot, its name linked to its source", 
   assert.equal(html.match(/class="why"/g)?.length, 2);
 });
 
+test("moodboard: a card's measured traits show small under its pattern", () => {
+  const dir = project(board([card("Quiet", "- measured: light · empty 64% · loud 2%\n"), card("Loud")]));
+  run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "m.html"]);
+  const html = readFileSync(join(dir, "m.html"), "utf8");
+  assert.equal(html.match(/<p class="measured">/g)?.length, 1);
+  assert.match(html, /<p class="measured">light · empty 64% · loud 2%<\/p>/);
+});
+
 test("moodboard: tiles group by topic, parts of a site first, then others, then Other", () => {
   const dir = project(
     board([
