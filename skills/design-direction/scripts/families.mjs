@@ -340,17 +340,19 @@ if (boardArg) {
     const tags = t ? [Object.values(t).map((w) => w.join("+")).filter((w) => w !== "none").join(" · ")] : [];
     return [...tags, v.tone || tone(Number(v.lum)), `empty ${Math.round(Number(v.empty))}%`, `loud ${Math.round(Number(v.loud))}%`, `busy ${Math.round(Number(v.busy))}`, ...page].join(" · ");
   };
-  const cards = families.flatMap((f) =>
-    f.members.map((ref) => {
+  // Each pair of strays is its own group on the board, so it can be taken as the seed of a family.
+  const pairOf = new Map();
+  for (const [i, pair] of (families.find((f) => f.stray)?.pairs || []).entries()) for (const ref of pair) pairOf.set(ref, `Pair ${i + 1}`);
+  const ordered = families.flatMap((f) => (f.stray ? [...f.members].sort((a, b) => (pairOf.has(a) ? 0 : 1) - (pairOf.has(b) ? 0 : 1) || String(pairOf.get(a)).localeCompare(String(pairOf.get(b)), undefined, { numeric: true })).map((ref) => [f, ref]) : f.members.map((ref) => [f, ref])));
+  const cards = ordered.map(([f, ref]) => {
       const shot = relative(process.cwd(), resolve(ref)).split("\\").join("/");
       return `### ${basename(ref, extname(ref))}
 - link: ${linkOf(ref) || "none (shared in chat)"}
-- topic: ${f.id}
+- topic: ${pairOf.get(ref) || f.id}
 - shot: ${shot}
 - measured: ${measured(byRef.get(ref))}
 `;
-    }),
-  );
+  });
   const header = `Families: ${families.map((f) => `${f.id} (${line(f)}) — ${f.size}`).join("; ")}\n`;
   writeFileSync(boardPath, `${header}\n${cards.join("\n")}`);
   console.log(`board: ${boardArg}, ${cards.length} cards`);

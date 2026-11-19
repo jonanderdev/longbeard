@@ -232,9 +232,15 @@ Families: <each family, what its members share, its measured ranges ("light · e
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
 ```
 
+Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. Then say which families fit what they asked for, and which ones look like what they said it should never feel. That is a hint: no family is hidden or dropped for it.
+
+Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`): the seed of a look the pool holds only twice. Taking one is taking a family: offer a search for more like it before marking, since a family needs six to deal from.
+
 > Open the families board. Take the families you want to see in full, any number, and note one that looks like two or belongs with another. Then paste the copy-out here.
 
-Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. A small board skips the first step.
+Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. A small board skips the first step, and its families are presented with the same lines.
+
+**None taken** is an answer, not a dead end. Ask in one line what is missing, from what they see ("closer to the photographs, but warmer", "nothing like any of these"). Their words count like a note: offer a search sized to them (a pool of 20 to 60, one picker round as in step 3), its likes sorted into the families or into a new one, then the families board again.
 
 ```
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html
@@ -242,7 +248,7 @@ node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out desi
 
 The page groups the keeps by family. Each tile has Lead, Like and No, and a note.
 
-Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line, say which ones fit what they asked for and why, and ask one line:
+Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line with what the eye changed in it (unless the families board already said so), say which ones fit what they asked for and why, and which look like what they said it should never feel, as a hint and never a cut. Then ask one line:
 
 > Open the board. In the family you want, Lead the one reference that should set the tone, Like the ones I should draw from, and No what doesn't belong. Add a note where you have one, then paste the copy-out here.
 
@@ -250,6 +256,7 @@ Look at it yourself first, one family at a time so every tile stays readable (`c
 - **The likes are the donors.** Only the anchor and the donors are read into the library.
 - **The marks are theirs.** Say which families fit; never pick the family, the anchor or the donors for them. Only on "you choose": the family closest to their words for feel, its member closest to the brief as anchor, the rest of the family as donors, and say so.
 - **Leads in two families** are two looks: each gets its own library and its own round of screens. Never merge two families into one library. Mixed families are what make a screen look assembled. Ask which comes first.
+- **Likes outside the lead's family** are asked about, never dropped or folded in quietly: "You liked 3 in <family>: bring them in as donors (the screens will mix two looks), or keep them for later screens?" Brought in, they join the library and the read-back says the family is now mixed. Kept, they go under Other parts in `direction.md`, for the screens they show.
 
 - **A note "move to <family>"** moves that tile. Move it, run the board again, and say what moved. Their grouping wins over the numbers.
 
@@ -287,6 +294,23 @@ Open each reference at full size again. Its measurements are already in `profile
 - **Ids are plain words** for the thing ("split", "arch", "condensed"), never a reference's name.
 
 The library stays in `design-exploration/`. It names references, so nothing the product keeps ever copies from it by name.
+
+**Show the library before the direction is written.** It is what every screen will be dealt from, and reading it made choices they have not seen. In chat, short, one line per list:
+
+```
+Library, from <anchor> and <n> donors:
+- family: <what every screen will share, in plain words>
+- arrangements (<n>): <ids, a few words each>
+- navigation (<n>): <ids>
+- type (<n>): <faces>; stand-ins: <a face judged by eye, and what it stands in for>, or none
+- grounds (<n>): <light n, dark n, mid n>; gradients or patterns: <which>, or none
+- accents (<n>): <colours and devices>, or none
+- not read: <anything that could not be measured or seen>, or nothing
+```
+
+> Drop or swap anything before I write the direction?
+
+A drop removes the entry. A swap is a face, a ground or an accent they name: it goes in as `"from": ["theirs"]`. Then wait. Only "go" or their changes move on.
 
 ### 7. Write `direction.md`
 
@@ -348,6 +372,7 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 
 - Choose a colour, a typeface, a size or a spacing value, or propose a combination. The library records what references use. Write `DESIGN.md`. Code or lay out a page.
 - Pick the family, the anchor or the donors for them, or rank the references, unless they say "you choose". Merge two families into one library.
+- Write `direction.md` before they have seen the library readout. Hide or drop a family because it looks like their "never feel": say so, and let them decide. Fold likes from another family into the library without asking.
 - Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
 - Measure one image per call, open every keep at full size to sort it, or read a big pool's traits into the chat. One browser for the folder, contact sheets for the eye, `families.mjs` for the numbers.
 - Cut their moodboard to a number, or force its families to one.

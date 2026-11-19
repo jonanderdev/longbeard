@@ -261,7 +261,9 @@ test("families: from profiles, what the picture is separates references the numb
   refs.pairA = profile("pairA", { lum: 0.95, empty: 30, loud: 60, picture: "collage", layout: "collage", colours: 200 });
   refs.pairB = profile("pairB", { lum: 0.95, empty: 31, loud: 61, picture: "collage", layout: "collage", colours: 200 });
   const dir = project({ "profiles.json": JSON.stringify({ refs }) });
-  const result = run("families.mjs", dir, ["profiles.json"]);
+  const result = run("families.mjs", dir, ["profiles.json", "--board", "board.md"]);
+  // The pair is its own group on the board, to be taken as a seed.
+  assert.equal(readFileSync(join(dir, "board.md"), "utf8").match(/- topic: Pair 1/g).length, 2);
   const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
   const groups = families.filter((f) => !f.stray).map((f) => [...new Set(f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")))].join(","));
   assert.deepEqual(groups.sort(), ["photo", "render", "type"], result.stdout);
