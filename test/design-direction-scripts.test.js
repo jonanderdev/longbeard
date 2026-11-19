@@ -193,7 +193,7 @@ test("families: splits on measured traits, keeps groups of at least --min, and w
   assert.ok(families.filter((f) => !f.stray).every((f) => f.size >= 3));
   // The one far from every group is set aside for the eye, not forced into a family.
   assert.deepEqual(families.find((f) => f.stray)?.members, ["refs/odd.jpg"]);
-  assert.match(result.stdout, /22 references, \d+ families/);
+  assert.match(result.stdout, /22 references \(radius [\d.]+\), \d+ families/);
   const board = readFileSync(join(dir, "board.md"), "utf8");
   assert.match(board, /^Families: f1 \(/);
   assert.equal(board.match(/^### /gm).length, 22);
@@ -220,3 +220,52 @@ test("moodboard --overview: a few tiles per family, its ranges, and one Take per
   assert.match(html, /\+3 more not shown/);
 });
 
+
+// Profiles for families.mjs: a picture's traits and figure, and the agent's tags.
+function profile(name, { lum, empty, loud = 1, busy = 2, picture, layout, colours = 20, soft = 20, sharp = 30, grid = 30 }) {
+  return {
+    shot: `refs/${name}.jpg`,
+    link: null,
+    image: {
+      traits: { tone: lum > 0.6 ? "light" : lum < 0.12 ? "dark" : "mid", lum, empty, loud, busy, ground: "#000000" },
+      figure: { share: 100 - empty, colours, colourful: 20, grey: 50, flat: 100 - soft - sharp, soft, sharp, texture: 10, palette: [], grid: new Array(24).fill(grid) },
+    },
+    page: null,
+    tags: { picture: [picture], photo: [picture === "photo" ? "colour" : "none"], type: ["sans"], weight: ["regular"], layout: [layout], colour: ["neutral"], surface: ["flat"] },
+  };
+}
+
+test("tag: checks every word against the vocabulary, then merges the rows and their notes", () => {
+  const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }), b: profile("b", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
+  delete refs.a.tags;
+  delete refs.b.tags;
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "bad.tsv": "a\tphoto\tcolour\tsans\tregular\tcentred\tneutral\tshiny\n", "good.tsv": "name\tpicture\tphoto\ttype\tweight\tlayout\tcolour\tsurface\na\trender+lettering\tnone\tdisplay\tblack\tcentred\tmulti\tchrome\tchrome 3D wordmark\n" });
+  const bad = spawnSync(process.execPath, [join(scripts, "tag.mjs"), "profiles.json", "bad.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /surface "shiny"/);
+  assert.equal(JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.a.tags, undefined);
+  const good = run("tag.mjs", dir, ["profiles.json", "good.tsv"]);
+  assert.match(good.stdout, /tagged 1, 1 left untagged/);
+  const a = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.a;
+  assert.deepEqual(a.tags.picture, ["render", "lettering"]);
+  assert.equal(a.note, "chrome 3D wordmark");
+});
+
+test("families: from profiles, what the picture is separates references the numbers alone would join", () => {
+  const refs = {};
+  // Three looks with the same tone and emptiness: photographs, 3D renders, and type alone on the ground.
+  for (let i = 0; i < 5; i++) refs[`photo${i}`] = profile(`photo${i}`, { lum: 0.02, empty: 60 + i, picture: "photo", layout: "full-bleed", colours: 150, soft: 30, sharp: 35, grid: 70 });
+  for (let i = 0; i < 4; i++) refs[`render${i}`] = profile(`render${i}`, { lum: 0.02, empty: 61 + i, picture: "render", layout: "scattered", colours: 300, soft: 50, sharp: 20, grid: 35 });
+  for (let i = 0; i < 4; i++) refs[`type${i}`] = profile(`type${i}`, { lum: 0.02, empty: 62 + i, picture: "none", layout: "left", colours: 6, soft: 2, sharp: 60, grid: 10 });
+  refs.pairA = profile("pairA", { lum: 0.95, empty: 30, loud: 60, picture: "collage", layout: "collage", colours: 200 });
+  refs.pairB = profile("pairB", { lum: 0.95, empty: 31, loud: 61, picture: "collage", layout: "collage", colours: 200 });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  const groups = families.filter((f) => !f.stray).map((f) => [...new Set(f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")))].join(","));
+  assert.deepEqual(groups.sort(), ["photo", "render", "type"], result.stdout);
+  const strays = families.find((f) => f.stray);
+  assert.deepEqual(strays.pairs, [["refs/pairA.jpg", "refs/pairB.jpg"]]);
+  assert.match(result.stdout, /pairs, each a family seed: pairA\+pairB/);
+  assert.match(result.stdout, /render · scattered · sans · neutral · flat \| dark/);
+});

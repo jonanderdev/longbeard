@@ -156,32 +156,44 @@ If they say "go" or "you choose" instead of picking, pick from the pool yourself
 
 A family is a group of references that look alike: what a person would see from across a room. How large the type is against the pictures, how much of the screen is empty, how loud the colour is, what kind of face, how things sit together. It is not a part (a menu and an article can be one family) and not a subject.
 
-**Measure every keep first**, before any grouping, so every keep is compared on the same numbers and none is sorted on a glance. One call measures the whole folder in one browser, and the links in a few tabs at a time:
+**Read every keep into a profile first**, before any grouping, so every keep is compared on the same terms and none is sorted on a glance. A profile is everything known about one reference, kept in one local file, `profiles.json`, that the rest of the run reads from.
+
+1. **`links.tsv`**: `name<TAB>link`, one row per keep with a live page.
+2. **Measure**, the pictures and their pages in one browser run:
+
+   ```
+   node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --links design-exploration/<slug>/links.tsv --profiles design-exploration/<slug>/profiles.json --jobs 6
+   ```
+
+   From the picture: `tone`, `empty`, `loud`, `busy`, and its **figure**, everything that is not the ground: how many colours, how colourful, how grey, how much is soft surface or hard edge, its palette, and a 6 by 4 grid of where things sit. That is what tells a photograph from a 3D render from chrome lettering, which share "the picture fills the screen". From the page: the largest type and where it sits, what the screen is made of (`media`: images, video, canvas, SVG), visible `gradient` and `pattern` with their CSS, the loaded fonts and the largest texts with their face, size, weight and tracking. Never one call per image: each call starts a browser. Never read the profiles into the chat: the scripts read them.
+3. **Tag**, what numbers cannot see, in a fixed vocabulary:
+
+   ```
+   node <skill>/scripts/tag.mjs design-exploration/<slug>/profiles.json --sheets <scratch>/tag
+   node <skill>/scripts/tag.mjs design-exploration/<slug>/profiles.json design-exploration/<slug>/tags.tsv
+   ```
+
+   The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
+
+**Sort by the profiles, then by eye.**
 
 ```
-node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --tsv > design-exploration/<slug>/traits.tsv
-node <skill>/scripts/measure.mjs <link> <link> … --jobs 4 --tsv > design-exploration/<slug>/traits-pages.tsv
+node <skill>/scripts/families.mjs design-exploration/<slug>/profiles.json --board design-exploration/<slug>/board.md
 ```
 
-Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. Measure the live pages whenever the keeps have links: how large the largest type is, read only from a page, is what a person sees first from across a room, and pictures alone sort big-type and small-type references together. A title drawn as an SVG or an image counts as type (`lettering: picture`). From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `display` and `scale` (the largest text, and over the body size), `align` (where the largest text sits), `pictures` (how much of the first screen is pictures), `gradient` and `pattern` (how much carries a visible gradient, or a fine pattern like a dot grid), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
+It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait counts once, weighted by how much it shows from across a room: light or dark most, then what the picture is and the layout, then type, colour and surface. `--spread` lower splits finer.
 
-**Sort by the numbers, then by eye.** Tone, emptiness, loudness, busyness and, on pages, scale and pictures are most of what is seen from across a room: start there.
-
-```
-node <skill>/scripts/families.mjs design-exploration/<slug>/traits.tsv --links design-exploration/<slug>/links.tsv --pages design-exploration/<slug>/traits-pages.tsv --board design-exploration/<slug>/board.md
-```
-
-`links.tsv` is `name<TAB>link`, one row per keep, so each picture is joined to its page. It proposes families, prints one line per family (size, ranges, the most typical six), and writes a board skeleton with every keep in its family, most typical first. Then the eye, family by family, from contact sheets, never from each picture opened alone:
+Then the eye, family by family, from contact sheets, never from each picture opened alone:
 
 ```
 node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
 ```
 
-A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, but only the sheet confirms them.
+A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, but only the sheet confirms them. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
-**A family has a name a person would say.** Name each one for what is seen ("huge lettering is the picture", "dark app page, headline centred"). If the only honest name is a number ("dark, all picture", "light, small type"), it is a bin, not a family: the numbers agree and the pictures do not. Break it up: each member to the family it looks like, or to the strays. Look hardest at a family whose members share only how much: how much picture, how much empty.
+**A family has a name a person would say.** Name each one for what is seen ("huge lettering is the picture", "dark app page, headline centred"). If the only honest name is a number ("dark, all picture", "light, small type"), it is a bin, not a family: the numbers agree and the pictures do not. Break it up: each member to the family it looks like, or to the strays. Look hardest at a family whose tags disagree on picture or layout.
 
-**Strays are not noise.** `families.mjs` sets aside the few far from every family. They are often the most distinctive keeps on the board, the ones a designer looks at first: place each by eye, into a family or as the seed of one, and never drop one for being a stray. The numbers tend to split a varied board finely; merging is the eye's job too. The eye adds what the numbers miss (the kind of face, how things sit together, how pictures are treated): split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
+**Strays are not noise.** They are often the most distinctive keeps on the board, the ones a designer looks at first: place each by eye, into a family, as a pair's family, or as the seed of one, and never drop one for being a stray.
 
 - **As many families as there are looks.** The count comes from the pool, not from a fixed number: a varied board of a thousand can hold twenty, a tight board of thirty can hold two. `families.mjs` splits while a family spreads wide; `--spread` lower splits finer. Never merge two looks to reach a number, and never split one look on a detail.
 - **Named for what is seen**, in plain words a person outside design would use, with one line saying what its members share. Never a reference's name or a style label.
@@ -261,14 +273,7 @@ The library is what the anchor and the donors use, written down so `design` can 
 }
 ```
 
-Open each reference at full size again, and measure it:
-
-```
-node <skill>/scripts/measure.mjs design-exploration/<slug>/refs/<name>.jpg
-node <skill>/scripts/measure.mjs <its live link>
-```
-
-The first gives an image's colours with their share of the picture. The second gives a live page's ground, the fonts it loaded, and every piece of text on the first screen with its face, size, weight, tracking, case, colour and box. Measure the live page whenever the reference has one: a size or a weight read from a picture is a guess, and the guess is often far off.
+Open each reference at full size again. Its measurements are already in `profiles.json`: the picture's colours and palette, and from the live page its ground, the fonts it loaded, its largest texts with face, size, weight, tracking and case, its gradients and patterns. Read them from there; measure again only a page that has changed (`measure.mjs <its live link>` gives every text on the first screen). A size or a weight read from a picture is a guess, and the guess is often far off.
 
 - **Family.** What the anchor and every donor share: their measured traits as ranges, and in words what numbers cannot carry: how pictures are treated, edges, density. A trait they do not share is left out, never averaged. The family is not dealt: every screen gets it, so it is what makes eight different screens one look.
 - **Arrangements.** One per reference: where the title, the pictures and the small text sit on the first screen, and how they relate (what overlaps what, what is centred, what runs off an edge, how much is left empty). One sentence, complete enough to build from with the picture closed. It carries no content, no colour and no typeface: those are other lists.

@@ -31,6 +31,7 @@ const flag = (name, def) => {
 const tsvPath = args[0];
 const outDir = resolve(flag("out", "") || "");
 const perSheet = Math.max(1, Number(flag("per", "36")) || 36);
+const cols = Math.min(8, Math.max(1, Number(flag("cols", "6")) || 6));
 const containAt = args.indexOf("--contain");
 const contain = containAt !== -1;
 if (contain) args.splice(containAt, 1);
@@ -210,9 +211,9 @@ for (let s = 0; s < sheets.length; s++) {
   const html = `<!doctype html><meta charset=utf-8>
 <style>
   body { margin: 16px; background: #1a1a1a; color: #eee; font: 11px/1.2 system-ui, sans-serif; }
-  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 10px; }
   figure { margin: 0; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
-  img { display: block; width: 100%; height: ${contain ? 200 : 140}px; object-fit: ${contain ? "contain" : "cover"}; background: #111; }
+  img { display: block; width: 100%; height: ${contain ? Math.round(1200 / cols) : 140}px; object-fit: ${contain ? "contain" : "cover"}; background: #111; }
   figcaption { padding: 6px 8px; word-break: break-word; max-height: 2.4em; overflow: hidden; }
 </style>
 <div class="grid">${cells}</div>

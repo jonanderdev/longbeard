@@ -27,9 +27,9 @@
 //   node measure.mjs design-exploration/<slug>/refs --tsv > design-exploration/<slug>/traits.tsv
 //   node measure.mjs refs/a.jpg refs/b.png https://example.com --jobs 4 --tsv
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { extname, join, resolve } from "node:path";
+import { basename, extname, join, resolve } from "node:path";
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {
@@ -47,9 +47,11 @@ const width = Math.round(Number(flag("width", "1440")));
 const waitArg = flag("wait", "");
 const jobs = Math.round(Number(flag("jobs", "4")));
 const tsv = has("tsv");
+const linksArg = flag("links", "");
+const profilesArg = flag("profiles", "");
 const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif" };
 const isUrl = (t) => /^https?:\/\//.test(t);
-const usage = "usage: node measure.mjs <https://url | image | folder> … [--tsv] [--jobs 4] [--wait ms] [--width 1440]";
+const usage = "usage: node measure.mjs <https://url | image | folder> … [--tsv | --links links.tsv --profiles profiles.json] [--jobs 4] [--wait ms] [--width 1440]";
 if (!args.length) {
   console.error(usage);
   process.exit(2);
@@ -69,6 +71,24 @@ for (const arg of args) {
     console.error(usage);
     process.exit(2);
   }
+}
+// Profiles: each picture, its live page (from --links, name<TAB>link), into one JSON per exploration.
+const nameOf = (path) => basename(path, extname(path));
+const links = new Map();
+if (linksArg) {
+  if (!existsSync(linksArg)) {
+    console.error(`measure: no links at ${linksArg}`);
+    process.exit(1);
+  }
+  for (const l of readFileSync(linksArg, "utf8").split(/\r?\n/)) {
+    const [name, link] = l.split("\t").map((x) => (x || "").trim());
+    if (name && /^https?:\/\//.test(link || "")) links.set(nameOf(name), link);
+  }
+  for (const t of [...targets]) if (!isUrl(t) && links.has(nameOf(t)) && !targets.includes(links.get(nameOf(t)))) targets.push(links.get(nameOf(t)));
+}
+if (profilesArg && tsv) {
+  console.error("measure: --profiles and --tsv are two outputs: pick one");
+  process.exit(2);
 }
 if (!targets.length) {
   console.error("measure: no images or links to measure");
@@ -216,6 +236,55 @@ const readImage = (src) => `(async () => {
     const r = x + 1 < w ? i + 4 : i, b = y + 1 < h ? i + 4 * w : i;
     edges += Math.abs(g - (0.3 * d[r] + 0.59 * d[r + 1] + 0.11 * d[r + 2])) + Math.abs(g - (0.3 * d[b] + 0.59 * d[b + 1] + 0.11 * d[b + 2]));
   }
+  // The figure: everything that is not the ground, read again at 400 px so texture survives.
+  // What the picture is shows here: a photograph has many colours and fine texture, a flat
+  // illustration few colours and hard edges, a 3D render many colours and soft surfaces,
+  // chrome mostly grey with sharp highlights, lettering two colours and long hard edges.
+  const k2 = Math.min(1, 400 / Math.max(img.naturalWidth, img.naturalHeight));
+  const w2 = Math.max(1, Math.round(img.naturalWidth * k2)), h2 = Math.max(1, Math.round(img.naturalHeight * k2));
+  const c2 = Object.assign(document.createElement("canvas"), { width: w2, height: h2 }).getContext("2d");
+  c2.drawImage(img, 0, 0, w2, h2);
+  const e = c2.getImageData(0, 0, w2, h2).data;
+  const isFig = (i) => Math.max(Math.abs(e[i] - top[0]), Math.abs(e[i + 1] - top[1]), Math.abs(e[i + 2] - top[2])) > 24;
+  const lumOf = (i) => 0.3 * e[i] + 0.59 * e[i + 1] + 0.11 * e[i + 2];
+  const COLS = 6, ROWS = 4, grid = new Array(COLS * ROWS).fill(0), cell = new Array(COLS * ROWS).fill(0);
+  const fbins = new Map();
+  let F = 0, grey = 0, flat = 0, soft = 0, sharp = 0, tex = 0, srg = 0, syb = 0, srg2 = 0, syb2 = 0;
+  for (let y = 0; y < h2; y++) for (let x = 0; x < w2; x++) {
+    const i = (y * w2 + x) * 4, g = Math.min(COLS - 1, Math.floor((x * COLS) / w2)) + COLS * Math.min(ROWS - 1, Math.floor((y * ROWS) / h2));
+    cell[g]++;
+    if (!isFig(i)) continue;
+    F++; grid[g]++;
+    const key = (e[i] >> 4) << 8 | (e[i + 1] >> 4) << 4 | (e[i + 2] >> 4);
+    fbins.set(key, (fbins.get(key) || 0) + 1);
+    const mx = Math.max(e[i], e[i + 1], e[i + 2]), mn = Math.min(e[i], e[i + 1], e[i + 2]);
+    if (mx - mn < 0.12 * 255) grey++;
+    const rg = e[i] - e[i + 1], yb = 0.5 * (e[i] + e[i + 1]) - e[i + 2];
+    srg += rg; syb += yb; srg2 += rg * rg; syb2 += yb * yb;
+    const r = x + 1 < w2 ? i + 4 : i, b = y + 1 < h2 ? i + 4 * w2 : i;
+    const diff = Math.max(Math.abs(lumOf(i) - lumOf(r)), Math.abs(lumOf(i) - lumOf(b)));
+    tex += diff;
+    if (diff <= 2) flat++; else if (diff <= 10) soft++; else sharp++;
+  }
+  const share = (v) => (F ? Math.round((1000 * v) / F) / 10 : 0);
+  const fsorted = [...fbins.entries()].sort((a, b) => b[1] - a[1]);
+  let covered = 0, colours = 0;
+  for (const [, count] of fsorted) { if (covered >= 0.9 * F) break; covered += count; colours++; }
+  const mrg = F ? srg / F : 0, myb = F ? syb / F : 0;
+  const colourful = F ? Math.sqrt(Math.max(0, srg2 / F - mrg * mrg) + Math.max(0, syb2 / F - myb * myb)) + 0.3 * Math.sqrt(mrg * mrg + myb * myb) : 0;
+  const binHex = (key) => "#" + [(key >> 8) & 15, (key >> 4) & 15, key & 15].map((v) => (v * 17).toString(16).padStart(2, "0")).join("");
+  const figure = {
+    share: Math.round((1000 * F) / (w2 * h2)) / 10,
+    colours,
+    colourful: Math.round(colourful),
+    grey: share(grey),
+    flat: share(flat),
+    soft: share(soft),
+    sharp: share(sharp),
+    texture: F ? Math.round((10 * tex) / F) / 10 : 0,
+    palette: fsorted.slice(0, 5).map(([key, count]) => ({ colour: binHex(key), share: share(count) })),
+    grid: grid.map((v, g) => Math.round((100 * v) / Math.max(1, cell[g]))),
+  };
   const traits = {
     ground: hex(all[0]),
     tone: l > 0.6 ? "light" : l < 0.12 ? "dark" : "mid",
@@ -224,7 +293,7 @@ const readImage = (src) => `(async () => {
     busy: Math.round((10 * edges) / (2 * n * 2.55)) / 10,
     lum: Math.round(l * 1000) / 1000,
   };
-  return { width: img.naturalWidth, height: img.naturalHeight, traits, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  return { width: img.naturalWidth, height: img.naturalHeight, traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
 })()`;
 
 const readPage = `(() => {
@@ -319,6 +388,17 @@ const readPage = `(() => {
   const big = out.text.reduce((m, t) => (parseFloat(t.size) > parseFloat(m?.size || 0) ? t : m), null);
   const cx = big ? big.box[0] + big.box[2] / 2 : W / 2;
   const align = !big ? "" : Math.abs(cx - W / 2) < W * 0.08 ? "centre" : cx < W / 2 ? "left" : "right";
+  // What the first screen is made of: how much is photographs and images, video, canvas (most
+  // often WebGL: 3D and generative work) and SVG drawing. A picture's kind is half of what it looks like.
+  const media = { image: new Set(), video: new Set(), canvas: new Set(), svg: new Set() };
+  for (const b of out.boxes) {
+    const kind = b.kind === "video" ? "video" : b.kind === "canvas" ? "canvas" : b.kind === "svg" ? "svg" : b.picture ? "image" : "";
+    if (!kind) continue;
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) media[kind].add(gx + "," + gy);
+  }
+  out.media = Object.fromEntries(Object.entries(media).map(([k, v]) => [k, Math.round((1000 * v.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10]));
   const radii = out.boxes.map((b) => b.radius).filter((r) => r && r !== "0px");
   const radius = radii.length ? [...radii.reduce((m, r) => m.set(r, (m.get(r) || 0) + 1), new Map())].sort((a, b) => b[1] - a[1])[0][0] : "0px";
   const lefts = out.text.map((t) => t.box[0]).filter((x) => x >= 0);
@@ -372,7 +452,30 @@ ws.close();
 
 const failed = results.filter((r) => r.error);
 for (const r of failed) console.error(`measure: ${r.target}: ${r.error}`);
-if (tsv) {
+if (profilesArg) {
+  // Measurements are replaced, everything else a profile holds (the agent's tags, notes) is kept.
+  const store = existsSync(profilesArg) ? JSON.parse(readFileSync(profilesArg, "utf8")) : { refs: {} };
+  store.refs ||= {};
+  const byTarget = new Map(results.filter((r) => !r.error).map((r) => [r.target, r]));
+  const pageOf = (r) => {
+    const texts = [...r.text].sort((a, b) => parseFloat(b.size) - parseFloat(a.size)).slice(0, 8);
+    return { url: r.target, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts };
+  };
+  for (const t of targets.filter((x) => !isUrl(x))) {
+    const r = byTarget.get(t);
+    if (!r) continue;
+    const name = nameOf(t);
+    const link = links.get(name);
+    const page = link && byTarget.get(link);
+    const old = store.refs[name] || {};
+    store.refs[name] = { ...old, shot: t, link: link || old.link || null, image: { traits: r.traits, figure: r.figure, common: r.common, loud: r.loud }, page: page ? pageOf(page) : old.page || null };
+  }
+  writeFileSync(profilesArg, `${JSON.stringify(store, null, 1)}\n`);
+  const n = Object.keys(store.refs).length;
+  const withPage = Object.values(store.refs).filter((p) => p.page).length;
+  const tagged = Object.values(store.refs).filter((p) => p.tags).length;
+  console.log(`profiles: ${profilesArg}, ${n} references, ${withPage} with their page, ${tagged} tagged`);
+} else if (tsv) {
   const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "align"];
   const lines = [["ref", ...cols].join("\t")];
   for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => r.traits?.[c] ?? "")].join("\t"));

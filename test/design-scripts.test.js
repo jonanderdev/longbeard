@@ -323,3 +323,33 @@ test("deal: a type and ground pair repeats at most once in a round, even in a ti
   }
 });
 
+
+test("measure --profiles: a picture and its page in one profile, and the tags already there kept", async (t) => {
+  const page = `<!doctype html><body style="margin:0;background:rgb(20,20,20)"><h1 style="font:700 120px Georgia;color:#fff;margin:40px">Kiln</h1><video style="display:block;width:720px;height:300px"></video></body>`;
+  const server = await new Promise((done) => {
+    const s = createServer((req, res) => res.end(page));
+    s.listen(0, () => done(s));
+  });
+  try {
+    const dir = mkdtempSync(join(tmpdir(), "longbeard-profiles-"));
+    const refs = join(dir, "refs");
+    spawnSync("mkdir", [refs]);
+    writeFileSync(join(refs, "kiln.png"), png(4, 2, [20, 20, 20, 20, 20, 20, 250, 250, 250, 20, 20, 20, 20, 20, 20, 255, 0, 0, 20, 20, 20, 20, 20, 20]));
+    writeFileSync(join(dir, "links.tsv"), `kiln\thttp://localhost:${server.address().port}/\n`);
+    writeFileSync(join(dir, "profiles.json"), JSON.stringify({ refs: { kiln: { tags: { picture: ["lettering"] }, note: "kept" } } }));
+    const result = await measured([refs, "--links", join(dir, "links.tsv"), "--profiles", join(dir, "profiles.json"), "--wait", "0"]);
+    if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /1 references, 1 with their page, 1 tagged/);
+    const p = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.kiln;
+    assert.equal(p.image.traits.tone, "dark");
+    assert.equal(p.image.figure.grid.length, 24);
+    assert.ok(p.image.figure.share > 0 && p.image.figure.colours >= 1);
+    assert.equal(p.page.traits.display, "120px");
+    assert.ok(p.page.media.video > 15, JSON.stringify(p.page.media));
+    assert.equal(p.page.texts[0].text, "Kiln");
+    assert.deepEqual([p.tags.picture, p.note], [["lettering"], "kept"]);
+  } finally {
+    server.close();
+  }
+});
