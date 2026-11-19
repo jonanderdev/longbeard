@@ -34,6 +34,26 @@ The first pass reads `design-exploration/identity/direction.md` and the `library
 
 No Figma connection → say Figma is required for UI projects, and stop before the Figma step. The prototype and `DESIGN.md` can still be done.
 
+## Talking with them
+
+Every message they get is short enough to answer in one read:
+
+- **Where we are, what they see, one question.** Up to about six lines, plus paths. One line saying where this is in the flow ("Your family is chosen; now the first screen."), what to open, and the ask. No tables, no lists of ingredients, no explanation of how the script works, unless they ask: end with "say *details* for what each is made of" when there is more.
+- **Say what this choice is, and what it is not.** Every ask names what is being chosen now, and what comes later, so they do not judge the wrong thing.
+- **Never quiet for long.** Building and capturing a round takes minutes: one line before ("Building 8 screens, about 5 minutes"), and one every few minutes after.
+
+## Sessions
+
+The whole flow lives in files, so it can stop and start. A long session gets worse: early details blur. At each of these, say in one line that it is a good point to start a fresh session, and how to pick up:
+
+- after `direction.md` is accepted (the end of `design-direction`),
+- after the first screen is chosen and tuned (step 5, recorded with `--choose`),
+- after `DESIGN.md` is written, before Figma.
+
+> Everything is saved. A fresh session works better from here: start one and say "continue design".
+
+Starting, or picking up: `node <skill>/scripts/status.mjs` says where each exploration stopped. Go on from there; do not rebuild what is saved.
+
 ## First pass
 
 The first pass has one rule above the others: **you build, they choose.** You never pick a combination, drop one, or rank what you show. A script deals the combinations, and they choose from rendered screens. A screen you would not have picked may be the one they pick.
@@ -93,9 +113,13 @@ node <skill>/scripts/sheet.mjs design-exploration/<slug>/grid/sheet.html design-
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/grid/sheet.html" --out "$PWD/design-exploration/<slug>/grid/sheet.png"
 ```
 
-**Show it.** Give the sheet's path, and a second sheet of the references each screen's arrangement was read from, so they can judge the reading, not only the result (`sheet.mjs` with their shots, in the screens' order). Then a table: each number with its arrangement, navigation, type, ground and accent in plain words. List any fault you could not fix. Do not say which you prefer, and do not rank them. Ask one line:
+**Show it.** Make a second sheet of the references each screen's arrangement was read from (`sheet.mjs` with their shots, in the screens' order), and give both paths. Then the message, short, in this shape:
 
-> Which of these would you take further? Any number of them, or none.
+> Eight directions for your first screen, all in your family: <sheet path> (the references they come from: <path>).
+> Pick what feels right as a whole, any number of them. Colours, fonts and spacing are tuned next, on the one you choose, and a part you like in another (its navigation, its type) can be brought in after. So don't worry about details yet.
+> Which would you take further?
+
+Add a line only for a fault you could not fix. What each screen is made of is said only when they ask. Do not say which you prefer, and do not rank them.
 
 - **Some:** step 4.
 - **None:** deal again, once (`deal.mjs` again: it uses the arrangements not yet shown first), and build the new ones. None again → offer the next family on their board, which is `design-direction` from its marks step. None there either → say plainly that this pool is not giving a design they want, and ask what is missing.
@@ -107,9 +131,11 @@ node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/grid/she
 node <skill>/scripts/deal.mjs design-exploration/<slug>/library.json --vary 4,7,8
 ```
 
-Each pick gets a row: the pick, then one variation for each of navigation, type, ground and accent, changing only that. The page already takes them: nothing is rebuilt. Capture the round, make the sheet with `--cols 5`, and show it with the same table, saying what changed in each.
+Each pick gets a row: the pick, then one variation for each of navigation, type, ground and accent, changing only that. The page already takes them: nothing is rebuilt. Capture the round, make the sheet with `--cols 5`, and show it: one line for what each column changes (navigation, type, ground, accent), nothing per screen.
 
-> Which one? Mix if you like ("7 with the ground from 3"), or ask for more of one thing ("more typefaces for 4").
+> Each row is one pick, changed one thing at a time. Which one? Mix if you like ("7 with the ground from 3"), or ask for more of one thing ("more typefaces for 4").
+
+**A part of one screen into another** ("4, but the left part of 2"): first name the ingredient that part is (its navigation, its type, its ground, its accent, or its arrangement), in one line, and confirm: "The left of 2 is its navigation: 4 with 2's navigation?" Then it is a mix the script deals. Only when the part is a piece of an arrangement (where things sit on the screen) is it something new: write it as a new arrangement entry with `"from": ["theirs"]`, build it as a rule like the others, and deal it with `--mix <n>,arrangement=<id>`. Never patch one screen by hand: a hand-made blend is the least reliable thing here, and it does not survive the next round.
 
 - **A mix** is `deal.mjs … --mix 7,ground=3` (an entry id works too: `ground=dark`). Its arrangement, type and ground should still come from three different references. When the script warns that a mix breaks that, build it, and say that it now takes most of its look from one reference.
 - **More of one thing** is `deal.mjs … --more 4:type`: the pick, then every entry of that list it can take and has not had.
@@ -140,13 +166,13 @@ One sheet, a row per thing, every option on the chosen screen at the grid's size
 
 Which of the listed faces go in a row is the agent's to choose, never by taste: take the nearest, and at least two of the five from beyond the hundred most used (`used` over 100), so the row is not only the faces every site has. Say for each, from its numbers, how it is of the same kind ("as narrow, darker, less contrast"). Every face is free to license, or theirs.
 
-> Pick one in each row, or name your own: a colour, a face. "Keep" leaves a row as it is.
+> Your screen, now its details: one row each for display face, body face, colours and spacing. Pick one in each row, or name your own. "Keep" leaves a row as it is.
 
 - **A pick** becomes a library entry with `"from": ["theirs"]`, and the chosen screen is dealt with it (`deal.mjs … --mix chosen,accent=<id>,type=<id>`: `chosen` is the screen recorded in step 4, whatever round is last), captured and shown again, once, with everything they picked together. On their yes, `--choose 1` records it.
 - **Something they name** is built the same way, checked the same way, and shown before it counts.
 - **"Go"** keeps what the screen has, and says so.
 
-Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes.
+Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes. On the yes: the first session break (**Sessions**).
 
 ### 6. Finish the chosen screen
 
@@ -206,6 +232,8 @@ Only on their yes to a rendered prototype. Write the whole file from [design-md-
 - **Write down what makes it this design.** Whatever someone would need to rebuild it without the prototype open goes under Components, with values, not adjectives.
 - **Tokens are code names.** Name each colour, type and spacing token as it will be named in code (`color/ink`, `space/md`). Figma variables use the same names, with code syntax `var(--color-ink)`.
 - **Soft rules overridden on purpose** go under Decisions with the reason. Hard rules cannot be overridden. A device that came with the chosen look and that the rules list as a tell is on purpose: write it under Decisions as the idea it serves here, never as where it came from.
+
+Then the last session break (**Sessions**) before Figma.
 
 ### 10. Figma
 

@@ -358,6 +358,15 @@ test("status: says where each exploration stopped, from its files", () => {
   assert.match(out, /^pricing: direction written/m);
   assert.doesNotMatch(out, /\.cache/);
   assert.match(run("status.mjs", project({}), []).stdout, /no explorations yet/);
+  const design = project({
+    "design-exploration/identity/direction.md": "# Direction",
+    "design-exploration/identity/deal.json": JSON.stringify({ rounds: [{}, {}], chosen: { round: 2, n: 3 } }),
+    "design-exploration/identity/prototype/grid.html": "",
+    "design-exploration/identity/prototype/home.html": "",
+  });
+  assert.match(run("status.mjs", design, []).stdout, /the first screen finished \(home.html\): prototype the other key screens/);
+  // design ships the same script.
+  assert.equal(readFileSync(join(scripts, "status.mjs"), "utf8"), readFileSync(join(scripts, "../../design/scripts/status.mjs"), "utf8"));
 });
 
 test("families: from profiles, what the picture is separates references the numbers alone would join", () => {

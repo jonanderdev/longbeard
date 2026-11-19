@@ -21,11 +21,16 @@ function status(dir) {
   const at = (f) => existsSync(join(dir, f));
   const refs = at("refs") ? readdirSync(join(dir, "refs")).filter((f) => !f.startsWith(".")).length : 0;
   if (at("direction.md")) {
+    if (existsSync("DESIGN.md") && statSync("DESIGN.md").mtimeMs > statSync(join(dir, "direction.md")).mtimeMs) return "DESIGN.md written: Figma next (design step 10)";
     if (at("deal.json")) {
       const deal = read(join(dir, "deal.json")) || {};
-      return `in design: ${(deal.rounds || []).length} rounds dealt${deal.chosen ? ", the first screen chosen" : ", none chosen yet"}. Go on with design`;
+      if (!deal.chosen) return `in design: ${(deal.rounds || []).length} rounds shown, no screen chosen yet: show the last round again and ask (design steps 3–4)`;
+      const screens = at("prototype") ? readdirSync(join(dir, "prototype")).filter((f) => f.endsWith(".html") && f !== "grid.html") : [];
+      if (screens.length > 1) return `in design: ${screens.length} screens prototyped (${screens.join(", ")}): show them, then the self-check (design steps 7–8)`;
+      if (screens.length) return `in design: the first screen finished (${screens[0]}): prototype the other key screens (design step 7)`;
+      return "in design: a screen chosen: tune its colour, type and spacing, or finish it if that was done (design steps 5–6)";
     }
-    return "direction written: show it with the library readout, or take it into design (step 7)";
+    return "direction written: if they said yes, design starts at its step 1; if not, show the direction and library readout (step 7)";
   }
   if (at("library.json")) {
     const left = (JSON.stringify(read(join(dir, "library.json")) || {}).match(/"WRITE:/g) || []).length;

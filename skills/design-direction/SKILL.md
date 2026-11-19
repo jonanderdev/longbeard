@@ -38,6 +38,8 @@ Everything goes in `design-exploration/<slug>/`: `candidates.tsv` and `picker.ht
 
 Picking up, or a folder already there: `node <skill>/scripts/status.mjs` says where each exploration stopped, from its files. Go on from there; do not start over or reread what is saved.
 
+**Short messages.** Every message is answerable in one read: where this is in the flow, what to open, one question. Up to about six lines plus paths; no tables or explanations of the method unless they ask ("say *details* for more"). Each ask says what is chosen now and what comes later.
+
 **Keep them posted.** Searching and reading a moodboard take a while, and silence reads as stuck. Send a short line at each milestone, and at least every few minutes of work: what is done, with numbers, and what comes next ("Dribbble done: 64 candidates. Awwwards next.", "Section 3 of 7 read: 41 kept so far.", "Measuring 120 references, about 3 minutes."). Before a step that takes long, say what it is and about how long. One line each, no narration of every click, and never a question: they only answer at the asks.
 
 On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. References, their links, their authors and their shots stay in this folder and in chat. Nothing the product keeps (`DESIGN.md`, Figma, code, commits) ever names one. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
@@ -170,9 +172,16 @@ Families: <each family, what its members share, its measured ranges ("light · e
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
 ```
 
-Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. **What they chose against what they said.** The pool is what they chose (their moodboard) or liked (the picker), so `families.mjs --sliders` also places the whole pool on the sliders. Where the pool sits 1.5 or more from what they said, say it in the same message, as one question, never a verdict: "You said quiet (2); what you chose sits at loud (4). Should the families be read against what you said, or what you chose?" Their answer is the slider from then on. People often describe one look and pick another; this is where it is cheapest to find out.
+The message, in this shape, one line per family:
 
-Then say which families fit what they asked for (the sliders, from `families.mjs --sliders`, and their words), which look like what they said it should never feel or like what it must stand apart from, and which rely on pictures they do not have. That is a hint: no family is hidden or dropped for it.
+> <n> families from your <n> references: <families.html>
+> 1. <name> (<count>)<: a hint, if any: "near what you asked", "close to <apart from>", "needs photos you don't have">
+> …
+> Take the families you'd like to see in full. Which one becomes the look comes next, and colours and fonts much later.
+
+What the eye changed from the numbers goes in that family's line in a few words, only when it changed something ("two merged"), so they can push back on the grouping. **What they chose against what they said.** The pool is what they chose (their moodboard) or liked (the picker), so `families.mjs --sliders` also places the whole pool on the sliders. Where the pool sits 1.5 or more from what they said, say it in the same message, as one question, never a verdict: "You said quiet (2); what you chose sits at loud (4). Should the families be read against what you said, or what you chose?" Their answer is the slider from then on. People often describe one look and pick another; this is where it is cheapest to find out.
+
+The hints come from the sliders (`families.mjs --sliders`), their words, what they said it should never feel or stand apart from, and the pictures they have. A hint, never a cut: no family is hidden or dropped for it.
 
 Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`): the seed of a look the pool holds only twice. Taking one is taking a family: offer a search for more like it before marking, since a family needs six to deal from.
 
@@ -188,7 +197,7 @@ node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out desi
 
 The page groups the keeps by family. Each tile has Lead, Like and No, and a note.
 
-Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line with what the eye changed in it (unless the families board already said so), say which ones fit what they asked for and why (the sliders and their words), and which look like what they said it should never feel or must stand apart from, as a hint and never a cut. Then ask one line:
+Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then give its path, one line per family with its hint (only if the families board did not already), and ask:
 
 > Open the board. In the family you want, Lead the one reference that should set the tone, Like the ones I should draw from, and No what doesn't belong. Add a note where you have one, then paste the copy-out here.
 
@@ -200,7 +209,7 @@ Look at it yourself first, one family at a time so every tile stays readable (`c
 
 - **A note "move to <family>"** moves that tile. Move it, run the board again, and say what moved. Their grouping wins over the numbers.
 
-Read the marks back in up to three lines (the family, the anchor, what the donors share, what the noes share) and wait for their yes.
+Read the marks back in two lines (the family and the anchor; what the donors share) and wait for their yes.
 
 **Enough to deal from?** The anchor and the donors together need to be six or more, because every screen draws on three different references. Fewer: say so, and offer a search for more that look like them (a pool of 20 to 60, one picker round as in [search.md](references/search.md), the likes joining the donors). On "go", continue with what there is and say that the round of screens will be smaller.
 
@@ -221,15 +230,9 @@ The library stays in `design-exploration/`. It names references, so nothing the 
 **The library and the direction are shown together, in one message**, after the direction is written (step 7): one stop, not two. The library part is what every screen will be dealt from, and reading it made choices they have not seen, so it is shown, short, one line per list. It is information, not a vote on each id: the choosing happens on rendered screens. They may drop an entry or name a swap if something reads wrong to them.
 
 ```
-Library, from <anchor> and <n> donors:
-- family: <what every screen will share, in plain words>
-- arrangements (<n>): <ids, a few words each>
-- other screens: <each part and how many keeps show it>, or none: they are prototyped from these
-- navigation (<n>): <ids>
-- type (<n>): <faces>; stand-ins: <a face judged by eye, and what it stands in for>, or none
-- grounds (<n>): <light n, dark n, mid n>; gradients or patterns: <which>, or none
-- accents (<n>): <colours and devices>, or none
-- not read: <anything that could not be measured or seen>, or nothing
+Library, from <anchor> and <n> donors: <what every screen will share, in plain words>.
+<n> layouts, <n> navigations, <n> type pairs (<faces>), <n> grounds (<light n, dark n>), <n> accents.
+Worth a look: <stand-in faces, a gradient or pattern, anything not read>, or leave the line out.
 ```
 
 A drop removes the entry. A swap is a face, a ground or an accent they name: it goes in as `"from": ["theirs"]`.
@@ -266,11 +269,11 @@ Proposal, not official. design deals screens from the library. Only an approved 
 - **Notes count.** A tile note is about that reference: it goes into `leave`, or into the library entry it speaks of.
 - **No values here.** No hex, no font name, no size in `direction.md`. The measured values live in `library.json`, as a record of what the references use.
 
-Then say the direction in chat in five lines (subject, family, anchor and donors, leave, fixed), the library readout from step 6 under it, and end with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
+Then say the direction in chat in two lines (the subject; the family, with what it leaves behind), the library readout from step 6 under it, and the full file's path for the rest. End with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
 
 > Change anything (the direction, or an entry in the library), or take this into design?
 
-Yes → load `design`. No → stop. The folder stays on this machine.
+Yes → say in one line that this is a good point for a fresh session ("Everything is saved. A fresh session works better from here: start one and say *continue design*."), then load `design` if they go on here. No → stop. The folder stays on this machine.
 
 ## One piece
 
