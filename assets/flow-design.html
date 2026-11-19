@@ -57,6 +57,11 @@
   footer { display: flex; gap: 18px; margin-top: 26px; padding-top: 18px; border-top: 2px solid var(--ink); font-size: 13.5px; color: var(--muted); line-height: 1.45; }
   footer div { flex: 1; }
   footer b { color: var(--ink); font-weight: 600; }
+  .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; margin-right: 9px; vertical-align: 2px; }
+  .card h3 .t { display: inline-flex; align-items: center; }
+  .dep { display: grid; grid-template-columns: 48px 1fr; gap: 4px 6px; margin-top: 8px; padding-top: 8px; border-top: 1.5px dashed var(--dot); font-size: 12.5px; color: var(--ink); align-items: center; }
+  .dep i { font-style: normal; color: var(--muted); }
+  .dep .n { width: 19px; height: 19px; font-size: 11px; margin: 0 3px 0 0; vertical-align: 0; }
 </style>
 </head>
 <body>
@@ -76,33 +81,33 @@
 
   <div class="rows">
     <div class="optional">
-      <h4>Optional<span>Not steps in the chain. Call one by name, or <b>design</b> offers it when it earns its place.</span></h4>
-      <div class="opt"><b>design-families</b>Sort a big board into looks, in Figma too. You take one or two.<span class="when">When: a board over ~60 references</span></div>
-      <div class="opt"><b>design-content</b>What each screen says and shows, and stand-in pictures of your subject.<span class="when">When: any time; you have no pictures, or want copy planned</span></div>
-      <div class="opt"><b>design-wordmark</b>A mark made from your type, added to the identity.<span class="when">When: after DESIGN.md, if you want a mark</span></div>
+      <h4>Optional<span>Not steps in the chain. Each needs and feeds numbered steps. Call one by name, or <b>design</b> offers it when it earns its place.</span></h4>
+      <div class="opt"><b>design-families</b>Sort a big board into looks, in Figma too. You take one or two.<span class="dep"><i>Needs</i><span><span class="n">2</span> a board</span><i>Feeds</i><span><span class="n">3</span> <span class="n">4</span> the families you take</span><i>When</i><span>a board over ~60</span></span></div>
+      <div class="opt"><b>design-content</b>What each screen says and shows, and stand-in pictures of your subject.<span class="dep"><i>Needs</i><span><span class="n">1</span> the design brief</span><i>Feeds</i><span><span class="n">4</span> <span class="n">5</span> copy and pictures</span><i>When</i><span>no pictures yet, or copy to plan</span></span></div>
+      <div class="opt"><b>design-wordmark</b>A mark made from your type, added to the identity.<span class="dep"><i>Needs</i><span><span class="n">3</span> the identity</span><i>Feeds</i><span><span class="n">6</span> the Figma Cover</span><i>When</i><span>after DESIGN.md, if wanted</span></span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-brief <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
       <div class="right"><span class="doc">docs/design/design-brief.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-moodboard <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">2</span>design-moodboard</span> <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
       <div class="right"><span class="doc">design-moodboard.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-identity <em>3 stops</em></h3><p>Type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">3</span>design-identity</span> <em>3 stops</em></h3><p>Type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
       <div class="right"><span class="doc">design-identity.md + .html</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-direction <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a hierarchy pass that fixes reading, never the composition.</p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">4</span>design-direction</span> <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a hierarchy pass that fixes reading, never the composition.</p></div></div>
       <div class="right"><span class="doc">design-direction.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-screens <em>prototype</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">5</span>design-screens</span> <em>prototype</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
       <div class="right"><span class="doc">DESIGN.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card"><h3>design-figma</h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
+      <div class="mid"><div class="card"><h3><span class="t"><span class="n">6</span>design-figma</span></h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
       <div class="right"><span class="doc">Ready Figma frames</span></div>
     </div>
   </div>
