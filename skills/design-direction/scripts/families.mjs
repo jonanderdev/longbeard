@@ -47,7 +47,8 @@
 // comes from what is already measured and tagged, never from the eye; a
 // family's is its members' median. Each family's line then says whether it
 // sits near what they asked or is off on a slider: a hint for the families
-// board, never a cut.
+// board, never a cut. The whole pool is placed too: it is what they chose or
+// liked, and where it sits far from what they said is worth one question.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 
@@ -376,7 +377,12 @@ const line = (f) => (f.stray ? "far from every family: place each by eye" : `${t
 const real = families.filter((f) => !f.stray);
 console.log(`${n} references${folded ? ` (${folded} more shots of the same sites folded in)` : ""}, ${real.length} families (${real.filter((f) => f.small).length} small), ${strays.length} strays, spread ${spread} (${nearby.join(", ")})`);
 console.log(`compared on: ${kinds.map(([name]) => name).join(", ")}`);
-if (Object.keys(asked).length) console.log(`sliders asked: ${Object.entries(asked).map(([k, v]) => `${SLIDERS[k][0]}–${SLIDERS[k][1]} ${v}`).join(", ")} (a hint for each family, never a cut)`);
+if (Object.keys(asked).length) {
+  console.log(`sliders asked: ${Object.entries(asked).map(([k, v]) => `${SLIDERS[k][0]}–${SLIDERS[k][1]} ${v}`).join(", ")} (a hint for each family, never a cut)`);
+  // The pool is what they chose or liked: where it sits against what they said.
+  const pool = sliderFit(refs.map((_, i) => i));
+  console.log(`what they chose sits at: ${Object.entries(pool.sliders).map(([k, v]) => `${k} ${v}`).join(", ")}${pool.fit.startsWith("off") ? `; ${pool.fit.replace("off on", "away from what they said on")}: ask which should lead` : "; close to what they said"}`);
+}
 const untagged = refs.filter((r) => !r.tags);
 if (untagged.length && untagged.length < n) console.log(`untagged, compared on their numbers only, and able to join groups the tags would keep apart: ${untagged.map((r) => r.name).join(", ")}. Tag them (tag.mjs) and sort again`);
 const blank = refs.filter((r) => num(r.image.empty) >= 99 && num(r.image.busy) < 0.5);

@@ -49,29 +49,32 @@ Every question carries a suggested answer in brackets, drawn from the brief, so 
 ```
 Before I look, a few questions. Each has my suggestion in brackets: "yes" takes it, "go" skips the rest and I'll decide.
 
-1. In five seconds on the first screen, what should someone think or do? [<from the brief's remembered for>]
+1. In five seconds on the first screen, what should someone think, and what should they do (sign up, buy, book, read on)? [<from the brief's remembered for and its first flow>]
 2. Personality, 1 to 5 on each (3 is the middle, skip any you don't mind):
    quiet 1 · · · 5 loud
    type-led 1 · · · 5 picture-led
    plain 1 · · · 5 rich
    warm 1 · · · 5 cool
    [<a suggestion for each, or "no lean">]
-3. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
-4. Who should it stand apart from: competitors, or products it could be mistaken for? [<the alternatives the brief names>]
-5. What is already fixed? Colours, typefaces or a logo you own and must use, or refuse; light, dark or both; and your own pictures (photographs, illustrations), or none yet. [<what the brief or the repo shows>]
+3. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this? Anything you tried before and didn't like, and why?
+4. Who should it stand apart from: competitors, or products it could be mistaken for? And should it fit in with them or stand out? [<the alternatives the brief names>]
+5. What is already fixed? Colours, typefaces or a logo you own and must use, or refuse; light, dark or both; your own pictures (photographs, illustrations), or none yet; and the content's limits: languages, how much there is, an accessibility level to meet. [<what the brief or the repo shows>]
 6. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
    No moodboard, or a small one: where should I look, and how many should I keep? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
+
+Anyone else who has to say yes? Worth showing them the families and the first screens as we go, not only the end.
 ```
 
 Then read the answers back in one line before anything else ("Leads with <takeaway>; quiet, picture-led, warm; apart from <X>; fixed: <…>; from your moodboard."), and go on. A correction to the read-back is one more line, not a second round.
 
 What each answer does. None of them chooses the look: they steer the search, they are hints on the families, and they are kept for design.
 
-- **The takeaway** is the subject's second half in `direction.md`, and the line every dealt screen is built to say.
+- **The takeaway** is the subject's second half in `direction.md`, and the line every dealt screen is built to say. The action is the one thing on the first screen that is always there and never fights the headline.
 - **The sliders** go to `families.mjs --sliders "loud=2,picture=4,rich=2,cool=2"` (the numbers they gave; leave out a skipped one). Each family is placed on them from what is measured and tagged, and its line says whether it sits near what they asked or is off on one. That is said on the families board as a hint, like "never feel": no family is hidden or dropped for it. They also steer the search queries ("photographic", "type-only", "monochrome").
-- **Feel and never feel** steer the search and are hinted on the families, as before.
-- **Stand apart from:** open each one's site and keep its first screen as a reference card marked `apart`, in no family. It is not a reference to explore from: on the board it shows what the product must not be mistaken for, and a family that looks like it is said so, as a hint. It goes into `leave` in `direction.md`.
-- **What is fixed** goes into `direction.md` as `fixed`, and into the library when it is read: a refusal removes matching entries, something they own is added with `"from": ["theirs"]`, light or dark removes the grounds that do not fit. No pictures of their own rules nothing out (stand-ins are made in design), but say which families rely on photographs they do not have.
+- **Feel and never feel**, and what they tried and did not like, steer the search and are hinted on the families. A rejected design goes into `leave`.
+- **Stand apart from:** open each one's site and keep its first screen as a reference card marked `apart`, in no family. It is not a reference to explore from: on the board it shows what the category looks like. A family that looks like it is said so, as a hint, read by their answer: "fits in with <X>" for fit in, "close to <X>" for stand out. It goes into `leave` in `direction.md`.
+- **What is fixed** goes into `direction.md` as `fixed`, and into the library when it is read: a refusal removes matching entries, something they own is added with `"from": ["theirs"]`, light or dark removes the grounds that do not fit. No pictures of their own rules nothing out (stand-ins are made in design), but say which families rely on photographs they do not have. The content's limits are kept for design: the longest real strings in every language go into the grid page's content, and the accessibility level into the contrast checks.
+- **Others who decide** are named in the read-back. At the families board and the first grid, remind them in one line that this is a good moment to show those people.
 
 A moodboard → **Their moodboard**, below, then step 4. Skip steps 2 and 3. A few pictures or links, not a board → seeds for the search, below.
 
@@ -255,7 +258,9 @@ Families: <each family, what its members share, its measured ranges ("light · e
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
 ```
 
-Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. Then say which families fit what they asked for (the sliders, from `families.mjs --sliders`, and their words), which look like what they said it should never feel or like what it must stand apart from, and which rely on pictures they do not have. That is a hint: no family is hidden or dropped for it.
+Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. **What they chose against what they said.** The pool is what they chose (their moodboard) or liked (the picker), so `families.mjs --sliders` also places the whole pool on the sliders. Where the pool sits 1.5 or more from what they said, say it in the same message, as one question, never a verdict: "You said quiet (2); what you chose sits at loud (4). Should the families be read against what you said, or what you chose?" Their answer is the slider from then on. People often describe one look and pick another; this is where it is cheapest to find out.
+
+Then say which families fit what they asked for (the sliders, from `families.mjs --sliders`, and their words), which look like what they said it should never feel or like what it must stand apart from, and which rely on pictures they do not have. That is a hint: no family is hidden or dropped for it.
 
 Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`): the seed of a look the pool holds only twice. Taking one is taking a family: offer a search for more like it before marking, since a family needs six to deal from.
 
@@ -347,8 +352,8 @@ Proposal, not official. design deals screens from the library. Only an approved 
 
 - subject: <what the first screen must say, in one sentence, in the brief's own words, and what someone should think or do in five seconds: their takeaway, or the brief's `remembered for`>
 - feel: <their words for feel and never feel, and the sliders they gave: "quiet 2 · picture-led 4 · plain 2 · warm 2">
-- apart from: <what it must not be mistaken for, with links, or none>
-- fixed: <what they own and must use, what they refuse, light or dark or both, and their pictures or none yet>
+- apart from: <what it must not be mistaken for, with links, and whether to fit in with it or stand out; or none>
+- fixed: <what they own and must use, what they refuse, light or dark or both, their pictures or none yet, the languages, how much content, the accessibility level>
 - voice: <how it talks: the brief's personality, and one sample line in that voice>
 - leave: <what stays behind: every reference's name and content, what the brief's `against` and what they stand apart from look like, what their noes share, and whatever they said feels wrong>
 - family: <its name> — <what its members share>

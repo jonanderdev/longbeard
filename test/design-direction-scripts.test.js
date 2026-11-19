@@ -315,6 +315,8 @@ test("families --sliders: each family is placed on the sliders they answered, an
   assert.ok(typeFamily.sliders.loud < 1.5 && typeFamily.sliders.picture === 1, JSON.stringify(typeFamily.sliders));
   assert.match(posterFamily.fit, /off on loud .*picture-led/);
   assert.match(result.stdout, /sliders asked: quiet–loud 1, type-led–picture-led 1/);
+  // Half the pool is loud photo posters: what they chose sits away from "type-led", and that is one question.
+  assert.match(result.stdout, /what they chose sits at: loud [\d.]+, picture [\d.]+; away from what they said on .*picture-led \(3, asked 1\): ask which should lead/);
   const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--sliders", "loud=9"], { cwd: dir, encoding: "utf8" });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /each 1 to 5/);
