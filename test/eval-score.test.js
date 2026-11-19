@@ -1,0 +1,117 @@
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import test from "node:test";
+import assert from "node:assert/strict";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const score = join(root, "eval/design/score.mjs");
+
+// A small project as a good run would leave it.
+const good = {
+  "docs/brief.md": "# Hearth\n\n## Key screens\n- home: today\n- menu: every bake\n\n## Position\n- against: queues\n",
+  "docs/design/design-brief.md": `# Design brief: Hearth
+
+- takeaway: a real bakery, bread still there; order for pickup
+- first seen on: desktop
+- pace: full
+- words: warm, honest, exact · never fussy
+- personality: loud 2 · picture-led 4 · rich 2 · cool 1 · playful 2 · new 4 · dense 2
+- feel: the shop at 7am
+- never: glossy chain-store
+- apart from: supermarket bakery counters · distance 4
+- fixed: new brand; light only; no pictures yet; English
+- accessibility: AA
+- motion: subtle
+- voice: plain and warm, "Back on Thursday."
+- decides: only them
+`,
+  "answers.md": "- 10. Pace: full.\n",
+  "docs/design/design-moodboard.md": "# Moodboard\n\nLong serif headlines on cream; one huge word as the picture.\n",
+  "docs/design/design-direction.md": "# Direction\n\n- takeaway: …\n- five seconds: what it is 3 of 3, what to do 2 of 3, feel: warm, plain\n",
+  "docs/design/design-identity.md": '# Identity\n\n```json identity\n{"display":{"face":"Fraunces"},"colours":[{"name":"flour","hex":"#f6f1e7"}]}\n```\n',
+  "docs/design/design-identity.html": '<link href="https://fonts.googleapis.com/css2?family=Fraunces">',
+  "DESIGN.md": `# Design
+
+## Colour
+| Token | Value | Use |
+|---|---|---|
+| color/bg | #f6f1e7 | ground |
+| color/ink | #2c2824 | text |
+| color/accent | #b0563a | buttons |
+
+Contrast (scripts/contrast.mjs, at the level under Accessibility):
+- color/ink on color/bg: 13.1:1 AAA
+- color/accent on color/bg: 4.4:1 (control)
+
+## Motion
+- subtle: fades under 300 ms
+
+## Accessibility
+- Level: AA. Every contrast pair above meets it.
+`,
+  ".longbeard/design/direction/library.json": JSON.stringify({
+    arrangements: [{ id: "stack", from: ["a"] }],
+    navigation: [{ id: "top", from: ["b"] }],
+    type: [{ id: "serif", from: ["b"] }],
+    grounds: [{ id: "cream", ground: "#f6f1e7", from: ["c"] }],
+    accents: [{ id: "none", colour: null, from: ["c"] }],
+  }),
+  ".longbeard/design/direction/deal.json": JSON.stringify({ rounds: [{ round: 1, kind: "deal", recipes: [{ n: 1, arrangement: "stack", navigation: "top", type: "serif", ground: "cream", accent: "none" }] }], chosen: { round: 1, n: 1 } }),
+  ".longbeard/design/direction/prototype/first.html": '<body style="background:#f6f1e7;color:#2c2824"><h1>Bread, still warm</h1><script>document.title="ready"</script></body>',
+  ".longbeard/design/prototype/home.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="menu.html">Menu</a></body>',
+  ".longbeard/design/prototype/menu.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="home.html">Home</a></body>',
+  "eval-log.md": "- design-brief: asked the round; used answers.md\n- design-direction: grid **uncovered**: took the suggestion\n",
+};
+
+function project(files) {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-score-"));
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(dirname(join(dir, path)), { recursive: true });
+    writeFileSync(join(dir, path), text);
+  }
+  return dir;
+}
+const run = (dir) => spawnSync(process.execPath, [score, dir, "--json"], { encoding: "utf8" });
+const byId = (out) => Object.fromEntries(JSON.parse(out).results.map((r) => [r.id, r]));
+
+test("eval score: a good run passes every hard check", () => {
+  const result = run(project(good));
+  const results = byId(result.stdout);
+  const failed = Object.values(results).filter((r) => r.status === "FAIL");
+  assert.deepEqual(failed, [], JSON.stringify(failed));
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(results["eval log: skills followed as written"].detail, /1 uncovered answer/);
+});
+
+test("eval score: a leaked source, a gap in the brief, a failing pair, a one-source screen and a dead link each fail", () => {
+  const bad = {
+    ...good,
+    "docs/design/design-moodboard.md": "# Moodboard\n\nLike Marlow Quarterly's headlines; see .longbeard/design/moodboard/refs/01-editorial.png\n",
+    "docs/design/design-brief.md": good["docs/design/design-brief.md"].replace("- accessibility: AA\n", "").replace("playful 2 · ", ""),
+    "DESIGN.md": good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | #b8b2a8 |"),
+    ".longbeard/design/direction/library.json": good[".longbeard/design/direction/library.json"].replace('{"id":"serif","from":["b"]}', '{"id":"serif","from":["a"]}'),
+    ".longbeard/design/prototype/menu.html": '<a href="#">Order</a>',
+  };
+  const result = run(project(bad));
+  assert.equal(result.status, 1);
+  const results = byId(result.stdout);
+  assert.equal(results["no source in the docs"].status, "FAIL");
+  assert.match(results["no source in the docs"].detail, /Marlow Quarterly.*\.longbeard\/.*01-editorial|Marlow Quarterly/);
+  assert.equal(results["design brief complete"].status, "FAIL");
+  assert.match(results["design brief complete"].detail, /no accessibility.*personality lacks playful/);
+  assert.equal(results["DESIGN.md: contrast pairs pass"].status, "FAIL");
+  assert.equal(results["deal: three sources a screen"].status, "FAIL");
+  if (results["prototype: links"].status !== "SKIP") {
+    assert.equal(results["prototype: links"].status, "FAIL");
+    assert.match(results["prototype: links"].detail, /nowhere menu|dead end menu/);
+  }
+});
+
+test("eval score: a project with nothing in it fails, and says what is missing", () => {
+  const result = run(project({ "docs/brief.md": "# x\n" }));
+  assert.equal(result.status, 1);
+  assert.match(byId(result.stdout).docs.detail, /missing: docs\/design\/design-brief\.md/);
+});
