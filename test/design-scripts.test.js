@@ -517,3 +517,73 @@ test("deal --more stops at one round, and --mix chosen works after any round", (
   assert.deepEqual([mixed.arrangement, mixed.type, mixed.accent], [chosen.arrangement, chosen.type, "none"]);
 });
 
+
+test("measure: ordinary pages read right (alignment, ground, gradients, patterns, lettering, icons, scale)", async (t) => {
+  const svgIcon = "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 10 10%22%3E%3Ccircle cx=%225%22 cy=%225%22 r=%224%22/%3E%3C/svg%3E";
+  const pages = {
+    "/header": `<!doctype html><meta charset="utf-8"><body style="margin:0;font-family:Georgia"><header style="background:#fff;height:80px"></header><section style="background:#fff;height:400px"><h1 style="font-size:64px;margin:40px">Left heading</h1><p style="margin:40px">Body text body text.</p></section></body>`,
+    "/oklch": `<!doctype html><meta charset="utf-8"><body style="margin:0;min-height:900px;background-image:linear-gradient(oklch(0.7 0.2 30), oklch(0.5 0.2 260))"><h1 style="font-size:96px;text-align:center">Only a headline</h1></body>`,
+    "/fade": `<!doctype html><meta charset="utf-8"><body style="margin:0"><div style="height:900px;background-image:linear-gradient(rgb(255,0,0) 0px, rgb(0,0,255) 900px)"></div><p>Body text body text.</p></body>`,
+    "/dots": `<!doctype html><meta charset="utf-8"><body style="margin:0"><div style="height:900px;background-image:radial-gradient(circle, rgb(0,0,0) 1px, rgba(0,0,0,0) 1px);background-size:12px 12px"></div><p>Body</p></body>`,
+    "/banner": `<!doctype html><meta charset="utf-8"><body style="margin:0"><img src="/photo.png" style="display:block;width:1440px;height:420px"><h1 style="font-size:48px">Fresh bread</h1><p>Body text body text.</p></body>`,
+    "/icons": `<!doctype html><meta charset="utf-8"><body style="margin:0;font-family:system-ui"><h1 style="font-size:64px">Features</h1><div style="display:flex;gap:40px;font-size:40px"><span style="display:inline-block;width:48px;height:48px;background:url('${svgIcon}') no-repeat"></span><span style="display:inline-block;width:48px;height:48px;-webkit-mask:url('${svgIcon}');background:#333"></span><span>★</span><span>☂</span></div></body>`,
+  };
+  const photo = png(4, 2, [200, 120, 60, 90, 60, 30, 220, 200, 160, 40, 30, 20, 200, 120, 60, 90, 60, 30, 220, 200, 160, 40, 30, 20]);
+  const server = await new Promise((done) => {
+    const s = createServer((req, res) => (req.url === "/photo.png" ? res.end(photo) : res.end(pages[req.url] || "")));
+    s.listen(0, () => done(s));
+  });
+  try {
+    const base = `http://localhost:${server.address().port}`;
+    const result = await measured([...Object.keys(pages).map((p) => base + p), "--tsv", "--wait", "200"]);
+    if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+    assert.equal(result.status, 0, result.stderr);
+    const [head, ...rows] = result.stdout.trim().split("\n").map((l) => l.split("\t"));
+    const at = Object.fromEntries(rows.map((r) => [r[0].replace(base, ""), Object.fromEntries(head.map((h, i) => [h, r[i]]))]));
+    assert.deepEqual([at["/header"].align, at["/header"].blocks], ["left", "0"]);
+    assert.equal(at["/oklch"].gradient, "100");
+    assert.deepEqual([at["/oklch"].body, at["/oklch"].scale], ["", ""]);
+    assert.deepEqual([at["/fade"].gradient, at["/fade"].pattern], ["100", "0"]);
+    assert.ok(Number(at["/dots"].pattern) > 90 && at["/dots"].gradient === "0", JSON.stringify(at["/dots"]));
+    assert.deepEqual([at["/banner"].lettering, at["/banner"].display], ["text", "48px"]);
+    assert.equal(at["/icons"].icons, "4");
+  } finally {
+    server.close();
+  }
+});
+
+test("measure: a tall capture is read on its first screen, a folder of frames by its middle frame, and a file page opens", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-measure-"));
+  const refs = join(dir, "refs");
+  spawnSync("mkdir", ["-p", join(refs, "intro-frames")]);
+  // 1440 wide, 3 screens tall, scaled down: a quiet white first screen, loud red below it.
+  const W = 16, H = 30, rows = [];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) rows.push(...(y < 10 ? [255, 255, 255] : [255, 0, 0]));
+  const tall = png(W, H, rows);
+  writeFileSync(join(refs, "tall.png"), tall);
+  // The real width matters for the crop rule, so the tall one is checked through its share, not its size.
+  for (const n of ["01", "02", "03"]) writeFileSync(join(refs, "intro-frames", `${n}-00000ms.png`), png(2, 1, n === "02" ? [0, 0, 0, 0, 0, 0] : [255, 255, 255, 255, 255, 255]));
+  writeFileSync(join(dir, "page.html"), `<!doctype html><body style="margin:0"><h1 style="font-size:80px">File page</h1><p>Body text.</p></body>`);
+  const result = await measured([refs, `file://${join(dir, "page.html")}`, "--tsv", "--wait", "0"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const rows2 = result.stdout.trim().split("\n").slice(1).map((l) => l.split("\t"));
+  const frame = rows2.find((r) => r[0].includes("intro-frames"));
+  assert.ok(frame && frame[0].endsWith("02-00000ms.png"), "the middle frame stands for the motion keep");
+  assert.equal(frame[1], "dark");
+  assert.ok(rows2.some((r) => r[0].startsWith("file://") && r[7] === "80px"));
+  // A tall capture 1440 wide is cut to its first screen: the red below it does not count.
+  const wide = join(dir, "wide.png");
+  const WW = 1440, HH = 2700, data = [];
+  const row = (rgb) => Buffer.from([0, ...new Array(WW).fill(rgb).flat()]);
+  const { deflateSync: deflate } = await import("node:zlib");
+  const rowsBuf = [];
+  for (let y = 0; y < HH; y++) rowsBuf.push(row(y < 900 ? [255, 255, 255] : [255, 0, 0]));
+  const crc = (buf) => { let c = ~0; for (const byte of buf) { c ^= byte; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); } return ~c >>> 0; };
+  const chunk = (type, body) => { const b = Buffer.concat([Buffer.from(type), body]); const out = Buffer.alloc(b.length + 8); out.writeUInt32BE(body.length, 0); b.copy(out, 4); out.writeUInt32BE(crc(b), b.length + 4); return out; };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(WW, 0); ihdr.writeUInt32BE(HH, 4); ihdr.set([8, 2, 0, 0, 0], 8);
+  writeFileSync(wide, Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr), chunk("IDAT", deflate(Buffer.concat(rowsBuf))), chunk("IEND", Buffer.alloc(0))]));
+  const wideOut = JSON.parse((await measured([wide])).stdout);
+  assert.equal(wideOut.firstScreen, true);
+  assert.deepEqual([wideOut.traits.tone, wideOut.traits.loud], ["light", 0]);
+});

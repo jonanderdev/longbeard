@@ -50,17 +50,30 @@ const tsv = has("tsv");
 const linksArg = flag("links", "");
 const profilesArg = flag("profiles", "");
 const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif" };
-const isUrl = (t) => /^https?:\/\//.test(t);
+const isUrl = (t) => /^(https?|file):\/\//.test(t);
 const usage = "usage: node measure.mjs <https://url | image | folder> … [--tsv | --links links.tsv --profiles profiles.json] [--jobs 4] [--wait ms] [--width 1440]";
 if (!args.length) {
   console.error(usage);
   process.exit(2);
 }
 const targets = [];
+// A frame stands for its folder: its profile is named after the folder, not the frame.
+const names = new Map();
 for (const arg of args) {
   if (isUrl(arg)) targets.push(arg);
   else if (existsSync(arg) && statSync(arg).isDirectory()) {
-    for (const f of readdirSync(arg).sort()) if (mime[extname(f).toLowerCase()]) targets.push(join(arg, f));
+    for (const f of readdirSync(arg).sort()) {
+      const path = join(arg, f);
+      if (mime[extname(f).toLowerCase()]) targets.push(path);
+      // A keep that only moves is a folder of frames (capture.mjs --frames): its middle frame stands for it.
+      else if (statSync(path).isDirectory()) {
+        const frames = readdirSync(path).filter((x) => mime[extname(x).toLowerCase()]).sort();
+        if (!frames.length) continue;
+        const shot = join(path, frames[Math.floor(frames.length / 2)]);
+        names.set(shot, f);
+        targets.push(shot);
+      }
+    }
   } else if (mime[extname(arg).toLowerCase()]) {
     if (!existsSync(arg)) {
       console.error(`measure: no file at ${arg}`);
@@ -73,7 +86,7 @@ for (const arg of args) {
   }
 }
 // Profiles: each picture, its live page (from --links, name<TAB>link), into one JSON per exploration.
-const nameOf = (path) => basename(path, extname(path));
+const nameOf = (path) => names.get(path) || basename(path, extname(path));
 const links = new Map();
 if (linksArg) {
   if (!existsSync(linksArg)) {
@@ -206,10 +219,14 @@ const readImage = (src) => `(async () => {
   const img = new Image();
   img.src = ${JSON.stringify(src)};
   await img.decode();
-  const k = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight));
-  const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+  // Only the first screen: a tall desktop capture (a full page) is cut to the 1440 by 900 it opens on.
+  // A phone or portrait shot is narrower than 1000 px and is read whole.
+  const sw = img.naturalWidth;
+  const sh = sw >= 1000 && img.naturalHeight > sw * 0.75 ? Math.round((sw * 900) / 1440) : img.naturalHeight;
+  const k = Math.min(1, 200 / Math.max(sw, sh));
+  const w = Math.max(1, Math.round(sw * k)), h = Math.max(1, Math.round(sh * k));
   const c = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d");
-  c.drawImage(img, 0, 0, w, h);
+  c.drawImage(img, 0, 0, sw, sh, 0, 0, w, h);
   const d = c.getImageData(0, 0, w, h).data, bins = new Map();
   for (let i = 0; i < d.length; i += 4) {
     const key = (d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4);
@@ -240,10 +257,10 @@ const readImage = (src) => `(async () => {
   // What the picture is shows here: a photograph has many colours and fine texture, a flat
   // illustration few colours and hard edges, a 3D render many colours and soft surfaces,
   // chrome mostly grey with sharp highlights, lettering two colours and long hard edges.
-  const k2 = Math.min(1, 400 / Math.max(img.naturalWidth, img.naturalHeight));
-  const w2 = Math.max(1, Math.round(img.naturalWidth * k2)), h2 = Math.max(1, Math.round(img.naturalHeight * k2));
+  const k2 = Math.min(1, 400 / Math.max(sw, sh));
+  const w2 = Math.max(1, Math.round(sw * k2)), h2 = Math.max(1, Math.round(sh * k2));
   const c2 = Object.assign(document.createElement("canvas"), { width: w2, height: h2 }).getContext("2d");
-  c2.drawImage(img, 0, 0, w2, h2);
+  c2.drawImage(img, 0, 0, sw, sh, 0, 0, w2, h2);
   const e = c2.getImageData(0, 0, w2, h2).data;
   const isFig = (i) => Math.max(Math.abs(e[i] - top[0]), Math.abs(e[i + 1] - top[1]), Math.abs(e[i + 2] - top[2])) > 24;
   const lumOf = (i) => 0.3 * e[i] + 0.59 * e[i + 1] + 0.11 * e[i + 2];
@@ -293,7 +310,7 @@ const readImage = (src) => `(async () => {
     busy: Math.round((10 * edges) / (2 * n * 2.55)) / 10,
     lum: Math.round(l * 1000) / 1000,
   };
-  return { width: img.naturalWidth, height: img.naturalHeight, traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: sh < img.naturalHeight, traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
 })()`;
 
 const readPage = `(() => {
@@ -308,17 +325,28 @@ const readPage = `(() => {
     const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join(" ").trim();
     if (own && !seen.has(own.slice(0, 24) + cs.fontSize)) {
       seen.add(own.slice(0, 24) + cs.fontSize);
-      out.text.push({ text: own.slice(0, 40), face: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), size: cs.fontSize, weight: cs.fontWeight, style: cs.fontStyle, tracking: cs.letterSpacing, leading: cs.lineHeight, case: cs.textTransform, colour: cs.color, box: box(r) });
+      // The text's own box, from a range over its words: a heading's block runs the full width even when
+      // its words sit left, and its box would read as centred.
+      const words = [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim());
+      const range = document.createRange();
+      range.setStartBefore(words[0]);
+      range.setEndAfter(words.at(-1));
+      const tr = range.getBoundingClientRect();
+      out.text.push({ text: own.slice(0, 40), face: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), size: cs.fontSize, weight: cs.fontWeight, style: cs.fontStyle, tracking: cs.letterSpacing, leading: cs.lineHeight, case: cs.textTransform, colour: cs.color, box: box(tr.width ? tr : r) });
     }
     // Icons: small pictures and drawings, a logo row, emoji, pictograms.
     const tag = el.tagName.toLowerCase();
-    if ((tag === "img" || (tag === "svg" && !el.parentElement.closest("svg"))) && r.width >= 12 && r.height >= 12 && r.width <= 72 && r.height <= 72) out.icons++;
+    const small = r.width >= 12 && r.height >= 12 && r.width <= 72 && r.height <= 72;
+    const mask = cs.maskImage || cs.webkitMaskImage || "none";
+    const before = getComputedStyle(el, "::before").content;
+    const glyph = (own.length > 0 && own.length <= 2 && !/[A-Za-z0-9]/.test(own)) || (before && before !== "none" && before !== "normal" && before.replace(/["']/g, "").length > 0 && before.replace(/["']/g, "").length <= 2);
+    if (small && (tag === "img" || (tag === "svg" && !el.parentElement.closest("svg")) || /url\\(/.test(cs.backgroundImage) || mask !== "none" || glyph)) out.icons++;
     // Solid blocks: an opaque fill of its own colour, at least a fortieth of the screen. A band, a card, a shape.
     const alpha = (cs.backgroundColor.match(/rgba?[(]([^)]*)[)]/) || [, ""])[1].split(",").map(Number)[3];
     if (cs.backgroundColor !== "rgba(0, 0, 0, 0)" && !(alpha < 0.9) && r.width * r.height >= (W * H) / 40) out.solids.push({ fill: cs.backgroundColor, box: box(r), radius: cs.borderRadius });
     const filled = cs.backgroundColor !== "rgba(0, 0, 0, 0)" && r.width < W - 40;
     if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30 && r.height > 2)
-      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage), gradient: /gradient\\(/.test(cs.backgroundImage) ? cs.backgroundImage.slice(0, 240) : "" });
+      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage), gradient: /gradient\\(/.test(cs.backgroundImage) ? cs.backgroundImage.slice(0, 240) : "", size: cs.backgroundSize, repeat: cs.backgroundRepeat });
   }
   out.fonts = [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family.replace(/["']/g, "") + " " + f.weight + " " + f.style))];
   // Traits. The body size is the size most text is set in, by characters: a title split into one
@@ -329,15 +357,20 @@ const readPage = `(() => {
     const x = parseFloat(t.size);
     if (x > 0) tally.set(x, (tally.get(x) || 0) + t.text.length);
   }
-  const body = [...tally].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] || 0;
+  // One size alone (a hero whose only text is its headline) has no body to compare it with.
+  const body = tally.size > 1 ? [...tally].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] || 0 : 0;
   // Lettering drawn as an SVG or an image (a wordmark, a title set as a picture) is display type too:
   // a box at least a quarter of the screen wide and at least three times as wide as it is tall.
   // Its height stands for its size: a cap height is about 0.7 of the size it was set at.
   const words = [];
   for (const el of document.querySelectorAll("svg, img")) {
     const r = el.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > H || r.width < W / 4 || r.height < 24 || r.width / r.height < 3) continue;
+    // A line of lettering: a quarter of the screen wide or more, three times as wide as tall, and no
+    // taller than about a third of the screen (the largest wordmarks seen were under 320 px of 900).
+    if (r.bottom < 0 || r.top > H || r.width < W / 4 || r.height < 24 || r.height > H * 0.36 || r.width / r.height < 3) continue;
     if (el.closest("svg") !== el && el.tagName.toLowerCase() !== "img") continue;
+    // Lettering is drawn: an SVG, or an image whose file is one. A wide photograph is a banner, not a word.
+    if (el.tagName.toLowerCase() === "img" && !/\\.svg([?#]|$)|^data:image\\/svg/i.test(el.currentSrc || el.src || "")) continue;
     words.push(Math.round(r.height / 0.7));
   }
   const largestText = sizes.length ? Math.max(...sizes) : 0;
@@ -355,17 +388,29 @@ const readPage = `(() => {
   // Gradients are recorded, never judged: how much of the first screen they cover, and the largest
   // ones as written, so a family that relies on one keeps it. Counted on the same grid as pictures.
   // A gradient counts only when it can be seen: its colours differ, and they are not all see-through.
+  // Colours of any kind (rgb, hsl, oklch, lab, hex, transparent) are read the same way: painted on
+  // one pixel and read back, so a modern colour function is never missed.
+  const px = Object.assign(document.createElement("canvas"), { width: 1, height: 1 }).getContext("2d", { willReadFrequently: true });
+  const rgba = (token) => {
+    px.clearRect(0, 0, 1, 1);
+    px.fillStyle = "rgba(0, 0, 0, 0)";
+    px.fillStyle = token;
+    px.fillRect(0, 0, 1, 1);
+    const d = px.getImageData(0, 0, 1, 1).data;
+    return [d[0], d[1], d[2], d[3] / 255];
+  };
   const visible = (css) => {
-    const stops = [...css.matchAll(/rgba?\\(([^)]+)\\)/g)].map((m) => m[1].split(/[ ,\\/]+/).filter(Boolean).map(Number));
-    const solid = stops.filter((c) => (c.length < 4 ? 1 : c[3]) >= 0.15);
+    const stops = [...css.matchAll(/(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\\([^()]*\\)|#[0-9a-fA-F]{3,8}\\b|\\btransparent\\b/g)].map((m) => rgba(m[0]));
+    const solid = stops.filter((c) => c[3] >= 0.15);
     if (solid.length < 1 || stops.length < 2) return false;
     if (solid.length < stops.length) return true;
     return stops.some((c) => stops.some((d) => Math.max(...[0, 1, 2].map((k) => Math.abs(c[k] - d[k]))) > 24));
   };
-  // A gradient with hard stops a few pixels apart is a pattern (a dot grid, fine lines), not a blend.
-  const isPattern = (css) => /(^|[ ,(])(0|[0-4](\\.\\d+)?)px\\s*[,)]/.test(css) || /repeating-/.test(css);
+  // A pattern repeats: a repeating gradient, or a gradient tiled at a small size (a dot grid, fine
+  // lines). A gradient with px stops that runs across its box once is a fade, not a pattern.
+  const isPattern = (css, size = "", repeat = "") => /repeating-/.test(css) || (!/no-repeat/.test(repeat) && /\\d/.test(size) && size.split(/[ ,]+/).filter((v) => /px$/.test(v)).length > 0 && size.split(/[ ,]+/).filter((v) => /px$/.test(v)).every((v) => parseFloat(v) <= 64));
   for (const b of out.boxes) if (b.gradient && !visible(b.gradient)) b.gradient = "";
-  for (const b of out.boxes) if (b.gradient && isPattern(b.gradient)) [b.pattern, b.gradient] = [b.gradient, ""];
+  for (const b of out.boxes) if (b.gradient && isPattern(b.gradient, b.size, b.repeat)) [b.pattern, b.gradient] = [b.gradient, ""];
   const pcells = new Set();
   for (const b of out.boxes) {
     if (!b.pattern) continue;
@@ -383,7 +428,7 @@ const readPage = `(() => {
   for (const layer of [document.documentElement, document.body]) {
     const bg = getComputedStyle(layer).backgroundImage;
     if (/gradient\\(/.test(bg) && visible(bg)) {
-      const pattern = isPattern(bg);
+      const pattern = isPattern(bg, getComputedStyle(layer).backgroundSize, getComputedStyle(layer).backgroundRepeat);
       for (let gx = 0; gx < W / 20; gx++) for (let gy = 0; gy < H / 20; gy++) (pattern ? pcells : gcells).add(gx + "," + gy);
       out.boxes.push({ kind: layer.tagName.toLowerCase(), box: [0, 0, W, H], gradient: pattern ? "" : bg.slice(0, 240), pattern: pattern ? bg.slice(0, 240) : "" });
     }
@@ -406,7 +451,21 @@ const readPage = `(() => {
   }
   // Blocks: how much of the screen is solid colour other than the ground.
   // A fill over most of the screen is the ground, whatever element carries it (a wrapper, a main).
+  // With no ground set on body or html, the page's ground is the browser's white. And the fill that
+  // covers the most of the screen, when it covers at least two fifths, is the ground in sections.
+  const bare = (c) => c === "rgba(0, 0, 0, 0)" || c === "transparent";
   const grounds = new Set([out.ground, out.root, ...out.solids.filter((b) => b.box[2] * b.box[3] >= 0.85 * W * H).map((b) => b.fill)]);
+  if (bare(out.ground) && bare(out.root)) grounds.add("rgb(255, 255, 255)");
+  const byFill = new Map();
+  for (const b of out.solids) {
+    const cellsOf = byFill.get(b.fill) || new Set();
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) cellsOf.add(gx + "," + gy);
+    byFill.set(b.fill, cellsOf);
+  }
+  const [topFill] = [...byFill].sort((a, b) => b[1].size - a[1].size);
+  if (topFill && topFill[1].size >= 0.4 * Math.ceil(W / 20) * Math.ceil(H / 20)) grounds.add(topFill[0]);
   const bcells = new Set();
   for (const b of out.solids) {
     if (grounds.has(b.fill)) continue;
@@ -422,7 +481,7 @@ const readPage = `(() => {
   const lefts = out.text.map((t) => t.box[0]).filter((x) => x >= 0);
   out.traits = {
     display: largest + "px",
-    body: body + "px",
+    body: body ? body + "px" : null,
     scale: body ? Math.round((10 * largest) / body) / 10 : null,
     pictures: Math.round((1000 * cells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
     margin: lefts.length ? Math.round((1000 * Math.min(...lefts)) / W) / 10 : null,
