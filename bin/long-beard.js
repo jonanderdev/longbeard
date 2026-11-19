@@ -610,7 +610,8 @@ function generateRouter(items, manifest = curated()) {
   const line = (when, name, why) => (why?.trim() ? `- ${when}: ${name}. ${why.trim()}` : `- ${when}: ${name}`);
   const helpers = items.filter((item) => kind(item) === "skill").flatMap((item) => {
     if (item.kit) return (item.routes ?? []).map((route) => line(route.when, route.skill, route.why));
-    if (staged.has(item.name)) return [];
+    // A skill the stage's own skill suggests (the design-* family, through design) needs no line of its own.
+    if (staged.has(item.name) || item.via) return [];
     return [line(item.when?.trim() || item.name, item.name, item.why)];
   });
   const have = new Set(items.map((item) => item.name));
@@ -628,7 +629,7 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 |---|---|---|---|
 ${rows.join("\n")}
 
-Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Direction and Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
+Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
 
 UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.
 

@@ -6,18 +6,18 @@
 // layout is this file. It shows what we saw. It does not paint a brand.
 //
 // A card's fields in board.md: link, shot, frames (a folder that
-// capture.mjs --frames wrote, played on hover), topic, pattern, measured
+// capture.mjs --frames wrote, played on hover), topic (or part), pattern (or move), measured
 // (its traits from measure.mjs, shown small under the pattern), why.
 //
-//   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
-//   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
+//   node moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/moodboard/moodboard.html
+//   node moodboard.mjs .longbeard/design/pricing/board.md --out .longbeard/design/pricing/moodboard.html
 //
 // A big pool is chosen in two steps. --overview 6 shows each family as its
 // first six tiles (families.mjs writes the most typical first), how many more
 // it has, and its measured ranges from a "Families:" header line, with one
 // Take button and a note per family. The copy-out lists the families taken.
 // Then a board of only those families is marked as usual.
-//   node moodboard.mjs design-exploration/identity/board.md --overview 6 --out design-exploration/identity/families.html
+//   node moodboard.mjs .longbeard/design/moodboard/board.md --overview 6 --out .longbeard/design/families/families.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
@@ -33,7 +33,7 @@ if (overAt !== -1 && !(Number.isInteger(overview) && overview >= 1 && overview <
 }
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
-  console.error("usage: node moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html");
+  console.error("usage: node moodboard.mjs .longbeard/design/<step>/board.md --out .longbeard/design/<step>/moodboard.html");
   process.exit(2);
 }
 
@@ -137,13 +137,13 @@ for (const card of cards) {
   if (!poster && frames) poster = frames[frames.length - 1].src;
   if (!poster) continue;
   const id = `m${++n}`;
-  const topic = topicOf(card.topic);
+  const topic = topicOf(card.topic || card.part);
   // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
   const name = /^https?:\/\//i.test(url)
     ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
     : `<span class="name">${esc(card.name)}</span>`;
-  const line = (card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "");
+  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";

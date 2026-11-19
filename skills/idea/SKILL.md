@@ -11,7 +11,7 @@ description: >
 
 # Idea
 
-One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface, position and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
+One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: the design-* skills for the people, surface, position, identity nouns and key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
 
 The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's. And never how it looks: no layout, colour, typeface, named style or page furniture. Those are chosen in Design, on rendered screens, and a brief that describes a look decides it before anyone has seen it.
 
@@ -92,15 +92,15 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 - Every section has content. "None" is an answer. A guess is not.
 - **Changes** is added under Out of scope by the first Change, never before.
 - Position is concrete. "Fast, simple, trustworthy" says nothing every rival would not say. `remembered for` is a thing you could point at on a screen or in a sentence; `against` names real products or habits.
-- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design` uses them as copy.
-- A screen is described by what is on it and what it is for, never by how it is arranged or styled. `remembered for` is a thing the product has or does, in the product's own words. If they describe a look while being grilled, keep it out of the brief and tell them it is `design-direction`'s first question.
+- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design-prototype` uses them as copy.
+- A screen is described by what is on it and what it is for, never by how it is arranged or styled. `remembered for` is a thing the product has or does, in the product's own words. If they describe a look while being grilled, keep it out of the brief and tell them it belongs in `design-brief`, which asks it next.
 - Over a page means a flow is really two products, or a section is doing Architecture's job. Cut it.
 
 ## After writing
 
 Offer the next stage in one line. A stage whose file already exists is done, so go past it:
 
-- Site or app, no `DESIGN.md` → `design-direction`.
+- Site or app, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
 - No UI, or `DESIGN.md` exists → stages 2 and 3 are skipped. Next is Architecture: they type `/grill-with-docs`.
 - `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
 

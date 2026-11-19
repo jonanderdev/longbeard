@@ -3,8 +3,9 @@ name: design-check
 description: >
   Check a screen against the design rules and DESIGN.md, and report findings
   (rule, hard or soft, where, fix). Frame mode checks a Figma frame, called
-  by design after each screen. Build mode checks a built UI spec against its
-  Ready frames, run after implement-spec, with evidence for the PR. Hard
+  by design-figma after each screen. Build mode checks a built UI spec against its
+  Ready frames, run after implement-spec, with evidence for the PR. Docs mode
+  checks the committed design docs name no reference. Hard
   findings block; soft findings are reported. It reports and never redesigns.
 ---
 
@@ -41,18 +42,18 @@ Read `DESIGN.md` first: its tokens, components and decisions are what "follows t
 
 ## Frame mode
 
-Called by `design` after it composes or changes a Figma screen. Input: the file key, the node IDs of the screen and its state frames, and the approved prototype shot of that screen when there is one.
+Called by `design-figma` after it composes or changes a Figma screen. Input: the file key, the node IDs of the screen and its state frames, and the approved prototype shot of that screen when there is one.
 
 1. Load `figma-use` for any `use_figma` call. Screenshot each frame (`get_screenshot`, `maxDimension` 1440 so text is readable). Read structure with `get_metadata` when spacing or alignment needs numbers.
 2. Find the states: the frames next to the default, whatever they are called. Decide from what each frame shows whether it is the screen's empty, loading or error state, not from its name. A reachable state with no frame is a rule 8 hard finding. So is a "not needed" under Decisions in `DESIGN.md` when a person can reach that state after all.
 3. Check tokens where the screenshot cannot tell: in one read-only `use_figma` call, list fills, gaps and text styles that are not bound to a variable or style. An unbound value is a rule 7 soft finding when a token exists for it. With more than one theme, an unbound colour is a rule 6 hard finding, because it will not change with the theme.
 4. Check the themes, when `DESIGN.md` lists more than one. Themes built as separate colour sets or as a frame per theme, instead of modes on one collection, are a rule 6 hard finding. For each mode, set it on a temporary copy of the frame, screenshot the copy, delete it, and run the rules on that shot. If the shot does not change with the mode, report that theme as "not checked", never as passed.
 5. Compare with the prototype shot, side by side. The frame must be faithful to what they approved. Anything lost or changed without their yes is a hard finding, under rule 0. Pixels do not count. No shot: say "not compared".
-6. Return the findings. `design` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
+6. Return the findings. `design-figma` fixes the hard ones, runs this once more, then shows the screen. A frame with open hard findings is never marked Ready.
 
 ## Build mode
 
-After `implement-spec` builds a UI spec. Input: the running app's URL for each screen, and the Ready frames the tickets link. A screen with no Ready frame has nothing to compare with: report it as "not checked" and send it to `design`.
+After `implement-spec` builds a UI spec. Input: the running app's URL for each screen, and the Ready frames the tickets link. A screen with no Ready frame has nothing to compare with: report it as "not checked" and send it to `design-figma`.
 
 1. **Render** each screen at phone and desktop:
    ```
@@ -70,6 +71,15 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
 4. **Check the rules** on the build shots, in the order above.
 5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check.
 6. **PR evidence.** Matt's `pr` writes the body. Put the shots in its Before/After: the Ready frame beside the build at each width. Then the findings table, with what remains open after the re-check.
+
+## Docs mode
+
+On request, or when a design-* skill has written a doc. The design docs are committed and kept for good, so they stay clean.
+
+- Read `DESIGN.md` and every file in `docs/design/`.
+- **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; a path into `.longbeard/` or `design-exploration/`. The fix is the idea in plain words ("a quiet reading page", not whose).
+- **Hard:** `design-identity.md`'s colours or faces differ from its `json identity` block, or `DESIGN.md`'s tokens differ from an identity that was not changed on purpose (a change is under Decisions with its date).
+- The product's own name, the faces and colours it uses, and anything the brief or design brief records as theirs are not findings.
 
 ## Do not
 

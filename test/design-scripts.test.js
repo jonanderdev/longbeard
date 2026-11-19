@@ -9,9 +9,9 @@ import { deflateSync } from "node:zlib";
 import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const deal = join(root, "skills/design/scripts/deal.mjs");
-const sheet = join(root, "skills/design/scripts/sheet.mjs");
-const measure = join(root, "skills/design-direction/scripts/measure.mjs");
+const deal = join(root, "skills/design-direction/scripts/deal.mjs");
+const sheet = join(root, "skills/design-direction/scripts/sheet.mjs");
+const measure = join(root, "skills/design-families/scripts/measure.mjs");
 
 // Eight references, a to h. Each gives one arrangement; type, grounds and the rest are shared out.
 const library = (extra = {}) => ({
@@ -412,96 +412,21 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
   }
 });
 
-test("deal --choose then --part: layouts for another screen carry the chosen look, each from another reference", () => {
-  const lib = library({
-    parts: {
-      navigation: [
-        { id: "follows", what: "the first screen's bar, opened", from: ["first screen"] },
-        { id: "overlay", what: "x", from: ["a"] },
-        { id: "drawer", what: "x", from: ["b"] },
-        { id: "inline", what: "x", from: ["a", "c"] },
-        { id: "dock", what: "x", from: ["d"] },
-        { id: "tabs", what: "x", from: ["e"] },
-      ],
-    },
-  });
-  const dir = project(lib);
-  const early = run(deal, dir, ["library.json", "--part", "navigation"]);
-  assert.equal(early.status, 1);
-  run(deal, dir, ["library.json", "--seed", "4"]);
-  assert.match(run(deal, dir, ["library.json", "--part", "navigation"]).stderr, /no screen chosen yet/);
-  const chose = run(deal, dir, ["library.json", "--choose", "3"]);
-  assert.equal(chose.status, 0, chose.stderr);
-  const { chosen } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
-  const result = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "5"]);
-  assert.equal(result.status, 0, result.stderr);
-  const part = rounds(dir).at(-1);
-  assert.equal(part.kind, "part");
-  assert.equal(part.recipes.length, 4);
-  assert.equal(part.recipes[0].arrangement, "follows");
-  for (const r of part.recipes) for (const k of ["navigation", "type", "ground", "accent"]) assert.equal(r[k], chosen[k]);
-  const refs = part.recipes.flatMap((r) => lib.parts.navigation.find((x) => x.id === r.arrangement).from);
-  assert.equal(new Set(refs).size, refs.length);
-  // Asked again, the layouts not shown yet come first.
-  run(deal, dir, ["library.json", "--part", "navigation", "--seed", "6"]);
-  const again = rounds(dir).at(-1).recipes.map((r) => r.arrangement);
-  const before = part.recipes.map((r) => r.arrangement);
-  const unseen = lib.parts.navigation.map((x) => x.id).filter((id) => !before.includes(id));
-  assert.ok(unseen.every((id) => again.includes(id) || lib.parts.navigation.find((x) => x.id === id).from.some((ref) => again.some((a) => lib.parts.navigation.find((x) => x.id === a).from.includes(ref)))), `${again}`);
-  assert.equal(run(deal, dir, ["library.json", "--part", "footer"]).status, 1);
-});
-
-test("deal --part: earlier choices carry forward, and a layout that needs what was not chosen is left out", () => {
-  const lib = library({
-    parts: {
-      navigation: [
-        { id: "follows-nav", what: "x", from: ["first screen"] },
-        { id: "overlay", what: "x", from: ["a"], needs: ["nav-1"] },
-        { id: "sidebar", what: "x", from: ["b"], needs: ["nav-3"] },
-        { id: "sheet", what: "x", from: ["c"] },
-      ],
-      index: [
-        { id: "follows-index", what: "x", from: ["first screen"] },
-        { id: "cards", what: "x", from: ["d"], needs: ["overlay"] },
-        { id: "rows", what: "x", from: ["e"], needs: ["sheet"] },
-      ],
-    },
-  });
-  const dir = project(lib);
-  // A first screen with nav-1, chosen by writing a round whose recipe 1 has it.
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-b", navigation: "nav-1", type: "type-2", ground: "dark", accent: "red" }] }] }));
-  run(deal, dir, ["library.json", "--choose", "1"]);
-  const nav = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "2"]);
-  assert.match(nav.stderr, /1 layout for navigation left out: it needs what was not chosen \(nav-3\)/);
-  const navRound = rounds(dir).at(-1);
-  assert.deepEqual(navRound.recipes.map((r) => r.arrangement).sort(), ["follows-nav", "overlay", "sheet"]);
-  assert.ok(navRound.recipes.every((r) => r.navigation === "nav-1" && r.first === "arr-b"));
-  // They pick the overlay menu; the index is dealt knowing it.
-  const overlay = navRound.recipes.find((r) => r.arrangement === "overlay").n;
-  assert.match(run(deal, dir, ["library.json", "--choose", String(overlay)]).stdout, /chosen for navigation: overlay/);
-  run(deal, dir, ["library.json", "--part", "index", "--seed", "3"]);
-  const indexRound = rounds(dir).at(-1);
-  assert.deepEqual(indexRound.recipes.map((r) => r.arrangement).sort(), ["cards", "follows-index"]);
-  assert.ok(indexRound.recipes.every((r) => r.parts.navigation === "overlay"));
-  // A new first screen clears what was chosen for the other screens.
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ ...JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")), rounds: [...rounds(dir), { round: 9, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-c", navigation: "nav-3", type: "type-4", ground: "cream", accent: "none" }] }] }));
-  assert.match(run(deal, dir, ["library.json", "--choose", "1"]).stderr, /layouts chosen for navigation are cleared/);
-});
-
 test("grid template: its script parses, and it marks what a run writes", () => {
-  const html = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  const html = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
   const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements", "parts (step 7)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
+  for (const part of ["content", "navigation", "arrangements"]) assert.match(html, new RegExp(`WRITE: ${part}`));
+  assert.doesNotMatch(html, /CONCEPTS|PARTS|\?concept=|--part/);
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
-test("grid template: hero concepts, must-carry and zones are wired", () => {
-  const grid = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
-  for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
+test("grid template: must-carry and zones are wired", () => {
+  const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
+  for (const hook of ["function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
 });
 
 test("deal: their own entries are not one shared reference", () => {
@@ -653,8 +578,8 @@ test("measure: a tall capture is read on its first screen, a folder of frames by
   assert.deepEqual([wideOut.traits.tone, wideOut.traits.loud], ["light", 0]);
 });
 
-test("colours: step 5's colour rows are made by rule, every option passes contrast, and a failing one is left out", () => {
-  const colours = join(root, "skills/design/scripts/colours.mjs");
+test("colours: design-identity's colour options are made by rule, every option passes contrast, and a failing one is left out", () => {
+  const colours = join(root, "skills/design-identity/scripts/colours.mjs");
   const out = spawnSync(process.execPath, [colours, "--ground", "#f1ede4", "--ink", "#111111", "--accent", "#fe2601", "--family", "#ebe4e0,#fec704", "--theirs", "#2b4c7e", "--json"], { encoding: "utf8" });
   assert.equal(out.status, 0, out.stderr);
   const { rows } = JSON.parse(out.stdout);
@@ -701,7 +626,7 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
     ],
   };
   writeFileSync(join(dir, "fonts.json"), JSON.stringify(list));
-  const fonts = join(root, "skills/design/scripts/fonts.mjs");
+  const fonts = join(root, "skills/design-identity/scripts/fonts.mjs");
   const run = (args) => new Promise((done) => {
     const child = spawn(process.execPath, [fonts, ...args, "--metadata", join(dir, "fonts.json"), "--local"]);
     let stdout = "", stderr = "";
@@ -725,4 +650,60 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   // --kind wins over the list's kind: a face Google files wrongly gets a row of what it is.
   const sans = JSON.parse((await run(["DejaVu Serif", "--kind", "sans", "--json"])).stdout);
   assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
+});
+
+test("deal --identity: type, grounds and accents come from the identity, composition from the references", () => {
+  const { type: _t, grounds: _g, accents: _a, ...composition } = library();
+  const dir = project(composition);
+  writeFileSync(join(dir, "identity.md"), `# Identity\n\n\`\`\`json identity\n${JSON.stringify({
+    display: { face: "Unbounded", weight: 500, case: "uppercase" },
+    body: { face: "Inter", size: "16px", leading: "1.5" },
+    colours: [
+      { name: "lime", hex: "#C0FF00", role: ["accent", "ground"] },
+      { name: "paper", hex: "#EEE", role: "ground" },
+      { name: "mid", hex: "#737373", role: "ground" },
+      { name: "ink", hex: "#000000", role: ["ink", "ground"] },
+    ],
+  })}\n\`\`\`\n`);
+  const result = run(deal, dir, ["library.json", "--identity", "identity.md", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  // Grey #737373 has no identity colour at 4.5:1 on it, so it is not a ground, and it is said.
+  assert.match(result.stderr, /mid is left out as a ground/);
+  const lib = JSON.parse(readFileSync(join(dir, "library.json"), "utf8"));
+  assert.deepEqual(lib.grounds.map((g) => g.id), ["lime", "paper", "ink"]);
+  // Each ground takes the identity colour that reads best on it: dark ink on the light ones, a light one on black.
+  assert.equal(lib.grounds.find((g) => g.id === "paper").ink, "#000000");
+  assert.notEqual(lib.grounds.find((g) => g.id === "ink").ink, "#000000");
+  assert.deepEqual(lib.accents.map((a) => a.id), ["lime", "none"]);
+  const { rounds } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
+  assert.equal(rounds[0].recipes.length, 8);
+  for (const r of rounds[0].recipes) assert.equal(r.type, "identity");
+  // Later rounds read the lists written back, with no --identity.
+  const again = run(deal, dir, ["library.json", "--vary", "1"]);
+  assert.equal(again.status, 0, again.stderr);
+});
+
+test("deal: a round spreads across light, dark and mid grounds and kinds of face, and says how wide it is", () => {
+  const lib = library();
+  lib.type = lib.type.map((t, i) => ({ ...t, kind: ["serif", "sans", "condensed", "serif"][i] }));
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "2"]);
+  assert.equal(result.status, 0, result.stderr);
+  const line = result.stdout.split("\n").find((l) => l.startsWith("spread:"));
+  assert.ok(line, result.stdout);
+  for (const word of ["light", "dark", "serif", "sans", "condensed"]) assert.match(line, new RegExp(word));
+  // Three of the four grounds are light; dealt by evenness alone, dark would get 2 of 8. Spread gives it more.
+  const dark = Number((line.match(/dark (\d+)/) || [0, 0])[1]);
+  assert.ok(dark >= 3, line);
+});
+
+test("deal: a library too narrow for a spread says so", () => {
+  const lib = library();
+  lib.arrangements = lib.arrangements.slice(0, 4);
+  lib.grounds = lib.grounds.map((g) => ({ ...g, ground: "#ffffff", panel: null, ink: "#111111" }));
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /every ground in the library is light/);
+  assert.match(result.stderr, /4 references give 4 arrangements/);
 });

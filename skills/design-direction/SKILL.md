@@ -1,440 +1,148 @@
 ---
 name: design-direction
 description: >
-  Find the direction for a product's look from what they like and from real
-  references. Their own moodboard (a Figma board, a folder, links) is the pool.
-  Without one, or with one too thin: a wide pool from every source they
-  choose, which they mark like or no on a picker page, and a sharper second
-  search from those picks. Every reference is read into a profile (measured,
-  and tagged for what its picture is), and the pool is sorted on the
-  profiles into families that look alike. They take families, and on one
-  board mark, in the family they want, one anchor and the donors. Those are
-  read into a library: what the family shares, how the screens are arranged,
-  how they do navigation, what type, grounds and accents they use, each
-  measured and none chosen, shown to them before the direction is written. Runs after docs/brief.md exists and the brief has a UI, or
-  when design hits a gap and needs references for one piece. Writes
-  design-exploration/<slug>/direction.md and library.json, a proposal, then
-  offers to take it into design.
+  Find the direction: eight first screens dealt by script from the references
+  they like, each screen's arrangement, type and colours taken from different
+  references, so the round looks like several directions, not one; with the
+  product's real content and three or four pictures of its own subject. They
+  pick on a rendered grid, vary and mix; then a light touch-up pass fixes
+  contrast, anything missing and anything plainly broken, never the
+  composition. Writes docs/design/design-direction.md. Runs after design-brief
+  and design-moodboard; design-identity then refines its type and colour.
 ---
 
 # Design direction
 
-Two files come out, both in `design-exploration/<slug>/`: `direction.md`, a proposal for what the product's look should say and sound like, and `library.json`, what their chosen references use. They are what `design` explores from, not its result. Neither is official. `design` deals screens from the library, and only an approved prototype becomes `DESIGN.md`.
+**Needs:** `docs/design/design-brief.md`, `docs/design/design-moodboard.md`  
+**Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
+**Writes:** `docs/design/design-direction.md`
 
-Direction is the inspiration step: it gathers good designs, sorts them, and reads the ones they choose. It records what references use and chooses nothing: no colour, typeface, size or spacing value is picked here, no combination is proposed, and no reference is ranked. Choosing happens in `design`, by them, on rendered screens. Direction never writes `DESIGN.md`.
+The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking the arrangement from one reference, the type from another and the colours from a third makes screens none of them has, and a round that offers several real directions. That is the point, so the spread is protected: enough references, and a deal that spreads light, dark and mid grounds and kinds of face. What the agent owns afterwards is a light touch-up: the chosen screen came from references, not from the agent's taste, so the agent only repairs what is broken and never redesigns it.
+
+Comes out:
+
+- **`docs/design/design-direction.md`**, committed: the chosen composition in words, its hierarchy, the must-carry content, the headline, the voice, and the type and colours as dealt, for `design-identity` to refine.
+- **`.longbeard/design/direction/`**, gitignored: `library.json`, `deal.json`, `deal.js`, `prototype/grid.html`, the grid captures and sheets.
 
 ## Gate
 
-Look at the repo. Do not ask what is there.
+1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
+2. A direction exists → a change: show it, ask what changes, deal again only if the composition does.
 
-1. No `docs/brief.md` → run `idea` first. Stop.
-2. The brief says no UI (CLI, API, library) → there is no direction to find. Say so and stop.
-3. Called for one piece (a view, a section, a control, an empty state, "ideas for X"), usually by `design` at a gap → **One piece**.
-4. Otherwise → **Identity**. With a `DESIGN.md` already, this is a rebrand. Say that `DESIGN.md` stays as it is until `design` approves a new one.
+## 0. Pictures of the subject
 
-## Folder
+Before the grid: three or four pictures of what the product is about (the bakery's bread, the climbing gym's wall, the app's real data), not other designs. Every screen from here on uses them, and their colours join the deal. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How, and what to check: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with the message in step 1, as stand-ins theirs replace.
 
-Everything goes in `design-exploration/<slug>/`: `candidates.tsv` and `picker.html` (and `-2` for round 2) when there is a search, then `board.md`, `refs/`, `moodboard.html`, `library.json`, `direction.md`. The first pass is `identity/`. One piece uses its own slug (`pricing`, `empty-state`). If the folder exists, use `<slug>-2`. Two explorations never share a folder.
+## 1. The content and the references, in one message
 
-On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. References, their links, their authors and their shots stay in this folder and in chat. Nothing the product keeps (`DESIGN.md`, Figma, code, commits) ever names one. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
+**What the first screen must carry.** From the brief and the design brief's takeaway: the status (open now, in stock), the main content (today's bakes, the balance), the primary and secondary actions, how to reach it. One line.
 
-## Identity
+**The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark).
 
-### 1. The brief round: one message of questions
-
-Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, the position, and the identity nouns. Do not ask for any of that again. Ask what a design studio asks a client before it looks for anything: what the first screen must do, the personality, who to stand apart from, what is already fixed, and where to look. Send one message and wait. Do not search in that turn. These questions are how they steer, so always ask them, however the run was set up. Only they can say "go".
-
-Every question carries a suggested answer in brackets, drawn from the brief, so a "yes" settles it. The suggestions are the agent's best reading of the brief, never a look: no layout, colour, typeface or style name in them.
+**The lead and the likes.** Build the board of what they work from (the moodboard, or the families they took):
 
 ```
-Before I look, a few questions. Each has my suggestion in brackets: "yes" takes it, "go" skips the rest and I'll decide.
-
-1. In five seconds on the first screen, what should someone think, and what should they do (sign up, buy, book, read on)? [<from the brief's remembered for and its first flow>]
-2. Personality, 1 to 5 on each (3 is the middle, skip any you don't mind):
-   quiet 1 · · · 5 loud
-   type-led 1 · · · 5 picture-led
-   plain 1 · · · 5 rich
-   warm 1 · · · 5 cool
-   [<a suggestion for each, or "no lean">]
-3. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this? Anything you tried before and didn't like, and why?
-4. Who should it stand apart from: competitors, or products it could be mistaken for? And should it fit in with them or stand out? [<the alternatives the brief names>]
-5. What is already fixed? Colours, typefaces or a logo you own and must use, or refuse; light, dark or both; your own pictures (photographs, illustrations), or none yet; and the content's limits: languages, how much there is, an accessibility level to meet. [<what the brief or the repo shows>]
-6. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
-   No moodboard, or a small one: where should I look, and how many should I keep? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
-
-Anyone else who has to say yes? Worth showing them the families and the first screens as we go, not only the end.
+node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/direction/board.html
 ```
 
-Then read the answers back in one line before anything else ("Leads with <takeaway>; quiet, picture-led, warm; apart from <X>; fixed: <…>; from your moodboard."), and go on. A correction to the read-back is one more line, not a second round.
+(Use the families' `board.md` when they took families.) Then one message:
 
-What each answer does. None of them chooses the look: they steer the search, they are hints on the families, and they are kept for design.
+> Must carry: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
+> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and paste the copy-out.
 
-- **The takeaway** is the subject's second half in `direction.md`, and the line every dealt screen is built to say. The action is the one thing on the first screen that is always there and never fights the headline.
-- **The sliders** go to `families.mjs --sliders "loud=2,picture=4,rich=2,cool=2"` (the numbers they gave; leave out a skipped one). Each family is placed on them from what is measured and tagged, and its line says whether it sits near what they asked or is off on one. That is said on the families board as a hint, like "never feel": no family is hidden or dropped for it. They also steer the search queries ("photographic", "type-only", "monochrome").
-- **Feel and never feel**, and what they tried and did not like, steer the search and are hinted on the families. A rejected design goes into `leave`.
-- **Stand apart from:** open each one's site and keep its first screen as a reference card marked `apart`, in no family. It is not a reference to explore from: on the board it shows what the category looks like. A family that looks like it is said so, as a hint, read by their answer: "fits in with <X>" for fit in, "close to <X>" for stand out. It goes into `leave` in `direction.md`.
-- **What is fixed** goes into `direction.md` as `fixed`, and into the library when it is read: a refusal removes matching entries, something they own is added with `"from": ["theirs"]`, light or dark removes the grounds that do not fit. No pictures of their own rules nothing out (stand-ins are made in design), but say which families rely on photographs they do not have. The content's limits are kept for design: the longest real strings in every language go into the grid page's content, and the accessibility level into the contrast checks.
-- **Others who decide** are named in the read-back. At the families board and the first grid, remind them in one line that this is a good moment to show those people.
+The lead's arrangement is dealt twice; the likes are the donors. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before dealing: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A non-screen (a poster) as lead: say it lends picture treatment, not an arrangement, and offer a screen as lead.
 
-A moodboard → **Their moodboard**, below, then step 4. Skip steps 2 and 3. A few pictures or links, not a board → seeds for the search, below.
+## 2. Read the references into the library
 
-Default sources:
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones), navigation, type (with its `kind`), ground and accent, measured where a live page exists, never judged by eye when it can be measured; the family they share; their controls; one or two grounds from the subject (an accent too when it has a second hue); what they own. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
 
-- **App:** popular Dribbble. No award galleries.
-- **Site:** Awwwards, this year's and older winners. Recent. Dribbble for screens. Dark Mode Design only when the feel is dark. siteinspire is offered unticked: it refuses scripts, so it cannot be in the picker.
-- **Imagery** (Wikimedia Commons): only when the brief's key screens need pictures.
-
-Each of these was checked to work with this skill's scripts, without a login (2026-11-03). Do not add a source that has not been.
-
-**The parts.** The pool covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, blog, photography, motion. Drop a part the brief has no use for, and add one it needs. For an app: the brief's key screens, its navigation, and motion. Every keep has one part, its `part`.
-
-Anything skipped is yours to decide: say what you chose in one line, then search. A Figma link to the product's own screens means the look already exists: say so, and offer `design` instead. A Figma link to a board of other people's work is a moodboard. If their answers contradict the brief, that is `grilling`, not a second round.
-
-A picture they gave is a **seed**: a picker row with source `seed`, which starts liked, then a card with `link: none (shared in chat)` or its URL, never dropped. Seeds steer the queries ("more like this").
-
-### Their moodboard
-
-Their board already holds their taste, so it is the pool. A rich board needs no search and no picker. A thin one is topped up with a search sized to what it lacks.
-
-**Read it.** A folder: open every image. Links: capture each page (sources.md has the options). Figma, a section at a time:
-
-- `create_session` with the file key first.
-- **Ask the scope first on a big board.** Over about 200 cards, ask once before extracting: "The whole file, or one page or section?" A board of 1,300 cards cost about 800K tokens to extract and tag. Where the board carries its own tags, offer to pre-filter on them ("only the cards tagged web-hero, web-page, web-section").
-- **Find the sections.** A section link: start there. A page or file link: `get_metadata` on the page. A board of hundreds of cards returns about 100K tokens, saved to a file: read only its section lines from it (name, id, size), never the whole dump into context.
-- **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
-
-**Read their marks before your own.** A card's caption, tags and stars are read from the nodes with `use_figma` (text children and names), paged so each return stays under its 48 KB cap, never from a screenshot. Their tags seed `tags.tsv` (map each to the vocabulary where it fits, and tag only what is left), and a star is a pick that stays and is named on the families board.
-
-**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line.
-
-**Screens and non-screens.** The same check as the picker's: a poster, a type specimen, packaging, a logo sheet or an illustration is not a screen. On a moodboard it is not dropped (it is their taste), but it is marked `screen: no` on its card, using the board's own type tag where there is one, and it never leads: an arrangement, a navigation or a type size cannot be read from it, so with no live page its face is `eye` and its `size` null. When a non-screen is marked Lead, say so before the library is read, and offer a screen from its family as the lead with the non-screen kept as a donor for colour and picture treatment.
-
-Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets` returns `rawImages`, the original uploads at full size, GIFs included, up to 20 from anywhere under the node: call it on the card, or on a frame holding up to 20 cards when the result shows which card each image belongs to. A card's render on the board is a thumbnail, so it is never what is saved.
-
-**Cards cut from shared sheets.** Many boards crop each card from a larger uploaded image (a fill with `scaleMode: CROP` and an `imageTransform` `[[a,0,tx],[0,d,ty]]`, the region x from tx to tx+a, y from ty to ty+d of the image, as fractions). Then many cards share one `imageHash`. Read each card's name, hash, transform, caption and tags with `use_figma` (paged as above) into `cards.json`, then:
-
-  ```
-  node <skill>/scripts/crops.mjs cards.json --list
-  node <skill>/scripts/crops.mjs cards.json --sheets <scratch>/sheets --out design-exploration/<slug>/refs
-  ```
-
-  The first lists each distinct image once: download each to `<scratch>/sheets/<hash>.<ext>`. The second checks each sheet's SHA-1 against its hash, crops every card at the sheet's own size, and writes `crops.tsv` (name, file, caption, tags) for seeding the tags. A sheet that does not match, is missing, or a card that is rotated is named and skipped. A board of 1,300 cards took 115 downloads this way, against about 1,300 card by card. Name each crop by the card's own name, so it stays the same across board versions.
-
-**Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
-
-**Is it enough?** After the keep, check what it can carry:
-
-- **A family to deal from:** at least six keeps that look alike. Step 6 needs that many.
-- **The product's parts:** every key screen and part in the brief has at least one fit: a reference that shows that kind of screen, or one that clearly carries over to it.
-
-Both met → go on, and say so in one line ("Your board covers it: 34 fits, every part, four families."). Otherwise say what it lacks in up to three lines, with what it does hold ("12 cards, all print posters: one family, nothing for navigation or a data screen"), and offer a search sized to the gap. Then wait.
-
-> Search for these, or go with what your board has?
-
-- **A gap:** search only what is missing (the parts it lacks, or more that look like their board), a pool of 20 to 60 new candidates plus their board's fits as seeds, one picker round as in step 3. Their likes are opened at full size and captured as in step 3, then join the keep.
-- **Too thin to make even one family:** the full search, steps 2 and 3, with their board's fits as seeds.
-- **"Go":** work with the board. What it lacks goes under `Missing`, and a key screen that depends on it gets **One piece** after they choose.
-
-Then step 4.
-
-### 2. Search wide
-
-Read [sources.md](references/sources.md) before keeping anything. Do not narrate while looking. One line at the end is enough ("Found 210 across Dribbble, Awwwards and Recent, every part covered, building the picker.").
-
-- **They choose, so the pool is wide:** about twice the keep (150 to 250 for the default), across the sources they chose and every part. Cut only what is not a candidate: off-form, off-topic, under the source's quality floor, a near-twin from the same designer, anything sources.md drops. Never cut for taste here. A pool holding only what you would pick is the problem this step exists to fix.
-- **Query the form, not the word.** "writing app" returns T-shirts. `product-design?q=text+editor+screen` returns screens.
-- **Search each part.** A part is a form to search for ("editorial article layout", "portfolio case study", "full-screen menu"), and one site can fill several parts with its inner pages. Note the part in `meta`.
-- **Older winners count.** A site that won years ago is a reference if it is still live and its idea has not dated. Reach back through the award archives, not only this year's listing.
-- **Thin is a search problem.** Before calling a field thin, search at least three more forms, and the objects in the brief's identity nouns: the product's world often beats its category. Still thin: say what was missing rather than lowering the filter.
-- **One row per candidate** in `design-exploration/<slug>/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`. The thumbnail is the listing's own: sources.md says where each source keeps it. `meta` is optional, one short line (designer, likes, award).
-- **Nothing is captured yet.** The picker shows listing thumbnails, which is a view, not a capture.
-
-### 3. Pick
+Then deal:
 
 ```
-node <skill>/scripts/picker.mjs design-exploration/<slug>/candidates.tsv --out design-exploration/<slug>/picker.html
+node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json
 ```
 
-**Check the pool before the picker.** Look at every candidate on contact sheets, not one by one (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`, about 36 a sheet). Drop only what is not a candidate: not a screen (an illustration, packaging, a logo sheet, a poster, merch), a broken or blank thumbnail, an exact twin. Never drop for taste or for a look: a gradient, a typeface, a colour, a style the rules call a tell. Say how many went and why in one line.
+Eight recipes: arrangement, navigation, type, ground, accent. A screen's arrangement, type and ground come from three different references; the lead's arrangement twice; no recipe twice; grounds spread across light, dark and mid and faces across kinds. Its `spread:` line says how wide the round is, and it warns when the library is too narrow (one tone, one kind of face, under six references): say that to them with the grid. Build what was dealt: never swap, drop or re-deal because a combination looks wrong to you.
 
-The check never shrinks the pool to fit. If what is left is under about one and a half times the keep, or a part has only a handful, search again for what is thin (another query, another source) and check the new rows the same way. A person can only pick from what the pool holds.
+## 3. Build the grid
 
-Then build the picker and look at it yourself (`capture.mjs "file://$PWD/design-exploration/<slug>/picker.html" --out <scratch>/picker.jpg`). Replace a row whose thumbnail is broken, and run it again. Then say where it is and ask one line:
+One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html), with the same real content on every screen (the headline, every must-carry item, the ownable, the subject's pictures), each arrangement built once as a rule, and faults fixed in the rule, never taste. How to build, capture and sheet it, for a site or an app: [grid.md](references/grid.md).
 
-> Open the picker: click like on what pulls you, no on what feels wrong, add a why if you have one, then paste the picks here.
+Show the sheet, a table of each number's arrangement, navigation, ground and accent in plain words, and any fault you could not fix. Never say which you prefer.
 
-Each id is the round's letter and its row number in that round's TSV, comments not counted: `a7` is row 7 of `candidates.tsv`.
+> Which would you take further? Any number, or none.
 
-**Read the picks back**, in up to four lines, and wait for their yes or correction:
+## 4. Vary, mix, choose
 
-- what the likes share: a layout, an arrangement, a kind of picture, a density, a mood, with ids
-- what the noes share
-- the search this points to next
+- **Some:** `deal.mjs … --vary 4,7` gives each pick a row, changing one thing at a time: navigation, type, ground, accent. This is where colour is felt early: each pick on other grounds and accents, from the references and the subject. Capture, sheet with `--cols 5`, show.
+- **A mix:** `--mix 7,ground=3`; inside an arrangement, `--mix 7,zone.side=4` or `zone.band=none`. A change no zone covers is a new arrangement entry, `from` both references.
+- **More of one thing:** `--more 4:ground`.
+- **None:** deal again once. None again: ask what is missing; a search for it is `design-moodboard`.
 
-> Is that it, or what did I miss?
+Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`.
 
-**Round 2, once.** Search again from the corrected read, sharper than round 1: the forms the likes share, the same designer or studio, the same gallery tag or category, and the shared pattern on the other sources (a liked Dribbble concept becomes a search for live sites with that pattern). Fill the parts the likes left thin. Leave out what the noes share. 60 to 100 rows in `candidates-2.tsv`, then `picker.mjs … --round 2 --out design-exploration/<slug>/picker-2.html`, and the same ask. Skip round 2 when they say the likes already cover it. There is never a third round.
+## 5. The touch-up pass
 
-**The likes are the keep, all of them.** They chose them, so none is cut to reach a number. Open each at full size and drop only what fails sources.md (a dead page, a gate, broken work), never for taste. Every drop goes on the board as a card in a last group, `Dropped`, with its reason as its `why`, so they can see it and bring it back with a note. A part with few likes stays small; never pad it. Nothing is kept from a thumbnail.
+On the chosen screen only, after their yes. Every grid screen was built by script from their references and chosen by them: **the composition is theirs, not the agent's.** This pass repairs; it never redesigns. Done carelessly, it is where a distinctive screen turns generic, so touch as little as possible.
 
-A keep is a page, not a site. For each, open the page that shows its part (the case study, the article, the menu open) and capture only that ([sources.md](references/sources.md) has the options):
+**Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, tiny navigation, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
 
-```
-node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>.jpg
-node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>-menu.jpg --click "<menu button>"
-node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>-intro --frames 12
-```
+**It fixes only:**
+- **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
+- **Something missing.** A must-carry item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls.
+- **Something plainly off.** A clipped word, text hidden where it cannot be read at all, a control that looks tappable and is not, the same line twice.
+- **Rank, only when inverted.** The headline outranked by smaller text (a description bigger or louder than the title): the smaller one is brought down, not the headline restyled.
 
-Motion is never judged from a still: a motion keep is recorded frames (`--frames`, with `--scroll` or `--click` for what moves on scroll or on a click). Run up to four captures at a time. Open every file, and capture again or drop the keep if it is blank, still loading, or repeats a band.
+**Only with:** colour, weight, size within a step, and spacing inside a zone. Never a zone moved, the arrangement changed, a section added, or a device the references use removed.
 
-- **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names and its empty state.
-- **Site:** live sites outweigh Dribbble shots.
+**When unsure, leave it** and ask in one line ("the name sits under the photo's edge: on purpose, or should it clear it?").
 
-If they say "go" or "you choose" instead of picking, pick from the pool yourself, closest to the brief, and say so in one line.
+Make the fixes as URL overrides or rule edits on a copy, capture before and after side by side, and list each change in one line ("description 32→20px: it outranked the headline"). Nothing to fix is a fine result: say so. Then:
 
-### 4. Sort into families
+> Keep all, or turn any off?
 
-A family is a group of references that look alike: what a person would see from across a room. How large the type is against the pictures, how much of the screen is empty, how loud the colour is, what kind of face, how things sit together. It is not a part (a menu and an article can be one family) and not a subject.
+The before wins any change they turn off. Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy the page to `.longbeard/design/direction/prototype/first.html`, keeping the URL overrides.
 
-**Read every keep into a profile first**, before any grouping, so every keep is compared on the same terms and none is sorted on a glance. A profile is everything known about one reference, kept in one local file, `profiles.json`, that the rest of the run reads from.
+## Write `docs/design/design-direction.md`
 
-1. **`links.tsv`**: `name<TAB>link`, one row per keep with a live page.
-2. **Measure**, the pictures and their pages in one browser run:
-
-   ```
-   node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --links design-exploration/<slug>/links.tsv --profiles design-exploration/<slug>/profiles.json --jobs 6
-   ```
-
-   From the picture: `tone`, `empty`, `loud`, `busy`, and its **figure**, everything that is not the ground: how many colours, how colourful, how grey, how much is soft surface or hard edge, its palette, and a 6 by 4 grid of where things sit. That is what tells a photograph from a 3D render from chrome lettering, which share "the picture fills the screen". From the page: the largest type and where it sits, what the screen is made of (`media`: images, video, canvas, SVG), how many icons (small pictures and drawings), how much is solid colour blocks, visible `gradient` and `pattern` with their CSS, the loaded fonts and the largest texts with their face, size, weight and tracking. Never one call per image: each call starts a browser. Never read the profiles into the chat: the scripts read them.
-3. **Tag**, what numbers cannot see, in a fixed vocabulary:
-
-   ```
-   node <skill>/scripts/tag.mjs design-exploration/<slug>/profiles.json --sheets <scratch>/tag
-   node <skill>/scripts/tag.mjs design-exploration/<slug>/profiles.json design-exploration/<slug>/tags.tsv
-   ```
-
-   The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, icon, shape, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`, and `scale` (quiet, heading, large, huge): how big the largest type is, which a live page measures but a picture alone, a Figma board or a folder, only has from this tag. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
-
-**A small pool takes the light funnel.** Under about 100 keeps, or a board of one page or section, sorting costs more than it gives: measure the keeps (one browser run, cheap), skip the tag sheets and `families.mjs`, and group by eye from one or two contact sheets of the whole pool, with the measured lines beside each. Skip the families board and go straight to the moodboard to mark. Say in one line that the light funnel is in use. The time saved goes to step 5 of `design`, the identity, which is where the result is made.
-
-**Sort by the profiles, then by eye.**
-
-```
-node <skill>/scripts/families.mjs design-exploration/<slug>/profiles.json --board design-exploration/<slug>/board.md
-```
-
-On a pool of pictures only (a Figma board or a folder, no live pages), the numbers carry less, and one spread can make a few huge bins beside many strays. `families.mjs` sorts a family far bigger than the rest (over three times the median family, or two fifths of the pool) again on its own, at a lower spread, and says the split; the first line's nearby spreads give the largest family too, so a bin that holds steady shows. A bin it could not split is named: sort it alone (`families.mjs profiles.json --only design-exploration/<slug>/families/f3.tsv --spread 0.4`, its new families in `families/f3-split/`, the pool's left as they are), and split it by eye where that does not.
-
-It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait gives a distance from 0 to 1, and two keeps are compared on the kinds both have. The measured traits hold about two thirds of the weight and the tags one third, so the eye steers the families without deciding them. A wide gap on any one of what is seen first (how empty, how loud, how big the type, where things sit, what the picture is, the layout) keeps two keeps apart, however much else agrees. Light or dark is not one of them: the same look on a dark and on a light ground is one family, and its library keeps both grounds for `design` to deal (they choose light, dark or both there). Tag every keep before sorting: an untagged one is compared on its numbers only and is named. Two shots of one site (the same link) are one reference, the others listed beside it as `also`. `--spread` lower splits finer; the first line says what a little lower and higher would give, so a grouping sitting on an edge shows.
-
-Then the eye, family by family, from contact sheets, never from each picture opened alone:
-
-```
-node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
-```
-
-**On a big pool** (hundreds of keeps), the eye works in two passes: before the families board, each family's six most typical (what that board shows) and its strays; once a family is taken, its every member, before its moodboard. Say both passes happen: the second is where cards move out of a taken family, and the move is said with the board.
-
-**Presentation shots.** A screen shown on a plain grey or black surround (a Dribbble-style frame, a device on a backdrop) would be measured on its surround. `measure.mjs` finds such a frame and reads the screen inside it, naming the surround and the box in `frame`. It takes only a solid screen on a low-colour surround with a margin on every side, so a light page with a small mark in the middle is never cropped. A frame it misses (a gradient backdrop, a tilted device) shows on the contact sheet: crop that shot to the screen and measure it again.
-
-A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, and the live pages that may not be the real site (an error status, a maintenance or bot-check page, nothing on it): those are sorted on their picture alone, but only the sheet confirms either. A picture that is that wrong page too goes to `Dropped`, with the reason. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
-
-**A family has a name a person would say.** Name each one for what is seen ("huge lettering is the picture", "dark app page, headline centred"). If the only honest name is a number ("dark, all picture", "light, small type"), it is a bin, not a family: the numbers agree and the pictures do not. Break it up: each member to the family it looks like, or to the strays. Look hardest at a family whose tags disagree on picture or layout.
-
-**Strays are not noise.** They are often the most distinctive keeps on the board, the ones a designer looks at first: place each by eye, into a family, as a pair's family, or as the seed of one, and never drop one for being a stray.
-
-- **As many families as there are looks.** The count comes from the pool, not from a fixed number: a varied board of a thousand can hold twenty, a tight board of thirty can hold two. `families.mjs` stops joining when the closest groups no longer look alike; `--spread` lower splits finer. Never merge two looks to reach a number, and never split one look on a detail.
-- **Named for what is seen**, in plain words a person outside design would use, with one line saying what its members share. Never a reference's name or a style label.
-- **Every keep is in exactly one family.** A keep that was saved for one detail (a control, a mark, a single card) and shows no whole look goes in a last group, `One detail`.
-- **Do not force a fit.** A keep that belongs nowhere is its own small family or goes under `One detail`. A family under six is small: it is shown, but cannot be dealt from alone.
-- **Check the spread.** Write each family's traits as ranges. A family wide on one trait (light and dark together, a scale of 2 beside one of 9) is two families or has a stray: split it, move the stray, or say in its line why it still holds.
-
-Write `board.md`: a few header lines, then one card per keep.
-
-```
-Asked: <the takeaway, the sliders, feel and never feel, loves, apart from, fixed; or none>
-Sources: <their moodboard (what it was), or what was searched, and any skip: "Awwwards: no fit">
-Picked: <the likes, by id, and what they share; leave out with their own moodboard>
-Noes: <what the noes share, or none>
-Missing: <what the pool lacks, or none>
-Families: <each family, what its members share, its measured ranges ("light · empty 55–70% · loud under 5% · scale 4–7"), and how many keeps it has>
-
-### <name>
-- link: <the page a person can open, or "none (shared in chat)">
-- topic: <its family>
-- part: <the part of the product it shows: home, navigation, index, case study, article, blog, photography, motion, or a key screen>
-- shot: design-exploration/<slug>/refs/<file>
-- frames: <for motion: the folder --frames wrote; leave out otherwise>
-- pattern: <what it adds to its family, about six words: an arrangement, a kind of picture, a way of using colour>
-- measured: <its traits from measure.mjs, one line: "light · empty 64% · loud 2% · scale 6.5 · pictures 40% · margin 3% · radius 0px">
-- why: <why it fits this brief, one line>
-```
-
-`pattern` is the tile's caption, so write it as a pattern ("one column, the date as the spine"), never as their brand ("Linear's purple").
-
-### 5. They mark the anchor and the donors
-
-**A big pool is chosen in two steps.** Over about 60 keeps or 8 families, one board to mark is too long to read. First the families board: each family as its six most typical, its size and its ranges, with Take and a note.
-
-```
-node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
-```
-
-Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. **What they chose against what they said.** The pool is what they chose (their moodboard) or liked (the picker), so `families.mjs --sliders` also places the whole pool on the sliders. Where the pool sits 1.5 or more from what they said, say it in the same message, as one question, never a verdict: "You said quiet (2); what you chose sits at loud (4). Should the families be read against what you said, or what you chose?" Their answer is the slider from then on. People often describe one look and pick another; this is where it is cheapest to find out.
-
-Then say which families fit what they asked for (the sliders, from `families.mjs --sliders`, and their words), which look like what they said it should never feel or like what it must stand apart from, and which rely on pictures they do not have. That is a hint: no family is hidden or dropped for it.
-
-Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`): the seed of a look the pool holds only twice. Taking one is taking a family: offer a search for more like it before marking, since a family needs six to deal from.
-
-> Open the families board. Take the families you want to see in full, any number, and note one that looks like two or belongs with another. Then paste the copy-out here.
-
-Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. When they reply from a phone or another machine, the local board does not reach them: send its captures as images (one per family, `--clip-selector`), and have them reply by card name or by family and position, never by a tile id the page made up, since those change between versions of the board. A small board skips the first step, and its families are presented with the same lines.
-
-**None taken** is an answer, not a dead end. Ask in one line what is missing, from what they see ("closer to the photographs, but warmer", "nothing like any of these"). Their words count like a note: offer a search sized to them (a pool of 20 to 60, one picker round as in step 3), its likes sorted into the families or into a new one, then the families board again.
-
-```
-node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html
-```
-
-The page groups the keeps by family. Each tile has Lead, Like and No, and a note.
-
-Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line with what the eye changed in it (unless the families board already said so), say which ones fit what they asked for and why (the sliders and their words), and which look like what they said it should never feel or must stand apart from, as a hint and never a cut. Then ask one line:
-
-> Open the board. In the family you want, Lead the one reference that should set the tone, Like the ones I should draw from, and No what doesn't belong. Add a note where you have one, then paste the copy-out here.
-
-- **The lead is the anchor.** Its arrangement is sure to be among the screens `design` shows. It is never followed whole.
-- **The likes are the donors.** Only the anchor and the donors are read into the library.
-- **The marks are theirs.** Say which families fit; never pick the family, the anchor or the donors for them. Only on "you choose": the family closest to their words for feel, its member closest to the brief as anchor, the rest of the family as donors, and say so.
-- **Leads in two families** are two looks: each gets its own library and its own round of screens, in its own folder. Ask which comes first: it stays in this folder; the second is read into `design-exploration/identity-2/` (its own `library.json` and `direction.md`, the same board's references). `design` works on one at a time, the one they named first, and offers the other after. Never merge two families into one library. Mixed families are what make a screen look assembled.
-- **Likes outside the lead's family** are asked about, never dropped or folded in quietly: "You liked 3 in <family>: bring them in as donors (the screens will mix two looks), or keep them for later screens?" Brought in, they join the library and the read-back says the family is now mixed. Kept, they go under Other parts in `direction.md`, for the screens they show.
-
-- **A note "move to <family>"** moves that tile. Move it, run the board again, and say what moved. Their grouping wins over the numbers.
-
-Read the marks back in up to three lines (the family, the anchor, what the donors share, what the noes share) and wait for their yes.
-
-**Enough to deal from?** The anchor and the donors together need to be six or more, because every screen draws on three different references. Fewer: say so, and offer a search for more that look like them (a pool of 20 to 60, one picker round as in step 3, the likes joining the donors). On "go", continue with what there is and say that the round of screens will be smaller.
-
-### 6. Read the library
-
-The library is what the anchor and the donors use, written down so `design` can deal from it. It has what they share, the family, and five lists that are dealt. Reading it is measuring, not judging: nothing here is a choice.
-
-```
-{
-  "anchor": "<the anchor's card name>",
-  "family":       { "tone": "light", "empty": "55–70%", "loud": "under 5%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated: crop, bleed, colour, grain>", "edges": "<rules, borders, or none>", "density": "<one sentence: how much sits on the first screen>", "from": ["<card name>"] },
-  "arrangements": [{ "id": "<a short word>", "what": "<one sentence>", "zones": { "hero": "<one sentence>", "side": "…", "band": "…" }, "from": ["<card name>"] }],
-  "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
-  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase | lowercase", "italic": true, "tracking": "-0.02em", "size": "<the display size at 1440 wide, or null>", "body": { "face": "<the face its running text uses>", "size": "16px", "leading": "1.5" }, "from": ["…"] }],
-  "grounds":      [{ "id": "…", "ground": "#…", "panel": "#… or null", "ink": "#…", "gradient": "<the CSS as measured, or null>", "pattern": "<the CSS as measured, or null>", "from": ["…"] }],
-  "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }],
-  "controls":     { "button": { "fill": "accent | ink | none", "radius": "0px", "case": "none | uppercase", "weight": 600, "size": "15px", "padding": "12px 20px" }, "secondary": { "border": "1.5px solid currentColor", "underline": false }, "chip": { "radius": "999px" }, "row": { "rule": "1px solid …" }, "from": ["…"] },
-  "parts":        { "<part>": [{ "id": "…", "what": "<one sentence>", "needs": ["<ids it only works with>"], "from": ["…"] }] }
-}
-```
-
-Open each reference at full size again. Its measurements are already in `profiles.json`: the picture's colours and palette, and from the live page its ground, the fonts it loaded, its largest texts with face, size, weight, tracking and case, its gradients and patterns. Read them from there; measure again only a page that has changed (`measure.mjs <its live link>` gives every text on the first screen). A size or a weight read from a picture is a guess, and the guess is often far off.
-
-- **Family.** What the anchor and every donor share: their measured traits as ranges, and in words what numbers cannot carry: how pictures are treated, edges, density. A trait they do not share is left out, never averaged. The family is not dealt: every screen gets it, so it is what makes eight different screens one look.
-- **Parts, later and only when needed.** Leave `parts` out here. `design` prototypes the other screens from `direction.md`'s Other parts, and reads a screen's layouts into `parts` only when that screen forks or they ask for options. When it does: one per reference that shows that kind of screen, from any family (the look is fixed by then, so a reference only lends the layout), named for the part (`navigation`, `index`, `article`, an app's key screen). The same rules as an arrangement: complete enough to build from with the picture closed, no content, colour or typeface. For `navigation`, the menu open, what it does on scroll, and what it becomes on a phone. `needs` lists what a layout only works with: the navigation it grows from (a full-screen menu that opens from a small corner link needs `corners`), or another screen's layout (a detail page that continues an index's cards needs that index layout). Leave it out when a layout works with anything. `design` deals them one screen at a time, in the chosen look, and only those whose needs were chosen. A part no keep shows is left out, and named under `Missing`.
-- **Arrangements.** One per reference: where the title, the pictures and the small text sit on the first screen, and how they relate (what overlaps what, what is centred, what runs off an edge, how much is left empty). One sentence, complete enough to build from with the picture closed. It carries no content, no colour and no typeface: those are other lists.
-- **Zones.** Where an arrangement has distinct parts a person could point to (the hero, a side column, a footer band), name each in `zones` with its own sentence, the same names across arrangements for the same kind of part. `design` can then swap one zone between arrangements ("the left side of 4") as a dealt move. One-piece arrangements leave `zones` out.
-- **Controls.** How the references draw actions: the primary button (filled with the accent or the ink, or outlined; its radius, case, weight), the secondary (outlined, or a plain underlined link), a status chip, a list row and its rule. Not dealt: one set the anchor and donors share, like the family, `from` the references it was read from. Where they show none, leave `controls` out and `design` uses plain defaults that follow design-rules.md.
-- **Navigation.** Where the name and the links sit, how many are shown, and what rides with them (a caption, a button, a count). One sentence, the same rules.
-- **Type.** The kind of face in plain words, and `face`: a face the product can use, free to license or one they own. `by` is `page` when the reference's own face was read from its page and can be used, `eye` when it is the nearest match judged from the picture. Weight, case, italic and tracking as measured, or as seen when there is only a picture. `size` is the display size from the page, `null` with only a picture. `axes` holds variable-font settings the reference uses (`"\"wdth\" 25"` for a condensed width), and `css` a stylesheet URL when the face is not on Google Fonts (Fontshare, their own) or its axes need one: the grid page loads it. `body` is the face, size and leading its running text uses, so a display face stays with the body face it was paired with.
-- **Grounds.** The ground colour, the ink, and `panel` when the design sits as a panel on a surround of another colour. `gradient` and `pattern` when the ground carries one: `measure.mjs` lists them as written (`gradients`, `patterns`), with how much of the screen each covers. Measured, never judged by eye.
-- **Record, never judge.** A gradient, a glow, a pattern, a typeface the rules list as a tell: if the references use it, it goes in the library like any colour. A family may rely on it, and choosing is theirs.
-- **Accents.** The colour and the device that carries it: a shape, the letters themselves, a panel. Measured. When some of them use no accent, that is an entry too, with `colour: null`.
-- **`from` on every entry:** the card names of the references that show it. `design` needs it to keep any one reference from supplying a whole screen.
-- **Merge only twins.** Two references that do the same thing are one entry with both in `from`. An entry stretched to cover many references leaves nothing to deal: when in doubt, keep them apart.
-- **Ids are plain words** for the thing ("split", "arch", "condensed"), never a reference's name.
-
-The library stays in `design-exploration/`. It names references, so nothing the product keeps ever copies from it by name.
-
-**The library and the direction are shown together, in one message**, after the direction is written (step 7): one stop, not two. The library part is what every screen will be dealt from, and reading it made choices they have not seen, so it is shown, short, one line per list. It is information, not a vote on each id: the choosing happens on rendered screens. They may drop an entry or name a swap if something reads wrong to them.
-
-```
-Library, from <anchor> and <n> donors:
-- family: <what every screen will share, in plain words>
-- arrangements (<n>): <ids, a few words each>
-- other screens: <each part and how many keeps show it>, or none: they are prototyped from these
-- navigation (<n>): <ids>
-- type (<n>): <faces>; stand-ins: <a face judged by eye, and what it stands in for>, or none
-- grounds (<n>): <light n, dark n, mid n>; gradients or patterns: <which>, or none
-- accents (<n>): <colours and devices>, or none
-- not read: <anything that could not be measured or seen>, or nothing
-```
-
-A drop removes the entry. A swap is a face, a ground or an accent they name: it goes in as `"from": ["theirs"]`.
-
-### 7. Write `direction.md`
-
-From their answers. Short: it is read by `design`, not by a client.
-
-```
+```markdown
 # Direction: <product>
 
-Proposal, not official. design deals screens from the library. Only an approved prototype becomes DESIGN.md.
+- takeaway: <from the design brief>
+- headline: "<the one they picked>"
+- must carry: <the list>
+- ownable: <what, from the product's world>
 
-- subject: <what the first screen must say, in one sentence, in the brief's own words, and what someone should think or do in five seconds: their takeaway, or the brief's `remembered for`>
-- feel: <their words for feel and never feel, and the sliders they gave: "quiet 2 · picture-led 4 · plain 2 · warm 2">
-- apart from: <what it must not be mistaken for, with links, and whether to fit in with it or stand out; or none>
-- fixed: <what they own and must use, what they refuse, light or dark or both, their pictures or none yet, the languages, how much content, the accessibility level>
-- voice: <how it talks: the brief's personality, and one sample line in that voice>
-- leave: <what stays behind: every reference's name and content, what the brief's `against` and what they stand apart from look like, what their noes share, and whatever they said feels wrong>
-- family: <its name> — <what its members share>
-- library: design-exploration/<slug>/library.json
+## Composition
+<The chosen first screen in words, complete enough to rebuild with no picture: where everything sits, what overlaps or runs off, how much is empty, how big type is against the rest.>
 
-## References
-- anchor: <card> — <link> — <shot, or frames for motion>
-- donors: <cards> — <links> — <shots or frames>
+- navigation: <one sentence>
+- zones: <hero, side, band: one line each>
+- holds across screens: <the family's ranges: how empty, type scale, picture share, margin, radius, edges, density>
+- pictures: <how they are treated>
 
-## Other parts
-### <part>
-- <keeps that show this part, the chosen family's first> — <links> — <shots or frames>
+## Hierarchy
+1. <first read> 2. <second> 3. <the rest>. Primary action: <what, where>.
+
+## Voice
+<from the design brief, and the headline as its sample>
+
+## Look, as dealt
+Proposal; `design-identity` refines it.
+- type: <display face, weight, case> with <body face>
+- colours: ground <#…>, ink <#…>, accent <#… or none>
 ```
 
-- **The subject is the brief's, not a reference's.** It is what makes the result this product: the same library dealt for another subject gives another design.
-- **Other parts** lists the keeps that show a part beyond the first screen (a menu open, an article, a data screen), from any family, the chosen family's first, so `design` can prototype each screen from them. By then the look is fixed, so a reference from another family only lends how a screen is arranged. A part nothing shows is left out, and named under `Missing` on the board.
-- **Notes count.** A tile note is about that reference: it goes into `leave`, or into the library entry it speaks of.
-- **No values here.** No hex, no font name, no size in `direction.md`. The measured values live in `library.json`, as a record of what the references use.
+No reference names, links or paths; face names and values are fine. Then the direction in five lines, and one question:
 
-Then say the direction in chat in five lines (subject, family, anchor and donors, leave, fixed), the library readout from step 6 under it, and end with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
+> Change anything, or take this into the identity (type and colour, refined on this screen)?
 
-> Change anything (the direction, or an entry in the library), or take this into design?
-
-Yes → load `design`. No → stop. The folder stays on this machine.
-
-## One piece
-
-Usually called from `design` when a key screen has a gap no reference covers. Same card shape, same moodboard, its own slug.
-
-1. Read `DESIGN.md` if it exists, and the brief. If they gave a moodboard, look there first: a fit on their board beats a search. They are the base: the piece fits the colour, type and voice already chosen and never changes them.
-2. Ask once, then wait, unless the caller already said what is needed:
-
-   ```
-   Any style or requirements for this? Optional.
-
-   A few ways to search:
-   - <a form you can type into a gallery: "a bar that fills once">
-   - <…>
-   ```
-
-3. Build a pool of 20 to 40. Include the same piece in other subjects. For a gap software has not solved, search outside software for the same form.
-4. One picker round, no round 2. Keep up to the number asked (default 8 for one piece) from their likes, opened at full size. Record frames for a piece that moves.
-5. Write `design-exploration/<slug>/board.md` (the topic is the piece), run the moodboard, and ask them to mark it: Lead the one that should set the tone, Like what belongs, No what feels wrong.
-6. Write a short `direction.md` for the piece: `patterns` (what inspires, each with its reference), `leave`, and the references, the lead first. Hand back to `design`.
+Yes → `design-identity`.
 
 ## Do not
 
-- Choose a colour, a typeface, a size or a spacing value, or propose a combination. The library records what references use. Write `DESIGN.md`. Code or lay out a page.
-- Pick the family, the anchor or the donors for them, or rank the references, unless they say "you choose". Merge two families into one library.
-- Take the direction into design before they have seen it with the library readout. Cut their likes to a number, or drop one without putting it in `Dropped`. Hide or drop a family because it looks like their "never feel": say so, and let them decide. Fold likes from another family into the library without asking.
-- Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
-- Measure one image per call, open every keep at full size to sort it, or read a big pool's traits into the chat. One browser for the folder, contact sheets for the eye, `families.mjs` for the numbers.
-- Cut their moodboard to a number, or force its families to one.
-- Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the brief round is answered, answer it yourself, or ask them a second round of questions. Put a look (a layout, a colour, a typeface, a style name) in a suggested answer. Run a third picker round.
-- Cut the pool for taste before they pick. Pad the keep by lowering the filter. Save a thumbnail as a shot, or read a reference into the library from one.
-- Screenshot a source's listing or search page, or a candidate you are not keeping. Never stitch screenshots or frames into one picture.
-- Judge motion from a still.
-- Name a reference in `direction.md`'s subject, or in a library entry's `id` or `what`. Name the thing it does.
-- Put notes or skill feedback under `design-exploration/`. Use the chat.
+- Pick, swap, drop or rank a dealt screen, or say which you prefer.
+- Polish grid screens. Spacing, detail and states wait for `design-prototype`.
+- In the touch-up pass: move a zone, change the arrangement, add a section, or tidy an overlap, a crop or a collision the references use on purpose.
+- Take a reference's content, pictures or words.
+- Pick a face or a colour by taste. Here they are dealt from the references and the subject; `design-identity` refines them, on this screen, after.

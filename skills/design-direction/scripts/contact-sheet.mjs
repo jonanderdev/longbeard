@@ -2,7 +2,7 @@
 // Build labelled contact sheets from a TSV of label\timageURL. The image can
 // be a local file too, so a family's references are sorted by eye from a few
 // sheets of thumbnails, not opened one at a time.
-// Writes JPEG grids (~36 per sheet) into an output directory (scratch, not design-exploration/).
+// Writes JPEG grids (~36 per sheet) into an output directory (scratch, not .longbeard/design/).
 // Viewing listing thumbnails is allowed; this is not a capture.
 //
 //   node contact-sheet.mjs candidates.tsv --out /tmp/hunt-sheets

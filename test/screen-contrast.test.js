@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const script = join(dirname(fileURLToPath(import.meta.url)), "../skills/design/scripts/screen-contrast.mjs");
+const script = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-direction/scripts/screen-contrast.mjs");
 const run = (args) =>
   new Promise((done) => {
     const child = spawn(process.execPath, [script, ...args]);

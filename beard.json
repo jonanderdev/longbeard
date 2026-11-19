@@ -13,22 +13,14 @@
       "writes": "docs/brief.md"
     },
     {
-      "name": "Direction",
-      "when": "A brief with UI, no DESIGN.md",
-      "skills": [
-        "design-direction"
-      ],
-      "writes": "design-exploration/<slug>/direction.md"
-    },
-    {
       "name": "Design",
-      "when": "A direction, no DESIGN.md",
+      "when": "A brief with UI, no DESIGN.md",
       "skills": [
         "design",
         "figma-generate-library",
         "figma-generate-design"
       ],
-      "writes": "DESIGN.md, Ready Figma frames"
+      "writes": "docs/design/, DESIGN.md, Ready Figma frames"
     },
     {
       "name": "Architecture",
@@ -69,20 +61,93 @@
       "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
     },
     {
-      "name": "design-direction",
-      "author": "Long Beard",
-      "license": "MIT",
-      "source": "local",
-      "when": "A brief with UI and no direction yet, or one piece to find",
-      "why": "References and patterns from what you like, picked on a moodboard. Writes design-exploration/<slug>/direction.md, a proposal."
-    },
-    {
       "name": "design",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A direction to turn into screens",
-      "why": "Prototype the key screens, approve, write DESIGN.md, then build them in Figma."
+      "when": "A brief with UI, no DESIGN.md, or what next on the look",
+      "why": "Reads the project and suggests the next design skill. The way in."
+    },
+    {
+      "name": "design-brief",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "Before any other design skill",
+      "why": "The designer's questions: feel, never, apart from, fixed. Writes docs/design/design-brief.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-moodboard",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A design brief and no references, or a gap",
+      "why": "Read their board or search; they mark likes. Writes docs/design/design-moodboard.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-families",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A board over about 60 references",
+      "why": "Optional. Sort it into looks; they take one or two. Writes docs/design/design-families.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-direction",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A moodboard, no direction",
+      "why": "A few pictures of the subject, then first screens dealt from your references, type and colours included, for a wide spread; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-identity",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A direction, no identity",
+      "why": "The chosen screen's type and colours refined on it from rendered options; the identity board. Writes docs/design/design-identity.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-prototype",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A direction, no DESIGN.md, or a feature with screens",
+      "why": "The key screens and states, approved, then DESIGN.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-figma",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "DESIGN.md, no Ready frames",
+      "why": "Tokens, the identity board, components and Ready frames in Figma.",
+      "via": "design"
+    },
+    {
+      "name": "design-content",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "Copy or pictures to plan, or no pictures yet",
+      "why": "Optional. What each screen says and shows, stand-in pictures. Writes docs/design/design-content.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-wordmark",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "An identity, and a mark wanted",
+      "why": "Optional, after the identity. A mark from its type, judged in the chosen screen.",
+      "via": "design"
     },
     {
       "name": "design-check",

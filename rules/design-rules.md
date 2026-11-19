@@ -1,6 +1,6 @@
 # Design rules
 
-How a screen is checked. Read by `design` before it prototypes and by `design-check` on every frame and build.
+How a screen is checked. Read by `design-direction` and `design-prototype` before they prototype and by `design-check` on every frame and build.
 
 These rules decide execution, never the look. The direction and `DESIGN.md` decide the look. A rule that seems to ask for a colour, a typeface or a style is misread. It asks only that whatever was chosen is used with intent.
 

@@ -2,10 +2,10 @@
 // Full-page capture. Unsticks fixed/sticky chrome first so Chrome does not
 // repeat the same fold. Node 22+. Uses an installed Chrome/Edge/Chromium.
 //
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --review /tmp/name-review.jpg
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip-selector "main"
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --review /tmp/name-review.jpg
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --clip-selector "main"
 //   node capture.mjs <url> --out /tmp/mobile.png --width 390
 //   node capture.mjs http://localhost:3000/app --out /tmp/app.png --cookie "session=abc; theme=dark" --strict
 //
@@ -13,7 +13,7 @@
 // www) is named on stderr. With --strict that is exit 1, so a 0 means the
 // shot is of the page asked for.
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
-//   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs file:///abs/path/shot.jpg --out .longbeard/design/moodboard/refs/name.jpg --clip x,y,w,h
 //
 // Before the shot it waits out loaders: until no loader covers the screen and
 // the screen is not one flat colour and the network is quiet, for at most --wait ms (15 s on the web,
@@ -27,15 +27,15 @@
 // start as the page opens, so the loader and the intro are in them. With
 // --scroll they start once it has loaded, and each frame scrolls half a
 // screen by the wheel, so scroll-driven motion plays.
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-intro --frames 12
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-scroll --frames 12 --every 400 --scroll
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-intro --frames 12
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-scroll --frames 12 --every 400 --scroll
 //
 // --click "css" clicks that element once the page has loaded, as a person
 // would. Alone it keeps the screen after the click (an open menu). With
 // --frames the first frame is before the click and the rest record what the
 // click does (a menu opening, a page transition).
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu.jpg --click "button[aria-label*=menu i]"
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu-open --frames 10 --every 150 --click "header button"
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu.jpg --click "button[aria-label*=menu i]"
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu-open --frames 10 --every 150 --click "header button"
 import { spawn, execSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -73,7 +73,7 @@ const waitArg = flag("wait", "") || "";
 const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--click "css"] [--frames N [--every ms] [--scroll]]',
+    'usage: node capture.mjs <https://url | file:///path> --out .longbeard/design/moodboard/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--click "css"] [--frames N [--every ms] [--scroll]]',
   );
   process.exit(2);
 }
