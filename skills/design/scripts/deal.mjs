@@ -6,6 +6,8 @@
 //   node deal.mjs design-exploration/<slug>/library.json
 //   node deal.mjs design-exploration/<slug>/library.json --count 8 --seed 7
 //   node deal.mjs design-exploration/<slug>/library.json --vary 4,7,8
+//   node deal.mjs design-exploration/<slug>/library.json --more 4:type
+//   node deal.mjs design-exploration/<slug>/library.json --mix 7,ground=3
 //
 // It writes deal.json beside the library: every round dealt so far, newest
 // last, each with its seed. It also writes deal.js, the same rounds with the
@@ -22,8 +24,15 @@
 // - Navigation, type, ground and accent are used as evenly as the library allows.
 // - No recipe is dealt twice, in any round.
 //
-// --vary takes recipe numbers from the last dealt round. Each gets a row: the
-// pick, then one variation per list, changing only that list's entry.
+// --vary, --more and --mix take recipe numbers from the last round, whatever
+// its kind, so a variation can be varied again.
+// --vary: each pick gets a row: the pick, then one variation per list,
+//   changing only that list's entry.
+// --more n:list: the pick, then every entry of that list it can take and has
+//   not had in any round.
+// --mix n,list=m: recipe n with one list's entry from recipe m (or an entry
+//   id), as many lists as asked. A mix that breaks the three sources is still
+//   dealt, with a warning: it is their call.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
@@ -35,10 +44,12 @@ const flag = (name) => {
 const countArg = flag("count");
 const seedArg = flag("seed");
 const varyArg = flag("vary");
+const moreArg = flag("more");
+const mixArg = flag("mix");
 const outArg = flag("out");
 const libArg = args[0];
-const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--vary 4,7,8] [--out deal.json]";
-if (!libArg || args.length !== 1) {
+const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3] [--out deal.json]";
+if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg].filter(Boolean).length > 1) {
   console.error(usage);
   process.exit(2);
 }
@@ -138,40 +149,72 @@ function recipeFor(arrangement, used) {
 
 const recipes = [];
 const used = { navigation: {}, type: {}, grounds: {}, accents: {} };
+const kind = varyArg ? "vary" : moreArg ? "more" : mixArg ? "mix" : "deal";
+const strip = ({ arrangement, navigation, type, ground, accent }) => ({ arrangement, navigation, type, ground, accent });
+// Arrangement, type and ground from three different references.
+const threeSources = (r) => {
+  const [a, t, g] = [entry("arrangements", r.arrangement).from, entry("type", r.type).from, entry("grounds", r.ground).from];
+  return !a.some((ref) => t.includes(ref)) && !a.some((ref) => g.includes(ref)) && !t.some((ref) => g.includes(ref));
+};
+const legible = (r) => standsOff(entry("accents", r.accent), entry("grounds", r.ground));
+// A list named the way a person would say it: type, ground, grounds, accent, nav.
+const listOf = (word) => lists.find((list) => list === word || field[list] === word || (word === "nav" && list === "navigation")) || fail(`no list called ${word}: use ${Object.values(field).join(", ")}`);
 
-if (varyArg) {
-  const last = [...rounds].reverse().find((round) => round.kind === "deal");
-  if (!last) fail("nothing dealt yet: deal a round before --vary");
-  const picks = varyArg.split(",").map((x) => Number(x.trim()));
-  for (const list of ["navigation", "type", "grounds", "accents"]) for (const r of last.recipes) used[list][r[field[list]]] = 1;
-  for (const n of picks) {
-    const base = last.recipes.find((r) => r.n === n);
-    if (!base) fail(`round ${last.round} has no recipe ${n}`);
-    const { arrangement, navigation, type, ground, accent } = base;
-    const row = [{ arrangement, navigation, type, ground, accent, of: n, change: "the pick" }];
-    const arr = entry("arrangements", arrangement);
-    for (const list of ["navigation", "type", "grounds", "accents"]) {
-      const name = field[list];
-      const fixed = new Set(arr.from);
-      // Type and ground still come from different references than the arrangement and than each other.
-      if (list === "type") entry("grounds", ground).from.forEach((ref) => fixed.add(ref));
-      if (list === "grounds") entry("type", type).from.forEach((ref) => fixed.add(ref));
-      const groundNow = entry("grounds", ground);
-      const fits = (x) => {
-        if (x.id === base[name]) return false;
-        if ((list === "type" || list === "grounds") && overlaps(x, fixed)) return false;
-        if (list === "accents" && !standsOff(x, groundNow)) return false;
-        if (list === "grounds" && !standsOff(entry("accents", accent), x)) return false;
-        return !dealt.has(key({ ...base, [name]: x.id }));
-      };
-      const other = pick(list, used, fits);
-      if (!other) continue;
-      note(list, other, used);
-      const varied = { arrangement, navigation, type, ground, accent, [name]: other.id, of: n, change: name };
-      dealt.add(key(varied));
-      row.push(varied);
+if (kind !== "deal") {
+  const last = rounds.at(-1);
+  if (!last) fail(`nothing dealt yet: deal a round before --${kind}`);
+  const base = (n) => last.recipes.find((r) => r.n === n) || fail(`round ${last.round} has no recipe ${n}`);
+  if (kind === "vary") {
+    for (const list of ["navigation", "type", "grounds", "accents"]) for (const r of last.recipes) used[list][r[field[list]]] = 1;
+    for (const n of varyArg.split(",").map((x) => Number(x.trim()))) {
+      const pickRecipe = strip(base(n));
+      recipes.push({ ...pickRecipe, of: n, change: "the pick" });
+      for (const list of ["navigation", "type", "grounds", "accents"]) {
+        const name = field[list];
+        const fits = (x) => {
+          const r = { ...pickRecipe, [name]: x.id };
+          return x.id !== pickRecipe[name] && threeSources(r) && legible(r) && !dealt.has(key(r));
+        };
+        const other = pick(list, used, fits);
+        if (!other) continue;
+        note(list, other, used);
+        const varied = { ...pickRecipe, [name]: other.id, of: n, change: name };
+        dealt.add(key(varied));
+        recipes.push(varied);
+      }
     }
-    recipes.push(...row);
+  } else if (kind === "more") {
+    const [nText, word] = moreArg.split(":");
+    const n = Number(nText);
+    const list = listOf((word || "").trim());
+    const name = field[list];
+    const pickRecipe = strip(base(n));
+    recipes.push({ ...pickRecipe, of: n, change: "the pick" });
+    const had = new Set(rounds.flatMap((round) => round.recipes).filter((r) => lists.every((l) => l === list || r[field[l]] === pickRecipe[field[l]])).map((r) => r[name]));
+    for (const x of shuffle(lib[list])) {
+      const r = { ...pickRecipe, [name]: x.id };
+      if (had.has(x.id) || !threeSources(r) || !legible(r)) continue;
+      dealt.add(key(r));
+      recipes.push({ ...r, of: n, change: name });
+    }
+    if (recipes.length === 1) console.error(`deal: recipe ${n} has had every ${name} it can take`);
+  } else {
+    const [nText, ...swaps] = mixArg.split(",");
+    const n = Number(nText);
+    const mixed = strip(base(n));
+    const from = [];
+    for (const swap of swaps) {
+      const [word, value] = swap.split("=").map((x) => (x || "").trim());
+      const list = listOf(word);
+      const name = field[list];
+      mixed[name] = /^\d+$/.test(value) ? base(Number(value))[name] : entry(list, value).id;
+      from.push(`${name} from ${value}`);
+    }
+    if (!swaps.length) fail("say what to mix in: --mix 7,ground=3");
+    if (!threeSources(mixed)) console.error(`deal: this mix takes its arrangement, type and ground from fewer than three references: it now takes most of its look from one`);
+    if (!legible(mixed)) console.error(`deal: in this mix the accent does not stand off its surface`);
+    dealt.add(key(mixed));
+    recipes.push({ ...mixed, of: n, change: from.join(", ") });
   }
 } else {
   const before = {};
@@ -188,13 +231,22 @@ if (varyArg) {
   }
   if (recipes.length < 2) fail("the library is too thin to deal from: an arrangement, a type and a ground from three different references are needed");
   // The anchor's two screens should not sit side by side.
-  const order2 = anchor ? shuffle(recipes) : recipes;
-  recipes.splice(0, recipes.length, ...order2);
+  if (anchor) {
+    const shuffled = shuffle(recipes);
+    const twice = shuffled.filter((r) => r.arrangement === anchor.id);
+    const rest = shuffled.filter((r) => r.arrangement !== anchor.id);
+    if (twice.length === 2 && rest.length) {
+      const at = 1 + Math.floor(random() * rest.length);
+      rest.splice(at, 0, twice[1]);
+      rest.splice(Math.floor(random() * at), 0, twice[0]);
+      recipes.splice(0, recipes.length, ...rest);
+    } else recipes.splice(0, recipes.length, ...shuffled);
+  }
   if (recipes.length < count) console.error(`deal: ${recipes.length} recipes, not ${count}: the library has no more arrangements to give`);
 }
 
 recipes.forEach((r, i) => (r.n = i + 1));
-const round = { round: rounds.length + 1, kind: varyArg ? "vary" : "deal", seed, recipes };
+const round = { round: rounds.length + 1, kind, seed, recipes };
 rounds.push(round);
 writeFileSync(outPath, `${JSON.stringify({ rounds }, null, 2)}\n`);
 writeFileSync(outPath.replace(/\.json$/, "") + ".js", `window.DEAL = ${JSON.stringify({ library: lib, rounds })};\n`);
@@ -202,6 +254,6 @@ writeFileSync(outPath.replace(/\.json$/, "") + ".js", `window.DEAL = ${JSON.stri
 const pad = (text, n) => String(text).padEnd(n);
 console.log(`round ${round.round} · ${round.kind} · seed ${seed}`);
 for (const r of recipes) {
-  const lead = varyArg ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)}` : pad(r.n, 3);
+  const lead = kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
   console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}`);
 }

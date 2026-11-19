@@ -110,8 +110,9 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 
 > Which one? Mix if you like ("7 with the ground from 3"), or ask for more of one thing ("more typefaces for 4").
 
-- **A mix** is a recipe written by hand from entries already in the library. Its arrangement, type and ground still come from three different references. If a mix breaks that, build it, and say that it now takes most of its look from one reference.
-- **More of one thing** is another row for that pick: every entry of that list it has not had.
+- **A mix** is `deal.mjs … --mix 7,ground=3` (an entry id works too: `ground=dark`). Its arrangement, type and ground should still come from three different references. When the script warns that a mix breaks that, build it, and say that it now takes most of its look from one reference.
+- **More of one thing** is `deal.mjs … --more 4:type`: the pick, then every entry of that list it can take and has not had.
+- Every flag reads its numbers from the last round shown, so a variation can be varied again. Each ask is a new round: capture it and show its sheet. Never edit `deal.json` by hand.
 - Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes.
 
 ### 5. Finish the chosen screen

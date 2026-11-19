@@ -134,6 +134,57 @@ test("deal --vary: each variation changes one list and keeps the three sources",
   }
 });
 
+test("deal: the anchor's two screens never sit side by side", () => {
+  for (let seed = 1; seed <= 40; seed++) {
+    const dir = project();
+    run(deal, dir, ["library.json", "--seed", String(seed)]);
+    const order = rounds(dir)[0].recipes.map((r) => r.arrangement);
+    assert.equal(order.filter((a) => a === "arr-a").length, 2);
+    assert.ok(!order.some((a, i) => i && a === "arr-a" && order[i - 1] === "arr-a"), `seed ${seed}: ${order}`);
+  }
+});
+
+test("deal --vary after a vary round varies that round's recipe, not the first deal's", () => {
+  const dir = project();
+  run(deal, dir, ["library.json", "--seed", "1"]);
+  run(deal, dir, ["library.json", "--vary", "2", "--seed", "2"]);
+  const picked = rounds(dir)[1].recipes.at(-1);
+  const result = run(deal, dir, ["library.json", "--vary", String(picked.n), "--seed", "3"]);
+  assert.equal(result.status, 0, result.stderr);
+  const pick = rounds(dir)[2].recipes[0];
+  for (const name of ["arrangement", "navigation", "type", "ground", "accent"]) assert.equal(pick[name], picked[name]);
+});
+
+test("deal --more gives the pick every entry of one list it has not had, keeping the three sources", () => {
+  const lib = library();
+  const dir = project(lib);
+  run(deal, dir, ["library.json", "--seed", "8"]);
+  const result = run(deal, dir, ["library.json", "--more", "2:accent", "--seed", "9"]);
+  assert.equal(result.status, 0, result.stderr);
+  const [dealt, more] = rounds(dir);
+  const base = dealt.recipes.find((r) => r.n === 2);
+  assert.equal(more.kind, "more");
+  const accents = more.recipes.slice(1).map((r) => r.accent);
+  assert.ok(accents.length > 0 && !accents.includes(base.accent) && new Set(accents).size === accents.length);
+  for (const r of more.recipes.slice(1)) assert.deepEqual(["arrangement", "navigation", "type", "ground"].map((n) => r[n]), ["arrangement", "navigation", "type", "ground"].map((n) => base[n]));
+});
+
+test("deal --mix records a hand mix as its own round, and warns when it breaks the three sources", () => {
+  const dir = project();
+  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [
+    { n: 1, arrangement: "arr-b", navigation: "nav-2", type: "type-2", ground: "dark", accent: "red" },
+    { n: 2, arrangement: "arr-c", navigation: "nav-1", type: "type-4", ground: "cream", accent: "none" },
+  ] }] }));
+  const ok = run(deal, dir, ["library.json", "--mix", "1,ground=framed,accent=2"]);
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.equal(ok.stderr, "");
+  const mixed = rounds(dir)[1].recipes[0];
+  assert.deepEqual([mixed.arrangement, mixed.type, mixed.ground, mixed.accent], ["arr-b", "type-2", "framed", "none"]);
+  const broken = run(deal, dir, ["library.json", "--mix", "1,type=type-1"]);
+  assert.equal(broken.status, 0, broken.stderr);
+  assert.match(broken.stderr, /fewer than three references/);
+});
+
 test("deal: a library with a missing list, or too thin to deal from, fails with the reason", () => {
   const { navigation, ...rest } = library();
   const missing = run(deal, project(rest), ["library.json"]);
