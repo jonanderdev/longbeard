@@ -64,11 +64,15 @@ node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json
 
 Eight recipes: arrangement, navigation, type, ground, accent. A screen's arrangement, type and ground come from three different references; the lead's arrangement twice; no recipe twice; grounds spread across light, dark and mid and faces across kinds. Its `spread:` line says how wide the round is, and it warns when the library is too narrow (one tone, one kind of face, under six references): say that to them with the grid. Build what was dealt: never swap, drop or re-deal because a combination looks wrong to you.
 
+It reads `docs/design/design-brief.md` and notes, under a screen, when its colours or face sit plainly against the personality ("a cool ground for a warm brief"). A note, never a cut: keep it for the table in step 3.
+
 ## 3. Build the grid
 
 One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html), with the same real content on every screen (the headline, every must-carry item, the ownable, the subject's pictures), each arrangement built once as a rule, and faults fixed in the rule, never taste. How to build, capture and sheet it, for a site or an app: [grid.md](references/grid.md).
 
 Show the sheet, a table of each number's arrangement, navigation, ground and accent in plain words, and any fault you could not fix. Never say which you prefer.
+
+**Against the brief,** one column of the table, facts only: `deal.mjs`'s notes, and what you see with the sheet open against the design brief's never, its three words and never word, playful and new (which no script reads), and apart from (a screen that could be mistaken for the kind of product named there, when its distance is 4–5). Blank where nothing sits against it. It is there so they choose knowingly, not to steer them: a screen against the brief is shown like any other, and taking one is their call. Taken, it goes under **Changes** in the design brief, with why.
 
 > Which would you take further? Any number, or none.
 
@@ -79,7 +83,7 @@ Show the sheet, a table of each number's arrangement, navigation, ground and acc
 - **More of one thing:** `--more 4:ground`.
 - **None:** deal again once. None again: ask what is missing; a search for it is `design-moodboard`.
 
-Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`.
+Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
 
 ## 5. The touch-up pass
 
@@ -88,7 +92,7 @@ On the chosen screen only, after their yes. Every grid screen was built by scrip
 **Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, tiny navigation, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
 
 **It fixes only:**
-- **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
+- **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`; with the design brief's accessibility at AAA, `--min 7 --large 4.5`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
 - **Something missing.** A must-carry item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls.
 - **Something plainly off.** A clipped word, text hidden where it cannot be read at all, a control that looks tappable and is not, the same line twice.
 - **Rank, only when inverted.** The headline outranked by smaller text (a description bigger or louder than the title): the smaller one is brought down, not the headline restyled.

@@ -32,7 +32,7 @@ Three stops, no more: options, one refinement, the board.
 1. No `docs/design/design-brief.md` → `design-brief`. No `docs/design/design-direction.md` → `design-direction`. Stop, and say which.
 2. An identity exists → a change. Show the board, ask what changes, and reopen only that.
 
-Read the design brief (personality, feel, never, what is fixed) and the direction's "Look, as dealt". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's "Look, as dealt". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
 ## 1. Options, on the chosen screen, in one message
 
@@ -60,7 +60,7 @@ Read the design brief (personality, feel, never, what is fixed) and the directio
 - **From their other references,** the library's grounds and accents.
 - **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
 - **Theirs,** what the design brief records as owned.
-- Every palette has an ink that reads on each ground at 4.5:1, and an accent that holds 3:1 on at least one ground.
+- Every palette has an ink that reads on each ground at 4.5:1 (7:1 when the design brief's accessibility is AAA: `contrast.mjs --level AAA`), and an accent that holds 3:1 on at least one ground.
 
 **Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 
@@ -70,7 +70,7 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/protot
 node <skill>/scripts/sheet.mjs .longbeard/design/identity/type.html .longbeard/design/identity/type-1.png … --cols 3
 ```
 
-One sheet of pairings (each on the dealt colours) and one of palettes (each on the dealt type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as dealt", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best.
+One sheet of pairings (each on the dealt colours) and one of palettes (each on the dealt type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as dealt", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word), add that as a fact on the same line; it stays an option.
 
 > Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as dealt.
 
@@ -88,7 +88,7 @@ Copy [identity-board.html](references/identity-board.html) to `docs/design/desig
 
 > Is this us?
 
-A note reopens only that row, then the board again. A yes is the identity.
+A note reopens only that row, then the board again. A yes is the identity. When the design brief's `decides` names someone else, the board is what they confirm: give its path, and write the identity once they say it holds.
 
 ## Write `docs/design/design-identity.md`
 
@@ -114,7 +114,7 @@ docs/design/design-identity.html
 ```
 ~~~
 
-Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
+Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`, with `--level AAA` when the design brief asks for it). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
 
 Then put the identity on the chosen screen, so the prototype starts from it (the names are the colours' names in the identity block; `--identity` swaps the library's type and colours for the identity's):
 

@@ -36,7 +36,7 @@ Copy `first.html` to `.longbeard/design/prototype/home.html` (or the brief's fir
 - **The faces** loaded properly at every size. A stand-in face is said again: the product ships it, or the face it stands in for.
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25`), shown on a crop where the margin and the navigation meet as well as whole. They pick.
 - **The rest of the page:** what sits below the first screen, the small text, every width down to the phone. The direction's ranges hold.
-- **Motion:** a reference that moves is played again from its frames or its live link (`capture.mjs <url> --out .longbeard/design/prototype/<name>-replay --frames 12`); build that kind of motion in CSS, none of its content.
+- **Motion,** as much as the design brief's `motion` line asks: none is none (state changes only, no entrances); subtle is short fades and moves under 300 ms; expressive may run longer and lead. A reference that moves is played again from its frames or its live link (`capture.mjs <url> --out .longbeard/design/prototype/<name>-replay --frames 12`); build that kind of motion in CSS, none of its content. Every motion honours `prefers-reduced-motion`.
 - **The ownable**, finished from the product's own world.
 - **The states** a person can reach here (empty, loading, error), and the second theme if the design brief asked for both.
 
@@ -50,6 +50,7 @@ Then build them all, linked so they click through, in the identity and the direc
 
 - **Layout:** where a moodboard reference shows that kind of screen, take its layout (never its content), from any family; the look is already fixed. Where none does, it follows from the first screen.
 - **The direction's devices carry over.** Overlaps, collisions, crops, giant type, wide empty space: the chosen screen's moves appear on the other screens too, never tidied away. Each screen gets the same light touch-up as the first: contrast where text sits, every item the screen must carry and its primary action present, nothing plainly broken. A screen is not done until it reads right *and* still looks like the chosen one.
+- **Density** as the design brief's `dense` asks, on every screen: how much sits on a screen, row heights, how much is shown before "more". An airy 1–2 shows less and lets it breathe; a dense 4–5 shows more per screen and keeps spacing tight.
 - **Real content, complete.** Copy in the voice, the longest real names, every section a person needs to act. With `design-content.md`, follow it. Without it, draft the copy and the sections yourself from the brief and the design brief, and say they are drafts. Pictures: theirs, or the stand-ins of the product's own subject in `.longbeard/design/pictures/` (more with `pictures.mjs`, or a full set planned with `design-content`); never grey boxes, never the references' subject.
 - **States,** once a screen is settled: empty, loading and error where reachable (`?state=empty`), every width, each theme.
 
@@ -73,13 +74,13 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/prototype/home.h
 node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/prototype/home.html" --wait-title ready
 ```
 
-Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it. Then ask whether this is the product, and iterate until it is.
+Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it. Then ask whether this is the product, and iterate until it is. Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
 
 ### 5. Approve: write `DESIGN.md` in one go
 
-Only on their yes to the rendered prototype. Write the whole file from [design-md-template.md](references/design-md-template.md): idea, voice, colour, type, spacing, components, decisions.
+Only on their yes to the rendered prototype, and, when the design brief's `decides` names someone else, once that person has seen the paths and it holds. Write the whole file from [design-md-template.md](references/design-md-template.md): idea, voice, colour, type, spacing, components, decisions.
 
-- **Contrast first.** Every text and background pair, and every control against its ground, through `contrast.mjs` (4.5:1 body, 3:1 large and non-text). Never write a failing pair.
+- **Contrast first.** Every text and background pair, and every control against its ground, through `contrast.mjs` (4.5:1 body, 3:1 large and non-text; at the design brief's AAA, `--level AAA`: 7:1 body, 4.5:1 large). Never write a failing pair. The level goes in `DESIGN.md`'s Accessibility line.
   ```
   node <skill>/scripts/contrast.mjs "#1b1b1f on #fafaf7" "#c2410c on #fafaf7:mark"
   ```

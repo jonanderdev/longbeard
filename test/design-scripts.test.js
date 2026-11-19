@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -69,6 +69,34 @@ test("deal: arrangement, type and ground of every recipe come from three differe
       assert.ok(!t.some((ref) => g.includes(ref)), `recipe ${r.n}: type and ground share a reference`);
     }
   }
+});
+
+test("deal --brief: screens plainly against the personality are noted, never cut", () => {
+  const lib = library();
+  lib.grounds.push({ id: "teal", ground: "#1f8a8a", ink: "#ffffff", from: ["h"] });
+  lib.type.push({ id: "type-script", kind: "script", from: ["b"] });
+  const dir = project(lib);
+  mkdirSync(join(dir, "docs/design"), { recursive: true });
+  writeFileSync(join(dir, "docs/design/design-brief.md"), "# Design brief: x\n\n- personality: loud 1 · picture-led 3 · rich 2 · cool 1 · playful 1 · new 3 · dense 2\n");
+  const result = run(deal, dir, ["library.json", "--seed", "3", "--count", "10"]);
+  assert.equal(result.status, 0, result.stderr);
+  const [round] = rounds(dir);
+  assert.equal(round.recipes.length, 9, "every screen is still dealt: eight arrangements, the anchor's twice");
+  assert.ok(round.recipes.some((r) => r.ground === "teal") && round.recipes.some((r) => r.type === "type-script"), "the noted entries are dealt, not passed over");
+  for (const r of round.recipes) {
+    const notes = r.against || [];
+    assert.equal(notes.some((n) => /cool ground for a warm brief/.test(n)), r.ground === "teal", `recipe ${r.n}`);
+    assert.equal(notes.some((n) => /saturated ground for a quiet brief/.test(n)), r.ground === "teal", `recipe ${r.n}`);
+    assert.equal(notes.some((n) => /script face for a serious brief/.test(n)), r.type === "type-script", `recipe ${r.n}`);
+  }
+  assert.match(result.stdout, /^brief: /m);
+  // No brief, no notes.
+  const plain = project(lib);
+  const bare = run(deal, plain, ["library.json", "--seed", "3"]);
+  assert.ok(rounds(plain)[0].recipes.every((r) => !r.against));
+  assert.doesNotMatch(bare.stdout, /^brief: /m);
+  const missing = run(deal, plain, ["library.json", "--brief", "nope.md"]);
+  assert.equal(missing.status, 1);
 });
 
 test("deal: the anchor's arrangement is dealt twice and no other repeats", () => {

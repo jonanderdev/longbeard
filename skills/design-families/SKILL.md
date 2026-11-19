@@ -54,10 +54,10 @@ The first makes sheets of 16 untagged keeps and prints the vocabulary (picture, 
 ## 3. Sort, then the eye
 
 ```
-node <skill>/scripts/families.mjs .longbeard/design/families/profiles.json --board .longbeard/design/families/board.md --sliders "loud=2,picture=4,rich=2,cool=2"
+node <skill>/scripts/families.mjs .longbeard/design/families/profiles.json --board .longbeard/design/families/board.md --sliders "loud=2,picture=4,rich=2,cool=2,dense=2"
 ```
 
-The sliders are the design brief's personality. It joins the closest references first and stops when groups no longer look alike, so outliers stay strays. A wide gap on what is seen first (how empty, how loud, type size, where things sit, what the picture is) keeps two apart; light or dark does not. A bin far bigger than the rest is sorted again on its own and said; one it cannot split is sorted alone with `--only .longbeard/design/families/families/f3.tsv --spread 0.4` (its parts land in `families/families/f3-split/`). `--spread` lower splits finer.
+The sliders are the design brief's personality, copied from its `personality:` line (`picture-led` is `picture`; `playful` and `new` are passed over, since a picture cannot tell them: judge those by eye in step 4). It joins the closest references first and stops when groups no longer look alike, so outliers stay strays. A wide gap on what is seen first (how empty, how loud, type size, where things sit, what the picture is) keeps two apart; light or dark does not. A bin far bigger than the rest is sorted again on its own and said; one it cannot split is sorted alone with `--only .longbeard/design/families/families/f3.tsv --spread 0.4` (its parts land in `families/families/f3-split/`). `--spread` lower splits finer.
 
 Then check each family by eye on contact sheets, never picture by picture:
 

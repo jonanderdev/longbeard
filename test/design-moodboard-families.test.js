@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -320,6 +320,12 @@ test("families --sliders: each family is placed on the sliders they answered, an
   assert.match(result.stdout, /sliders asked: quiet–loud 1, type-led–picture-led 1/);
   // Half the pool is loud photo posters: what they chose sits away from "type-led", and that is one question.
   assert.match(result.stdout, /what they chose sits at: loud [\d.]+, picture [\d.]+; away from what they said on .*picture-led \(3, asked 1\): ask which should lead/);
+  // dense is measured from how empty a page is; playful and new are the eye's, and passed over.
+  rmSync(join(dir, "families.json"));
+  run("families.mjs", dir, ["profiles.json", "--sliders", "dense=1,playful=2,new=4"]);
+  const dense = JSON.parse(readFileSync(join(dir, "families.json"), "utf8")).families;
+  assert.equal(dense.find((f) => f.members.some((m) => m.includes("type0"))).fit, "near what they asked");
+  assert.match(dense.find((f) => f.members.some((m) => m.includes("poster0"))).fit, /off on dense/);
   const bad = spawnSync(process.execPath, [script("families.mjs"), "profiles.json", "--sliders", "loud=9"], { cwd: dir, encoding: "utf8" });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /each 1 to 5/);

@@ -38,6 +38,13 @@
 //   while another ground can be had: two screens on the same pair look alike.
 // - No recipe is dealt twice, in any round.
 //
+// --brief docs/design/design-brief.md (read by default when it is there) notes
+// each screen that sits plainly against the design brief's personality, on what
+// can be told from the recipe's colours and face: a cool ground for a warm brief
+// and the reverse, a saturated ground for a quiet one, a neutral ground with no
+// accent for a loud one, a script face for a serious one. A note, never a cut:
+// the screen is dealt and shown, and they choose.
+//
 // --choose n records recipe n of the last round as the screen they settled on,
 //   and deals nothing.
 //   node deal.mjs .longbeard/design/direction/library.json --choose 3
@@ -80,8 +87,9 @@ const chooseArg = flag("choose");
 const colsArg = flag("cols");
 const outArg = flag("out");
 const identityArg = flag("identity");
+const briefArg = flag("brief");
 const libArg = args[0];
-const usage = "usage: node deal.mjs <library.json> [--identity docs/design/design-identity.md] [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix 7,zone.side=4 | --mix chosen,accent=theirs-red | --choose 3] [--out deal.json]";
+const usage = "usage: node deal.mjs <library.json> [--identity docs/design/design-identity.md] [--brief docs/design/design-brief.md] [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix 7,zone.side=4 | --mix chosen,accent=theirs-red | --choose 3] [--out deal.json]";
 if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg, chooseArg].filter(Boolean).length > 1) {
   console.error(usage);
   process.exit(2);
@@ -194,6 +202,40 @@ function kindOf(type) {
   if (type.kind) return String(type.kind).toLowerCase();
   const words = `${type.what || ""} ${type.face || ""}`.toLowerCase();
   return kinds.find((k) => words.includes(k)) || "other";
+}
+// The design brief's personality: "loud 2 · picture-led 4 · … · playful 1", each 1 to 5.
+const briefPath = briefArg || (existsSync("docs/design/design-brief.md") ? "docs/design/design-brief.md" : "");
+if (briefArg && !existsSync(briefArg)) fail(`no design brief at ${briefArg}`);
+const asked = {};
+if (briefPath) {
+  const line = readFileSync(briefPath, "utf8").match(/^- personality:(.*)$/m)?.[1] || "";
+  for (const [, word, n] of line.matchAll(/([a-z-]+)\s+([1-5])\b/gi)) asked[word.toLowerCase()] = Number(n);
+}
+const hueSat = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  if (!d) return [0, 0];
+  const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h * 60, d / (1 - Math.abs(mx + mn - 1) || 1)];
+};
+// Only what the recipe plainly shows: a ground that is a colour (not near white or black), its
+// hue and how saturated it is, whether there is an accent, and the kind of face.
+function against(r) {
+  if (!Object.keys(asked).length) return [];
+  const ground = entry("grounds", r.ground), accent = entry("accents", r.accent), type = entry("type", r.type);
+  const hex = hex6(ground.panel || ground.ground);
+  const notes = [];
+  if (isHex(hex)) {
+    const [h, sat] = hueSat(hex), l = luminance(hex);
+    const coloured = sat > 0.25 && l > 0.02 && l < 0.85;
+    const warm = h < 75 || h >= 330, cool = h >= 150 && h < 270;
+    if (asked.cool <= 2 && coloured && cool) notes.push(`a cool ground for a warm brief (cool ${asked.cool})`);
+    if (asked.cool >= 4 && coloured && warm) notes.push(`a warm ground for a cool brief (cool ${asked.cool})`);
+    if (asked.loud <= 2 && sat > 0.5 && l > 0.05 && l < 0.7) notes.push(`a saturated ground for a quiet brief (loud ${asked.loud})`);
+    if (asked.loud >= 4 && sat < 0.12 && !accent.colour) notes.push(`a neutral ground and no accent for a loud brief (loud ${asked.loud})`);
+  }
+  if (asked.playful <= 2 && kindOf(type) === "script") notes.push(`a script face for a serious brief (playful ${asked.playful})`);
+  return notes;
 }
 const facet = (list, item) => (list === "grounds" ? `tone:${toneOf(item)}` : list === "type" ? `kind:${kindOf(item)}` : "");
 const spread = {};
@@ -395,7 +437,11 @@ if (kind !== "deal") {
   if (recipes.length < count) console.error(`deal: ${recipes.length} recipes, not ${count}: the library has no more arrangements to give`);
 }
 
-recipes.forEach((r, i) => (r.n = i + 1));
+recipes.forEach((r, i) => {
+  r.n = i + 1;
+  const notes = against(r);
+  if (notes.length) r.against = notes;
+});
 const round = { round: rounds.length + 1, kind, seed, recipes };
 rounds.push(round);
 save();
@@ -417,6 +463,11 @@ if (kind === "deal" && recipes.length && lib.type.length > 1) {
 for (const r of recipes) {
   const lead = kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
   console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}${zoneKey(r) ? `  zones ${zoneKey(r)}` : ""}`);
+  if (r.against?.length) console.log(`   against the brief: ${r.against.join("; ")}`);
+}
+if (Object.keys(asked).length) {
+  const off = recipes.filter((r) => r.against?.length).length;
+  console.log(`brief: ${off ? `${off} of ${recipes.length} screens sit against its personality (a note to show with them, never a cut)` : "no screen sits plainly against its personality"}`);
 }
 
 // The identity's json block, turned into the lists the deal reads. Hoisted, so it runs before the checks.
