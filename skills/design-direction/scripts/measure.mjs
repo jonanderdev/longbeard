@@ -30,6 +30,18 @@
 // is what families.mjs reads and costs far fewer tokens than the JSON.
 //   node measure.mjs .longbeard/design/moodboard/refs --tsv > .longbeard/design/<step>/traits.tsv
 //   node measure.mjs refs/a.jpg refs/b.png https://example.com --jobs 4 --tsv
+//
+// --swatches: images only. The colours a picture is made of, for a palette
+// drawn from the product's own subject (subject-colours.mjs reads it). Each
+// picture is read at 240 px on its long side, the centre counting more than
+// the corners (the subject is usually in the middle), and its pixels are
+// grouped into ten colours in OKLab, the same way every time. Each colour has
+// its hex, OKLCH lightness (0 to 1), chroma and hue, its share of the
+// picture in %, heaviest first, and its edge: how much of it lies in the outer
+// fifth of the picture on any side (0 to 1). A colour that is mostly edge is
+// a backdrop, a cloth or a wall, not the subject. Prints [{ target, swatches }]
+// as JSON.
+//   node measure.mjs .longbeard/design/subject --swatches
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -51,6 +63,7 @@ const width = Math.round(Number(flag("width", "1440")));
 const waitArg = flag("wait", "");
 const jobs = Math.round(Number(flag("jobs", "4")));
 const tsv = has("tsv");
+const swatches = has("swatches");
 const linksArg = flag("links", "");
 const profilesArg = flag("profiles", "");
 const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif" };
@@ -105,6 +118,10 @@ if (linksArg) {
 }
 if (profilesArg && tsv) {
   console.error("measure: --profiles and --tsv are two outputs: pick one");
+  process.exit(2);
+}
+if (swatches && (tsv || profilesArg || targets.some(isUrl))) {
+  console.error("measure: --swatches reads images only, and prints JSON: no links, --tsv or --profiles");
   process.exit(2);
 }
 if (!targets.length) {
@@ -351,6 +368,94 @@ const readImage = (src) => `(async () => {
   };
   return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: !frame && sh < img.naturalHeight, ...(frame ? { frame } : {}), traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
 })()`;
+
+// Swatches: the whole picture at 240 px on its long side, its pixels handed back as base64 RGBA.
+const readPixels = (src) => `(async () => {
+  const img = new Image();
+  img.src = ${JSON.stringify(src)};
+  await img.decode();
+  const k = Math.min(1, 240 / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+  const c = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d");
+  c.drawImage(img, 0, 0, w, h);
+  const d = c.getImageData(0, 0, w, h).data;
+  let s = "";
+  for (let i = 0; i < d.length; i += 0x8000) s += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000));
+  return { width: img.naturalWidth, height: img.naturalHeight, w, h, data: btoa(s) };
+})()`;
+
+// sRGB to OKLab and back, for the swatches.
+const toLin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+const toGam = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+function labOf(r8, g8, b8) {
+  const [r, g, b] = [r8, g8, b8].map((v) => toLin(v / 255));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s];
+}
+function hexOfLab([L, a, b]) {
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s];
+  return `#${rgb.map((c) => Math.round(Math.min(1, Math.max(0, toGam(Math.min(1, Math.max(0, c))))) * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+// Ten colours by k-means in OKLab. Pixels are first pooled into 32 steps a channel. The first
+// centre is the heaviest pool; each next one the pool farthest from every centre so far, among
+// pools of at least 0.05% of the weight, so a stray pixel never takes a centre. Twelve rounds.
+async function measureSwatches(tab, path) {
+  const src = `data:${mime[extname(path).toLowerCase()]};base64,${readFileSync(resolve(path)).toString("base64")}`;
+  const { width: W, height: H, w, h, data } = await tab.evaluate(readPixels(src));
+  const d = Buffer.from(data, "base64");
+  const pools = new Map();
+  const cx = (w - 1) / 2, cy = (h - 1) / 2;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (d[i + 3] < 128) continue;
+    // 1 at the centre, 0.3 at the corners.
+    const r = Math.hypot((x - cx) / Math.max(1, cx), (y - cy) / Math.max(1, cy)) / Math.SQRT2;
+    const weight = 1 - 0.7 * r;
+    const key = (d[i] >> 3) << 10 | (d[i + 1] >> 3) << 5 | (d[i + 2] >> 3);
+    const p = pools.get(key) || { w: 0, r: 0, g: 0, b: 0, e: 0 };
+    p.w += weight; p.r += weight * d[i]; p.g += weight * d[i + 1]; p.b += weight * d[i + 2];
+    if (x < 0.2 * w || x >= 0.8 * w || y < 0.2 * h || y >= 0.8 * h) p.e += weight;
+    pools.set(key, p);
+  }
+  const points = [...pools.entries()].sort((a, b) => a[0] - b[0]).map(([, p]) => ({ w: p.w, e: p.e, lab: labOf(p.r / p.w, p.g / p.w, p.b / p.w) }));
+  const total = points.reduce((t, p) => t + p.w, 0);
+  const dist = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+  let heaviest = points[0];
+  for (const p of points) if (p.w > heaviest.w) heaviest = p;
+  const centres = [heaviest.lab];
+  const seeds = points.filter((p) => p.w >= 0.0005 * total);
+  const near = seeds.map((p) => dist(p.lab, heaviest.lab));
+  while (centres.length < Math.min(10, seeds.length)) {
+    let best = -1;
+    for (let i = 0; i < seeds.length; i++) if (best === -1 || near[i] > near[best]) best = i;
+    if (near[best] <= 0) break;
+    centres.push(seeds[best].lab);
+    for (let i = 0; i < seeds.length; i++) near[i] = Math.min(near[i], dist(seeds[i].lab, seeds[best].lab));
+  }
+  let groups = [];
+  for (let round = 0; round < 12; round++) {
+    groups = centres.map(() => ({ w: 0, L: 0, a: 0, b: 0, e: 0 }));
+    for (const p of points) {
+      let best = 0;
+      for (let c = 1; c < centres.length; c++) if (dist(p.lab, centres[c]) < dist(p.lab, centres[best])) best = c;
+      const g = groups[best];
+      g.w += p.w; g.e += p.e; g.L += p.w * p.lab[0]; g.a += p.w * p.lab[1]; g.b += p.w * p.lab[2];
+    }
+    for (let c = 0; c < centres.length; c++) if (groups[c].w) centres[c] = [groups[c].L / groups[c].w, groups[c].a / groups[c].w, groups[c].b / groups[c].w];
+  }
+  const round = (v, n) => Math.round(v * 10 ** n) / 10 ** n;
+  const out = centres.map((lab, c) => ({ lab, w: groups[c].w, e: groups[c].e })).filter((g) => g.w > 0).sort((a, b) => b.w - a.w);
+  return {
+    width: W,
+    height: H,
+    swatches: out.map(({ lab: [L, a, b], w: weight, e }) => ({ hex: hexOfLab([L, a, b]), L: round(L, 3), C: round(Math.hypot(a, b), 3), h: round(((Math.atan2(b, a) * 180) / Math.PI + 360) % 360, 1), share: round((100 * weight) / total, 1), edge: round(e / weight, 2) })),
+  };
+}
 
 const readPage = `(() => {
   const W = innerWidth, H = innerHeight, box = (r) => [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
@@ -607,14 +712,16 @@ const run = async (queue, measure) => {
   }
 };
 const workers = [];
-if (images.length) workers.push(run(images, measureImage));
+if (images.length) workers.push(run(images, swatches ? measureSwatches : measureImage));
 for (let k = 0; k < Math.min(jobs, pages.length); k++) workers.push(run(pages, measurePage));
 await Promise.all(workers);
 ws.close();
 
 const failed = results.filter((r) => r.error);
 for (const r of failed) console.error(`measure: ${r.target}: ${r.error}`);
-if (profilesArg) {
+if (swatches) {
+  console.log(JSON.stringify(results.map((r) => (r.error ? { target: r.target, error: r.error } : { target: r.target, swatches: r.swatches })), null, 1));
+} else if (profilesArg) {
   // Measurements are replaced, everything else a profile holds (the agent's tags, notes) is kept.
   const store = existsSync(profilesArg) ? JSON.parse(readFileSync(profilesArg, "utf8")) : { refs: {} };
   store.refs ||= {};
