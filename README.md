@@ -29,7 +29,7 @@ It is a base. You keep going from here.
 
 ### Why a family, not a reference
 
-Designers don't copy one reference. They gather many that share a look and make something new inside it.  
+Designers work from many references that share a look, and make something new inside it.  
 Long Beard does the same, from your moodboard or from fresh references it finds for you. Every screen mixes several, so none is copied and all of them belong.  
 The agent builds; you choose. Taste rules give everyone the same good-looking site; your references and your choices give you yours.  
 Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
