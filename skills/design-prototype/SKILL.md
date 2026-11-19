@@ -5,7 +5,7 @@ description: >
   first screen finished, the other key screens prototyped in one go with real
   copy and pictures, every reachable state, options only where a layout really
   forks. On their yes to the rendered prototype, writes DESIGN.md in one go,
-  contrast-checked. Runs when docs/design/design-direction.md exists and there
+  contrast-checked. Runs when docs/design/design-direction.md and design-identity.md exist and there
   is no DESIGN.md, or for a feature that needs screens once DESIGN.md exists.
 ---
 
@@ -21,7 +21,7 @@ Read [design-rules.md](references/design-rules.md) before the first screen: it i
 
 ## Gate
 
-1. No `docs/design/design-direction.md` → `design-direction` (it says what it still needs). Stop.
+1. No `docs/design/design-direction.md` → `design-direction`. No `docs/design/design-identity.md` → `design-identity`. Stop, and say which.
 2. `DESIGN.md` exists → **Feature loop**.
 3. Otherwise → **First pass**.
 

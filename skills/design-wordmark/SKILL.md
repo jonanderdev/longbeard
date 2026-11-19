@@ -1,11 +1,11 @@
 ---
 name: design-wordmark
 description: >
-  Optional, after the direction. A wordmark made from the identity's own faces and devices:
+  Optional, after the identity. A wordmark made from the identity's own faces and devices:
   four to six marks rendered in the navigation and at hero size on the
   identity's grounds, picked and pushed once. Adds the mark to
   docs/design/design-identity.md and the identity board. Runs once the
-  direction is chosen, when they want a mark beyond the name set in the
+  identity is chosen, when they want a mark beyond the name set in the
   display face.
 ---
 
@@ -21,7 +21,7 @@ Comes out: the chosen mark as SVG in `docs/design/wordmark.svg`, a section in `d
 
 ## Gate
 
-1. No `docs/design/design-identity.md` → `design-identity` first. No `docs/design/design-direction.md` → `design-direction` first: a mark is judged where the name actually sits. Stop.
+1. No `docs/design/design-direction.md` → `design-direction` first: a mark is judged where the name actually sits. No `docs/design/design-identity.md` → `design-identity`. Stop.
 2. A mark exists → a change: show it, ask what changes.
 
 Read the identity, the brief's name and identity nouns, and the design brief's personality.

@@ -80,9 +80,9 @@
   </div>
 
   <div class="rows">
-    <div class="detour" style="grid-row: 2 / span 2" id="d-families"><b>design-families</b>Sort a big board into looks; you take one or two.<span>Only for a board over ~60</span></div>
-    <div class="detour" style="grid-row: 3 / span 2" id="d-content"><b>design-content</b>Copy and the full picture list, planned. Needs the brief.<span>Any time · copy to plan</span></div>
-    <div class="detour" style="grid-row: 5 / span 2" id="d-wordmark"><b>design-wordmark</b>A mark from your type, seen in the chosen screen.<span>After the direction, if wanted</span></div>
+    <div class="detour" style="grid-row: 2 / span 2; align-self: center; margin-top: -40px" id="d-families"><b>design-families</b>Sort a big board into looks; you take one or two.<span>Only for a board over ~60</span></div>
+    <div class="detour" style="grid-row: 3 / span 2; align-self: center; margin-top: 60px" id="d-content"><b>design-content</b>Copy and the full picture list, planned. Needs the brief.<span>Any time · copy to plan</span></div>
+    <div class="detour" style="grid-row: 5; align-self: start; margin-top: 10px" id="d-wordmark"><b>design-wordmark</b>A mark from your type, seen in the chosen screen.<span>After the identity, if wanted</span></div>
     <svg class="links" id="links"></svg>
     <div class="row">
       <div class="mid"><div class="card" id="c1"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
@@ -93,12 +93,12 @@
       <div class="right"><span class="doc">design-moodboard.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-identity</span> <em>3 stops</em></h3><p>3–4 pictures of your subject first, then type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
-      <div class="right"><span class="doc">design-identity.md + .html</span></div>
+      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-direction</span> <em>the direction</em></h3><p>3–4 pictures of your subject, then eight first screens dealt from your references, each with its own layout, type and colours. <b>You pick, vary, mix.</b> Then a light touch-up: contrast, anything missing, never the composition.</p></div></div>
+      <div class="right"><span class="doc">design-direction.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card" id="c4"><h3><span class="t"><span class="n">4</span>design-direction</span> <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a light touch-up: contrast, anything missing, never the composition.</p></div></div>
-      <div class="right"><span class="doc">design-direction.md</span></div>
+      <div class="mid"><div class="card" id="c4"><h3><span class="t"><span class="n">4</span>design-identity</span> <em>3 stops</em></h3><p>The chosen screen's type and colours, with close options rendered on it. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
+      <div class="right"><span class="doc">design-identity.md + .html</span></div>
     </div>
     <div class="row">
       <div class="mid"><div class="card" id="c5"><h3><span class="t"><span class="n">5</span>design-prototype</span> <em>you approve</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
@@ -128,22 +128,22 @@ function draw() {
   const line = (d) => out.push(`<path class="line" d="${d}"/>`);
   // Into a detour: out of the card's left side, along, then down into the detour's top.
   const down = (card, pill) => {
-    const c = r(card), p = r(pill), y = Math.min(c.b - 22, p.t - 30), x = p.l + (p.r - p.l) * 0.62, top = p.t - 3;
+    const c = r(card), p = r(pill), y = Math.max(c.t + 40, Math.min(c.b - 22, p.t - 30)), x = p.l + (p.r - p.l) * 0.62, top = p.t - 3;
     line(`M${c.l} ${y} H${x + k} Q${x} ${y} ${x} ${y + k} V${top}`);
     ring(c.l, y); head(x, top, 0, 1);
   };
   // Back to the line: out of the detour's right side, along a lane, into the card's left side.
-  const back = (pill, card, from, lane) => {
-    const p = r(pill), c = r(card), y = r(card).m, tip = c.l - 3, s = Math.sign(y - from) || 1;
+  const back = (pill, card, from, lane, dy = 0) => {
+    const p = r(pill), c = r(card), y = r(card).m + dy, tip = c.l - 3, s = Math.sign(y - from) || 1;
     line(Math.abs(y - from) < 2 ? `M${p.r} ${from} H${tip}` : `M${p.r} ${from} H${lane - k} Q${lane} ${from} ${lane} ${from + s * k} V${y - s * k} Q${lane} ${y} ${lane + k} ${y} H${tip}`);
     head(tip, y, 1, 0);
   };
   const lane = (r("c1").l + r("d-families").r) / 2;
   const f = r("d-families"), c = r("d-content"), w = r("d-wordmark");
   down("c2", "d-families");
-  ring(f.r, f.b - 22); back("d-families", "c3", f.b - 22, lane);
+  ring(f.r, f.b - 22); back("d-families", "c3", f.b - 22, lane, -14);
   // design-content feeds the direction; the prototype reads it from there.
-  ring(c.r, c.m); back("d-content", "c4", c.m, lane);
+  ring(c.r, c.m); back("d-content", "c3", c.m, lane, r("c3").b - 26 - r("c3").m);
   down("c4", "d-wordmark");
   ring(w.r, w.b - 22); back("d-wordmark", "c5", w.b - 22, lane);
   svg.innerHTML = out.join("");

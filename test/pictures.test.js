@@ -8,7 +8,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const pictures = join(root, "skills/design-identity/scripts/pictures.mjs");
+const pictures = join(root, "skills/design-direction/scripts/pictures.mjs");
 
 // A 1x1 JPEG and a 1x1 PNG: real bytes, small enough to inline.
 const jpeg = Buffer.from("/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=", "base64");

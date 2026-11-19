@@ -169,16 +169,35 @@ const zoneKey = (r) => Object.entries(r.zones || {}).sort().map(([z, a]) => `${z
 const key = (r) => lists.map((list) => r[field[list]]).join("|") + (zoneKey(r) ? `|${zoneKey(r)}` : "");
 const dealt = new Set(rounds.flatMap((round) => round.recipes.map(key)));
 const entry = (list, id) => lib[list].find((x) => x.id === id) || fail(`${list} has no entry called ${id}`);
-// "theirs" and "identity" are not references: a face and a ground they chose are two of their choices, not one source.
-const refs = (item) => item.from.filter((ref) => ref !== "theirs" && ref !== "identity");
+// "theirs", "identity" and "subject" (colours read from the product's own pictures) are not references:
+// they never count as one source.
+const refs = (item) => item.from.filter((ref) => ref !== "theirs" && ref !== "identity" && ref !== "subject");
 const overlaps = (item, taken) => refs(item).some((ref) => taken.has(ref));
 
 // The least used entry that passes, in a shuffled order so ties fall differently each time.
 function pick(list, used, passes) {
   const pool = shuffle(lib[list]).filter(passes);
-  pool.sort((a, b) => (used[list][a.id] || 0) - (used[list][b.id] || 0));
+  pool.sort((a, b) => weight(list, a, used) - weight(list, b, used));
   return pool[0] || null;
 }
+// Spread: a round should look like several directions, not one. A ground is light, dark or mid; a
+// face is a kind (serif, sans, condensed…). A tone or kind the round has seen less weighs more than
+// using every entry evenly, so three light grounds and one dark one still give a round of both.
+function toneOf(ground) {
+  const hex = hex6(ground.panel || ground.ground);
+  if (!isHex(hex)) return "mid";
+  const l = luminance(hex);
+  return l > 0.55 ? "light" : l < 0.08 ? "dark" : "mid";
+}
+const kinds = ["condensed", "mono", "script", "serif", "sans", "display"];
+function kindOf(type) {
+  if (type.kind) return String(type.kind).toLowerCase();
+  const words = `${type.what || ""} ${type.face || ""}`.toLowerCase();
+  return kinds.find((k) => words.includes(k)) || "other";
+}
+const facet = (list, item) => (list === "grounds" ? `tone:${toneOf(item)}` : list === "type" ? `kind:${kindOf(item)}` : "");
+const spread = {};
+const weight = (list, item, used) => (used[list][item.id] || 0) + 3 * (spread[facet(list, item)] || 0);
 const note = (list, item, used) => {
   used[list][item.id] = (used[list][item.id] || 0) + 1;
   return item;
@@ -189,7 +208,7 @@ function recipeFor(arrangement, used) {
   // Type and ground are chosen together: the least used type that still has a ground from another
   // reference, not yet paired with it in this round; failing that, any type with any such ground.
   const types = shuffle(lib.type).filter((x) => !overlaps(x, sources));
-  types.sort((x, y) => (used.type[x.id] || 0) - (used.type[y.id] || 0));
+  types.sort((x, y) => weight("type", x, used) - weight("type", y, used));
   let type = null;
   let ground = null;
   for (const fresh of [true, false]) {
@@ -218,6 +237,7 @@ function recipeFor(arrangement, used) {
   note("navigation", navigation, used);
   note("type", type, used);
   note("grounds", ground, used);
+  for (const [list, item] of [["type", type], ["grounds", ground]]) spread[facet(list, item)] = (spread[facet(list, item)] || 0) + 1;
   note("accents", accent, used);
   pairs.add(`${type.id}|${ground.id}`);
   dealt.add(key(recipe));
@@ -382,6 +402,18 @@ save();
 
 const pad = (text, n) => String(text).padEnd(n);
 console.log(`round ${round.round} · ${round.kind} · seed ${seed}`);
+// Say how wide the round is, and when the library cannot make it wider.
+if (kind === "deal" && recipes.length && lib.type.length > 1) {
+  const count = (values) => Object.entries(values.reduce((m, v) => ({ ...m, [v]: (m[v] || 0) + 1 }), {})).map(([k, n]) => `${k} ${n}`).join(" · ");
+  const tones = recipes.map((r) => toneOf(entry("grounds", r.ground)));
+  const faces = recipes.map((r) => kindOf(entry("type", r.type)));
+  console.log(`spread: ${count(tones)} | faces: ${count(faces)}`);
+  const libTones = new Set(lib.grounds.map(toneOf));
+  const libKinds = new Set(lib.type.map(kindOf));
+  if (libTones.size === 1 && !lib.type.every((t) => t.from.includes("identity"))) console.error(`deal: every ground in the library is ${[...libTones][0]}, so every screen will be too: like a reference on another ground for a wider spread`);
+  if (libKinds.size === 1 && lib.type.length > 1) console.error(`deal: every face in the library is ${[...libKinds][0]}: like a reference with another kind of type for a wider spread`);
+  if (lib.arrangements.length < 6) console.error(`deal: ${lib.arrangements.length} references give ${lib.arrangements.length} arrangements, so the screens will look alike: 6 to 10 likes give a wider spread`);
+}
 for (const r of recipes) {
   const lead = kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
   console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}${zoneKey(r) ? `  zones ${zoneKey(r)}` : ""}`);

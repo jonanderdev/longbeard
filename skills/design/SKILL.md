@@ -21,12 +21,12 @@ Each skill says at its top what it **Needs**, what it **Uses if there**, and wha
 | `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed |
 | `design-moodboard` | Find references, or read their board and fill its gaps |
 | `design-families` | Optional. Sort a big board or search into looks; they take one or two |
-| `design-identity` | Three or four pictures of the subject (theirs or licensed stand-ins), then type pairing and colours picked on rendered options, ending in the identity board |
-| `design-direction` | First screens dealt from the references in the identity; they pick; a light touch-up pass |
+| `design-direction` | Three or four pictures of the subject, then eight first screens dealt from their references (arrangement, type and colours from different ones); they pick, vary, mix; a light touch-up pass |
+| `design-identity` | The type pairing and colours of the chosen screen, refined on it from close, rendered options; ends in the identity board |
 | `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
 | `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
-| `design-wordmark` | Optional, after the direction. A mark made from the chosen type, judged in the chosen screen |
+| `design-wordmark` | Optional, after the identity. A mark made from the chosen type, judged in the chosen screen |
 | `design-check` | Checks a screen against the rules and `DESIGN.md` |
 
 ## Where things go
@@ -42,24 +42,24 @@ Look at the repo. Do not ask what is there. Then say, in up to four lines, where
 
 1. No `docs/brief.md` → `idea` first. The brief says no UI → there is nothing to design; say so.
 2. No `docs/design/design-brief.md` → `design-brief`. Every other skill needs it.
-3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. Identity can come before it, but options read from references they like beat options from words: say so if they want to start with identity.
+3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is dealt from it, so it is not skipped.
 4. **The board's size decides families.**
    - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?"
    - About 8 to 60 → no sorting. A board this size is already chosen.
    - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only.
-5. No `design-identity.md` → `design-identity`.
-6. No `design-direction.md` → `design-direction`.
-7. A direction and no `DESIGN.md` → `design-prototype`.
+5. No `design-direction.md` → `design-direction`.
+6. No `design-identity.md` → `design-identity`.
+7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
-9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-identity`, and `DESIGN.md` stays until a new one is approved.
+9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
 
 **Offered once, never pushed:**
-- `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-identity` found.
-- `design-wordmark`, once the direction is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
+- `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.
+- `design-wordmark`, once the identity is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
 
 Example:
 
-> You have a brief, a design brief and a moodboard of 34 references. Next: **design-identity**, to pick the type and colours from them. Your board is small enough to skip sorting.
+> You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens dealt from them. Your board is small enough to skip sorting.
 
 Then stop. They type the skill, or say yes and you load it.
 

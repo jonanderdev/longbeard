@@ -103,9 +103,9 @@ In the same message, one line per family: its name, what the eye changed from th
 - <family name> — <what it shares> · <n>
 ```
 
-No names, links or paths. The members of each family are in `.longbeard/design/families/f<n>.tsv`; the taken ones are the references `design-identity` and `design-direction` work from.
+No names, links or paths. The members of each family are in `.longbeard/design/families/f<n>.tsv`; the taken ones are the references `design-direction` and `design-iirection` work from.
 
-Then the next step in one line: `design-identity`.
+Then the next step in one line: `design-direction`.
 
 ## Do not
 

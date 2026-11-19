@@ -152,7 +152,7 @@ No names, links or paths. Then say the doc in five lines and end with one questi
 
 > Anything wrong in how I read your board?
 
-Then the next step, in one line: `design-identity`, or `design-families` first for a board over about 60.
+Then the next step, in one line: `design-direction`, or `design-families` first for a board over about 60. Say how many likes it holds: the direction's spread comes from 6 to 10 of them.
 
 ## One piece
 

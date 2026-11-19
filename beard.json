@@ -96,21 +96,21 @@
       "via": "design"
     },
     {
-      "name": "design-identity",
-      "author": "Long Beard",
-      "license": "MIT",
-      "source": "local",
-      "when": "A design brief, no identity",
-      "why": "Type pairing and colours picked on rendered options; the identity board. Writes docs/design/design-identity.md.",
-      "via": "design"
-    },
-    {
       "name": "design-direction",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "An identity and a moodboard, no direction",
-      "why": "First screens dealt from the references in the identity; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
+      "when": "A moodboard, no direction",
+      "why": "A few pictures of the subject, then first screens dealt from your references, type and colours included, for a wide spread; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-identity",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A direction, no identity",
+      "why": "The chosen screen's type and colours refined on it from rendered options; the identity board. Writes docs/design/design-identity.md.",
       "via": "design"
     },
     {
@@ -145,8 +145,8 @@
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A direction chosen, and a mark wanted",
-      "why": "Optional, after the direction. A mark from the identity's type.",
+      "when": "An identity, and a mark wanted",
+      "why": "Optional, after the identity. A mark from its type, judged in the chosen screen.",
       "via": "design"
     },
     {

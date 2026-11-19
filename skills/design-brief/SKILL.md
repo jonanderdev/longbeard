@@ -83,7 +83,7 @@ A correction is one more line, not a second round. Answers that contradict the p
 Say the next step in one line, from what they answered:
 
 - A moodboard given → `design-moodboard` to read it.
-- None → `design-moodboard` to find references. Starting with `design-identity` works too, from words alone.
+- None → `design-moodboard` to find references.
 
 ## Do not
 

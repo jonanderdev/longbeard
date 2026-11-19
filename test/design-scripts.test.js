@@ -682,3 +682,28 @@ test("deal --identity: type, grounds and accents come from the identity, composi
   const again = run(deal, dir, ["library.json", "--vary", "1"]);
   assert.equal(again.status, 0, again.stderr);
 });
+
+test("deal: a round spreads across light, dark and mid grounds and kinds of face, and says how wide it is", () => {
+  const lib = library();
+  lib.type = lib.type.map((t, i) => ({ ...t, kind: ["serif", "sans", "condensed", "serif"][i] }));
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "2"]);
+  assert.equal(result.status, 0, result.stderr);
+  const line = result.stdout.split("\n").find((l) => l.startsWith("spread:"));
+  assert.ok(line, result.stdout);
+  for (const word of ["light", "dark", "serif", "sans", "condensed"]) assert.match(line, new RegExp(word));
+  // Three of the four grounds are light; dealt by evenness alone, dark would get 2 of 8. Spread gives it more.
+  const dark = Number((line.match(/dark (\d+)/) || [0, 0])[1]);
+  assert.ok(dark >= 3, line);
+});
+
+test("deal: a library too narrow for a spread says so", () => {
+  const lib = library();
+  lib.arrangements = lib.arrangements.slice(0, 4);
+  lib.grounds = lib.grounds.map((g) => ({ ...g, ground: "#ffffff", panel: null, ink: "#111111" }));
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "1"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /every ground in the library is light/);
+  assert.match(result.stderr, /4 references give 4 arrangements/);
+});

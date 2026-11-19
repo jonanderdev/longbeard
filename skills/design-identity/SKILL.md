@@ -1,62 +1,44 @@
 ---
 name: design-identity
 description: >
-  The product's identity: a type pairing and a small set of colours, chosen by
-  them on rendered options drawn from their references, measured font lists and
-  even colour steps, never picked by the agent. Ends in the identity board: the
-  faces at size and the colours as swatches with their values and roles.
-  Starts by making sure there are three or four pictures of the product's own
-  subject to design with: theirs, or licensed stand-ins it finds. Runs after
-  docs/design/design-brief.md exists, best after design-moodboard; or for a
-  rebrand.
+  Lock and refine the identity on the screen they chose in design-direction:
+  the type pairing and a small set of colours, starting from what that screen
+  was dealt, with close alternatives from measured font lists, even colour
+  steps, their other references, the subject's pictures and anything they own,
+  all rendered on that screen, never picked by the agent. Ends in the identity
+  board: the faces at size and the colours as swatches with their values and
+  roles. Runs after design-direction; or for a rebrand.
 ---
 
 # Design identity
 
-**Needs:** `docs/design/design-brief.md`  
+**Needs:** `docs/design/design-brief.md`, `docs/design/design-direction.md`  
 **Uses if there:** `docs/design/design-moodboard.md`, `docs/design/design-families.md`  
 **Writes:** `docs/design/design-identity.md`, `docs/design/design-identity.html`
 
+The direction found the look by dealing type and colour from many references. This skill makes it the product's own: it starts from what the chosen screen was dealt, shows close alternatives on that same screen, and locks one pairing and one palette. Every option comes from somewhere they can point to: the chosen screen, the measured lists, their references, the subject's pictures, what they own. The agent never invents a palette or picks a face by taste.
+
 Two files come out, both committed:
 
-- **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-direction` deals from.
+- **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-prototype` builds with and `deal.mjs --identity` deals from.
 - **`docs/design/design-identity.html`**: the identity board. `design-figma` puts it on the Figma Cover.
 
-Options and captures live in `.longbeard/design/identity/`, and the subject's pictures in `.longbeard/design/pictures/`, both gitignored.
+Options and captures live in `.longbeard/design/identity/`, gitignored.
 
 Three stops, no more: options, one refinement, the board.
 
 ## Gate
 
-1. No `docs/design/design-brief.md` → `design-brief` first. Stop.
-2. No moodboard → say options from references they like beat options from words, and offer `design-moodboard`. On "go", work from the design brief's words.
-3. An identity exists → a change. Show the board, ask what changes, and reopen only that.
+1. No `docs/design/design-brief.md` → `design-brief`. No `docs/design/design-direction.md` → `design-direction`. Stop, and say which.
+2. An identity exists → a change. Show the board, ask what changes, and reopen only that.
 
-Read the design brief (personality, feel, never, what is fixed) and the moodboard: `design-moodboard.md`, the taken families in `design-families.md`, and the captures under `.longbeard/design/`. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+Read the design brief (personality, feel, never, what is fixed) and the direction's "Look, as dealt". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
-## 0. Pictures of the subject
+## 1. Options, on the chosen screen, in one message
 
-Before any option: three or four pictures of what the product is about (the bakery's bread and its bench, the climbing gym's wall, the app's real data on a desk). Not inspiration from other designs, which is the moodboard's job: the product's own world. They feed the palette options below, and every screen after this (`design-direction`'s grid, `design-prototype`) uses them, so no screen is judged on grey boxes or on another product's pictures.
+**Type pairings, three to five.** A pairing is a display face and a text face. The first is the one the screen was dealt.
 
-- **Theirs first.** The design brief says whether they have pictures. If they do, ask for three or four, and save them to `.longbeard/design/pictures/`.
-- **None yet:** find stand-ins, a few, never a bulk search. Search the subject, not a mood: the brief's identity nouns ("sourdough loaf", "flour on a wooden bench"), one query per picture you need.
-
-  ```
-  node <skill>/scripts/pictures.mjs "sourdough loaf" --out .longbeard/design/pictures --count 2
-  node <skill>/scripts/pictures.mjs "flour on a wooden bench" --out .longbeard/design/pictures --count 2 --orientation landscape
-  ```
-
-  It keeps only clearly licensed pictures (CC0, public domain, CC BY, CC BY-SA) large enough for a screen, and writes `credits.tsv` beside them. Open each and drop one that is off-subject, then search again for it.
-- **Of the kind the look uses.** When the moodboard is photographs, look for photographs; when it is illustration or renders, say that stand-ins for those are not searched, and use the closest photographs, cropped and toned as the moodboard does, until theirs exist.
-
-Do not stop to ask: show the pictures on a contact sheet (`contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures`) with the options in step 1, and say they are stand-ins that theirs replace. They can swap any there.
-
-## 1. Options, in one message
-
-**Type pairings, three to five.** A pairing is a display face and a text face.
-
-- **From the references:** the faces their likes use, read from the live pages (`measure.mjs` on a link lists the loaded fonts), or, from a picture only, the nearest match, marked as a stand-in.
-- **Measured, never from memory:** `fonts.mjs` lists every Google Fonts face of the same kind, measured (width, x-height, darkness, stroke contrast), nearest first, each with how widely it is used.
+- **Measured neighbours, never from memory:** `fonts.mjs` lists every Google Fonts face of the same kind, measured (width, x-height, darkness, stroke contrast), nearest first, each with how widely it is used.
 
   ```
   node <skill>/scripts/fonts.mjs "Newsreader" --weight 300
@@ -64,35 +46,37 @@ Do not stop to ask: show the pictures on a contact sheet (`contact-sheet.mjs .lo
   node <skill>/scripts/fonts.mjs "Their Face" --kind sans --css "<its stylesheet>"
   ```
 
-- At least two of the pairings use faces from beyond the hundred most used (`used` over 100), so the set is not only what every site has. Every face is free to license, or theirs.
+- **From their other references:** a face another like uses (the library's `type`), when it suits this composition.
+- At least two of the pairings use faces from beyond the hundred most used (`used` over 100), so the set is not only what every site has. A face dealt `by: eye` is a stand-in: say so, and offer the free faces nearest it. Every face is free to license, or theirs.
 
-**Palettes, three to five.** A palette is three to five colours, each with a role: `ground` (a surface it can stand on), `ink` (text), `accent`. A colour can hold more than one role.
+**Palettes, three to five.** A palette is three to five colours, each with a role: `ground` (a surface it can stand on), `ink` (text), `accent`. A colour can hold more than one role. The first is the one the screen was dealt.
 
-- **From the references and the subject:** the colours their likes share, from the captures' measured palettes, and the colours of the subject's pictures (`measure.mjs` on the pictures folder gives each its palette).
-- **Even steps:** `colours.mjs` gives steps around a colour (lighter, darker, warmer, cooler, in OKLCH) and the derived roles, and leaves out what fails contrast.
+- **Even steps** around it: `colours.mjs` gives lighter, darker, warmer, cooler in OKLCH, and the derived roles, and leaves out what fails contrast.
 
   ```
   node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the references' colours>" --theirs "<theirs>"
   ```
 
+- **From their other references,** the library's grounds and accents.
+- **From the subject:** a palette from the subject's pictures (`measure.mjs .longbeard/design/pictures` gives each its palette): often the most ownable, because it is the product's own world.
+- **Theirs,** what the design brief records as owned.
 - Every palette has an ink that reads on each ground at 4.5:1, and an accent that holds 3:1 on at least one ground.
 
-**Render them, never list them.** Copy [identity-board.html](references/identity-board.html) once per option into `.longbeard/design/identity/option-<n>.html`, write each option's `IDENTITY` block (the product's real name, one line in the design brief's voice), capture each, and set them on one sheet:
+**Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/identity/option-1.html" --out .longbeard/design/identity/option-1.png --width 1280
-node <skill>/scripts/sheet.mjs .longbeard/design/identity/options.html .longbeard/design/identity/option-1.png … --cols 3
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?face=Newsreader&body=Inter&weight=300" --out .longbeard/design/identity/type-1.png --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?ground=%23f1ede4&ink=%23111111&accent=%23fe2601" --out .longbeard/design/identity/colour-1.png --clip 0,0,1440,900
+node <skill>/scripts/sheet.mjs .longbeard/design/identity/type.html .longbeard/design/identity/type-1.png … --cols 3
 ```
 
-When there are many, show pairings on one sheet and palettes on another, each on a neutral pairing or palette, so each choice is seen alone.
+One sheet of pairings (each on the dealt colours) and one of palettes (each on the dealt type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as dealt", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best.
 
-Number them, never rank them. For each, one line of where it comes from ("the serif three of your likes share", "a narrower, darker cousin of it, less used"), never which is best.
-
-> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". The pictures are stand-ins I found: swap any.
+> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as dealt.
 
 ## 2. One refinement
 
-On what they picked, one row of nearby choices, rendered the same way: the display face's nearest neighbours from `fonts.mjs`, and each colour's even steps from `colours.mjs`. Or build what they asked for in words, and show it before it counts.
+On what they picked, one row of nearby choices, rendered on the screen the same way: the display face's nearest neighbours, each colour's even steps. Or build what they asked for in words, and show it before it counts.
 
 > Keep this, or take any from the row?
 
@@ -100,7 +84,7 @@ On what they picked, one row of nearby choices, rendered the same way: the displ
 
 ## 3. The board
 
-Write the final `IDENTITY` block into a copy of the template at `docs/design/design-identity.html`, capture it, read it yourself (every face loaded, every colour shown, nothing clipped), and show it.
+Copy [identity-board.html](references/identity-board.html) to `docs/design/design-identity.html`, write its `IDENTITY` block (the product's real name, one line in the voice, the faces, the colours with roles), capture it, read it yourself (every face loaded, every colour shown, nothing clipped), and show it beside the chosen screen in the identity.
 
 > Is this us?
 
@@ -132,7 +116,14 @@ docs/design/design-identity.html
 
 Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
 
-Then the next step in one line: `design-direction`. A wordmark waits until the direction is chosen (`design-wordmark`): until then the name is set in the display face.
+Then put the identity on the chosen screen, so the prototype starts from it (the names are the colours' names in the identity block; `--identity` swaps the library's type and colours for the identity's):
+
+```
+node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json --identity docs/design/design-identity.md --mix chosen,type=identity,ground=<ground name>,accent=<accent name>
+node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json --choose 1
+```
+
+Then the next step in one line: `design-prototype`. If the name is only set in the display face, offer `design-wordmark` once, in the same line; no mark is a fine answer.
 
 ## Do not
 
@@ -140,4 +131,3 @@ Then the next step in one line: `design-direction`. A wordmark waits until the d
 - List faces from memory, or describe an option instead of rendering it.
 - Run more than one refinement round before the board.
 - Choose spacing, layout or a logo here.
-- Search for more than a handful of pictures, or use the references' pictures as the subject's.
