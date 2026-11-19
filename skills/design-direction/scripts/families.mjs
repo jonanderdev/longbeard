@@ -49,6 +49,12 @@
 // sits near what they asked or is off on a slider: a hint for the families
 // board, never a cut. The whole pool is placed too: it is what they chose or
 // liked, and where it sits far from what they said is worth one question.
+//
+// --only families/f3.tsv sorts one family's members alone, to split a bin: a
+// family far bigger than the rest, where the pool's spread was too coarse. Pass
+// a lower --spread with it. It writes to families/f3-split/ (families.json and
+// one list per new family), so the pool's own families stay as they are.
+// --only also takes names: --only "card-12,card-40,card-41".
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 
@@ -64,8 +70,9 @@ const linksArg = flag("links", "");
 const outArg = flag("out", "");
 const pagesArg = flag("pages", "");
 const slidersArg = flag("sliders", "");
+const onlyArg = flag("only", "");
 const [input] = args;
-const usage = "usage: node families.mjs profiles.json | traits.tsv [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json] [--sliders loud=2,picture=4,rich=3,cool=2]";
+const usage = "usage: node families.mjs profiles.json | traits.tsv [--only families/f3.tsv | name,name] [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json] [--sliders loud=2,picture=4,rich=3,cool=2]";
 if (!input || args.length !== 1 || (spreadArg && !(Number(spreadArg) > 0 && Number(spreadArg) < 1)) || !(Number.isInteger(min) && min >= 1)) {
   console.error(usage);
   process.exit(2);
@@ -113,6 +120,17 @@ if (/\.json$/i.test(input)) {
     const page = link ? pages.get(link) || null : null;
     return { name, shot: row.ref, link, image: row, figure: null, page: page?.flag ? null : page, media: null, flag: page?.flag || "", tags: null };
   });
+}
+let onlyLabel = "";
+if (onlyArg) {
+  const names = existsSync(onlyArg)
+    ? readFileSync(onlyArg, "utf8").split(/\r?\n/).map((l) => l.split("\t")[0].trim()).filter(Boolean)
+    : onlyArg.split(",").map((x) => x.trim()).filter(Boolean);
+  const wanted = new Set(names);
+  const missing = names.filter((n) => !refs.some((r) => r.name === n));
+  if (missing.length) fail(`--only names ${missing.length} not in ${input}: ${missing.slice(0, 5).join(", ")}${missing.length > 5 ? " …" : ""}`);
+  refs = refs.filter((r) => wanted.has(r.name));
+  onlyLabel = existsSync(onlyArg) ? basename(onlyArg, extname(onlyArg)) : "only";
 }
 if (refs.length < 2) fail("fewer than two references to sort");
 
@@ -365,9 +383,10 @@ if (strays.length) {
   families.push({ id: "strays", size: strays.length, small: true, stray: true, wide: [], ranges: { tags: {}, tone: [...new Set(strays.map((i) => tone(num(refs[i].image.lum) ?? 0.5)))].join(" and ") }, pairs: pairs.map((g) => g.map((i) => refs[i].shot)), nearest, members: strays.map((i) => refs[i].shot) });
 }
 
-const outPath = outArg ? resolve(outArg) : join(dirname(resolve(input)), "families.json");
+const outPath = outArg ? resolve(outArg) : onlyLabel ? join(dirname(resolve(input)), "families", `${onlyLabel}-split`, "families.json") : join(dirname(resolve(input)), "families.json");
+mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, `${JSON.stringify({ spread, kinds: kinds.map(([name, k]) => ({ name, weight: k.weight })), families }, null, 2)}\n`);
-const sheetsDir = join(dirname(outPath), "families");
+const sheetsDir = onlyLabel ? dirname(outPath) : join(dirname(outPath), "families");
 mkdirSync(sheetsDir, { recursive: true });
 for (const f of families) writeFileSync(join(sheetsDir, `${f.id}.tsv`), `${f.members.map((s) => `${nameOfShot(s)}\t${resolve(s)}`).join("\n")}\n`);
 

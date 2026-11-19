@@ -31,9 +31,14 @@
   html, body { width: var(--w); height: var(--h); overflow: hidden; }
   body { background: var(--ground); color: var(--ink); font-family: var(--body-face), system-ui, sans-serif; font-size: var(--body-size); line-height: var(--body-leading); }
   a { color: inherit; text-decoration: none; }
-  /* --space scales the margins and every gap an arrangement writes as calc(… * var(--space)): step 5's spacing row. */
-  .screen { position: relative; width: var(--w); height: var(--h); overflow: hidden; --m: calc(28px * var(--space)); }
-  nav { position: absolute; left: var(--m); right: var(--m); z-index: 3; display: flex; align-items: center; gap: 24px; font-size: 13px; }
+  /* --space scales every offset: the margin --m and the gaps --g (24px), --g2 (12px), --g3 (48px). An arrangement
+     writes every margin, gap, padding and inset with these (or calc(… * var(--space))), never in plain px, or
+     step 5's spacing row shows three screens that look the same. */
+  .screen { position: relative; width: var(--w); height: var(--h); overflow: hidden; --m: calc(28px * var(--space)); --g: calc(24px * var(--space)); --g2: calc(12px * var(--space)); --g3: calc(48px * var(--space)); }
+  nav { position: absolute; left: var(--m); right: var(--m); z-index: 3; display: flex; align-items: center; gap: var(--g); font-size: 13px; }
+  /* Running text breaks evenly, with no word alone on its last line; short lines are balanced. */
+  p, li, blockquote, figcaption { text-wrap: pretty; }
+  h1, h2, h3, blockquote, .small, .tiny { text-wrap: balance; }
   .area { position: absolute; left: 0; right: 0; top: var(--top); bottom: var(--bottom); }
   .display { width: max-content; font-family: var(--face), serif; font-weight: var(--weight); font-variation-settings: var(--axes); text-transform: var(--case); letter-spacing: var(--tracking); font-style: var(--italic); line-height: 0.86; white-space: nowrap; color: var(--title); }
   .small { font-size: var(--body-size); }
@@ -46,7 +51,9 @@
 <script>
 // ---------------------------------------------------------------- WRITE: content
 // The product's real content, the same in every recipe: the brief's name and line, real copy in
-// the voice from direction.md, the longest real names, pictures in prototype/img/.
+// the voice from direction.md, the longest real names, pictures in prototype/img/ (of the product's
+// own subject, never the references'). Each piece says one thing once: no sentence on the screen
+// twice, and one call to action, not the same one in the nav, the hero and a band.
 const C = {
   name: "Product name",
   line: "The one line the first screen must say.",
@@ -56,9 +63,9 @@ const C = {
 
 // ---------------------------------------------------------------- WRITE: navigation
 // One function per navigation id in the library. Each returns its HTML and the band it takes
-// (px from the top and the bottom), so the arrangement fills the space the navigation leaves.
+// (px from the top and the bottom, times ctx.space), so the arrangement fills the space the navigation leaves.
 const NAVIGATION = {
-  // corners: (C) => ({ top: 64, bottom: 0, html: `<nav style="top:22px"><b>${C.name}</b><span style="margin-left:auto;display:flex;gap:22px">${C.links.slice(0, 3).map((l) => `<a>${l}</a>`).join("")}</span></nav>` }),
+  // corners: (C, ctx) => ({ top: 64 * ctx.space, bottom: 0, html: `<nav style="top:calc(22px * var(--space))"><b>${C.name}</b><span style="margin-left:auto;display:flex;gap:var(--g)">${C.links.slice(0, 3).map((l) => `<a>${l}</a>`).join("")}</span></nav>` }),
 };
 
 // ---------------------------------------------------------------- WRITE: arrangements
@@ -67,7 +74,7 @@ const NAVIGATION = {
 // HTML. after(el, ctx) is optional: it runs once the type is fitted, to place what must sit clear.
 const ARRANGEMENTS = {
   // queue: {
-  //   html: (C, ctx) => `<div class="area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+  //   html: (C, ctx) => `<div class="area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--g)">
   //     <div class="display" data-fit="0.66,0.42">${C.name}</div><p class="small">${C.line}</p></div>`,
   // },
 };
@@ -141,7 +148,8 @@ const PARTS = {
   await Promise.all(sheets);
   await Promise.all(wanted.map(([face, weight, italic]) => document.fonts.load(`${italic ? "italic " : ""}${weight} 100px "${face}"`).catch(() => [])));
 
-  const ctx = { recipe: r, type, ground, accent, nav, state: q.get("state") || "", parts: r.parts || {}, W, H };
+  const space = Number(q.get("space")) > 0 ? Number(q.get("space")) : 1;
+  const ctx = { recipe: r, type, ground, accent, nav, state: q.get("state") || "", parts: r.parts || {}, W, H, space };
   const navOut = NAVIGATION[r.navigation] ? NAVIGATION[r.navigation](C, ctx) : { top: 0, bottom: 0, html: "" };
   const layout = r.part ? (PARTS[r.part] || {})[r.arrangement] : ARRANGEMENTS[r.arrangement];
   const el = document.getElementById("screen");

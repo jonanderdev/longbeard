@@ -99,12 +99,19 @@ Their board already holds their taste, so it is the pool. A rich board needs no 
 **Read it.** A folder: open every image. Links: capture each page (sources.md has the options). Figma, a section at a time:
 
 - `create_session` with the file key first.
+- **Ask the scope first on a big board.** Over about 200 cards, ask once before extracting: "The whole file, or one page or section?" A board of 1,300 cards cost about 800K tokens to extract and tag. Where the board carries its own tags, offer to pre-filter on them ("only the cards tagged web-hero, web-page, web-section").
 - **Find the sections.** A section link: start there. A page or file link: `get_metadata` on the page. A board of hundreds of cards returns about 100K tokens, saved to a file: read only its section lines from it (name, id, size), never the whole dump into context.
 - **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
 
-**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line. Marks they already made on the board (a star, a tag, a "yes" section) are their picks: they stay, and are named on the families board.
+**Read their marks before your own.** A card's caption, tags and stars are read from the nodes with `use_figma` (text children and names), paged so each return stays under its 48 KB cap, never from a screenshot. Their tags seed `tags.tsv` (map each to the vocabulary where it fits, and tag only what is left), and a star is a pick that stays and is named on the families board.
+
+**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line.
+
+**Screens and non-screens.** The same check as the picker's: a poster, a type specimen, packaging, a logo sheet or an illustration is not a screen. On a moodboard it is not dropped (it is their taste), but it is marked `screen: no` on its card, using the board's own type tag where there is one, and it never leads: an arrangement, a navigation or a type size cannot be read from it, so with no live page its face is `eye` and its `size` null. When a non-screen is marked Lead, say so before the library is read, and offer a screen from its family as the lead with the non-screen kept as a donor for colour and picture treatment.
 
 Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets` returns `rawImages`, the original uploads at full size, GIFs included, up to 20 from anywhere under the node: call it on the card, or on a frame holding up to 20 cards when the result shows which card each image belongs to. A card's render on the board is a thumbnail, so it is never what is saved.
+
+**Cards cut from shared sheets.** Many boards crop each card from a larger uploaded image (a fill with `scaleMode: CROP` and an `imageTransform` `[[a,0,tx],[0,d,ty]]`, the region x from tx to tx+a, y from ty to ty+d of the image, as fractions). Then many cards share one `imageHash`. Read each card's hash and transform with `use_figma` (paged as above), download each distinct image once, check its SHA-1 against the hash, and crop the cards from it locally. A board of 1,300 cards took 115 downloads this way, against about 1,300 card by card. Name each crop by the card's own name, so it stays the same across board versions.
 
 **Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
 
@@ -207,6 +214,8 @@ A family is a group of references that look alike: what a person would see from 
 node <skill>/scripts/families.mjs design-exploration/<slug>/profiles.json --board design-exploration/<slug>/board.md
 ```
 
+On a pool of pictures only (a Figma board or a folder, no live pages), the numbers carry less, and the default spread can leave a few very large bins beside many strays. Look at the sizes before the eye: a family of more than about a quarter of the pool is a bin until the eye says otherwise. Run it again on that family alone at a lower spread (`families.mjs profiles.json --only design-exploration/<slug>/families/f3.tsv --spread 0.4`: its new families go to `families/f3-split/`, the pool's stay as they are), and split it by eye where that does not.
+
 It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait gives a distance from 0 to 1, and two keeps are compared on the kinds both have. The measured traits hold about two thirds of the weight and the tags one third, so the eye steers the families without deciding them. A wide gap on any one of what is seen first (how empty, how loud, how big the type, where things sit, what the picture is, the layout) keeps two keeps apart, however much else agrees. Light or dark is not one of them: the same look on a dark and on a light ground is one family, and its library keeps both grounds for `design` to deal (they choose light, dark or both there). Tag every keep before sorting: an untagged one is compared on its numbers only and is named. Two shots of one site (the same link) are one reference, the others listed beside it as `also`. `--spread` lower splits finer; the first line says what a little lower and higher would give, so a grouping sitting on an edge shows.
 
 Then the eye, family by family, from contact sheets, never from each picture opened alone:
@@ -214,6 +223,10 @@ Then the eye, family by family, from contact sheets, never from each picture ope
 ```
 node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
 ```
+
+**On a big pool** (hundreds of keeps), the eye works in two passes: before the families board, each family's six most typical (what that board shows) and its strays; once a family is taken, its every member, before its moodboard. Say both passes happen: the second is where cards move out of a taken family, and the move is said with the board.
+
+**Presentation shots.** A screen shown on a grey or black surround (a Dribbble-style frame, a device mockup) is measured on its surround: its `ground`, `tone` and `empty` describe the frame, not the design. Crop to the screen before measuring (`measure.mjs` reads the file as it is), or tag it `note: framed` and say in the family's line that its numbers are the frame's.
 
 A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, and the live pages that may not be the real site (an error status, a maintenance or bot-check page, nothing on it): those are sorted on their picture alone, but only the sheet confirms either. A picture that is that wrong page too goes to `Dropped`, with the reason. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
@@ -266,7 +279,7 @@ Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`):
 
 > Open the families board. Take the families you want to see in full, any number, and note one that looks like two or belongs with another. Then paste the copy-out here.
 
-Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. A small board skips the first step, and its families are presented with the same lines.
+Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. When they reply from a phone or another machine, the local board does not reach them: send its captures as images (one per family, `--clip-selector`), and have them reply by card name or by family and position, never by a tile id the page made up, since those change between versions of the board. A small board skips the first step, and its families are presented with the same lines.
 
 **None taken** is an answer, not a dead end. Ask in one line what is missing, from what they see ("closer to the photographs, but warmer", "nothing like any of these"). Their words count like a note: offer a search sized to them (a pool of 20 to 60, one picker round as in step 3), its likes sorted into the families or into a new one, then the families board again.
 

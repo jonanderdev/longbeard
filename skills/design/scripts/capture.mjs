@@ -104,7 +104,8 @@ if ((frames || clickArg) && (reviewArg || clipArg || clipSelector)) {
   process.exit(2);
 }
 // A local page has no loader worth waiting for, so a sparse screen costs little.
-// A full page stops at 14000 px; our own files (a picker, a moodboard) can run longer.
+// A full page stops at 14000 px; our own files (a picker, a moodboard) run to 30000 px a part,
+// and a longer one is kept in parts (see below).
 const tallest = /^file:/.test(url) ? 30000 : 14000;
 const local = /^file:/.test(url) || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url);
 const maxWait = waitArg ? Number(waitArg) : local ? 2000 : 15000;
@@ -458,15 +459,29 @@ async function settle() {
 // A local page is a state someone set up on purpose, so it is left as it is.
 const dismissConsent = () =>
   local ? Promise.resolve(false) : evalValue(`(() => {
-    const accept = /^(accept( all)?( cookies)?|accept (and|&) close|agree|i agree|ok|okay|got it|allow( all)?( cookies)?|i understand|acepto|aceptar)$/i;
-    const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?)$/i;
+    // The common consent tools first, by their own ids: reject, then accept.
+    const known = [
+      "#onetrust-reject-all-handler", "#CybotCookiebotDialogBodyButtonDecline", "#didomi-notice-disagree-button",
+      ".cky-btn-reject", "#cmplz-deny, .cmplz-deny", "[data-cookiefirst-action=reject]", ".iubenda-cs-reject-btn",
+      "#onetrust-accept-btn-handler", "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll", "#didomi-notice-agree-button",
+      ".cky-btn-accept", ".cmplz-accept", "[data-cookiefirst-action=accept]", ".iubenda-cs-accept-btn",
+    ];
+    for (const sel of known) {
+      const el = document.querySelector(sel);
+      if (el && el.getClientRects().length) {
+        el.click();
+        return true;
+      }
+    }
+    const accept = /^(accept( all)?( cookies)?|accept (and|&) (close|continue)|agree|i agree|ok|okay|got it|allow( all)?( cookies)?|i understand|acepto|aceptar( todas?| todo| cookies)?|aceptar y (cerrar|continuar)|onartu( guztiak)?|accepter( tout)?|tout accepter|j'accepte|alle akzeptieren|akzeptieren|accetta( tutti)?|accetto|aceitar( todos)?)$/i;
+    const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?|rechazar( todas?| todo| cookies)?|denegar|ukatu( guztiak)?|refuser( tout)?|tout refuser|continuer sans accepter|alle ablehnen|ablehnen|rifiuta( tutti)?|rejeitar( todos)?)$/i;
     const clickable = [...document.querySelectorAll("button, [role=button], a, input[type=button], input[type=submit], [onclick], div, span")]
       .filter((el) => el.childElementCount <= 2 && el.getClientRects().length);
     // Only inside a notice about cookies or privacy, so a menu or a gate is never clicked.
     const notice = (el) => {
       for (let up = el, i = 0; up && i < 8; up = up.parentElement, i++) {
         const t = up.innerText || "";
-        if (t.length < 1500 && /cookie|consent|privacy|gdpr|datenschutz/i.test(t)) return true;
+        if (t.length < 1500 && /cookie|consent|privacy|gdpr|datenschutz|privacidad|consentimiento|confidentialit|privacit/i.test(t)) return true;
       }
       return false;
     };
@@ -513,7 +528,14 @@ async function clickOn(selector) {
 }
 
 const navigateStarted = Date.now();
-await page("Page.navigate", { url: target }, 40000);
+// A page that cannot be reached comes back as Chrome's own error page, which would be saved as if
+// it were the site: say so and stop.
+const nav = await page("Page.navigate", { url: target }, 40000);
+if (nav?.errorText && nav.errorText !== "net::ERR_ABORTED") {
+  console.error(`could not reach ${target}: ${nav.errorText}`);
+  drop();
+  process.exit(1);
+}
 
 if (frames) {
   // The frames are the record of motion, so nothing is paused, unstuck or cleaned up.
@@ -744,6 +766,21 @@ if (!clipBox && firstFlat < FLAT && (await screenFlat(true).catch(() => 0)) >= F
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, Buffer.from(data, "base64"));
 console.log(out);
+
+// A local page longer than one shot (a families board of hundreds) is kept whole, in parts:
+// <out>-2, <out>-3 … each up to the same height, so nothing below the first part is lost.
+const realHeight = Math.ceil(size.height || height);
+if (!clipBox && /^file:/.test(url) && realHeight > fullHeight) {
+  const parts = Math.min(10, Math.ceil(realHeight / tallest));
+  for (let i = 1; i < parts; i++) {
+    const y = i * tallest;
+    const { data: part } = await page("Page.captureScreenshot", { format, ...(format === "png" ? {} : { quality: 70 }), captureBeyondViewport: true, clip: { x: 0, y, width: fullWidth, height: Math.min(tallest, realHeight - y), scale: 1 } }, 60000);
+    const partOut = out.replace(/(\.[a-z]+)?$/i, (ext) => `-${i + 1}${ext || ".jpg"}`);
+    writeFileSync(partOut, Buffer.from(part, "base64"));
+    console.log(partOut);
+  }
+  if (realHeight > parts * tallest) console.error(`the page is ${realHeight} px: kept the first ${parts * tallest} px in ${parts} parts`);
+}
 
 if (reviewOut) {
   // Side-by-side columns ~2800 px tall so a tall capture stays readable.

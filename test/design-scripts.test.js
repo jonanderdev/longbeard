@@ -614,6 +614,9 @@ test("colours: step 5's colour rows are made by rule, every option passes contra
   const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
   assert.match(pale.stderr, /left out the dealt accent/);
   assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
+  // The dealt ink is part of the look: tan on brown stays tan wherever it reads, not white.
+  const tan = JSON.parse(spawnSync(process.execPath, [colours, "--ground", "#3b2416", "--ink", "#d8b98c", "--json"], { encoding: "utf8" }).stdout);
+  assert.equal(tan.rows.find((r) => r.label === "as dealt").ink, "#d8b98c");
 });
 
 test("fonts: faces of the same kind only, nearest in shape first, the chosen one on top", async (t) => {
@@ -652,4 +655,7 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   assert.equal((await run(["Their Face"])).status, 1);
   assert.match((await run(["Their Face"])).stderr, /not in Google Fonts' list: say its kind with --kind/);
   assert.equal((await run(["DejaVu Serif", "--weight", "50"])).status, 2);
+  // --kind wins over the list's kind: a face Google files wrongly gets a row of what it is.
+  const sans = JSON.parse((await run(["DejaVu Serif", "--kind", "sans", "--json"])).stdout);
+  assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
 });

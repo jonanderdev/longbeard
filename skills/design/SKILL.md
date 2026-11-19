@@ -53,7 +53,7 @@ Never ask them to choose a look in words. That is what the grid is for.
 - **A refusal** removes the matching entries from the library.
 - **Something they own** (a brand colour, a licensed face) is added to its list as an entry with `"from": ["theirs"]`. A fixed face or ground that must be on every screen replaces its list with that one entry.
 - **Light, dark or both** removes the grounds that do not fit. "Both" keeps them all: the second theme is made when the chosen screen is finished.
-- **No pictures yet:** use stand-ins of the right kind with a clean licence, in `prototype/img/`, and say they are stand-ins.
+- **No pictures yet:** use stand-ins with a clean licence, in `prototype/img/`, and say they are stand-ins. A stand-in shows the product's own subject (the bakery's bread, the app's real data), given the family's treatment (its crop, toning, framing). Never the references' subject: museum paintings to stay "in family" on a bakery site read as the wrong product at once.
 
 Say in one line what changed in the library.
 
@@ -70,7 +70,7 @@ It deals eight recipes and writes them to `deal.json` beside the library, every 
 - An accent that does not stand off its surface is passed over.
 - Entries are used as evenly as the library allows, and no recipe is dealt twice.
 
-Build what was dealt. Never swap an entry, drop a recipe or re-deal because a combination looks wrong to you. Fewer than eight came out → the library is thin: say so and go on with what there is.
+Build what was dealt. Never swap an entry, drop a recipe or re-deal because a combination looks wrong to you. Fewer than eight came out → the library is thin: say so and go on with what there is. A library from six references usually deals seven, since three different references per screen and no repeats leave little room: say so before the grid, not as a fault after it.
 
 ### 3. Build the grid
 
@@ -85,7 +85,9 @@ One page, `design-exploration/<slug>/prototype/grid.html`, plain HTML and CSS, n
 - **Type fills by rule, not by number.** Display type that should fill a width is sized to that width with a limit on its height, so a narrow face and a wide one both fit. Measure the text, not its box (`width: max-content`). Words on one line share one size, and the line fits between the margins. Display over body stays inside the family's `scale`. Running text uses the type entry's `body`.
 - **Nothing small sits on display type.** Text, labels and bands placed by rule go in the clear space beside or between the display lines, found after the type is sized, never at a fixed position. Type that crosses a picture stays readable on it.
 - **Overrides in the URL.** The page also takes `&ground=%23hex&ink=%23hex&accent=%23hex&face=Name&body=Name`, so a colour or a face can be tried on a recipe by capturing it, not by rebuilding it. Step 5 uses this.
-- **Fix faults, never taste.** Capture every recipe and open each at full size. An overlap, a clipped word, a stray element, text that cannot be read: fix it with a rule in the arrangement, so the fix holds for whatever is dealt into it, and capture again. Never tune one recipe, and never change what was dealt.
+- **Every offset through `--space`.** Margins, gaps, padding and insets use the template's `--m`, `--g`, `--g2`, `--g3` (or `calc(… * var(--space))`), never plain px, so step 5's spacing row really changes the screen.
+- **Fix faults, never taste.** Capture every recipe and open each at full size. An overlap, a clipped word, a stray element, text that cannot be read: fix it with a rule in the arrangement, so the fix holds for whatever is dealt into it, and capture again. Never tune one recipe, and never change what was dealt. Read the words too, not only the boxes: the same sentence on the screen twice, the same call to action in more than one place, one word alone on the last line of a quote or a heading. Each is a fault, fixed in the content or the rule.
+- **Contrast on the screen, not the swatch.** Text over a picture, or text that runs off a picture onto the ground, is read where it sits: sample the rendered screen under each text box (`contrast.mjs` on the darkest and lightest pixels behind it), not the ground's swatch. A pale name that reads on the ground and vanishes on the photo is a fault.
 
 ```
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/grid.html?n=1" --out "$PWD/design-exploration/<slug>/grid/1.png" --clip 0,0,1440,900
@@ -93,7 +95,7 @@ node <skill>/scripts/sheet.mjs design-exploration/<slug>/grid/sheet.html design-
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/grid/sheet.html" --out "$PWD/design-exploration/<slug>/grid/sheet.png"
 ```
 
-**Show it.** Give the sheet's path, and a second sheet of the references each screen's arrangement was read from, so they can judge the reading, not only the result (`sheet.mjs` with their shots, in the screens' order). Then a table: each number with its arrangement, navigation, type, ground and accent in plain words. List any fault you could not fix. Do not say which you prefer, and do not rank them. Ask one line:
+**Show it.** Name each screen by its recipe number and, for references, by the card's own name, never by a tile id a page made up (`m40`): those change between board versions, and a reply that names one can land on the wrong card. When they follow from a phone or another machine, local pages do not reach them: send the sheets as images, or publish the page where the session can. Give the sheet's path, and a second sheet of the references each screen's arrangement was read from, so they can judge the reading, not only the result (`sheet.mjs` with their shots, in the screens' order). Then a table: each number with its arrangement, navigation, type, ground and accent in plain words. List any fault you could not fix. Do not say which you prefer, and do not rank them. Ask one line:
 
 > Which of these would you take further? Any number of them, or none.
 
@@ -130,13 +132,13 @@ One sheet, a row per thing, every option on the chosen screen at the grid's size
   node <skill>/scripts/fonts.mjs "Inter" --body
   node <skill>/scripts/fonts.mjs "Their Face" --kind sans --css "<its stylesheet>"
   ```
-- **Ground and ink, and accent:** made by `scripts/colours.mjs`, never picked by hand: the ground and accent as dealt, even steps around each (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), none for the accent, and theirs. Each ground comes with the ink that reads best on it; an option under 4.5:1 for text, or 3:1 for an accent on its ground, is left out, and the script says so.
+- **Ground and ink, and accent:** made by `scripts/colours.mjs`, never picked by hand: the ground and accent as dealt, even steps around each (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), none for the accent, and theirs. Each ground keeps the dealt ink where it reads, and takes near-black or near-white only where it does not; an option under 4.5:1 for text, or 3:1 for an accent on its ground, is left out, and the script says so.
 
   ```
   node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the family's colours>" --theirs "<theirs>"
   ```
 
-- **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes as `calc(… * var(--space))`).
+- **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes through `--space`). Show this row on a crop (the top-left quarter, where the margin and the nav meet), as well as whole: at grid size three spacings can look the same. If they still do, an arrangement is writing plain px: fix it first.
 
 Which of the listed faces go in a row is the agent's to choose, never by taste: take the nearest, and at least two of the five from beyond the hundred most used (`used` over 100), so the row is not only the faces every site has. Say for each, from its numbers, how it is of the same kind ("as narrow, darker, less contrast"). Every face is free to license, or theirs.
 
@@ -144,6 +146,7 @@ Which of the listed faces go in a row is the agent's to choose, never by taste: 
 
 - **A pick** becomes a library entry with `"from": ["theirs"]`, and the chosen screen is dealt with it (`deal.mjs … --mix chosen,accent=<id>,type=<id>`: `chosen` is the screen recorded in step 4, whatever round is last), captured and shown again, once, with everything they picked together. On their yes, `--choose 1` records it.
 - **Something they name** is built the same way, checked the same way, and shown before it counts.
+- **A change inside the arrangement** ("the name on top of the picture", "the left side of 4", "drop the repeated line") is not a list entry: `--mix` swaps whole entries only. Build it as a variant of the arrangement's rule (a new arrangement id in the library, `"from"` both references it takes from), deal it with `--mix chosen,arrangement=<id>`, and say when it now takes more than one of arrangement, type and ground from one reference.
 - **"Go"** keeps what the screen has, and says so.
 
 Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes.
@@ -159,7 +162,7 @@ Until now every screen was a sketch at one size. Now it becomes the design. Read
 - **The ownable.** The one thing `direction.md`'s subject says this screen must show is on it, somewhere you can point to, made from the product's own world and not from a reference. It is unconfirmed until they have seen it rendered: confirm it or replace it here. It is `ownable` in `DESIGN.md`.
 - **The second theme**, if they asked for both: the same screen on a ground from the library that fits it.
 
-The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
+The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`: a copy of `grid.html` that still loads `../deal.js` and still takes the URL overrides, with the chosen recipe fixed (`?n=` ignored) and only its own arrangement and navigation kept. Never rewrite it as a standalone page: the overrides are how a colour, a face or a spacing is tried again later. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
 
 ### 7. Prototype the rest, choose where it forks
 

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdtempSync, readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -100,4 +100,17 @@ test("capture refuses motion options that do not fit together", async () => {
     const result = await run("https://example.com/", extra);
     assert.equal(result.status, 2, `${extra.join(" ")}: ${result.stderr}`);
   }
+});
+
+test("capture fails on a page it cannot reach, and keeps a long local page in parts", async (t) => {
+  const gone = await run("http://127.0.0.1:1/");
+  if (/No Chrome/.test(gone.stderr)) return t.skip("no Chrome installed");
+  assert.equal(gone.status, 1);
+  assert.match(gone.stderr, /could not reach .*ERR_/);
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-tall-"));
+  const page = join(dir, "tall.html");
+  writeFileSync(page, '<!doctype html><body style="margin:0"><div style="height:45000px;background:linear-gradient(red,blue)"></div>');
+  const tall = await run(`file://${page}`, [], "tall.jpg");
+  assert.equal(tall.status, 0, tall.stderr);
+  assert.deepEqual(readdirSync(dirname(tall.out)).sort(), ["tall-2.jpg", "tall.jpg"]);
 });

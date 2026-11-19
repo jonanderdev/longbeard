@@ -4,12 +4,13 @@
 // (serif or sans, display or text, the weight in use, Latin); the shape is measured in one Chrome,
 // each face set at the weight in use: how wide it runs, its x-height, how dark it sets, and its
 // stroke contrast (thick over thin, from an "o"). A face from elsewhere is still measured, given
-// its kind with --kind. Node 22+, an installed Chrome, no dependencies.
+// its kind with --kind, and --kind also overrides the list's kind for a face Google files wrongly. Node 22+, an installed Chrome, no dependencies.
 //
 //   node fonts.mjs "Newsreader" --weight 300
 //   node fonts.mjs "Inter" --body                      the body row: text faces with 400 and 700
 //   node fonts.mjs "Their Face" --kind serif --css https://…/their-face.css
 //                                                      a face not in Google's list, from its stylesheet
+//   node fonts.mjs "Italiana" --kind serif              the list calls it a sans: say what it is
 //
 // Prints one row a face, nearest first: face, kind, width, x-height, dark, contrast (each the
 // face's own, the chosen one's first), weights, axes, how widely it is used (its rank in Google's
@@ -132,8 +133,10 @@ const offers = (f, w, it) => (it ? `${w}i` : `${w}`) in f.fonts || (f.axes || []
 const isDisplay = (f) => (f.classifications || []).includes("Display");
 const chosen = families.find((f) => f.family.toLowerCase() === face.toLowerCase());
 if (!chosen && !kindArg) fail(`${face} is not in Google Fonts' list: say its kind with --kind ${Object.keys(KINDS).join("|")}`);
-const [category, stroke] = chosen ? [chosen.category, chosen.stroke] : KINDS[kindArg];
-const display = chosen ? isDisplay(chosen) : kindArg === "display";
+// --kind wins over the list: Google files some faces under the wrong kind (Italiana is listed as a
+// sans), and a row of the wrong kind is no row at all.
+const [category, stroke] = kindArg ? KINDS[kindArg] : [chosen.category, chosen.stroke];
+const display = kindArg ? kindArg === "display" : isDisplay(chosen);
 const pool = families
   .filter((f) => f !== chosen && f.category === category && (!stroke || !f.stroke || f.stroke === stroke) && isDisplay(f) === display)
   // A small-caps twin is the same face; a slab in a serif's row is another kind.

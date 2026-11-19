@@ -2,7 +2,7 @@
 // The colour rows of design step 5, made by rule, not picked by the agent: the
 // chosen screen's ground and accent, even steps around each in OKLCH (lighter,
 // darker, warmer, cooler), the family's own colours, and theirs. Every ground
-// gets the ink that reads best on it, and an option that fails contrast is left
+// keeps the dealt ink where it reads, or else gets near-black or near-white, and an option that fails contrast is left
 // out: 4.5:1 for text on a ground, 3:1 for an accent on its ground. No
 // dependencies.
 //
@@ -93,10 +93,13 @@ const add = (row, label, colour, extra) => {
   seen.add(`${row}${colour}`);
   rows.push({ row, label, colour, ...extra });
 };
-// Grounds: each with the ink that reads best on it, from the chosen ink, near-black and near-white.
-const inks = [ink, "#111111", "#f7f7f5"];
+// Grounds: each with an ink. The dealt ink is part of the chosen look (tan on brown), so it stays
+// wherever it reads; only where it fails does the ground take near-black or near-white, whichever
+// reads best.
+const inks = ["#111111", "#f7f7f5"];
 const groundOption = (label, colour) => {
-  const best = inks.map((i) => [i, contrast(i, colour)]).sort((a, b) => b[1] - a[1])[0];
+  const own = contrast(ink, colour);
+  const best = own >= 4.5 ? [ink, own] : inks.map((i) => [i, contrast(i, colour)]).sort((a, b) => b[1] - a[1])[0];
   if (best[1] >= 4.5) add("ground", label, colour, { ink: best[0], contrast: Math.round(best[1] * 10) / 10 });
 };
 groundOption("as dealt", ground);

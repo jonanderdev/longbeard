@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -320,4 +320,22 @@ test("families --sliders: each family is placed on the sliders they answered, an
   const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--sliders", "loud=9"], { cwd: dir, encoding: "utf8" });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /each 1 to 5/);
+});
+
+test("families --only: sorts one family's members alone, into its own folder, leaving the pool's families as they are", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) refs[`quiet${i}`] = profile(`quiet${i}`, { lum: 0.9, empty: 90 + i, loud: 0, picture: "none", layout: "centred", colours: 3 });
+  for (let i = 0; i < 4; i++) refs[`loud${i}`] = profile(`loud${i}`, { lum: 0.9, empty: 10 + i, loud: 80, picture: "photo", layout: "full-bleed", colours: 400 });
+  refs.other = profile("other", { lum: 0.05, empty: 50, picture: "render", layout: "left" });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "families/f9.tsv": ["quiet0", "quiet1", "quiet2", "loud0", "loud1", "loud2"].map((n) => `${n}\trefs/${n}.jpg`).join("\n") + "\n" });
+  run("families.mjs", dir, ["profiles.json", "--only", "families/f9.tsv"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families/f9-split/families.json"), "utf8"));
+  const members = families.flatMap((f) => f.members);
+  assert.equal(members.length, 6);
+  assert.ok(!members.some((m) => /other|quiet3|loud3/.test(m)));
+  assert.ok(families.filter((f) => !f.stray).every((f) => f.members.every((m) => /quiet/.test(m)) || f.members.every((m) => /loud/.test(m))));
+  assert.ok(!existsSync(join(dir, "families.json")));
+  const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--only", "quiet0,nobody"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /not in profiles.json: nobody/);
 });
