@@ -58,7 +58,7 @@ Read the design brief (personality, feel, never, what is fixed) and the directio
   ```
 
 - **From their other references,** the library's grounds and accents.
-- **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each what it came from ("the crust, lightened to carry white text").
+- **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
 - **Theirs,** what the design brief records as owned.
 - Every palette has an ink that reads on each ground at 4.5:1, and an accent that holds 3:1 on at least one ground.
 
