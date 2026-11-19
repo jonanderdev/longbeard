@@ -13,7 +13,7 @@ description: >
 
 One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface, position and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
 
-The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's.
+The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's. And never how it looks: no layout, colour, typeface, named style or page furniture. Those are chosen in Design, on rendered screens, and a brief that describes a look decides it before anyone has seen it.
 
 ## Gate
 
@@ -93,6 +93,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 - **Changes** is added under Out of scope by the first Change, never before.
 - Position is concrete. "Fast, simple, trustworthy" says nothing every rival would not say. `remembered for` is a thing you could point at on a screen or in a sentence; `against` names real products or habits.
 - Content is real: the longest names the people will type, the likely numbers, the real empty case. `design` uses them as copy.
+- A screen is described by what is on it and what it is for, never by how it is arranged or styled. `remembered for` is a thing the product has or does, in the product's own words. If they describe a look while being grilled, keep it out of the brief and tell them it is `design-direction`'s first question.
 - Over a page means a flow is really two products, or a section is doing Architecture's job. Cut it.
 
 ## After writing
@@ -108,6 +109,7 @@ Do not start it until they say so.
 ## Do not
 
 - Pick a stack, or write a requirement as one ("uses Postgres").
+- Describe a look: a layout, a colour, a typeface, a style by name.
 - Ask a question the repo or the idea already answers.
 - Write the brief before they confirm the seven-line summary.
 - Edit the brief for a feature. Features get specs.

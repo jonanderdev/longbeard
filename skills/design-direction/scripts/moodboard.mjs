@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // A moodboard of the references, built to be marked: every card with a shot
-// or recorded frames, grouped by its topic (the part of the product it shows),
-// with Lead, Like and No, a note per tile, and a copy-out for the chat. The
+// or recorded frames, grouped by its topic (the family it looks like, or the
+// one piece it is for), with Lead, Like and No, a note per tile, and a
+// copy-out for the chat. The
 // layout is this file. It shows what we saw. It does not paint a brand.
 //
 // A card's fields in board.md: link, shot, frames (a folder that
@@ -298,7 +299,7 @@ const html = `<!DOCTYPE html>
         const mark = b.dataset.mark;
         if (t.dataset.state === mark) delete t.dataset.state;
         else {
-          // One lead per group (a part, or a direction): a new lead turns the old one into a like.
+          // One lead per group (a family, or a piece): a new lead turns the old one into a like.
           if (mark === "lead") for (const o of tiles) if (o !== t && o.dataset.topic === t.dataset.topic && o.dataset.state === "lead") o.dataset.state = "like";
           t.dataset.state = mark;
         }

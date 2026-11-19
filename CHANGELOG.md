@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- The agent no longer chooses the look, and no longer asks you to describe one. `design-direction` sorts the references (your moodboard, or what you liked in the picker) into three to six families that look alike. On one board you mark, in the family you want, one lead (the anchor) and the likes (the donors). The agent reads those into `library.json`: how their screens are arranged, how they do navigation, and what type, grounds and accents they use. This replaces the three proposed directions, each anchored on one reference, and the moodboard grouped by part.
+- `design` deals eight first screens from that library and builds each with your real content. A recipe's arrangement, type and ground always come from three different references, so no reference can be copied whole. The anchor's arrangement appears twice. You pick from one numbered grid, see each pick varied one thing at a time (navigation, type, ground, accent), and pick again. Only then is the screen finished and the other key screens built. This replaces the questions on colour and type, and the two or three variants of every key screen.
+- The agent says what each screen is made of and lists faults it could not fix. It does not rank the screens or say which it prefers.
+- New scripts: `measure.mjs` reads an image's colours or a live page's fonts, sizes and colours, so the library is measured, not judged by eye. `deal.mjs` deals the recipes and the variations and keeps every round. `sheet.mjs` lays the screenshots out as one numbered sheet.
+- The brief no longer describes a look. `idea` keeps layout, colour, typeface and named styles out of it.
+- A device that came with a look you chose is on purpose: `DESIGN.md` says what it does for the product, and the design rules no longer count it as a tell.
+- A `direction.md` from an earlier version has no library beside it. `design` sends it back to `design-direction`, which picks up at the families with the references it already has.
+
 ## 0.11.2 — 2026-11-18
 
 - `design-direction` asks whether you already have a moodboard: a Figma link (file, page or section), a folder of images, or links. If you do, it is the base. The agent reads the board and checks whether it is enough: three distinct anchors, and every part of the product covered. If it is, there is no search. If not, it says what the board lacks and offers a search for only that (a pool of 20 to 60, one picker round), or the full search when the board is too thin for even one direction. It opens the shortlisted references at full size (from Figma, the original upload, GIFs included, with motion recorded as frames), and proposes 3 directions as small boards of 6 to 8 references. Each direction is anchored on one reference's move, kept whole, with moves from other references combined around it and never averaged, and never one reference's whole concept. The search, the picker and the board of 100 stay for people without a moodboard.

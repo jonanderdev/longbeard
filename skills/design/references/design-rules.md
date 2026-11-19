@@ -147,7 +147,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 **Dated 2026-11-03. Reviewed each release.** Add new tells, retire ones that stopped being defaults.
 
-A tell is a device that makes a screen look produced by default rather than designed for this product. Most began as good ideas. They are tells because they arrive without a reason. Every check here is **soft**: present, and `DESIGN.md` gives no reason for it. This list never says what to use instead. That comes from the direction.
+A tell is a device that makes a screen look produced by default rather than designed for this product. Most began as good ideas. They are tells because they arrive without a reason. Every check here is **soft**: present, and `DESIGN.md` gives no reason for it. This list never says what to use instead. That comes from the direction. A device that came with a look they chose on rendered screens is there on purpose: `DESIGN.md` says under Decisions what it does for this product.
 
 - [soft] Purple-to-blue gradients on backgrounds, buttons, glows or headline text.
 - [soft] Translucent blurred panels used on two or more surfaces.
