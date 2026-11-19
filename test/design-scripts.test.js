@@ -587,3 +587,21 @@ test("measure: a tall capture is read on its first screen, a folder of frames by
   assert.equal(wideOut.firstScreen, true);
   assert.deepEqual([wideOut.traits.tone, wideOut.traits.loud], ["light", 0]);
 });
+
+test("colours: step 5's colour rows are made by rule, every option passes contrast, and a failing one is left out", () => {
+  const colours = join(root, "skills/design/scripts/colours.mjs");
+  const out = spawnSync(process.execPath, [colours, "--ground", "#f1ede4", "--ink", "#111111", "--accent", "#fe2601", "--family", "#ebe4e0,#fec704", "--theirs", "#2b4c7e", "--json"], { encoding: "utf8" });
+  assert.equal(out.status, 0, out.stderr);
+  const { rows } = JSON.parse(out.stdout);
+  const grounds = rows.filter((r) => r.row === "ground");
+  const accents = rows.filter((r) => r.row === "accent");
+  assert.deepEqual(grounds.slice(0, 3).map((r) => r.label), ["as dealt", "lighter", "darker"]);
+  assert.ok(grounds.every((r) => r.contrast >= 4.5));
+  assert.equal(grounds.find((r) => r.label === "theirs").ink, "#f7f7f5");
+  assert.ok(accents.filter((r) => r.colour !== "none").every((r) => r.contrast >= 3));
+  assert.ok(!accents.some((r) => r.colour === "#fec704"), "a yellow under 3:1 on cream is left out");
+  assert.ok(accents.some((r) => r.label === "none"));
+  const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
+  assert.match(pale.stderr, /left out the dealt accent/);
+  assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
+});

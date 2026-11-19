@@ -137,7 +137,7 @@ Each id is the round's letter and its row number in that round's TSV, comments n
 
 **Round 2, once.** Search again from the corrected read, sharper than round 1: the forms the likes share, the same designer or studio, the same gallery tag or category, and the shared pattern on the other sources (a liked Dribbble concept becomes a search for live sites with that pattern). Fill the parts the likes left thin. Leave out what the noes share. 60 to 100 rows in `candidates-2.tsv`, then `picker.mjs … --round 2 --out design-exploration/<slug>/picker-2.html`, and the same ask. Skip round 2 when they say the likes already cover it. There is never a third round.
 
-**The likes are the keep.** Open each at full size and drop what fails sources.md, naming each drop and why in one line. Keep up to the number they chose (default about 100), spread across the parts: later-round likes and the clearest patterns first. A part with few likes stays small; never pad it. Nothing is kept from a thumbnail.
+**The likes are the keep, all of them.** They chose them, so none is cut to reach a number. Open each at full size and drop only what fails sources.md (a dead page, a gate, broken work), never for taste. Every drop goes on the board as a card in a last group, `Dropped`, with its reason as its `why`, so they can see it and bring it back with a note. A part with few likes stays small; never pad it. Nothing is kept from a thumbnail.
 
 A keep is a page, not a site. For each, open the page that shows its part (the case study, the article, the menu open) and capture only that ([sources.md](references/sources.md) has the options):
 
@@ -257,7 +257,7 @@ Look at it yourself first, one family at a time so every tile stays readable (`c
 - **The lead is the anchor.** Its arrangement is sure to be among the screens `design` shows. It is never followed whole.
 - **The likes are the donors.** Only the anchor and the donors are read into the library.
 - **The marks are theirs.** Say which families fit; never pick the family, the anchor or the donors for them. Only on "you choose": the family closest to their words for feel, its member closest to the brief as anchor, the rest of the family as donors, and say so.
-- **Leads in two families** are two looks: each gets its own library and its own round of screens. Never merge two families into one library. Mixed families are what make a screen look assembled. Ask which comes first.
+- **Leads in two families** are two looks: each gets its own library and its own round of screens, in its own folder. Ask which comes first: it stays in this folder; the second is read into `design-exploration/identity-2/` (its own `library.json` and `direction.md`, the same board's references). `design` works on one at a time, the one they named first, and offers the other after. Never merge two families into one library. Mixed families are what make a screen look assembled.
 - **Likes outside the lead's family** are asked about, never dropped or folded in quietly: "You liked 3 in <family>: bring them in as donors (the screens will mix two looks), or keep them for later screens?" Brought in, they join the library and the read-back says the family is now mixed. Kept, they go under Other parts in `direction.md`, for the screens they show.
 
 - **A note "move to <family>"** moves that tile. Move it, run the board again, and say what moved. Their grouping wins over the numbers.
@@ -299,7 +299,7 @@ Open each reference at full size again. Its measurements are already in `profile
 
 The library stays in `design-exploration/`. It names references, so nothing the product keeps ever copies from it by name.
 
-**Show the library before the direction is written.** It is what every screen will be dealt from, and reading it made choices they have not seen. In chat, short, one line per list:
+**The library and the direction are shown together, in one message**, after the direction is written (step 7): one stop, not two. The library part is what every screen will be dealt from, and reading it made choices they have not seen, so it is shown, short, one line per list. It is information, not a vote on each id: the choosing happens on rendered screens. They may drop an entry or name a swap if something reads wrong to them.
 
 ```
 Library, from <anchor> and <n> donors:
@@ -313,9 +313,7 @@ Library, from <anchor> and <n> donors:
 - not read: <anything that could not be measured or seen>, or nothing
 ```
 
-> Drop or swap anything before I write the direction?
-
-A drop removes the entry. A swap is a face, a ground or an accent they name: it goes in as `"from": ["theirs"]`. Then wait. Only "go" or their changes move on.
+A drop removes the entry. A swap is a face, a ground or an accent they name: it goes in as `"from": ["theirs"]`.
 
 ### 7. Write `direction.md`
 
@@ -347,9 +345,9 @@ Proposal, not official. design deals screens from the library. Only an approved 
 - **Notes count.** A tile note is about that reference: it goes into `leave`, or into the library entry it speaks of.
 - **No values here.** No hex, no font name, no size in `direction.md`. The measured values live in `library.json`, as a record of what the references use.
 
-Then say the direction in chat in four lines (subject, family, anchor and donors, leave), and end with one question. Wait for the answer, however the run was set up: the direction is theirs to correct before anything is built on it.
+Then say the direction in chat in four lines (subject, family, anchor and donors, leave), the library readout from step 6 under it, and end with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
 
-> Change anything, or take this into design?
+> Change anything (the direction, or an entry in the library), or take this into design?
 
 Yes → load `design`. No → stop. The folder stays on this machine.
 
@@ -377,7 +375,7 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 
 - Choose a colour, a typeface, a size or a spacing value, or propose a combination. The library records what references use. Write `DESIGN.md`. Code or lay out a page.
 - Pick the family, the anchor or the donors for them, or rank the references, unless they say "you choose". Merge two families into one library.
-- Write `direction.md` before they have seen the library readout. Hide or drop a family because it looks like their "never feel": say so, and let them decide. Fold likes from another family into the library without asking.
+- Take the direction into design before they have seen it with the library readout. Cut their likes to a number, or drop one without putting it in `Dropped`. Hide or drop a family because it looks like their "never feel": say so, and let them decide. Fold likes from another family into the library without asking.
 - Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
 - Measure one image per call, open every keep at full size to sort it, or read a big pool's traits into the chat. One browser for the folder, contact sheets for the eye, `families.mjs` for the numbers.
 - Cut their moodboard to a number, or force its families to one.

@@ -30,7 +30,7 @@ Look at the repo. Do not ask what is there.
 5. `DESIGN.md` exists → **Feature loop**.
 6. Otherwise → **First pass**.
 
-The first pass reads the newest `design-exploration/identity*/direction.md` (`identity/`, `identity-2/`) and the `library.json` beside it, never a one-piece direction.
+The first pass reads `design-exploration/identity/direction.md` and the `library.json` beside it, never a one-piece direction. When there are two looks (`identity/` and `identity-2/`, two families led), it works on the one they named first, and offers the other when that one is approved or set aside. A rebrand is the newest `identity*` folder.
 
 No Figma connection → say Figma is required for UI projects, and stop before the Figma step. The prototype and `DESIGN.md` can still be done.
 
@@ -95,7 +95,7 @@ node <skill>/scripts/sheet.mjs design-exploration/<slug>/grid/sheet.html design-
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/grid/sheet.html" --out "$PWD/design-exploration/<slug>/grid/sheet.png"
 ```
 
-**Show it.** Give the sheet's path, then a table: each number with its arrangement, navigation, type, ground and accent in plain words. List any fault you could not fix. Do not say which you prefer, and do not rank them. Ask one line:
+**Show it.** Give the sheet's path, and a second sheet of the references each screen's arrangement was read from, so they can judge the reading, not only the result (`sheet.mjs` with their shots, in the screens' order). Then a table: each number with its arrangement, navigation, type, ground and accent in plain words. List any fault you could not fix. Do not say which you prefer, and do not rank them. Ask one line:
 
 > Which of these would you take further? Any number of them, or none.
 
@@ -116,7 +116,7 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 - **A mix** is `deal.mjs … --mix 7,ground=3` (an entry id works too: `ground=dark`). Its arrangement, type and ground should still come from three different references. When the script warns that a mix breaks that, build it, and say that it now takes most of its look from one reference.
 - **More of one thing** is `deal.mjs … --more 4:type`: the pick, then every entry of that list it can take and has not had.
 - Every flag reads its numbers from the last round shown, so a variation can be varied again. Each ask is a new round: capture it and show its sheet. Never edit `deal.json` by hand.
-- Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes.
+- Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes. On the yes, record it: `deal.mjs … --choose <n>` (n in the last round shown). Steps 5 and 7 build on it.
 
 ### 5. Colour and type, by them
 
@@ -126,14 +126,19 @@ One sheet, a row per thing, every option on the chosen screen at the grid's size
 
 - **Display face:** the face it has, then up to five more of the same kind (the width, weight and contrast its library entry describes), each free to license or theirs. An `eye` stand-in is always in this row.
 - **Body face:** the body face it has, then up to five that sit with the chosen display face.
-- **Ground and ink:** the ground it has, a step lighter and a step darker, the grounds of the family's other references (their palettes in `profiles.json`), and their own colours. Each with the ink that reads on it.
-- **Accent:** the accent it has, a step lighter, darker, warmer and cooler, the other loud colours in the family's palettes, none, and theirs.
+- **Ground and ink, and accent:** made by `scripts/colours.mjs`, never picked by hand: the ground and accent as dealt, even steps around each (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), none for the accent, and theirs. Each ground comes with the ink that reads best on it; an option under 4.5:1 for text, or 3:1 for an accent on its ground, is left out, and the script says so.
 
-Every text and ground pair and every accent goes through `scripts/contrast.mjs` before it is shown: an option that fails is left out, not shown with a warning.
+  ```
+  node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the family's colours>" --theirs "<theirs>"
+  ```
+
+- **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes as `calc(… * var(--space))`).
+
+The faces are the agent's to list (a catalogue is a later step): say for each why it is of the same kind, and every face is free to license or theirs.
 
 > Pick one in each row, or name your own: a colour, a face. "Keep" leaves a row as it is.
 
-- **A pick** becomes a library entry with `"from": ["theirs"]`, and the screen is dealt with it (`deal.mjs … --mix 1,accent=<id>`), captured and shown again, once, with everything they picked together.
+- **A pick** becomes a library entry with `"from": ["theirs"]`, and the chosen screen is dealt with it (`deal.mjs … --mix chosen,accent=<id>,type=<id>`: `chosen` is the screen recorded in step 4, whatever round is last), captured and shown again, once, with everything they picked together. On their yes, `--choose 1` records it.
 - **Something they name** is built the same way, checked the same way, and shown before it counts.
 - **"Go"** keeps what the screen has, and says so.
 
@@ -166,7 +171,7 @@ The identity is chosen: the first screen, its navigation, its faces and colours.
 
    > Click through. Want options anywhere? I'd offer them for <forks>.
 
-4. **Options, only where asked or forked.** Read that screen's layouts into the library's `parts` (from the keeps that show it, the chosen family's first, and one that follows from the screens already built, `"from": ["first screen"]`). Record the chosen screen once (`deal.mjs … --choose <n>`, from step 5), then `deal.mjs … --part <name>`: two to four layouts, each from a different reference, carrying the chosen look and the screens chosen so far; a layout that needs what was not chosen is left out. Build them inside the prototype, show one sheet, never ranked, and they pick, mix, or ask for more. `--choose` on that round records it, so later options know it. Nothing fits: `design-direction` one-piece mode for it, then back.
+4. **Options, only where asked or forked.** Read that screen's layouts into the library's `parts` (from the keeps that show it, the chosen family's first, and one that follows from the screens already built, `"from": ["first screen"]`). The screen they settled on is already recorded (steps 4 and 5). Then `deal.mjs … --part <name>`: two to four layouts, each from a different reference, carrying the chosen look and the screens chosen so far; a layout that needs what was not chosen is left out. Build them inside the prototype, show one sheet, never ranked, and they pick, mix, or ask for more. `--choose` on that round records it, so later options know it. Nothing fits: `design-direction` one-piece mode for it, then back.
 5. **States, once a screen is settled.** The empty, loading and error states a person can reach, as frames in the same file (`?state=empty`, hidden switcher when the URL has `capture`), every width, each theme.
 
 A pattern a layout brings that the brief does not have is named when it is shown: if they keep it, that is a product change (`idea`, Change) before `DESIGN.md`.
