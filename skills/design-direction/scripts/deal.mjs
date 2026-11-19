@@ -8,7 +8,7 @@
 //   node deal.mjs .longbeard/design/direction/library.json --vary 4,7,8
 //   node deal.mjs .longbeard/design/direction/library.json --more 4:type
 //   node deal.mjs .longbeard/design/direction/library.json --mix 7,ground=3
-//   node deal.mjs .longbeard/design/library.json --identity docs/design/design-identity.md
+//   node deal.mjs .longbeard/design/direction/library.json --identity docs/design/design-identity.md
 //
 // --identity reads the identity design-identity chose (the json block in
 // design-identity.md) and deals type, grounds and accents from it instead of

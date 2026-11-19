@@ -16,7 +16,7 @@
 // A header row starting with "name" is skipped.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const VOCABULARY = {
@@ -83,7 +83,7 @@ function main() {
     }
     const sheet = join(dirname(fileURLToPath(import.meta.url)), "contact-sheet.mjs");
     for (const list of lists) {
-      const r = spawnSync(process.execPath, [sheet, list, "--out", join(sheetsArg, list.replace(/^.*\/(untagged-\d+)\.tsv$/, "$1")), "--per", "16", "--cols", "4", "--contain"], { encoding: "utf8" });
+      const r = spawnSync(process.execPath, [sheet, list, "--out", join(sheetsArg, basename(list, ".tsv")), "--per", "16", "--cols", "4", "--contain"], { encoding: "utf8" });
       if (r.status !== 0) fail(r.stderr || "contact-sheet.mjs failed");
       process.stdout.write(r.stdout);
     }

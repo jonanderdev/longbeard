@@ -157,7 +157,8 @@ const texts = await evaluate(`(() => {
       const s = getComputedStyle(el);
       const size = parseFloat(s.fontSize), weight = parseInt(s.fontWeight, 10) || 400;
       const colour = parse(s.color) || [0, 0, 0, 1];
-      colour[3] *= Number(s.opacity);
+      // A faded container fades its text too: every opacity from the element up multiplies in.
+      for (let up = el; up && up.nodeType === 1; up = up.parentElement) colour[3] *= Number(getComputedStyle(up).opacity);
       byEl.set(el, { text: "", boxes: [], colour, size, weight, large: size >= 24 || (size >= 18.66 && weight >= 700) });
     }
     const t = byEl.get(el);

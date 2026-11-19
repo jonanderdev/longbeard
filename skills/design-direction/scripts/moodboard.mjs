@@ -89,10 +89,10 @@ const TOPICS = [
 ];
 function topicOf(raw) {
   const t = String(raw || "").trim().toLowerCase();
-  if (!t) return { label: "Other", rank: 1e6 };
+  if (!t) return { key: "", label: "Other", rank: 1e6 };
   const at = TOPICS.findIndex(([, re]) => re.test(t));
-  if (at !== -1) return { label: TOPICS[at][0], rank: at };
-  return { label: t.charAt(0).toUpperCase() + t.slice(1), rank: 1000 };
+  if (at !== -1) return { key: t, label: TOPICS[at][0], rank: at };
+  return { key: t, label: t.charAt(0).toUpperCase() + t.slice(1), rank: 1000 };
 }
 
 // Frames from capture.mjs --frames: 01-00000ms.jpg, 02-00500ms.jpg…
@@ -161,8 +161,11 @@ for (const card of cards) {
           <input class="why" type="text" placeholder="Note (optional)" aria-label="Note on ${esc(card.name)}">
         </figcaption>
       </figure>`;
-  if (!sections.has(topic.label)) sections.set(topic.label, { rank: topic.rank, order: sections.size, tiles: [] });
-  sections.get(topic.label).tiles.push(tile);
+  // In the overview each family is its own section, named by its id as written (f1, not F1), so the
+  // copy-out names the list on disk (families/f1.tsv) and the board's Families: line finds its ranges.
+  const at = overview ? topic.key : topic.label;
+  if (!sections.has(at)) sections.set(at, { label: topic.label, key: topic.key, rank: topic.rank, order: sections.size, tiles: [] });
+  sections.get(at).tiles.push(tile);
 }
 
 if (!n) {
@@ -173,18 +176,19 @@ if (!n) {
 const ordered = [...sections.entries()].sort(([, a], [, b]) => a.rank - b.rank || a.order - b.order);
 const slug = (s) => `t-${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 const jump = ordered
-  .map(([label, s]) => `<a href="#${slug(label)}">${esc(label)} <span>${s.tiles.length}</span></a>`)
+  .map(([at, s]) => `<a href="#${slug(at)}">${esc(s.label)} <span>${s.tiles.length}</span></a>`)
   .join("");
 const body = ordered
-  .map(([label, s]) => {
+  .map(([at, s]) => {
+    const { label, key } = s;
     const shown = overview ? s.tiles.slice(0, overview) : s.tiles;
     const more = s.tiles.length - shown.length;
     const head = overview
       ? `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>
-    ${ranges.has(label.toLowerCase()) ? `<p class="ranges">${esc(ranges.get(label.toLowerCase()))}</p>` : ""}
-    <div class="take"><button type="button" class="fam" data-family="${esc(label)}" aria-pressed="false">Take this family</button><input class="fam-note" type="text" data-family="${esc(label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
+    ${ranges.has(key) ? `<p class="ranges">${esc(ranges.get(key))}</p>` : ""}
+    <div class="take"><button type="button" class="fam" data-family="${esc(key || label)}" aria-pressed="false">Take this family</button><input class="fam-note" type="text" data-family="${esc(key || label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
       : `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>`;
-    return `<section id="${slug(label)}">
+    return `<section id="${slug(at)}">
     ${head}
     <div class="grid">
       ${shown.join("\n      ")}

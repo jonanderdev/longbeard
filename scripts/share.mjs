@@ -8,7 +8,6 @@ export const shared = [
   ["skills/design-moodboard/scripts/capture.mjs", ["design-identity/scripts", "design-direction/scripts", "design-prototype/scripts", "design-wordmark/scripts", "design-check/scripts"]],
   ["skills/design-moodboard/scripts/contact-sheet.mjs", ["design-families/scripts", "design-direction/scripts", "design-content/scripts"]],
   ["skills/design-moodboard/scripts/moodboard.mjs", ["design-families/scripts", "design-direction/scripts"]],
-  ["skills/design-moodboard/references/sources.md", ["design-content/references"]],
   ["skills/design-families/scripts/measure.mjs", ["design-identity/scripts", "design-direction/scripts"]],
   ["skills/design-direction/scripts/sheet.mjs", ["design-identity/scripts", "design-prototype/scripts", "design-wordmark/scripts"]],
   ["skills/design-direction/scripts/screen-contrast.mjs", ["design-prototype/scripts"]],

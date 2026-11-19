@@ -31,7 +31,7 @@ Read the brief, `docs/design/design-brief.md`, `design-identity.md`, `design-dir
 
 ### 1. Finish the first screen
 
-Copy `first.html` to `.longbeard/design/prototype/home.html` (or the brief's first key screen), keeping its URL overrides, and finish it:
+Copy `first.html` to `.longbeard/design/prototype/home.html` (or the brief's first key screen) and finish it. In the copy, point `../deal.js` at `../direction/deal.js` and fix any relative picture path the same way, or the page finds no deal; and write in any URL overrides it was captured with, since a copied file keeps no query string.
 
 - **The faces** loaded properly at every size. A stand-in face is said again: the product ships it, or the face it stands in for.
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25`), shown on a crop where the margin and the navigation meet as well as whole. They pick.

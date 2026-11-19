@@ -112,7 +112,8 @@ if (linksArg) {
   }
   for (const l of readFileSync(linksArg, "utf8").split(/\r?\n/)) {
     const [name, link] = l.split("\t").map((x) => (x || "").trim());
-    if (name && /^https?:\/\//.test(link || "")) links.set(nameOf(name), link);
+    // A name may hold a dot (acme.com): only an image's own extension is taken off.
+    if (name && /^https?:\/\//.test(link || "")) links.set(mime[extname(name).toLowerCase()] ? nameOf(name) : name, link);
   }
   for (const t of [...targets]) if (!isUrl(t) && links.has(nameOf(t)) && !targets.includes(links.get(nameOf(t)))) targets.push(links.get(nameOf(t)));
 }
@@ -240,10 +241,14 @@ const readImage = (src) => `(async () => {
   const img = new Image();
   img.src = ${JSON.stringify(src)};
   await img.decode();
+  // Transparent pixels are read as on white, the ground a cut-out sits on, never as black.
+  const paint = (ctx, cw, ch) => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch); };
   // Only the first screen: a tall desktop capture (a full page) is cut to the 1440 by 900 it opens on.
-  // A phone or portrait shot is narrower than 1000 px and is read whole.
-  let sw = img.naturalWidth;
-  let sh = sw >= 1000 && img.naturalHeight > sw * 0.75 ? Math.round((sw * 900) / 1440) : img.naturalHeight;
+  // A desktop capture is 1300 px wide or more; from 1000 to 1300 only a near-landscape shot is one.
+  // A retina phone (1170 by 2532) or a portrait poster (1080 by 1350) is read whole. A framed
+  // presentation shot is found on the whole picture first, so a cut never takes its bottom margin.
+  let sw = img.naturalWidth, sh = img.naturalHeight;
+  const fullPage = sh > sw * 0.75 && (sw >= 1300 || (sw >= 1000 && sh <= sw * 1.2));
   // A presentation shot: the screen on a plain grey or black surround (a Dribbble frame, a device
   // on a backdrop). Its ground, tone and empty would describe the surround, so the screen inside
   // is what is read. A surround is one low-colour tone on all four sides, and the screen inside is
@@ -254,6 +259,7 @@ const readImage = (src) => `(async () => {
     const fk = Math.min(1, 300 / Math.max(sw, sh));
     const fw = Math.max(1, Math.round(sw * fk)), fh = Math.max(1, Math.round(sh * fk));
     const fc = Object.assign(document.createElement("canvas"), { width: fw, height: fh }).getContext("2d");
+    paint(fc, fw, fh);
     fc.drawImage(img, 0, 0, sw, sh, 0, 0, fw, fh);
     const p = fc.getImageData(0, 0, fw, fh).data, at = (x, y) => (y * fw + x) * 4;
     const ref = [p[0], p[1], p[2]];
@@ -279,9 +285,11 @@ const readImage = (src) => `(async () => {
       }
     }
   }
+  if (!frame && fullPage) sh = Math.round((sw * 900) / 1440);
   const k = Math.min(1, 200 / Math.max(sw, sh));
   const w = Math.max(1, Math.round(sw * k)), h = Math.max(1, Math.round(sh * k));
   const c = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d");
+  paint(c, w, h);
   c.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
   const d = c.getImageData(0, 0, w, h).data, bins = new Map();
   for (let i = 0; i < d.length; i += 4) {
@@ -316,6 +324,7 @@ const readImage = (src) => `(async () => {
   const k2 = Math.min(1, 400 / Math.max(sw, sh));
   const w2 = Math.max(1, Math.round(sw * k2)), h2 = Math.max(1, Math.round(sh * k2));
   const c2 = Object.assign(document.createElement("canvas"), { width: w2, height: h2 }).getContext("2d");
+  paint(c2, w2, h2);
   c2.drawImage(img, sx, sy, sw, sh, 0, 0, w2, h2);
   const e = c2.getImageData(0, 0, w2, h2).data;
   const isFig = (i) => Math.max(Math.abs(e[i] - top[0]), Math.abs(e[i + 1] - top[1]), Math.abs(e[i + 2] - top[2])) > 24;
@@ -423,6 +432,7 @@ async function measureSwatches(tab, path) {
     pools.set(key, p);
   }
   const points = [...pools.entries()].sort((a, b) => a[0] - b[0]).map(([, p]) => ({ w: p.w, e: p.e, lab: labOf(p.r / p.w, p.g / p.w, p.b / p.w) }));
+  if (!points.length) return { width: W, height: H, swatches: [] };
   const total = points.reduce((t, p) => t + p.w, 0);
   const dist = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
   let heaviest = points[0];
@@ -746,8 +756,9 @@ if (swatches) {
   console.log(`profiles: ${profilesArg}, ${n} references, ${withPage} with their page, ${tagged} tagged`);
 } else if (tsv) {
   const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "icons", "blocks", "align", "flag"];
-  const lines = [["ref", ...cols].join("\t")];
-  for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => (c === "flag" ? r.flag : r.traits?.[c]) ?? "")].join("\t"));
+  // name: the reference's name, which for a folder of frames is the folder, not the frame in ref.
+  const lines = [["ref", ...cols, "name"].join("\t")];
+  for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => (c === "flag" ? r.flag : r.traits?.[c]) ?? ""), isUrl(r.target) ? "" : nameOf(r.target)].join("\t"));
   console.log(lines.join("\n"));
 } else if (targets.length === 1) {
   if (failed.length) process.exit(1);
