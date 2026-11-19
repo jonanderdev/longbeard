@@ -72,8 +72,9 @@
 <script>
 // ---------------------------------------------------------------- WRITE: content
 // The product's real content, the same in every recipe: the brief's name and line, real copy in
-// the voice from direction.md, the longest real names, pictures in prototype/img/ (of the product's
-// own subject, never the references'). Each piece says one thing once: no sentence on the screen
+// the voice from docs/design/design-direction.md, the longest real names, pictures from
+// .longbeard/design/pictures/ ("../../pictures/…" from this page; of the product's own subject,
+// never the references'). Each piece says one thing once: no sentence on the screen
 // twice, and one call to action, not the same one in the nav, the hero and a band.
 const C = {
   name: "Product name",
@@ -132,7 +133,9 @@ const ARRANGEMENTS = {
   const q = new URLSearchParams(location.search);
   const round = (D.rounds || []).at(-1);
   if (!round) return void (document.body.textContent = "No deal yet: run deal.mjs first.");
-  const r = round.recipes.find((x) => x.n === Number(q.get("n") || 1)) || round.recipes[0];
+  // ?n= picks a screen of the last round. Without it, the chosen screen (deal.mjs --choose), so the
+  // identity's captures land on it whatever was dealt since; before a choice, the round's first.
+  const r = q.get("n") ? round.recipes.find((x) => x.n === Number(q.get("n"))) || round.recipes[0] : D.chosen || round.recipes[0];
   const lib = D.library;
   const get = (list, id) => (lib[list] || []).find((x) => x.id === id) || {};
   const type = { ...get("type", r.type) };
@@ -140,7 +143,8 @@ const ARRANGEMENTS = {
   const accent = { ...get("accents", r.accent) };
   const nav = get("navigation", r.navigation);
   // Overrides from the URL: an option tried later is a capture, not a rebuild.
-  if (q.get("ground")) ground.ground = q.get("ground");
+  // A ground tried from the URL is the whole ground: the dealt panel, gradient and pattern go with it.
+  if (q.get("ground")) Object.assign(ground, { ground: q.get("ground"), panel: null, gradient: null, pattern: null });
   if (q.get("ink")) ground.ink = q.get("ink");
   if (q.get("accent")) accent.colour = q.get("accent") === "none" ? null : q.get("accent");
   if (q.get("face")) type.face = q.get("face");

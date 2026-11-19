@@ -57,12 +57,12 @@ The first makes sheets of 16 untagged keeps and prints the vocabulary (picture, 
 node <skill>/scripts/families.mjs .longbeard/design/families/profiles.json --board .longbeard/design/families/board.md --sliders "loud=2,picture=4,rich=2,cool=2"
 ```
 
-The sliders are the design brief's personality. It joins the closest references first and stops when groups no longer look alike, so outliers stay strays. A wide gap on what is seen first (how empty, how loud, type size, where things sit, what the picture is) keeps two apart; light or dark does not. A bin far bigger than the rest is sorted again on its own and said; one it cannot split is sorted alone with `--only <family tsv> --spread 0.4`. `--spread` lower splits finer.
+The sliders are the design brief's personality. It joins the closest references first and stops when groups no longer look alike, so outliers stay strays. A wide gap on what is seen first (how empty, how loud, type size, where things sit, what the picture is) keeps two apart; light or dark does not. A bin far bigger than the rest is sorted again on its own and said; one it cannot split is sorted alone with `--only .longbeard/design/families/families/f3.tsv --spread 0.4` (its parts land in `families/families/f3-split/`). `--spread` lower splits finer.
 
 Then check each family by eye on contact sheets, never picture by picture:
 
 ```
-node <skill>/scripts/contact-sheet.mjs .longbeard/design/families/f1.tsv --out <scratch>/f1 --contain
+node <skill>/scripts/contact-sheet.mjs .longbeard/design/families/families/f1.tsv --out <scratch>/f1 --contain
 ```
 
 - Split a family that holds two looks, merge two that are one, place each stray. Strays are often the most distinctive references: never drop one for being a stray.
@@ -84,7 +84,7 @@ In the same message, one line per family: its name, what the eye changed from th
 
 > Take the families you want to work from, one or two. Note any that look like two, or belong together.
 
-- **A split or merge note:** apply it, show the page again.
+- **A split or merge note:** apply it, show the page again. `families.mjs` will not overwrite a board: remove `.longbeard/design/families/board.md` before sorting again.
 - **None taken:** ask in one line what is missing, and offer `design-moodboard` for a search sized to it.
 - **Two taken:** two looks. Ask which comes first; the other waits.
 
@@ -103,7 +103,7 @@ In the same message, one line per family: its name, what the eye changed from th
 - <family name> — <what it shares> · <n>
 ```
 
-No names, links or paths. The members of each family are in `.longbeard/design/families/f<n>.tsv`; the taken ones are the references `design-direction` and `design-iirection` work from.
+No names, links or paths. The members of each family are in `.longbeard/design/families/families/f<n>.tsv`; the taken ones are the references `design-direction` and `design-identity` work from.
 
 Then the next step in one line: `design-direction`.
 

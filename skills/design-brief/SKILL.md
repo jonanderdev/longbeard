@@ -64,7 +64,7 @@ A correction is one more line, not a second round. Answers that contradict the p
 # Design brief: <product>
 
 - takeaway: <what someone thinks in five seconds, and the one thing they do>
-- personality: quiet <n> · picture-led <n> · rich <n> · cool <n> (or "no lean")
+- personality: loud <n> · picture-led <n> · rich <n> · cool <n> (or "no lean"; each 1 to 5 as asked, 5 the named end: loud 2 is fairly quiet)
 - feel: <their words>
 - never: <their words, and what they tried and did not like, as looks, not names>
 - apart from: <the kind of product it must not be mistaken for, described, and fit in or stand out>

@@ -98,7 +98,9 @@
   root.setProperty("--n", colours.length);
 
   const swatches = colours.map((c) => {
-    const ink = lum(c.hex) > 0.4 ? "#0B0B0B" : "#F5F5F5";
+    // The label ink that reads best on the swatch: whichever of the two has the higher contrast.
+    const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    const ink = ratio(c.hex, "#0B0B0B") >= ratio(c.hex, "#F5F5F5") ? "#0B0B0B" : "#F5F5F5";
     return `<div class="swatch" style="background:${c.hex};color:${ink}">
       <span class="n">${esc(c.name)}</span>
       <span class="meta"><span>${c.hex}</span><i>${esc(roles(c).join(" · "))}</i></span></div>`;
@@ -115,16 +117,23 @@
     <section><div class="label"><span><b>Colour</b></span><span>${colours.length} colours</span></div>
       <div class="swatches">${swatches}</div></section>`;
 
-  // Faces: Google Fonts by name unless the identity gives a stylesheet.
+  // Faces: Google Fonts by name unless the identity gives a stylesheet. "ready" waits for each
+  // stylesheet, then for each face at each weight, so a capture never shows a fallback.
+  const sheets = [], wanted = [];
   const sheet = (face, weights, css) => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = css || `https://fonts.googleapis.com/css2?family=${encodeURIComponent(face).replace(/%20/g, "+")}:wght@${weights.join(";")}&display=block`;
+    sheets.push(new Promise((done) => ((link.onload = done), (link.onerror = done))));
     document.head.appendChild(link);
+    for (const w of weights) wanted.push(`${w} 100px "${face}"`);
   };
   sheet(data.display.face, [data.display.weight || 400], data.display.css);
   if (data.body.face !== data.display.face) sheet(data.body.face, [...new Set([data.body.weight || 400, 600])].sort(), data.body.css);
-  Promise.race([document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 300))), new Promise((r) => setTimeout(r, 6000))])
+  const loaded = Promise.all(sheets)
+    .then(() => Promise.all(wanted.map((f) => document.fonts.load(f).catch(() => []))))
+    .then(() => document.fonts.ready);
+  Promise.race([loaded, new Promise((r) => setTimeout(r, 6000))])
     .then(() => { document.title = "ready"; });
 </script>
 </body>

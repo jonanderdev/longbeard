@@ -45,7 +45,7 @@ Before the grid: three or four pictures of what the product is about (the bakery
 node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/direction/board.html
 ```
 
-(Use the families' `board.md` when they took families.) Then one message:
+(When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
 
 > Must carry: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
 > Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and paste the copy-out.
@@ -101,7 +101,7 @@ Make the fixes as URL overrides or rule edits on a copy, capture before and afte
 
 > Keep all, or turn any off?
 
-The before wins any change they turn off. Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy the page to `.longbeard/design/direction/prototype/first.html`, keeping the URL overrides.
+The before wins any change they turn off. Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy the page to `.longbeard/design/direction/prototype/first.html` and write the URL overrides into the copy, since a copied file keeps no query string. Without `?n=`, the page shows the chosen screen.
 
 ## Write `docs/design/design-direction.md`
 

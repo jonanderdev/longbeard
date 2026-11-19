@@ -97,6 +97,32 @@ test("pictures: keeps only clearly licensed, large bitmaps, credits each once", 
   }
 });
 
+test("pictures: two titles that cut to the same name are both kept, under different names", async () => {
+  const long = "Sourdough bread loaf on a wooden board in a small bakery in Paris 2019";
+  const { server, api } = await serve((base) => ({
+    query: {
+      pages: {
+        1: page(1, `File:${long} (1).jpg`, "image/jpeg", 4000, 3000, "CC0", "A", base, "1600px-a.jpg"),
+        2: page(2, `File:${long} (2).jpg`, "image/jpeg", 4000, 3000, "CC0", "B", base, "1600px-b.jpg"),
+      },
+    },
+  }));
+  try {
+    const dir = mkdtempSync(join(tmpdir(), "longbeard-pictures-"));
+    const result = await run(["sourdough", "--api", api, "--out", "pics"], dir);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /2 kept/);
+    const files = readFileSync(join(dir, "pics", "credits.tsv"), "utf8").trim().split("\n").slice(1).map((r) => r.split("\t")[1]);
+    assert.equal(files.length, 2);
+    assert.notEqual(files[0], files[1]);
+    assert.ok(files.every((f) => existsSync(join(dir, f))));
+    const again = await run(["sourdough", "--api", api, "--out", "pics"], dir);
+    assert.match(again.stdout, /0 kept.*2 already there/);
+  } finally {
+    server.close();
+  }
+});
+
 test("pictures: nothing that passes exits 1 and asks for another query", async () => {
   const { server, api } = await serve((base) => ({
     query: { pages: { 1: page(1, "File:Bread NC.jpg", "image/jpeg", 4000, 3000, "CC BY-NC-SA 4.0", "X", base, "1600px-Bread.jpg") } },

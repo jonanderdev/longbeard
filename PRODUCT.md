@@ -80,7 +80,7 @@ Do not put model-picker warnings in the kit. A skill that needs the current year
 
 Installed ≠ used. There is no usage logger. Judge the files: each stage's file appears only after its yes (`docs/brief.md`, the `docs/design/design-*.md` docs, `DESIGN.md`, Ready frames, specs, tickets, a PR); `design-check` docs mode finds no reference named in `docs/design/` or `DESIGN.md`; `library.json` gives every composition entry its references, and `deal.json` shows no screen taking its composition pieces from one of them; Ready frames have their states; the PR carries design-check's shots and findings.
 
-Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project's `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. A full smoke run starts fresh: one idea through brief, design brief, moodboard, identity, direction, screens, `DESIGN.md` and a Figma key screen, then one small spec through Build and `design-check`. Do not run `longbeard init` in *this* repo.
+Smoke project (outside this git tree): `../longbeard-smoke`. After changing a local skill, copy `skills/<name>/` into that project's `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. A full smoke run starts fresh: one idea through brief, design brief, moodboard, direction, identity, screens, `DESIGN.md` and a Figma key screen, then one small spec through Build and `design-check`. Do not run `longbeard init` in *this* repo.
 
 ## Do not
 

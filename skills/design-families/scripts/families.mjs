@@ -115,7 +115,7 @@ if (/\.json$/i.test(input)) {
   }
   refs = readTsv(input).map((row) => {
     for (const k of ["ref", "lum", "empty", "loud", "busy"]) if (!(k in row)) fail(`the TSV has no ${k} column: make it with measure.mjs --tsv`);
-    const name = nameOfShot(row.ref);
+    const name = row.name || nameOfShot(row.ref);
     const link = links.get(name) || links.get(basename(row.ref)) || links.get(row.ref) || null;
     const page = link ? pages.get(link) || null : null;
     return { name, shot: row.ref, link, image: row, figure: null, page: page?.flag ? null : page, media: null, flag: page?.flag || "", tags: null };
@@ -421,7 +421,10 @@ mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, `${JSON.stringify({ spread, kinds: kinds.map(([name, k]) => ({ name, weight: k.weight })), families }, null, 2)}\n`);
 const sheetsDir = onlyLabel ? dirname(outPath) : join(dirname(outPath), "families");
 mkdirSync(sheetsDir, { recursive: true });
-for (const f of families) writeFileSync(join(sheetsDir, `${f.id}.tsv`), `${f.members.map((s) => `${nameOfShot(s)}\t${resolve(s)}`).join("\n")}\n`);
+// The first column is the reference's name (a motion reference's folder, not its frame), so --only finds it.
+const nameOfRef = new Map(refs.map((r) => [r.shot, r.name]));
+const refName = (shot) => nameOfRef.get(shot) ?? nameOfShot(shot);
+for (const f of families) writeFileSync(join(sheetsDir, `${f.id}.tsv`), `${f.members.map((s) => `${refName(s)}\t${resolve(s)}`).join("\n")}\n`);
 
 // ------------------------------------------------------------------ say it
 const tagLine = (f) => (Object.keys(f.ranges.tags || {}).length ? `${Object.values(f.ranges.tags).join(" · ")} | ` : "");
@@ -447,11 +450,11 @@ if (blank.length) console.log(`near blank, check each on its sheet: ${blank.map(
 const flagged = refs.filter((r) => r.flag);
 if (flagged.length) console.log(`pages that may not be the real site, sorted on their picture only; check each on its sheet and drop it if the picture is that page too: ${flagged.map((r) => `${r.name} (${r.flag})`).join(", ")}`);
 const stray = families.find((f) => f.stray);
-if (stray?.pairs.length) console.log(`pairs, each a family seed: ${stray.pairs.map((p) => p.map(nameOfShot).join("+")).join(", ")}`);
-if (stray) console.log(`nearest family of each stray: ${stray.members.map((s) => `${nameOfShot(s)}→${stray.nearest[s] || "none"}`).join(", ")}`);
+if (stray?.pairs.length) console.log(`pairs, each a family seed: ${stray.pairs.map((p) => p.map(refName).join("+")).join(", ")}`);
+if (stray) console.log(`nearest family of each stray: ${stray.members.map((s) => `${refName(s)}→${stray.nearest[s] || "none"}`).join(", ")}`);
 for (const f of families) {
   const notes = [f.small ? "small" : "", f.wide.length ? `wide on ${f.wide.join(", ")}` : ""].filter(Boolean).join(", ");
-  console.log(`${f.id}  ${String(f.size).padStart(4)}  ${line(f)}${notes ? `  [${notes}]` : ""}${f.fit ? `  {${f.fit}}` : ""}  typical: ${f.members.slice(0, 6).map(nameOfShot).join(", ")}`);
+  console.log(`${f.id}  ${String(f.size).padStart(4)}  ${line(f)}${notes ? `  [${notes}]` : ""}${f.fit ? `  {${f.fit}}` : ""}  typical: ${f.members.slice(0, 6).map(refName).join(", ")}`);
 }
 
 // ------------------------------------------------------------------ the board skeleton

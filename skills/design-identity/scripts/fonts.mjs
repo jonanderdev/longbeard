@@ -139,8 +139,9 @@ const [category, stroke] = kindArg ? KINDS[kindArg] : [chosen.category, chosen.s
 const display = kindArg ? kindArg === "display" : isDisplay(chosen);
 const pool = families
   .filter((f) => f !== chosen && f.category === category && (!stroke || !f.stroke || f.stroke === stroke) && isDisplay(f) === display)
-  // A small-caps twin is the same face; a slab in a serif's row is another kind.
-  .filter((f) => !/ SC$/.test(f.family) && /slab/i.test(f.family) === (stroke === "Slab Serif"))
+  // A small-caps twin is the same face; a slab in a serif's row is another kind. A slab is one Google
+  // lists as a slab, or, where it lists no stroke, one named so.
+  .filter((f) => !/ SC$/.test(f.family) && (f.stroke === "Slab Serif" || /slab/i.test(f.family)) === (stroke === "Slab Serif"))
   .filter((f) => (f.subsets || []).includes("latin") && !f.isNoto && !(f.classifications || []).includes("Symbols"))
   .filter((f) => (body ? offers(f, 400, false) && offers(f, 700, false) : offers(f, weight, italic)))
   .sort((a, b) => a.popularity - b.popularity);

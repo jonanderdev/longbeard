@@ -7,8 +7,8 @@
 //   node pictures.mjs "sourdough bread" --out .longbeard/design/pictures
 //   node pictures.mjs "flour on a wooden bench" --out .longbeard/design/pictures --count 4 --min 1200 --orientation landscape
 //
-// Each picture is saved 1600 wide as <name>.jpg (or .png, .webp) in --out. A file already there is
-// skipped, so running again adds, never duplicates. Each new one gets a row in <out>/credits.tsv:
+// Each picture is saved 1600 wide as <name>.jpg (or .png, .webp) in --out. A picture already
+// credited there is skipped, so running again adds, never duplicates. Each new one gets a row in <out>/credits.tsv:
 // name, file, source, author, licence. The first two columns are what contact-sheet.mjs reads.
 //   --count 4 (1 to 12), --min 1200 (the longer side, in pixels), --orientation landscape|portrait|square,
 //   --api <url> (the Commons endpoint: for tests)
@@ -97,7 +97,12 @@ mkdirSync(outArg, { recursive: true });
 const credits = join(outArg, "credits.tsv");
 const HEADER = "# name\tfile\tsource\tauthor\tlicence\n";
 if (!existsSync(credits)) writeFileSync(credits, HEADER);
-const listed = new Set(readFileSync(credits, "utf8").split("\n").filter((l) => l && !l.startsWith("#")).map((l) => l.split("\t")[1]));
+// Rows already credited: which files are taken, and which Commons pictures are already here. A
+// picture is known by its source page (its name when there is none), never by its file name: two
+// titles can cut down to the same name.
+const rows = readFileSync(credits, "utf8").split("\n").filter((l) => l && !l.startsWith("#")).map((l) => l.split("\t"));
+const listed = new Set(rows.map((r) => r[1]));
+const known = new Map(rows.map((r) => [r[2] || `name:${r[0]}`, r[1]]));
 const clean = (s) => String(s).replace(/[\t\r\n]+/g, " ").trim();
 
 let kept = 0, already = 0, broken = 0;
@@ -107,9 +112,11 @@ for (const pic of passing) {
   let ext = extname(new URL(src).pathname).toLowerCase();
   if (ext === ".jpeg") ext = ".jpg";
   if (![".jpg", ".png", ".webp"].includes(ext)) ext = ".jpg";
-  const file = `${slug(pic.title)}${ext}`;
-  const path = join(outArg, file);
-  if (existsSync(path)) { already++; continue; }
+  const key = clean(pic.info.descriptionurl ?? "") || `name:${clean(name(pic.title))}`;
+  if (known.has(key) && existsSync(known.get(key))) { already++; continue; }
+  // A name another picture (or a file of yours) already holds gets -2, -3 …
+  let path = join(outArg, `${slug(pic.title)}${ext}`);
+  for (let i = 2; existsSync(path) || listed.has(path); i++) path = join(outArg, `${slug(pic.title)}-${i}${ext}`);
   let bytes;
   try {
     const res = await fetch(src, { headers });
@@ -121,10 +128,9 @@ for (const pic of passing) {
     continue;
   }
   writeFileSync(path, bytes);
-  if (!listed.has(path)) {
-    appendFileSync(credits, [name(pic.title), path, pic.info.descriptionurl ?? "", pic.author, pic.licence].map(clean).join("\t") + "\n");
-    listed.add(path);
-  }
+  appendFileSync(credits, [name(pic.title), path, pic.info.descriptionurl ?? "", pic.author, pic.licence].map(clean).join("\t") + "\n");
+  listed.add(path);
+  known.set(key, path);
   kept++;
   console.log(`kept  ${path}  ${pic.licence}  ${pic.author}`);
 }
