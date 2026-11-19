@@ -35,8 +35,8 @@
   .row { display: contents; }
   .left, .right { display: flex; align-items: center; padding: 10px 0; }
   .left { justify-content: flex-end; padding-right: 22px; }
-  .right { padding-left: 22px; }
-  .mid { position: relative; padding: 10px 0 28px; }
+  .right { grid-column: 3; padding-left: 22px; }
+  .mid { grid-column: 2; position: relative; padding: 10px 0 28px; }
   .mid::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 3px; height: 22px; background: var(--ink); transform: translateX(-50%); }
   .mid::before { content: ""; position: absolute; left: 50%; bottom: -4px; border: 7px solid transparent; border-top: 9px solid var(--ink); transform: translateX(-50%); }
   .row:last-child .mid::after, .row:last-child .mid::before { display: none; }
@@ -49,8 +49,11 @@
   .doc.private { background: #fff; color: var(--ink); border: var(--stroke) solid var(--ink); }
   .opt { max-width: 236px; border: var(--stroke) dashed var(--ink); border-radius: 12px; background: #fff; padding: 9px 12px; font-size: 13px; line-height: 1.4; color: var(--muted); }
   .opt b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
-  .opt.arrow { position: relative; }
-  .opt.arrow::after { content: "→"; position: absolute; right: -19px; top: 50%; transform: translateY(-50%); color: var(--ink); font-weight: 600; }
+  .optional { grid-column: 1; grid-row: 1 / span 6; align-self: start; margin: 10px 26px 0 0; border: var(--stroke) dashed var(--ink); border-radius: 16px; background: rgba(255,255,255,0.7); padding: 16px 14px 14px; display: flex; flex-direction: column; gap: 12px; }
+  .optional h4 { font-size: 15px; font-weight: 600; }
+  .optional h4 span { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .opt { max-width: none; }
+  .opt .when { display: block; margin-top: 6px; padding-top: 6px; border-top: 1.5px dashed var(--dot); font-size: 12.5px; color: var(--ink); }
   footer { display: flex; gap: 18px; margin-top: 26px; padding-top: 18px; border-top: 2px solid var(--ink); font-size: 13.5px; color: var(--muted); line-height: 1.45; }
   footer div { flex: 1; }
   footer b { color: var(--ink); font-weight: 600; }
@@ -63,7 +66,7 @@
       <div class="logo"><img src="../logo.png" alt="Long Beard"></div>
       <div><b>Design, one skill at a time</b><span>Each skill does one job, asks little, and writes one doc. Run them in order, skip what you already have, or call any one by name.</span></div>
     </div>
-    <div class="legend"><span class="k"><span class="sw"></span>Skill</span><span class="k"><span class="sw opt"></span>Optional</span><span class="k"><span class="sw doc"></span>Committed doc</span></div>
+    <div class="legend"><span class="k"><span class="sw"></span>Skill</span><span class="k"><span class="sw opt"></span>Optional, on its own</span><span class="k"><span class="sw doc"></span>Committed doc</span></div>
   </header>
 
   <div class="hub">
@@ -72,33 +75,33 @@
   </div>
 
   <div class="rows">
+    <div class="optional">
+      <h4>Optional<span>Not steps in the chain. Call one by name, or <b>design</b> offers it when it earns its place.</span></h4>
+      <div class="opt"><b>design-families</b>Sort a big board into looks, in Figma too. You take one or two.<span class="when">When: a board over ~60 references</span></div>
+      <div class="opt"><b>design-content</b>What each screen says and shows, and stand-in pictures of your subject.<span class="when">When: any time; you have no pictures, or want copy planned</span></div>
+      <div class="opt"><b>design-wordmark</b>A mark made from your type, added to the identity.<span class="when">When: after DESIGN.md, if you want a mark</span></div>
+    </div>
     <div class="row">
-      <div class="left"></div>
       <div class="mid"><div class="card"><h3>design-brief <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
       <div class="right"><span class="doc">docs/design/design-brief.md</span></div>
     </div>
     <div class="row">
-      <div class="left"><div class="opt arrow"><b>design-families</b>A big board sorted into looks, in Figma too. You take one or two.</div></div>
       <div class="mid"><div class="card"><h3>design-moodboard <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
       <div class="right"><span class="doc">design-moodboard.md</span></div>
     </div>
     <div class="row">
-      <div class="left"></div>
       <div class="mid"><div class="card"><h3>design-identity <em>3 stops</em></h3><p>Type pairings and palettes from your references, rendered. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
       <div class="right"><span class="doc">design-identity.md + .html</span></div>
     </div>
     <div class="row">
-      <div class="left"><div class="opt arrow"><b>design-content</b>Any time: what each screen says and shows, stand-in pictures of your subject.</div></div>
       <div class="mid"><div class="card"><h3>design-direction <em>the composition</em></h3><p>Eight first screens dealt from your references, in your identity, with real content. <b>You pick, vary, mix.</b> Then a hierarchy pass that fixes reading, never the composition.</p></div></div>
       <div class="right"><span class="doc">design-direction.md</span></div>
     </div>
     <div class="row">
-      <div class="left"></div>
       <div class="mid"><div class="card"><h3>design-screens <em>prototype</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
       <div class="right"><span class="doc">DESIGN.md</span></div>
     </div>
     <div class="row">
-      <div class="left"><div class="opt arrow"><b>design-wordmark</b>Late: a mark made from your type, added to the identity.</div></div>
       <div class="mid"><div class="card"><h3>design-figma</h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
       <div class="right"><span class="doc">Ready Figma frames</span></div>
     </div>
