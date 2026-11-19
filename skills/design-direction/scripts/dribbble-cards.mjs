@@ -55,6 +55,7 @@ const OFF_TOPIC = [
   "halloween", "christmas", "valentine",
   "logo", "logotype", "branding", "brand identity", "packaging",
   "poster", "book cover", "sticker", "mockup",
+  "illustration", "character design", "3d render", "icon set", "icon pack",
   "chatbot", "mood tracker", "habit tracker",
   // "Editor" on Dribbble is mostly code, video, and photo tools and AI products.
   "video editor", "photo editor", "code editor", "ide",

@@ -21,7 +21,7 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 ## Galleries
 
 - **Awwwards.** Open the site page, not the listing card. Keep Site of the Day, Month, or Year, or an Honorable Mention with overall and Design ≥ 7.5. Drop any 4s, and any gate or password wall. An older winner is captured live: drop it if the domain is dead, parked, or now another site (capture names a redirect). Never reach it through an archive.
-- **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop generic SaaS (centred headline, three icon cards, soft gradient, Inter). On Recent, open the source URL on the item.
+- **siteinspire, Recent** (recent.design/websites). These are curated, not scored. Keep a live page with one clear idea: a crop, a component, or an arrangement. Drop a page that is a template's defaults with nothing of its own. Never drop for a look (a gradient, a typeface, a colour): that is theirs to choose. On Recent, open the source URL on the item.
 - **Dark Mode Design.** Only when the look is dark.
 - **Muzli.** Only a way to reach the original, which then has to pass its own test.
 
@@ -43,7 +43,7 @@ It prints `id-slug`, likes, views, designer, image URL, and title, sorted by lik
 - **Popular is not good.** Dribbble's popular order mixes likes with recency, so the top of a listing is often just new. Rank by likes, never by position on the page.
 - **Likes grow with age.** Shot ids rise over time, so compare likes between shots of similar id. A shot whose id is far below the rest is years old: keep it only if nothing about it looks dated.
 - **Judge the designer, not only the shot.** One designer with several near-identical shots in a listing is a concept studio: keep at most one of theirs.
-- For the pool, the mechanical cuts are enough: off-topic, the likes floor, one per near-identical designer. At the shortlist, keep a shot when you can name its idea in one line, it stands out on likes in its own listing, and it looks current. Drop AI mush, fake browser chrome, purple-on-dark gradients, Inter everywhere, and emoji icons.
+- For the pool, the mechanical cuts are enough: off-topic, the likes floor, one per near-identical designer. At the shortlist, keep a shot when you can name its idea in one line, it stands out on likes in its own listing, and it looks current. Drop broken work: AI mush (garbled text, melted shapes), fake browser chrome. Never drop for a look (a gradient, a typeface, a colour): a family may rely on it, and they choose.
 - A Dribbble illustration is imagery, never a site.
 
 ## Cropping a downloaded image

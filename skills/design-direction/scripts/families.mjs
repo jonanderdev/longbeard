@@ -8,8 +8,8 @@
 //   node families.mjs traits.tsv --links links.tsv --pages traits-pages.tsv
 //
 // How many families comes from the pool, not from a fixed number: a family is
-// split while any trait spreads wider than --spread (0.1 by default, on a 0–1
-// scale). A split that would leave fewer than --min (3) on one side sets those
+// split while any trait spreads wider than --spread (0.1 by default on a 0–1
+// scale, 0.2 when the pages' layout is in). A split that would leave fewer than --min (3) on one side sets those
 // few aside as strays, for the eye to place, and the rest is split on. A
 // family under six cannot be dealt from and is marked small. The traits
 // compared: how light the ground is, how much is empty, how loud, how busy,
@@ -32,14 +32,14 @@ const flag = (name, def) => {
   const i = args.indexOf(`--${name}`);
   return i === -1 ? def : (args.splice(i, 2)[1] ?? "");
 };
-const spread = Number(flag("spread", "0.1"));
+const spreadArg = flag("spread", "");
 const min = Number(flag("min", "3"));
 const boardArg = flag("board", "");
 const linksArg = flag("links", "");
 const outArg = flag("out", "");
 const pagesArg = flag("pages", "");
 const [tsvArg] = args;
-if (!tsvArg || args.length !== 1 || !(spread > 0 && spread < 1) || !(Number.isInteger(min) && min >= 1)) {
+if (!tsvArg || args.length !== 1 || (spreadArg && !(Number(spreadArg) > 0 && Number(spreadArg) < 1)) || !(Number.isInteger(min) && min >= 1)) {
   console.error("usage: node families.mjs traits.tsv [--spread 0.1] [--min 3] [--board board.md] [--links links.tsv] [--out families.json]");
   process.exit(2);
 }
@@ -68,7 +68,7 @@ if (pagesArg) {
   const [pHead, ...pRows] = readFileSync(pagesArg, "utf8").trim().split(/\r?\n/).map((l) => l.split("\t"));
   for (const r of pRows) pages.set(r[0], Object.fromEntries(pHead.map((name, i) => [name, r[i]])));
 }
-const PAGE = ["display", "body", "scale", "pictures", "margin", "radius"];
+const PAGE = ["display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "align"];
 const sizeOf = (display) => {
   const px = parseFloat(display);
   // 12 px reads as 0, 200 px and over as 1, on a log scale: 24 px to 48 px is as far as 48 px to 96 px.
@@ -84,6 +84,9 @@ const refs = rows.map((r) => {
     raw,
     // Lightness on a perceptual curve, so dark grounds are not crushed together.
     x: [Math.cbrt(Number(get("lum"))), Number(get("empty")) / 100, Number(get("loud")) / 100, Math.min(1, Number(get("busy")) / 20), sizeOf(raw.display)],
+    // From the page, when it was measured: how much is pictures, how much is gradient, and whether the
+    // largest type is centred. Layout is half of what makes two screens look alike.
+    page: page ? [Number(page.pictures || 0) / 100, Number(page.gradient || 0) / 100, page.align === "centre" ? 0.6 : 0] : null,
   };
 });
 if (refs.length < 2) fail("fewer than two references to sort");
@@ -92,7 +95,17 @@ const sized = refs.filter((r) => r.x[4] !== null);
 const useSize = sized.length >= refs.length / 2;
 const middle = sized.length ? [...sized].sort((a, b) => a.x[4] - b.x[4])[Math.floor(sized.length / 2)].x[4] : 0;
 for (const r of refs) r.x = useSize ? r.x.map((v, k) => (k === 4 && v === null ? middle : v)) : r.x.slice(0, 4);
-const traits = useSize ? ["light", "empty", "loud", "busy", "type size"] : ["light", "empty", "loud", "busy"];
+// Layout counts on the same terms: when most references have a page, the rest take the middle.
+const paged = refs.filter((r) => r.page);
+const usePage = paged.length >= refs.length / 2;
+if (usePage) {
+  const mid = [0, 1, 2].map((k) => [...paged].map((r) => r.page[k]).sort((a, b) => a - b)[Math.floor(paged.length / 2)]);
+  for (const r of refs) r.x.push(...(r.page || mid));
+}
+// With the page's layout in, there are more traits to spread on, so the default is wider:
+// 0.1 split a varied pool of 65 into 14 families, 13 of them small; 0.2 gave 9, most of them one look.
+const spread = spreadArg ? Number(spreadArg) : usePage ? 0.2 : 0.1;
+const traits = [...(useSize ? ["light", "empty", "loud", "busy", "type size"] : ["light", "empty", "loud", "busy"]), ...(usePage ? ["pictures", "gradient", "centred"] : [])];
 
 const mean = (group) => traits.map((_, k) => group.reduce((t, r) => t + r.x[k], 0) / group.length);
 const sd = (group) => {
@@ -159,6 +172,7 @@ const families = done
       loud: `${range(group.map((r) => Number(r.raw.loud)), Math.round)}%`,
       busy: range(group.map((r) => Number(r.raw.busy)), (v) => Math.round(v)),
       ...(sizes.length ? { type: `${range(sizes, Math.round)}px` } : {}),
+      ...(usePage ? { pictures: `${range(group.map((r) => Number(r.raw.pictures || 0)), Math.round)}%`, gradient: `${range(group.map((r) => Number(r.raw.gradient || 0)), Math.round)}%`, align: [...new Set(group.map((r) => r.raw.align).filter(Boolean))].join(" and ") } : {}),
     };
     const wide = traits.filter((_, k) => sd(group)[k] > spread);
     return { id: `f${i + 1}`, size: group.length, small: group.length < 6, wide, ranges, members: members.map((r) => r.ref) };
@@ -171,7 +185,7 @@ const sheetsDir = join(dirname(outPath), "families");
 mkdirSync(sheetsDir, { recursive: true });
 for (const f of families) writeFileSync(join(sheetsDir, `${f.id}.tsv`), `${f.members.map((r) => `${basename(r, extname(r))}\t${resolve(r)}`).join("\n")}\n`);
 
-const line = (f) => (f.stray ? "far from every family: place each by eye" : `${f.ranges.tone} · empty ${f.ranges.empty} · loud ${f.ranges.loud} · busy ${f.ranges.busy}${f.ranges.type ? ` · type ${f.ranges.type}` : ""}`);
+const line = (f) => (f.stray ? "far from every family: place each by eye" : `${f.ranges.tone} · empty ${f.ranges.empty} · loud ${f.ranges.loud} · busy ${f.ranges.busy}${f.ranges.type ? ` · type ${f.ranges.type}` : ""}${f.ranges.pictures ? ` · pictures ${f.ranges.pictures} · gradient ${f.ranges.gradient} · ${f.ranges.align || "no type"}` : ""}`);
 const real = families.filter((f) => !f.stray);
 console.log(`${refs.length} references, ${real.length} families (${real.filter((f) => f.small).length} small)${strays.length ? `, ${strays.length} strays` : ""}, spread ${spread}, on ${traits.join(", ")}`);
 // Near blank: almost all one colour and almost nothing changing. Usually a capture that caught a loader.
@@ -188,7 +202,7 @@ if (boardArg) {
   const byRef = new Map(refs.map((r) => [r.ref, r]));
   const measured = (r) => {
     const v = r.raw;
-    const page = [v.display && `type ${Math.round(parseFloat(v.display))}px`, v.scale && `scale ${v.scale}`, v.pictures && `pictures ${v.pictures}%`, v.margin && `margin ${v.margin}%`, v.radius && `radius ${v.radius}`].filter(Boolean);
+    const page = [v.display && `type ${Math.round(parseFloat(v.display))}px`, v.align, v.gradient && Number(v.gradient) > 0 && `gradient ${Math.round(Number(v.gradient))}%`, v.scale && `scale ${v.scale}`, v.pictures && `pictures ${v.pictures}%`, v.margin && `margin ${v.margin}%`, v.radius && `radius ${v.radius}`].filter(Boolean);
     return [v.tone || tone(Number(v.lum)), `empty ${Math.round(Number(v.empty))}%`, `loud ${Math.round(Number(v.loud))}%`, `busy ${Math.round(Number(v.busy))}`, ...page].join(" · ");
   };
   const cards = families.flatMap((f) =>

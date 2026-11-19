@@ -115,7 +115,11 @@ Read [sources.md](references/sources.md) before keeping anything. Do not narrate
 node <skill>/scripts/picker.mjs design-exploration/<slug>/candidates.tsv --out design-exploration/<slug>/picker.html
 ```
 
-Look at it yourself first (`capture.mjs "file://$PWD/design-exploration/<slug>/picker.html" --out <scratch>/picker.jpg`). Drop or replace a row whose thumbnail is broken or blank, and run it again. Then say where it is and ask one line:
+**Check the pool before the picker.** Look at every candidate on contact sheets, not one by one (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`, about 36 a sheet). Drop only what is not a candidate: not a screen (an illustration, packaging, a logo sheet, a poster, merch), a broken or blank thumbnail, an exact twin. Never drop for taste or for a look: a gradient, a typeface, a colour, a style the rules call a tell. Say how many went and why in one line.
+
+The check never shrinks the pool to fit. If what is left is under about one and a half times the keep, or a part has only a handful, search again for what is thin (another query, another source) and check the new rows the same way. A person can only pick from what the pool holds.
+
+Then build the picker and look at it yourself (`capture.mjs "file://$PWD/design-exploration/<slug>/picker.html" --out <scratch>/picker.jpg`). Replace a row whose thumbnail is broken, and run it again. Then say where it is and ask one line:
 
 > Open the picker: click like on what pulls you, no on what feels wrong, add a why if you have one, then paste the picks here.
 
@@ -159,7 +163,7 @@ node <skill>/scripts/measure.mjs design-exploration/<slug>/refs --tsv > design-e
 node <skill>/scripts/measure.mjs <link> <link> … --jobs 4 --tsv > design-exploration/<slug>/traits-pages.tsv
 ```
 
-Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. Measure the live pages whenever the keeps have links: how large the largest type is, read only from a page, is what a person sees first from across a room, and pictures alone sort big-type and small-type references together. A title drawn as an SVG or an image counts as type (`lettering: picture`). From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `scale` (the largest text over the body size), `pictures` (how much of the first screen is pictures), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
+Never one call per image: each call starts a browser. Never read the TSV whole into the chat on a big pool: `families.mjs` reads it. Measure the live pages whenever the keeps have links: how large the largest type is, read only from a page, is what a person sees first from across a room, and pictures alone sort big-type and small-type references together. A title drawn as an SVG or an image counts as type (`lettering: picture`). From the picture: `tone` (light, mid, dark), `empty` (how much of it is its ground), `loud` (how much is saturated colour) and `busy` (how much changes from one point to the next: small type, texture, photographs). From the live page, when there is one: `display` and `scale` (the largest text, and over the body size), `align` (where the largest text sits), `pictures` (how much of the first screen is pictures), `gradient` and `pattern` (how much carries a visible gradient, or a fine pattern like a dot grid), `margin` and `radius`. A motion keep is measured on its last frame. Write them on the card as one `measured:` line.
 
 **Sort by the numbers, then by eye.** Tone, emptiness, loudness, busyness and, on pages, scale and pictures are most of what is seen from across a room: start there.
 
@@ -174,6 +178,8 @@ node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv
 ```
 
 A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, but only the sheet confirms them.
+
+**A family has a name a person would say.** Name each one for what is seen ("huge lettering is the picture", "dark app page, headline centred"). If the only honest name is a number ("dark, all picture", "light, small type"), it is a bin, not a family: the numbers agree and the pictures do not. Break it up: each member to the family it looks like, or to the strays. Look hardest at a family whose members share only how much: how much picture, how much empty.
 
 **Strays are not noise.** `families.mjs` sets aside the few far from every family. They are often the most distinctive keeps on the board, the ones a designer looks at first: place each by eye, into a family or as the seed of one, and never drop one for being a stray. The numbers tend to split a varied board finely; merging is the eye's job too. The eye adds what the numbers miss (the kind of face, how things sit together, how pictures are treated): split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
@@ -250,7 +256,7 @@ The library is what the anchor and the donors use, written down so `design` can 
   "arrangements": [{ "id": "<a short word>", "what": "<one sentence>", "from": ["<card name>"] }],
   "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
   "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase | lowercase", "italic": true, "tracking": "-0.02em", "size": "<the display size at 1440 wide, or null>", "body": { "face": "<the face its running text uses>", "size": "16px", "leading": "1.5" }, "from": ["…"] }],
-  "grounds":      [{ "id": "…", "ground": "#…", "panel": "#… or null", "ink": "#…", "from": ["…"] }],
+  "grounds":      [{ "id": "…", "ground": "#…", "panel": "#… or null", "ink": "#…", "gradient": "<the CSS as measured, or null>", "pattern": "<the CSS as measured, or null>", "from": ["…"] }],
   "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }]
 }
 ```
@@ -268,7 +274,8 @@ The first gives an image's colours with their share of the picture. The second g
 - **Arrangements.** One per reference: where the title, the pictures and the small text sit on the first screen, and how they relate (what overlaps what, what is centred, what runs off an edge, how much is left empty). One sentence, complete enough to build from with the picture closed. It carries no content, no colour and no typeface: those are other lists.
 - **Navigation.** Where the name and the links sit, how many are shown, and what rides with them (a caption, a button, a count). One sentence, the same rules.
 - **Type.** The kind of face in plain words, and `face`: a face the product can use, free to license or one they own. `by` is `page` when the reference's own face was read from its page and can be used, `eye` when it is the nearest match judged from the picture. Weight, case, italic and tracking as measured, or as seen when there is only a picture. `size` is the display size from the page, `null` with only a picture. `body` is the face, size and leading its running text uses, so a display face stays with the body face it was paired with.
-- **Grounds.** The ground colour, the ink, and `panel` when the design sits as a panel on a surround of another colour. Measured, never judged by eye.
+- **Grounds.** The ground colour, the ink, and `panel` when the design sits as a panel on a surround of another colour. `gradient` and `pattern` when the ground carries one: `measure.mjs` lists them as written (`gradients`, `patterns`), with how much of the screen each covers. Measured, never judged by eye.
+- **Record, never judge.** A gradient, a glow, a pattern, a typeface the rules list as a tell: if the references use it, it goes in the library like any colour. A family may rely on it, and choosing is theirs.
 - **Accents.** The colour and the device that carries it: a shape, the letters themselves, a panel. Measured. When some of them use no accent, that is an entry too, with `colour: null`.
 - **`from` on every entry:** the card names of the references that show it. `design` needs it to keep any one reference from supplying a whole screen.
 - **Merge only twins.** Two references that do the same thing are one entry with both in `from`. An entry stretched to cover many references leaves nothing to deal: when in doubt, keep them apart.

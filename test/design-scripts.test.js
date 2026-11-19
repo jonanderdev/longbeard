@@ -257,7 +257,7 @@ function measured(args) {
 }
 
 test("measure: a page gives its ground, and each text's face, size and colour", async (t) => {
-  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase;margin:0 0 0 32px">Quiet</h1><p style="font:16px Georgia;margin:0 0 0 32px">One</p><p style="font:16px Georgia;margin:0 0 0 32px">Two</p><div style="width:720px;height:200px;background-image:linear-gradient(red,blue)"></div><img style="display:block;width:720px;height:450px;border-radius:6px" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></body>`;
+  const page = `<!doctype html><body style="margin:0;background:rgb(238,230,222)"><h1 style="font:700 80px Georgia;color:rgb(200,0,0);text-transform:uppercase;margin:0 0 0 32px">Quiet</h1><p style="font:16px Georgia;margin:0 0 0 32px">One</p><p style="font:16px Georgia;margin:0 0 0 32px">Two</p><div style="width:720px;height:200px;background-image:linear-gradient(red,blue)"></div><div style="width:720px;height:100px;background-image:radial-gradient(circle, rgb(0,0,0) 1px, rgba(0,0,0,0) 1px);background-size:12px 12px"></div><div style="width:720px;height:100px;background-image:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0))"></div><img style="display:block;width:720px;height:450px;border-radius:6px" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></body>`;
   const server = await new Promise((done) => {
     const s = createServer((req, res) => res.end(page));
     s.listen(0, () => done(s));
@@ -273,6 +273,11 @@ test("measure: a page gives its ground, and each text's face, size and colour", 
     assert.deepEqual([out.traits.display, out.traits.body, out.traits.scale, out.traits.radius], ["80px", "16px", 5, "6px"]);
     assert.ok(out.traits.pictures > 20 && out.traits.pictures < 30, `pictures ${out.traits.pictures}`);
     assert.equal(out.traits.margin, 2.2);
+    // A visible gradient counts, a dot grid is a pattern, and a see-through one counts as neither.
+    assert.ok(out.traits.gradient > 8 && out.traits.gradient < 14, `gradient ${out.traits.gradient}`);
+    assert.ok(out.traits.pattern > 3 && out.traits.pattern < 8, `pattern ${out.traits.pattern}`);
+    assert.match(out.gradients[0].css, /linear-gradient/);
+    assert.match(out.patterns[0].css, /radial-gradient/);
   } finally {
     server.close();
   }

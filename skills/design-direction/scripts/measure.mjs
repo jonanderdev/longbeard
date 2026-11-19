@@ -9,9 +9,11 @@
 //
 // A live page: its ground colour, the fonts it loaded, and every piece of text
 // on the first screen with its face, size, weight, style, tracking, case,
-// colour and box, plus the boxes of its pictures and panels, and its traits:
-// the type scale (largest text over the most common size), how much of the
-// first screen is pictures, the left margin, and the corner radius in use.
+// colour and box, plus the boxes of its pictures and panels, the gradients it
+// uses as written, and its traits: the type scale (largest text over the most
+// common size), how much of the first screen is pictures and how much is
+// gradient, where the largest text sits (centre, left, right), the left
+// margin, and the corner radius in use.
 //
 // Traits are what families are sorted by and what a family shares, so every
 // keep is measured the same way before anyone judges it by eye.
@@ -240,8 +242,8 @@ const readPage = `(() => {
       out.text.push({ text: own.slice(0, 40), face: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), size: cs.fontSize, weight: cs.fontWeight, style: cs.fontStyle, tracking: cs.letterSpacing, leading: cs.lineHeight, case: cs.textTransform, colour: cs.color, box: box(r) });
     }
     const filled = cs.backgroundColor !== "rgba(0, 0, 0, 0)" && r.width < W - 40;
-    if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30)
-      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage) });
+    if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30 && r.height > 2)
+      out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage), gradient: /gradient\\(/.test(cs.backgroundImage) ? cs.backgroundImage.slice(0, 240) : "" });
   }
   out.fonts = [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family.replace(/["']/g, "") + " " + f.weight + " " + f.style))];
   // Traits. The body size is the size most text is set in, by characters: a title split into one
@@ -275,6 +277,48 @@ const readPage = `(() => {
     for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
       for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) cells.add(gx + "," + gy);
   }
+  // Gradients are recorded, never judged: how much of the first screen they cover, and the largest
+  // ones as written, so a family that relies on one keeps it. Counted on the same grid as pictures.
+  // A gradient counts only when it can be seen: its colours differ, and they are not all see-through.
+  const visible = (css) => {
+    const stops = [...css.matchAll(/rgba?\\(([^)]+)\\)/g)].map((m) => m[1].split(/[ ,\\/]+/).filter(Boolean).map(Number));
+    const solid = stops.filter((c) => (c.length < 4 ? 1 : c[3]) >= 0.15);
+    if (solid.length < 1 || stops.length < 2) return false;
+    if (solid.length < stops.length) return true;
+    return stops.some((c) => stops.some((d) => Math.max(...[0, 1, 2].map((k) => Math.abs(c[k] - d[k]))) > 24));
+  };
+  // A gradient with hard stops a few pixels apart is a pattern (a dot grid, fine lines), not a blend.
+  const isPattern = (css) => /(^|[ ,(])(0|[0-4](\\.\\d+)?)px\\s*[,)]/.test(css) || /repeating-/.test(css);
+  for (const b of out.boxes) if (b.gradient && !visible(b.gradient)) b.gradient = "";
+  for (const b of out.boxes) if (b.gradient && isPattern(b.gradient)) [b.pattern, b.gradient] = [b.gradient, ""];
+  const pcells = new Set();
+  for (const b of out.boxes) {
+    if (!b.pattern) continue;
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) pcells.add(gx + "," + gy);
+  }
+  const gcells = new Set();
+  for (const b of out.boxes) {
+    if (!b.gradient) continue;
+    const [x, y, w, h] = b.box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(W / 20, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(H / 20, Math.ceil((y + h) / 20)); gy++) gcells.add(gx + "," + gy);
+  }
+  for (const layer of [document.documentElement, document.body]) {
+    const bg = getComputedStyle(layer).backgroundImage;
+    if (/gradient\\(/.test(bg) && visible(bg)) {
+      const pattern = isPattern(bg);
+      for (let gx = 0; gx < W / 20; gx++) for (let gy = 0; gy < H / 20; gy++) (pattern ? pcells : gcells).add(gx + "," + gy);
+      out.boxes.push({ kind: layer.tagName.toLowerCase(), box: [0, 0, W, H], gradient: pattern ? "" : bg.slice(0, 240), pattern: pattern ? bg.slice(0, 240) : "" });
+    }
+  }
+  out.patterns = out.boxes.filter((b) => b.pattern).slice(0, 3).map((b) => ({ css: b.pattern, box: b.box }));
+  out.gradients = out.boxes.filter((b) => b.gradient).sort((a, b) => b.box[2] * b.box[3] - a.box[2] * a.box[3]).slice(0, 3).map((b) => ({ css: b.gradient, box: b.box }));
+  // Where the largest text sits across the screen: centred, left or right.
+  const big = out.text.reduce((m, t) => (parseFloat(t.size) > parseFloat(m?.size || 0) ? t : m), null);
+  const cx = big ? big.box[0] + big.box[2] / 2 : W / 2;
+  const align = !big ? "" : Math.abs(cx - W / 2) < W * 0.08 ? "centre" : cx < W / 2 ? "left" : "right";
   const radii = out.boxes.map((b) => b.radius).filter((r) => r && r !== "0px");
   const radius = radii.length ? [...radii.reduce((m, r) => m.set(r, (m.get(r) || 0) + 1), new Map())].sort((a, b) => b[1] - a[1])[0][0] : "0px";
   const lefts = out.text.map((t) => t.box[0]).filter((x) => x >= 0);
@@ -286,6 +330,9 @@ const readPage = `(() => {
     margin: lefts.length ? Math.round((1000 * Math.min(...lefts)) / W) / 10 : null,
     radius: parseFloat(radius) > 999 ? "pill" : radius,
     lettering: largestWord > largestText ? "picture" : "text",
+    gradient: Math.round((1000 * gcells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
+    pattern: Math.round((1000 * pcells.size) / (Math.ceil(W / 20) * Math.ceil(H / 20))) / 10,
+    align,
   };
   return out;
 })()`;
@@ -326,7 +373,7 @@ ws.close();
 const failed = results.filter((r) => r.error);
 for (const r of failed) console.error(`measure: ${r.target}: ${r.error}`);
 if (tsv) {
-  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering"];
+  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "align"];
   const lines = [["ref", ...cols].join("\t")];
   for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => r.traits?.[c] ?? "")].join("\t"));
   console.log(lines.join("\n"));
