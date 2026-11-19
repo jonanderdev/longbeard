@@ -28,12 +28,14 @@ Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets
 
 - **A family to deal from:** at least six keeps that look alike. Step 6 of `design-direction` needs that many.
 - **The product's parts:** every key screen and part in the brief has at least one fit: a reference that shows that kind of screen, or one that clearly carries over to it.
+- **The product's world:** at least a few keeps from its subject: products in its category, or in the world of the brief's identity nouns (a bakery's board holds at least a few food or shop sites). It shows how that world presents itself (the kind of pictures, the content, what people there expect) and is a check, never a rule: a board with none is often on purpose.
 
-Both met → go on, and say so in one line ("Your board covers it: 34 fits, every part, four families."). Otherwise say what it lacks in up to three lines, with what it does hold ("12 cards, all print posters: one family, nothing for navigation or a data screen"), and offer a search sized to the gap. Then wait.
+All met → go on, and say so in one line ("Your board covers it: 34 fits, every part, four families, 5 from the food world."). Otherwise say what it lacks in up to three lines, with what it does hold ("12 cards, all print posters: one family, nothing for navigation or a data screen, nothing from food or shops"), and offer a search sized to the gap. Then wait. Only the world missing: offer the sample alone, in the same one question.
 
 > Search for these, or go with what your board has?
 
 - **A gap:** search only what is missing (the parts it lacks, or more that look like their board), a pool of 20 to 60 new candidates plus their board's fits as seeds, one picker round as in [search.md](search.md). Their likes are opened at full size and captured as in [search.md](search.md), then join the keep.
+- **A sample of its world:** 12 to 20 candidates, the best of the product's category and the world of its identity nouns, searched with their board's look as the filter where a source allows it ("dark editorial" plus "bakery"), one picker round as in [search.md](search.md). Their likes join the keep and are sorted into families by how they look, like any other; on the families board, say which keeps are from the product's world.
 - **Too thin to make even one family:** the full search ([search.md](search.md)), with their board's fits as seeds.
 - **"Go":** work with the board. What it lacks goes under `Missing`, and a key screen that depends on it gets **One piece** after they choose.
 

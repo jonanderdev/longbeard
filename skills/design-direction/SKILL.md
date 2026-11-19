@@ -63,7 +63,7 @@ Before I look, a few questions. Each has my suggestion in brackets: "yes" takes 
 3. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this? Anything you tried before and didn't like, and why?
 4. Who should it stand apart from: competitors, or products it could be mistaken for? And should it fit in with them or stand out? [<the alternatives the brief names>]
 5. What is already fixed? Colours, typefaces or a logo you own and must use, or refuse; light, dark or both; your own pictures (photographs, illustrations), or none yet; and the content's limits: languages, how much there is, an accessibility level to meet. [<what the brief or the repo shows>]
-6. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
+6. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from, and I'll check it has a few from <product>'s own world; if not, I'll offer a small sample. A few pictures steer the search.
    No moodboard, or a small one: where should I look, and how many should I keep? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
 
 Anyone else who has to say yes? Worth showing them the families and the first screens as we go, not only the end.
