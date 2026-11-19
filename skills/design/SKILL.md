@@ -141,7 +141,7 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 
 ### 5. The identity, in small rendered steps
 
-The chosen sketch found the look. Now the identity is decided as its own thing, one small rendered step at a time, each shown on the chosen sketch or on the identity page, never chosen in words: the faces, three colours, the wordmark, the hero concept, and then the board that puts them together. A designer spends most of the time here; so does this step. Copy [identity-template.html](references/identity-template.html) to `design-exploration/<slug>/prototype/identity.html` for the marks and the board.
+The chosen sketch found the look. Now the identity is decided as its own thing, one small rendered step at a time, each shown on the chosen sketch or on the identity page, never chosen in words: the faces, three colours, the wordmark, the hero concept, and then the board that puts them together. A designer spends most of the time here; so does this step. The marks and the board are plain HTML pages in `design-exploration/<slug>/prototype/`, built for this product.
 
 Every option is numbered, never ranked. They pick, keep, or name their own.
 
@@ -177,7 +177,7 @@ Every other role is **derived by rule** from the three, and checked, never chose
 - **"Go"** keeps what the screen has, and says so.
 
 
-**c. The wordmark.** Four to six marks made from the chosen faces and the family's own devices (a rule, a shape, a case, a cut, a ligature, the accent), written in `identity.html`'s `MARKS`, shown in the navigation and at hero size (`?view=marks`, captured). Never a stock icon, a generic star, or a reference's mark. The name set plainly in the display face is one of them, so not making a mark is a choice too.
+**c. The wordmark.** Four to six marks made from the chosen faces and the family's own devices (a rule, a shape, a case, a cut, a ligature, the accent), each shown in the navigation and at hero size on the chosen ground, numbered on one page, captured. Never a stock icon, a generic star, or a reference's mark. The name set plainly in the display face is one of them, so not making a mark is a choice too.
 
 > Which mark? Or one to push further ("2, but tighter").
 
@@ -191,12 +191,12 @@ Show one sheet with each concept's idea in one line. Never say which you prefer.
 
 > Which concept? Mix if you like ("the stamp of 2 on 3").
 
-**e. The board: "this is us".** `identity.html?view=board`, built from the picks only, never another menu: the mark, the palette with every role and its contrast, the type styles in use, two or three of their pictures toned with the picture tone, one voice line set large, the ownable, and a crop of the chosen hero. Capture it and show it.
+**e. The board: "this is us".** The board described under [The board](#the-board), built now as a web page (`prototype/board.html`) from the picks only, never another menu: the mark, the type styles in use, the three colours and the derived roles, two or three of their pictures toned with the picture tone, one voice line set large, the ownable, and a crop of the chosen hero. Composed as that section says, not a grid of swatches. Capture it and show it.
 
 > Is this us? Or notes on any part of it.
 
 - **A note** reopens only that row or round (a face, a colour, the mark, the concept); the board is rebuilt and shown again.
-- **Their yes** is the identity. Record the board's picks in `design-exploration/<slug>/identity.json` (faces, the three colours and the roles, the mark, the concept), the look stays recorded as `deal.mjs`'s chosen screen, with every pick mixed in. Only now are screens finished.
+- **Their yes** is the identity. Record the board's picks in `design-exploration/<slug>/identity.json` (faces, the three colours and the roles, the mark, the concept); the look stays recorded as `deal.mjs`'s chosen screen, with every pick mixed in. Only now are screens finished.
 
 ### 6. Finish the home screen
 

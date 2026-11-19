@@ -499,15 +499,7 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
-test("identity template: its script parses, it marks what a run writes, and it has the marks and board views", () => {
-  const html = readFileSync(join(root, "skills/design/references/identity-template.html"), "utf8");
-  const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const dir = mkdtempSync(join(tmpdir(), "longbeard-identity-"));
-  writeFileSync(join(dir, "page.js"), js);
-  const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
-  assert.equal(check.status, 0, check.stderr);
-  for (const part of ["the identity", "marks"]) assert.match(html, new RegExp(`WRITE: ${part}`));
-  for (const hook of ['view === "marks"', "class=\"board\"", "picture tone", 'document.title = "ready"']) assert.ok(html.includes(hook), hook);
+test("grid template: hero concepts, must-carry and zones are wired", () => {
   const grid = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
   for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
 });
