@@ -65,7 +65,7 @@ A kit is an author's whole flow, taken as they publish it: the skills in their p
 
 A skill for one stack belongs in the project that uses that stack. The list `init` installs is [`beard.json`](beard.json). A skill written here stays in this repository. Do not copy `beard.json` into your project. That would fork the kit.
 
-`design-exploration/` is your working folder for inspiration, moodboards and prototypes. It stays on your machine, out of git. `DESIGN.md` is the result you keep.
+`design-exploration/` is your working folder for inspiration, moodboards and prototypes. It stays on your machine, out of git. Its `.cache/` keeps what was measured, tagged and read from a Figma board, so an unchanged board or picture is never read twice. `DESIGN.md` is the result you keep.
 
 ## You need
 
