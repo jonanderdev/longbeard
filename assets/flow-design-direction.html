@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  The design-direction flow, drawn for skills/design-direction/flow.md.
+  The design-direction flow, the picture the README links (assets/design-direction-flow.png).
   Change it here, then render the PNG the README links: a screenshot of .canvas at a
   device scale of 2, from the repo root, with Playwright:
     node -e 'const {chromium}=require("playwright");(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1264,height:900},deviceScaleFactor:2});await p.goto("file://"+process.cwd()+"/assets/flow-design-direction.html");await p.waitForFunction(()=>document.title==="ready");await (await p.$(".canvas")).screenshot({path:"assets/design-direction-flow.png"});await b.close()})()'
