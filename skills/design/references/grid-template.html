@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+  The grid page, to copy to design-exploration/<slug>/prototype/grid.html.
+  Everything that is the same every run is here: loading the deal, the look
+  as variables, overrides in the URL, the faces, and the type rules. A run
+  writes only three things, marked WRITE below: the content, each navigation,
+  and each arrangement (and each part's layouts, in step 7), as small
+  functions that return HTML.
+
+  URL: ?n=3 shows recipe 3 of the last round. A --part round shows that
+  screen's layout n. Overrides, for step 5: &ground=%23f1ede4 &ink=%23111111
+  &accent=%23fe2601 &face=Newsreader &body=Inter &weight=300. &state=empty
+  passes a state to the layout. &size=390x844 renders at a phone's size. The page sets document.title to "ready" once
+  the faces are in and the type is fitted, so a capture can wait for it.
+
+  Type rules, kept by fit():
+  - data-fit="w,h" on display type: sized so its text (not its box) is w of
+    the area's width, and never taller than h of its height (fractions).
+  - data-line="name" on display pieces that share a line: one size for all,
+    the smallest, and the line shrinks together to fit between the margins.
+  - Nothing small sits on display type: place small text and bands after
+    fit(), in the clear space, with clearOf() (see the example arrangement).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>grid</title>
+<script src="../deal.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body { background: var(--ground); color: var(--ink); font-family: var(--body-face), system-ui, sans-serif; font-size: var(--body-size); line-height: var(--body-leading); }
+  a { color: inherit; text-decoration: none; }
+  .screen { position: relative; width: var(--w); height: var(--h); overflow: hidden; --m: 28px; }
+  nav { position: absolute; left: var(--m); right: var(--m); z-index: 3; display: flex; align-items: center; gap: 24px; font-size: 13px; }
+  .area { position: absolute; left: 0; right: 0; top: var(--top); bottom: var(--bottom); }
+  .display { width: max-content; font-family: var(--face), serif; font-weight: var(--weight); font-variation-settings: var(--axes); text-transform: var(--case); letter-spacing: var(--tracking); font-style: var(--italic); line-height: 0.86; white-space: nowrap; color: var(--title); }
+  .small { font-size: var(--body-size); }
+  .tiny { font-size: 12px; }
+  /* WRITE: styles your navigations and arrangements need, by class. */
+</style>
+</head>
+<body>
+<div class="screen" id="screen"></div>
+<script>
+// ---------------------------------------------------------------- WRITE: content
+// The product's real content, the same in every recipe: the brief's name and line, real copy in
+// the voice from direction.md, the longest real names, pictures in prototype/img/.
+const C = {
+  name: "Product name",
+  line: "The one line the first screen must say.",
+  sub: "A sentence or two of real supporting copy.",
+  links: ["First", "Second", "Third", "Primary action"],
+};
+
+// ---------------------------------------------------------------- WRITE: navigation
+// One function per navigation id in the library. Each returns its HTML and the band it takes
+// (px from the top and the bottom), so the arrangement fills the space the navigation leaves.
+const NAVIGATION = {
+  // corners: (C) => ({ top: 64, bottom: 0, html: `<nav style="top:22px"><b>${C.name}</b><span style="margin-left:auto;display:flex;gap:22px">${C.links.slice(0, 3).map((l) => `<a>${l}</a>`).join("")}</span></nav>` }),
+};
+
+// ---------------------------------------------------------------- WRITE: arrangements
+// One function per arrangement id, written from its sentence in the library, never tuned for one
+// recipe. It gets the content and ctx (the entries dealt, the area's size, the state), and returns
+// HTML. after(el, ctx) is optional: it runs once the type is fitted, to place what must sit clear.
+const ARRANGEMENTS = {
+  // queue: {
+  //   html: (C, ctx) => `<div class="area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+  //     <div class="display" data-fit="0.66,0.42">${C.name}</div><p class="small">${C.line}</p></div>`,
+  // },
+};
+
+// ---------------------------------------------------------------- WRITE: parts (step 7)
+// Layouts for the other key screens, by part, then by layout id, only for screens that fork or
+// that they asked options for. ctx.parts holds the layouts already chosen for earlier screens.
+const PARTS = {
+  // navigation: { overlay: { html: (C, ctx) => `…` } },
+};
+
+// ---------------------------------------------------------------- the same every run
+(async () => {
+  const D = window.DEAL || {};
+  const q = new URLSearchParams(location.search);
+  const round = (D.rounds || []).at(-1);
+  if (!round) return void (document.body.textContent = "No deal yet: run deal.mjs first.");
+  const r = round.recipes.find((x) => x.n === Number(q.get("n") || 1)) || round.recipes[0];
+  const lib = D.library;
+  const get = (list, id) => (lib[list] || []).find((x) => x.id === id) || {};
+  const type = { ...get("type", r.type) };
+  const ground = { ...get("grounds", r.ground) };
+  const accent = { ...get("accents", r.accent) };
+  const nav = get("navigation", r.navigation);
+  // Overrides from the URL: an option tried in step 5 is a capture, not a rebuild.
+  if (q.get("ground")) ground.ground = q.get("ground");
+  if (q.get("ink")) ground.ink = q.get("ink");
+  if (q.get("accent")) accent.colour = q.get("accent") === "none" ? null : q.get("accent");
+  if (q.get("face")) type.face = q.get("face");
+  if (q.get("weight")) type.weight = Number(q.get("weight"));
+  if (q.get("body")) type.body = { ...(type.body || {}), face: q.get("body") };
+  const body = type.body || { face: type.face, size: "16px", leading: "1.45" };
+
+  const [W, H] = (q.get("size") || "1440x900").split("x").map(Number);
+  const set = (k, v) => document.documentElement.style.setProperty(k, v);
+  set("--w", W + "px");
+  set("--h", H + "px");
+  set("--ground", ground.panel || ground.ground || "#fff");
+  set("--ink", ground.ink || "#111");
+  set("--face", `"${type.face}"`);
+  set("--weight", type.weight || 400);
+  set("--case", type.case && type.case !== "none" ? type.case : "none");
+  set("--tracking", type.tracking || "0");
+  set("--italic", type.italic ? "italic" : "normal");
+  set("--axes", type.axes || "normal");
+  set("--body-face", `"${body.face}"`);
+  set("--body-size", body.size || "16px");
+  set("--body-leading", body.leading || "1.45");
+  set("--accent", accent.colour || ground.ink || "#111");
+  set("--title", ground.ink || "#111");
+  if (ground.gradient) document.body.style.backgroundImage = ground.gradient;
+  if (ground.pattern) document.body.style.backgroundImage = [ground.pattern, ground.gradient].filter(Boolean).join(", ");
+
+  // Faces: requests of their own, so a name Google does not have cannot break the others: the exact
+  // weight used, then the face plain in case that weight is not offered. A face from elsewhere
+  // (Fontshare, their own files) or one whose axes are used (a width, an optical size) carries its
+  // stylesheet as "css" in its library entry, and that is loaded instead.
+  const wanted = [[type.face, type.weight || 400, type.italic, type.css], [body.face, 400, false, body.css], [body.face, 700, false, body.css]].filter(([f]) => f);
+  const sheets = [];
+  for (const [face, weight, italic, css] of wanted) {
+    const family = encodeURIComponent(face).replace(/%20/g, "+");
+    for (const href of css ? [css] : [`https://fonts.googleapis.com/css2?family=${family}:${italic ? "ital," : ""}wght@${italic ? "1," : ""}${weight}&display=block`, `https://fonts.googleapis.com/css2?family=${family}&display=block`]) {
+      if (document.querySelector(`link[href="${href}"]`)) continue;
+      const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href });
+      sheets.push(new Promise((done) => ((link.onload = done), (link.onerror = done))));
+      document.head.appendChild(link);
+    }
+  }
+  // Type is measured with its own face, never a fallback: wait for the sheets, then for each face.
+  await Promise.all(sheets);
+  await Promise.all(wanted.map(([face, weight, italic]) => document.fonts.load(`${italic ? "italic " : ""}${weight} 100px "${face}"`).catch(() => [])));
+
+  const ctx = { recipe: r, type, ground, accent, nav, state: q.get("state") || "", parts: r.parts || {}, W, H };
+  const navOut = NAVIGATION[r.navigation] ? NAVIGATION[r.navigation](C, ctx) : { top: 0, bottom: 0, html: "" };
+  const layout = r.part ? (PARTS[r.part] || {})[r.arrangement] : ARRANGEMENTS[r.arrangement];
+  const el = document.getElementById("screen");
+  if (!layout) {
+    el.innerHTML = `<p style="padding:40px">No ${r.part ? `layout ${r.arrangement} for ${r.part}` : `arrangement ${r.arrangement}`} written yet.</p>`;
+    return void (document.title = "ready");
+  }
+  set("--top", (navOut.top || 0) + "px");
+  set("--bottom", (navOut.bottom || 0) + "px");
+  el.innerHTML = navOut.html + layout.html(C, ctx);
+  await document.fonts.ready;
+  fit(el);
+  if (layout.after) layout.after(el, ctx);
+  document.title = "ready";
+})();
+
+// Display type is sized by its text, one size per line, every line inside the margins.
+function fit(el) {
+  const area = el.querySelector(".area") || el;
+  const box = area.getBoundingClientRect();
+  // The text's own extent, from a range over it: a box can be stretched by its row (a flex row
+  // stretches every item to the tallest), and then the type would be sized by its neighbour.
+  const textBox = (d) => {
+    const range = document.createRange();
+    range.selectNodeContents(d);
+    return range.getBoundingClientRect();
+  };
+  for (const d of el.querySelectorAll("[data-fit]")) {
+    const [fw, fh] = d.dataset.fit.split(",").map(Number);
+    d.style.fontSize = "100px";
+    const r = textBox(d);
+    d.style.fontSize = Math.min((100 * fw * box.width) / r.width, (100 * (fh || 1) * box.height) / r.height) + "px";
+  }
+  const lines = new Map();
+  for (const d of el.querySelectorAll("[data-line]")) lines.set(d.dataset.line, [...(lines.get(d.dataset.line) || []), d]);
+  for (const words of lines.values()) {
+    const one = Math.min(...words.map((d) => parseFloat(d.style.fontSize) || parseFloat(getComputedStyle(d).fontSize)));
+    for (const d of words) d.style.fontSize = one + "px";
+    const row = words[0].parentElement;
+    if (row.scrollWidth > row.clientWidth) for (const d of words) d.style.fontSize = (one * (row.clientWidth - 40)) / row.scrollWidth + "px";
+  }
+}
+
+// The clear space beside display type: where small text and bands go, never on the letters.
+// clearOf(el, ".display") → { above: [top, bottom], below: [top, bottom] } in px from the screen's top.
+function clearOf(el, selector) {
+  const s = el.getBoundingClientRect();
+  const boxes = [...el.querySelectorAll(selector)].map((d) => d.getBoundingClientRect());
+  const top = Math.min(...boxes.map((b) => b.top)) - s.top;
+  const bottom = Math.max(...boxes.map((b) => b.bottom)) - s.top;
+  return { above: [0, top], below: [bottom, s.height] };
+}
+</script>
+</body>
+</html>

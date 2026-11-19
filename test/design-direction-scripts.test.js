@@ -231,7 +231,7 @@ function profile(name, { lum, empty, loud = 1, busy = 2, picture, layout, colour
       figure: { share: 100 - empty, colours, colourful: 20, grey: 50, flat: 100 - soft - sharp, soft, sharp, texture: 10, palette: [], grid: new Array(24).fill(grid) },
     },
     page: null,
-    tags: { picture: [picture], photo: [picture === "photo" ? "colour" : "none"], type: ["sans"], weight: ["regular"], layout: [layout], colour: ["neutral"], surface: ["flat"] },
+    tags: { picture: [picture], photo: [picture === "photo" ? "colour" : "none"], type: ["sans"], weight: ["regular"], layout: [layout], colour: ["neutral"], surface: ["flat"], scale: ["heading"] },
   };
 }
 
@@ -239,7 +239,7 @@ test("tag: checks every word against the vocabulary, then merges the rows and th
   const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }), b: profile("b", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
   delete refs.a.tags;
   delete refs.b.tags;
-  const dir = project({ "profiles.json": JSON.stringify({ refs }), "bad.tsv": "a\tphoto\tcolour\tsans\tregular\tcentred\tneutral\tshiny\n", "good.tsv": "name\tpicture\tphoto\ttype\tweight\tlayout\tcolour\tsurface\na\trender+lettering\tnone\tdisplay\tblack\tcentred\tmulti\tchrome\tchrome 3D wordmark\n" });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "bad.tsv": "a\tphoto\tcolour\tsans\tregular\tcentred\tneutral\tshiny\tquiet\n", "good.tsv": "name\tpicture\tphoto\ttype\tweight\tlayout\tcolour\tsurface\tscale\na\trender+lettering\tnone\tdisplay\tblack\tcentred\tmulti\tchrome\thuge\tchrome 3D wordmark\n" });
   const bad = spawnSync(process.execPath, [join(scripts, "tag.mjs"), "profiles.json", "bad.tsv"], { cwd: dir, encoding: "utf8" });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /surface "shiny"/);
@@ -248,6 +248,7 @@ test("tag: checks every word against the vocabulary, then merges the rows and th
   assert.match(good.stdout, /tagged 1, 1 left untagged/);
   const a = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.a;
   assert.deepEqual(a.tags.picture, ["render", "lettering"]);
+  assert.deepEqual(a.tags.scale, ["huge"]);
   assert.equal(a.note, "chrome 3D wordmark");
 });
 
@@ -270,5 +271,5 @@ test("families: from profiles, what the picture is separates references the numb
   const strays = families.find((f) => f.stray);
   assert.deepEqual(strays.pairs, [["refs/pairA.jpg", "refs/pairB.jpg"]]);
   assert.match(result.stdout, /pairs, each a family seed: pairA\+pairB/);
-  assert.match(result.stdout, /render · scattered · sans · neutral · flat \| dark and light/);
+  assert.match(result.stdout, /render · scattered · heading · sans · neutral · flat \| dark and light/);
 });

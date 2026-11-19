@@ -9,7 +9,7 @@
 //   node tag.mjs design-exploration/<slug>/profiles.json tags.tsv
 //     Check every word against the vocabulary and merge the rows into the profiles.
 //
-// A row: name<TAB>picture<TAB>photo<TAB>type<TAB>weight<TAB>layout<TAB>colour<TAB>surface[<TAB>note]
+// A row: name<TAB>picture<TAB>photo<TAB>type<TAB>weight<TAB>layout<TAB>colour<TAB>surface<TAB>scale[<TAB>note]
 // Two values in one field are joined with +, the main one first: photo+lettering.
 // The note is optional, a few words of what is seen ("chrome 3D wordmark, pixel
 // fill"): it is not sorted on, but it names families and reads into the library.
@@ -48,6 +48,8 @@ export const VOCABULARY = {
   },
   colour: { neutral: "black, white, greys", muted: "soft, dusty, low saturation", "one-accent": "neutral plus one loud colour", bright: "saturated grounds or shapes", multi: "many colours" },
   surface: { flat: "flat fills", grain: "grain, noise, paper", glossy: "shine, glass, reflections", "hand-drawn": "lines by hand", glow: "glows, soft gradients", chrome: "metal, chrome" },
+  // How big the largest type is. A live page measures it; a picture alone (a Figma board, a folder) only has this.
+  scale: { quiet: "the largest type is near the body size", heading: "a clear headline, well under a third of the width", large: "the headline dominates the screen", huge: "type fills the screen or runs off it" },
 };
 export const FIELDS = Object.keys(VOCABULARY);
 

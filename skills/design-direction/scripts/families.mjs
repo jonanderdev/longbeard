@@ -132,7 +132,7 @@ if (usePage) {
 // 0.1 split a varied pool of 65 into 14 families, 13 of them small; 0.2 gave 9, most of them one look.
 const spread = spreadArg ? Number(spreadArg) : fromProfiles ? 2 : usePage ? 0.2 : 0.1;
 // The profile's layers, each a block of numbers counted as one trait, weighted by how much it shows.
-const TAGW = { picture: 1, layout: 0.9, type: 0.6, colour: 0.6, surface: 0.6, photo: 0.4, weight: 0.3 };
+const TAGW = { picture: 1, layout: 0.9, scale: 0.8, type: 0.6, colour: 0.6, surface: 0.6, photo: 0.4, weight: 0.3 };
 const VOCAB = fromProfiles ? (await import("./tag.mjs")).VOCABULARY : null;
 const blocks = [];
 const block = (name, size) => blocks.push({ name, at: blocks.reduce((t, b) => t + b.size, 0), size });
@@ -169,6 +169,7 @@ if (fromProfiles) {
     if (blocks.some((b) => b.name === "picture"))
       for (const [field, w] of Object.entries(TAGW)) {
         const words = Object.keys(VOCAB[field]);
+        // A field the vocabulary has now but older tags lack sits in the middle, like an untagged one.
         const given = p.tags?.[field] || [];
         // The main value counts twice the second; an untagged reference sits in the middle of the field.
         const weights = given.map((_, i) => (i === 0 ? 2 : 1));
@@ -288,7 +289,7 @@ const families = done
     // What the eye tagged, as the family's majority: the start of its name.
     if (fromProfiles) {
       ranges.tags = {};
-      for (const field of ["picture", "layout", "type", "colour", "surface"]) {
+      for (const field of ["picture", "layout", "scale", "type", "colour", "surface"]) {
         const counts = new Map();
         for (const r of group) for (const w of (profileOf.get(r.ref)?.tags?.[field] || []).slice(0, 1)) counts.set(w, (counts.get(w) || 0) + 1);
         const [top] = [...counts].sort((x, y) => y[1] - x[1]);

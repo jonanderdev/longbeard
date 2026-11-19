@@ -433,3 +433,14 @@ test("deal --part: earlier choices carry forward, and a layout that needs what w
   writeFileSync(join(dir, "deal.json"), JSON.stringify({ ...JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")), rounds: [...rounds(dir), { round: 9, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-c", navigation: "nav-3", type: "type-4", ground: "cream", accent: "none" }] }] }));
   assert.match(run(deal, dir, ["library.json", "--choose", "1"]).stderr, /layouts chosen for navigation are cleared/);
 });
+
+test("grid template: its script parses, and it marks what a run writes", () => {
+  const html = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
+  writeFileSync(join(dir, "page.js"), js);
+  const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
+  assert.equal(check.status, 0, check.stderr);
+  for (const part of ["content", "navigation", "arrangements", "parts (step 7)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
+  for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
+});
