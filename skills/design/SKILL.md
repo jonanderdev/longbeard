@@ -86,6 +86,7 @@ One page, `design-exploration/<slug>/prototype/grid.html`, plain HTML and CSS, n
 - **Take the arrangement, never the reference.** Nothing of a reference's content, pictures or wording is used.
 - **Type fills by rule, not by number.** Display type that should fill a width is sized to that width with a limit on its height, so a narrow face and a wide one both fit. Measure the text, not its box (`width: max-content`). Words on one line share one size, and the line fits between the margins. Display over body stays inside the family's `scale`. Running text uses the type entry's `body`.
 - **Nothing small sits on display type.** Text, labels and bands placed by rule go in the clear space beside or between the display lines, found after the type is sized, never at a fixed position. Type that crosses a picture stays readable on it.
+- **Overrides in the URL.** The page also takes `&ground=%23hex&ink=%23hex&accent=%23hex&face=Name&body=Name`, so a colour or a face can be tried on a recipe by capturing it, not by rebuilding it. Step 5 uses this.
 - **Fix faults, never taste.** Capture every recipe and open each at full size. An overlap, a clipped word, a stray element, text that cannot be read: fix it with a rule in the arrangement, so the fix holds for whatever is dealt into it, and capture again. Never tune one recipe, and never change what was dealt.
 
 ```
@@ -117,11 +118,32 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 - Every flag reads its numbers from the last round shown, so a variation can be varied again. Each ask is a new round: capture it and show its sheet. Never edit `deal.json` by hand.
 - Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes.
 
-### 5. Finish the chosen screen
+### 5. Colour and type, by them
+
+The chosen screen took its colours and faces from the library, which holds only what the references use. Before it is finished, they tune them on the screen itself, one thing at a time, from rendered options. The look stays the family's; the exact values become theirs.
+
+One sheet, a row per thing, every option on the chosen screen at the grid's size (`sheet.mjs --cols 4`), numbered, never ranked:
+
+- **Display face:** the face it has, then up to five more of the same kind (the width, weight and contrast its library entry describes), each free to license or theirs. An `eye` stand-in is always in this row.
+- **Body face:** the body face it has, then up to five that sit with the chosen display face.
+- **Ground and ink:** the ground it has, a step lighter and a step darker, the grounds of the family's other references (their palettes in `profiles.json`), and their own colours. Each with the ink that reads on it.
+- **Accent:** the accent it has, a step lighter, darker, warmer and cooler, the other loud colours in the family's palettes, none, and theirs.
+
+Every text and ground pair and every accent goes through `scripts/contrast.mjs` before it is shown: an option that fails is left out, not shown with a warning.
+
+> Pick one in each row, or name your own: a colour, a face. "Keep" leaves a row as it is.
+
+- **A pick** becomes a library entry with `"from": ["theirs"]`, and the screen is dealt with it (`deal.mjs … --mix 1,accent=<id>`), captured and shown again, once, with everything they picked together.
+- **Something they name** is built the same way, checked the same way, and shown before it counts.
+- **"Go"** keeps what the screen has, and says so.
+
+Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes.
+
+### 6. Finish the chosen screen
 
 Until now every screen was a sketch at one size. Now it becomes the design. Read [design-rules.md](references/design-rules.md) again and work through it on this screen.
 
-- **The real faces.** An entry marked `eye` is a stand-in. Where the product can use something closer, show the title in up to six candidates as one more row, and let them pick. Every face is free to license or one they own.
+- **The faces they chose** in step 5, loaded properly and set at every size. A face still marked `eye` that they kept is said again here: it is a stand-in, and the product ships whatever it stands in for, or it.
 - **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone. The family's ranges hold here too: measure the finished screen (`measure.mjs` on its file URL) and say where it falls outside them.
 - **Navigation that works:** the menu open, what it does on scroll, what it becomes on a phone.
 - **Motion.** A reference that moves is felt again, not remembered. Play its recorded frames and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
@@ -130,7 +152,7 @@ Until now every screen was a sketch at one size. Now it becomes the design. Read
 
 The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
 
-### 6. The other key screens
+### 7. The other key screens
 
 Read the brief's key screens (2–4). Each keeps the chosen navigation, type, ground and accent. Its arrangement comes from `direction.md`'s Other parts where a reference shows that kind of screen, taken as an arrangement and never whole, and otherwise follows from the finished first screen.
 
@@ -142,7 +164,7 @@ The default state is not enough. Each key screen also gets the empty, loading an
 
 A gap no reference covers (a screen, a control) → `design-direction` one-piece mode with its own slug, then back here.
 
-### 7. Self-check, then show
+### 8. Self-check, then show
 
 Screenshot each screen at desktop and mobile:
 
@@ -155,7 +177,7 @@ Shoot every state, in every theme, not only the default. Check them against the 
 
 A pattern can bring a feature the brief does not have. Name it when you show it. If they keep it, that is a product change: `idea`, Change, before `DESIGN.md`.
 
-### 8. Approve: write `DESIGN.md` in one go
+### 9. Approve: write `DESIGN.md` in one go
 
 Only on their yes to a rendered prototype. Write the whole file from [design-md-template.md](references/design-md-template.md): idea, voice, colour, type, spacing, components, decisions. Write it once, from what was approved. Do not draft it during iteration.
 
@@ -169,7 +191,7 @@ Only on their yes to a rendered prototype. Write the whole file from [design-md-
 - **Tokens are code names.** Name each colour, type and spacing token as it will be named in code (`color/ink`, `space/md`). Figma variables use the same names, with code syntax `var(--color-ink)`.
 - **Soft rules overridden on purpose** go under Decisions with the reason. Hard rules cannot be overridden. A device that came with the chosen look and that the rules list as a tell is on purpose: write it under Decisions as the idea it serves here, never as where it came from.
 
-### 9. Figma
+### 10. Figma
 
 Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and follow them. This skill adds only what they do not decide.
 
@@ -199,7 +221,7 @@ Before any component, lay the whole look out on one frame, `Board`, on the Cover
 
 If a Figma decision changes a rule (a new token, a component variant, a spacing step), update `DESIGN.md` in the same turn and say what changed.
 
-### 10. Clean up
+### 11. Clean up
 
 Offer to delete `design-exploration/<slug>/`. `DESIGN.md` and Figma now carry the result. On no, leave it. It is gitignored either way.
 
@@ -221,6 +243,7 @@ A feature with screens, once `DESIGN.md` exists.
 
 - Choose, swap, drop or rank a dealt recipe, or say which screen you prefer. Tune one recipe instead of fixing its arrangement.
 - Ask them to describe the look they want. Show them screens.
+- Pick a colour or a face for them in step 5, rank the options, or show one that fails contrast.
 - Build more than the first screen before they have chosen one.
 - Take a reference's content, pictures or wording, or all of its arrangement, type and ground together.
 - Write `DESIGN.md` before they approve a rendered prototype, or rewrite it during a feature. Only a rebrand's first pass replaces it.
