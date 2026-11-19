@@ -124,8 +124,14 @@ The chosen screen took its colours and faces from the library, which holds only 
 
 One sheet, a row per thing, every option on the chosen screen at the grid's size (`sheet.mjs --cols 4`), numbered, never ranked:
 
-- **Display face:** the face it has, then up to five more of the same kind (the width, weight and contrast its library entry describes), each free to license or theirs. An `eye` stand-in is always in this row.
-- **Body face:** the body face it has, then up to five that sit with the chosen display face.
+- **Display face:** the face it has, then up to five more of the same kind, from `scripts/fonts.mjs`, never from memory. It takes every face of that kind in Google Fonts' list (serif or sans, display or text, with the weight in use), measures each in one Chrome (width, x-height, how dark it sets, stroke contrast) and lists them nearest in shape first, each with how widely it is used. An `eye` stand-in is always in this row.
+- **Body face:** the body face it has, then up to five from `fonts.mjs --body` (text faces with 400 and 700) that sit with the chosen display face.
+
+  ```
+  node <skill>/scripts/fonts.mjs "Newsreader" --weight 300
+  node <skill>/scripts/fonts.mjs "Inter" --body
+  node <skill>/scripts/fonts.mjs "Their Face" --kind sans --css "<its stylesheet>"
+  ```
 - **Ground and ink, and accent:** made by `scripts/colours.mjs`, never picked by hand: the ground and accent as dealt, even steps around each (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), none for the accent, and theirs. Each ground comes with the ink that reads best on it; an option under 4.5:1 for text, or 3:1 for an accent on its ground, is left out, and the script says so.
 
   ```
@@ -134,7 +140,7 @@ One sheet, a row per thing, every option on the chosen screen at the grid's size
 
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes as `calc(… * var(--space))`).
 
-The faces are the agent's to list (a catalogue is a later step): say for each why it is of the same kind, and every face is free to license or theirs.
+Which of the listed faces go in a row is the agent's to choose, never by taste: take the nearest, and at least two of the five from beyond the hundred most used (`used` over 100), so the row is not only the faces every site has. Say for each, from its numbers, how it is of the same kind ("as narrow, darker, less contrast"). Every face is free to license, or theirs.
 
 > Pick one in each row, or name your own: a colour, a face. "Keep" leaves a row as it is.
 

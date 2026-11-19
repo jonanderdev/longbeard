@@ -290,3 +290,13 @@ test("families: from profiles, what the picture is separates references the numb
   assert.match(result.stdout, /pairs, each a family seed: pairA\+pairB/);
   assert.match(result.stdout, /render · scattered · heading · sans · neutral · flat \| dark and light/);
 });
+
+test("families: a page that is not the real site is named and left out; its reference is sorted on its picture", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) refs[`quiet${i}`] = profile(`quiet${i}`, { lum: 0.9, empty: 90 + i, picture: "none", layout: "centred", colours: 3 });
+  refs.quiet0.page = { url: "https://example.com/", flag: "HTTP 503", traits: { display: "12px", scale: 1, pictures: 0, align: "left" }, media: { canvas: 90 } };
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json"]);
+  assert.match(result.stdout, /pages that may not be the real site.*quiet0 \(HTTP 503\)/);
+  assert.doesNotMatch(result.stdout, /video or canvas/);
+});

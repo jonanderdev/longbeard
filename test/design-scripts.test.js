@@ -526,16 +526,20 @@ test("measure: ordinary pages read right (alignment, ground, gradients, patterns
     "/fade": `<!doctype html><meta charset="utf-8"><body style="margin:0"><div style="height:900px;background-image:linear-gradient(rgb(255,0,0) 0px, rgb(0,0,255) 900px)"></div><p>Body text body text.</p></body>`,
     "/dots": `<!doctype html><meta charset="utf-8"><body style="margin:0"><div style="height:900px;background-image:radial-gradient(circle, rgb(0,0,0) 1px, rgba(0,0,0,0) 1px);background-size:12px 12px"></div><p>Body</p></body>`,
     "/banner": `<!doctype html><meta charset="utf-8"><body style="margin:0"><img src="/photo.png" style="display:block;width:1440px;height:420px"><h1 style="font-size:48px">Fresh bread</h1><p>Body text body text.</p></body>`,
+    // A headline split into boxless word spans that fade in: read whole, at its size, as it ends.
+    "/animated": `<!doctype html><meta charset="utf-8"><style>@keyframes in { from { opacity: 0 } to { opacity: 1 } } h1 span { display: contents } h1 { animation: in 4s both }</style><body style="margin:0"><h1 style="font-size:72px;margin:40px"><span>Ship</span> <span>faster</span></h1><p>Body text body text.</p></body>`,
+    "/maintenance": `<!doctype html><meta charset="utf-8"><body style="margin:0"><h1 style="font-size:40px">We're down for maintenance</h1><p>Back soon.</p></body>`,
+    "/soon": `<!doctype html><meta charset="utf-8"><body style="margin:0"><h1 style="font-size:64px">Txt, a quiet text editor</h1><p>Coming soon. Write notes, drafts and lists in one window, with nothing else on the screen, and keep them as plain files you own on your own disk forever.</p></body>`,
     "/icons": `<!doctype html><meta charset="utf-8"><body style="margin:0;font-family:system-ui"><h1 style="font-size:64px">Features</h1><div style="display:flex;gap:40px;font-size:40px"><span style="display:inline-block;width:48px;height:48px;background:url('${svgIcon}') no-repeat"></span><span style="display:inline-block;width:48px;height:48px;-webkit-mask:url('${svgIcon}');background:#333"></span><span>★</span><span>☂</span></div></body>`,
   };
   const photo = png(4, 2, [200, 120, 60, 90, 60, 30, 220, 200, 160, 40, 30, 20, 200, 120, 60, 90, 60, 30, 220, 200, 160, 40, 30, 20]);
   const server = await new Promise((done) => {
-    const s = createServer((req, res) => (req.url === "/photo.png" ? res.end(photo) : res.end(pages[req.url] || "")));
+    const s = createServer((req, res) => (req.url === "/photo.png" ? res.end(photo) : req.url === "/gone" ? ((res.statusCode = 404), res.end("<h1>Gone</h1><p>Nothing here at all.</p>")) : res.end(pages[req.url] || "")));
     s.listen(0, () => done(s));
   });
   try {
     const base = `http://localhost:${server.address().port}`;
-    const result = await measured([...Object.keys(pages).map((p) => base + p), "--tsv", "--wait", "200"]);
+    const result = await measured([...[...Object.keys(pages), "/gone"].map((p) => base + p), "--tsv", "--wait", "200"]);
     if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
     assert.equal(result.status, 0, result.stderr);
     const [head, ...rows] = result.stdout.trim().split("\n").map((l) => l.split("\t"));
@@ -547,6 +551,12 @@ test("measure: ordinary pages read right (alignment, ground, gradients, patterns
     assert.ok(Number(at["/dots"].pattern) > 90 && at["/dots"].gradient === "0", JSON.stringify(at["/dots"]));
     assert.deepEqual([at["/banner"].lettering, at["/banner"].display], ["text", "48px"]);
     assert.equal(at["/icons"].icons, "4");
+    assert.deepEqual([at["/animated"].display, at["/animated"].flag], ["72px", ""]);
+    // Not the real site: flagged with the reason, never dropped. An ordinary page has no flag.
+    assert.equal(at["/maintenance"].flag, 'says "down for maintenance"');
+    assert.equal(at["/gone"].flag, "HTTP 404");
+    assert.equal(at["/oklch"].flag, "");
+    assert.equal(at["/soon"].flag, "", "a real page may say coming soon");
   } finally {
     server.close();
   }
@@ -604,4 +614,42 @@ test("colours: step 5's colour rows are made by rule, every option passes contra
   const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
   assert.match(pale.stderr, /left out the dealt accent/);
   assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
+});
+
+test("fonts: faces of the same kind only, nearest in shape first, the chosen one on top", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-fonts-"));
+  const face = (family, category, stroke, extra = {}) => ({ family, category, stroke, classifications: [], subsets: ["latin"], fonts: { 400: {}, 700: {} }, axes: [], popularity: 1, isNoto: false, ...extra });
+  const list = {
+    familyMetadataList: [
+      face("DejaVu Serif", "Serif", "Serif"),
+      face("FreeSerif", "Serif", "Serif", { popularity: 2 }),
+      face("Caladea", "Serif", "Serif", { popularity: 3 }),
+      face("DejaVu Sans", "Sans Serif", "Sans Serif"),
+      face("FreeSans", "Sans Serif", "Sans Serif"),
+      face("Bitstream Charter", "Serif", "Serif", { fonts: { 700: {} } }),
+      face("DejaVu Serif SC", "Serif", "Serif"),
+    ],
+  };
+  writeFileSync(join(dir, "fonts.json"), JSON.stringify(list));
+  const fonts = join(root, "skills/design/scripts/fonts.mjs");
+  const run = (args) => new Promise((done) => {
+    const child = spawn(process.execPath, [fonts, ...args, "--metadata", join(dir, "fonts.json"), "--local"]);
+    let stdout = "", stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("exit", (status) => done({ status, stdout, stderr }));
+  });
+  const result = await run(["DejaVu Serif", "--json"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const out = JSON.parse(result.stdout);
+  assert.equal(out.chosen.face, "DejaVu Serif");
+  // Serifs only; not the sans, not a small-caps twin, not one without the weight in use.
+  const names = out.rows.map((r) => r.face);
+  assert.ok(names.length >= 1 && names.every((n) => ["Caladea", "FreeSerif"].includes(n)), JSON.stringify(names));
+  for (const r of out.rows) assert.ok(r.width > 0.3 && r.width < 0.8 && r.contrast > 0.5, JSON.stringify(r));
+  assert.ok(out.rows.every((r, i) => i === 0 || out.rows[i - 1].far <= r.far));
+  assert.equal((await run(["Their Face"])).status, 1);
+  assert.match((await run(["Their Face"])).stderr, /not in Google Fonts' list: say its kind with --kind/);
+  assert.equal((await run(["DejaVu Serif", "--weight", "50"])).status, 2);
 });

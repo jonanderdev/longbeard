@@ -88,7 +88,7 @@ if (/\.json$/i.test(input)) {
   const store = JSON.parse(readFileSync(input, "utf8")).refs || {};
   refs = Object.entries(store)
     .filter(([, p]) => p.shot && p.image)
-    .map(([name, p]) => ({ name, shot: p.shot, link: p.link || null, image: p.image.traits, figure: p.image.figure || null, page: p.page?.traits || null, media: p.page?.media || null, tags: p.tags || null }));
+    .map(([name, p]) => ({ name, shot: p.shot, link: p.link || null, image: p.image.traits, figure: p.image.figure || null, page: p.page?.flag ? null : p.page?.traits || null, media: p.page?.flag ? null : p.page?.media || null, flag: p.page?.flag || "", tags: p.tags || null }));
 } else {
   const pages = new Map();
   if (pagesArg) {
@@ -100,7 +100,8 @@ if (/\.json$/i.test(input)) {
     for (const k of ["ref", "lum", "empty", "loud", "busy"]) if (!(k in row)) fail(`the TSV has no ${k} column: make it with measure.mjs --tsv`);
     const name = nameOfShot(row.ref);
     const link = links.get(name) || links.get(basename(row.ref)) || links.get(row.ref) || null;
-    return { name, shot: row.ref, link, image: row, figure: null, page: link ? pages.get(link) || null : null, media: null, tags: null };
+    const page = link ? pages.get(link) || null : null;
+    return { name, shot: row.ref, link, image: row, figure: null, page: page?.flag ? null : page, media: null, flag: page?.flag || "", tags: null };
   });
 }
 if (refs.length < 2) fail("fewer than two references to sort");
@@ -304,6 +305,10 @@ const untagged = refs.filter((r) => !r.tags);
 if (untagged.length && untagged.length < n) console.log(`untagged, compared on their numbers only, and able to join groups the tags would keep apart: ${untagged.map((r) => r.name).join(", ")}. Tag them (tag.mjs) and sort again`);
 const blank = refs.filter((r) => num(r.image.empty) >= 99 && num(r.image.busy) < 0.5);
 if (blank.length) console.log(`near blank, check each on its sheet: ${blank.map((r) => r.name).join(", ")}`);
+// A live page that is not the real site (an error, maintenance, a bot check) is left out: that
+// reference is sorted on its picture alone, and the picture may be the same wrong page.
+const flagged = refs.filter((r) => r.flag);
+if (flagged.length) console.log(`pages that may not be the real site, sorted on their picture only; check each on its sheet and drop it if the picture is that page too: ${flagged.map((r) => `${r.name} (${r.flag})`).join(", ")}`);
 const stray = families.find((f) => f.stray);
 if (stray?.pairs.length) console.log(`pairs, each a family seed: ${stray.pairs.map((p) => p.map(nameOfShot).join("+")).join(", ")}`);
 if (stray) console.log(`nearest family of each stray: ${stray.members.map((s) => `${nameOfShot(s)}→${stray.nearest[s] || "none"}`).join(", ")}`);

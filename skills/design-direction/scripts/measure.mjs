@@ -13,7 +13,9 @@
 // uses as written, and its traits: the type scale (largest text over the most
 // common size), how much of the first screen is pictures and how much is
 // gradient, where the largest text sits (centre, left, right), the left
-// margin, and the corner radius in use.
+// margin, and the corner radius in use. Animations that end are read at their end. A page that
+// is not the real site (an error status, a maintenance or bot-check page, nothing on it) is
+// flagged with the reason, in "flag": families.mjs leaves its numbers out.
 //
 // Traits are what families are sorted by and what a family shares, so every
 // keep is measured the same way before anyone judges it by eye.
@@ -318,10 +320,23 @@ const readPage = `(() => {
   const out = { screen: [W, H], ground: getComputedStyle(document.body).backgroundColor, root: getComputedStyle(document.documentElement).backgroundColor, text: [], boxes: [], icons: 0, solids: [] };
   const seen = new Set();
   for (const el of document.querySelectorAll("body *")) {
-    const r = el.getBoundingClientRect();
-    if (r.width < 2 || r.height < 2 || r.top > H || r.bottom < 0 || r.left > W || r.right < 0) continue;
+    let r = el.getBoundingClientRect();
     const cs = getComputedStyle(el);
+    // An element with no box of its own (display: contents, a headline split into word spans) is
+    // still read by its words: their own box stands for it, and its parent says whether it shows.
+    const boxless = r.width < 2 || r.height < 2;
+    const ownText = boxless ? [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim()) : [];
+    if (ownText.length) {
+      const range = document.createRange();
+      range.setStartBefore(ownText[0]);
+      range.setEndAfter(ownText.at(-1));
+      r = range.getBoundingClientRect();
+    }
+    if (r.width < 2 || r.height < 2 || r.top > H || r.bottom < 0 || r.left > W || r.right < 0) continue;
     if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) === 0) continue;
+    // Hidden by an ancestor (an opacity of 0 on a wrapper, mid-reveal) is hidden too.
+    const shown = boxless ? el.parentElement : el;
+    if (shown?.checkVisibility && !shown.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
     const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join(" ").trim();
     if (own && !seen.has(own.slice(0, 24) + cs.fontSize)) {
       seen.add(own.slice(0, 24) + cs.fontSize);
@@ -348,6 +363,12 @@ const readPage = `(() => {
     if ((/^(IMG|VIDEO|CANVAS|svg)$/.test(el.tagName) || cs.backgroundImage !== "none" || filled) && r.width > 30 && r.height > 2)
       out.boxes.push({ kind: el.tagName.toLowerCase(), fill: cs.backgroundColor, radius: cs.borderRadius, box: box(r), picture: /^(IMG|VIDEO|CANVAS)$/.test(el.tagName) || /url\\(/.test(cs.backgroundImage), gradient: /gradient\\(/.test(cs.backgroundImage) ? cs.backgroundImage.slice(0, 240) : "", size: cs.backgroundSize, repeat: cs.backgroundRepeat });
   }
+  // Whether this is the real site: the answer's status, and how much it says. A maintenance page,
+  // a bot check or an error page is not a reference, however it looks.
+  out.status = performance.getEntriesByType("navigation")[0]?.responseStatus || 0;
+  const said = (document.body.innerText || "").replace(/\\s+/g, " ").trim();
+  out.words = said ? said.split(" ").length : 0;
+  out.said = said.slice(0, 3000);
   out.fonts = [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family.replace(/["']/g, "") + " " + f.weight + " " + f.style))];
   // Traits. The body size is the size most text is set in, by characters: a title split into one
   // element per letter is still a few characters, and a paragraph is many.
@@ -502,11 +523,36 @@ async function measureImage(tab, path) {
   const src = `data:${mime[extname(path).toLowerCase()]};base64,${readFileSync(resolve(path)).toString("base64")}`;
   return tab.evaluate(readImage(src));
 }
+// A page that is not the real site: an error status, a maintenance or bot-check page, or one that
+// says nothing and shows nothing. It is flagged, never dropped here: the eye confirms it.
+const NOT_THE_SITE = /\b(under maintenance|down for maintenance|scheduled maintenance|access denied|just a moment|checking your browser|verify you are (a )?human|are you a robot|attention required|enable javascript( and cookies)? to continue|page not found|404 not found|site (is )?(temporarily )?unavailable|domain (is )?for sale|this site can.t be reached)\b/i;
+// Words a real page can say too (a product that is coming soon): they count only on a page that says little else.
+const NOT_THE_SITE_IF_BARE = /\b(coming soon|launching soon|forbidden|under construction)\b/i;
+function notTheSite({ status = 0, words = 0, said = "", pictures = 0 }) {
+  if (status >= 400) return `HTTP ${status}`;
+  const m = String(said).slice(0, 600).match(NOT_THE_SITE) || (words < 30 && String(said).match(NOT_THE_SITE_IF_BARE));
+  if (m && words < 400) return `says "${m[0].toLowerCase()}"`;
+  if (!words && !(pictures > 5)) return "no text and no pictures, even after a second wait";
+  return "";
+}
+
 async function measurePage(tab, url) {
   await tab.call("Page.navigate", { url });
   for (let i = 0; i < 100 && (await tab.evaluate("document.readyState")) !== "complete"; i++) await sleep(200);
   await sleep(wait);
-  return tab.evaluate(readPage);
+  // Animations that end (a headline that fades or slides in) are read as they end, never mid-way.
+  // Ones that loop, and ones a script drives, are read as they are after the wait.
+  await tab.evaluate(`(() => { for (const a of document.getAnimations()) { try { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); } catch {} } })()`);
+  await sleep(300);
+  let out = await tab.evaluate(readPage);
+  // Nothing on it yet is often a loader: one more wait before it is called empty.
+  if (!out.words && !(out.traits.pictures > 5)) {
+    await sleep(Math.max(3000, wait / 2));
+    out = await tab.evaluate(readPage);
+  }
+  out.flag = notTheSite({ status: out.status, words: out.words, said: out.said, pictures: out.traits.pictures });
+  delete out.said;
+  return out;
 }
 
 const results = new Array(targets.length);
@@ -538,7 +584,7 @@ if (profilesArg) {
   const byTarget = new Map(results.filter((r) => !r.error).map((r) => [r.target, r]));
   const pageOf = (r) => {
     const texts = [...r.text].sort((a, b) => parseFloat(b.size) - parseFloat(a.size)).slice(0, 8);
-    return { url: r.target, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts };
+    return { url: r.target, flag: r.flag || "", status: r.status, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts };
   };
   for (const t of targets.filter((x) => !isUrl(x))) {
     const r = byTarget.get(t);
@@ -555,9 +601,9 @@ if (profilesArg) {
   const tagged = Object.values(store.refs).filter((p) => p.tags).length;
   console.log(`profiles: ${profilesArg}, ${n} references, ${withPage} with their page, ${tagged} tagged`);
 } else if (tsv) {
-  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "icons", "blocks", "align"];
+  const cols = ["tone", "lum", "empty", "loud", "busy", "ground", "display", "body", "scale", "pictures", "margin", "radius", "lettering", "gradient", "pattern", "icons", "blocks", "align", "flag"];
   const lines = [["ref", ...cols].join("\t")];
-  for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => r.traits?.[c] ?? "")].join("\t"));
+  for (const r of results) if (!r.error) lines.push([r.target, ...cols.map((c) => (c === "flag" ? r.flag : r.traits?.[c]) ?? "")].join("\t"));
   console.log(lines.join("\n"));
 } else if (targets.length === 1) {
   if (failed.length) process.exit(1);

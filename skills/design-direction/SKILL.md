@@ -191,7 +191,7 @@ Then the eye, family by family, from contact sheets, never from each picture ope
 node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
 ```
 
-A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, but only the sheet confirms them. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
+A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, and the live pages that may not be the real site (an error status, a maintenance or bot-check page, nothing on it): those are sorted on their picture alone, but only the sheet confirms either. A picture that is that wrong page too goes to `Dropped`, with the reason. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
 **A family has a name a person would say.** Name each one for what is seen ("huge lettering is the picture", "dark app page, headline centred"). If the only honest name is a number ("dark, all picture", "light, small type"), it is a bin, not a family: the numbers agree and the pictures do not. Break it up: each member to the family it looks like, or to the strays. Look hardest at a family whose tags disagree on picture or layout.
 
