@@ -154,7 +154,7 @@ The finished screen moves to its own file, `design-exploration/<slug>/prototype/
 
 ### 7. The other key screens, one at a time
 
-The first screen is the look. Every other screen keeps it: the chosen navigation, faces, ground, ink and accent. What is still open on each is its layout, and they choose it the way they chose the first screen, from rendered options.
+The first screen is the look. Every other screen keeps it: the chosen navigation, faces, ground, ink and accent. What is still open on each is its layout, and they choose it the way they chose the first screen, from rendered options. Each choice carries forward: the menu is dealt from the first screen's navigation, and every later screen is dealt and built among the screens already chosen.
 
 **The order, proposed and asked.** List the screens still to make, in the order they will be done. Navigation first (the menu open, what it does on scroll, what it becomes on a phone), since every other screen sits inside it. Then, for a site, the order a visitor meets them: a listing, then a detail, then the rest. For an app, the brief's main journey. Ask once, and wait:
 
@@ -164,14 +164,15 @@ Their order is the order. A screen they skip is not built. One they add is liste
 
 **Then each screen, in that order:**
 
-1. **One layout that follows** from the finished first screen, written into the library's `parts` for this screen with `"from": ["first screen"]`.
-2. **Deal.** Once, `deal.mjs … --choose <n>` records the screen they settled on in step 5. Then `deal.mjs … --part <name>`: up to four layouts for this screen, each from a different reference, the one that follows first, all carrying the chosen look, so only the layout differs.
-3. **Build and show.** Each layout is built as a rule, like the grid's arrangements, with this screen's real content: real copy in the voice from `direction.md`, the longest real names, real or properly chosen pictures. Capture each, make one sheet, and show it with a line per layout saying what it does. Never ranked.
+1. **One layout that follows** from the finished first screen and the screens chosen so far, written into the library's `parts` for this screen with `"from": ["first screen"]`.
+2. **Deal.** Once, `deal.mjs … --choose <n>` records the screen they settled on in step 5. Then `deal.mjs … --part <name>`: up to four layouts for this screen, each from a different reference, the one that follows first, all carrying the chosen look and the screens chosen so far, so only the layout differs. A layout that needs what was not chosen (another navigation, another screen's layout) is left out, and the script says which.
+3. **Build and show.** Each layout is built as a rule, like the grid's arrangements, inside the chosen navigation and with what the chosen screens already settled (a card, a list row, a heading style is reused, not redrawn), with this screen's real content: real copy in the voice from `direction.md`, the longest real names, real or properly chosen pictures. Capture each, make one sheet, and show it with a line per layout saying what it does. Never ranked.
 
    > Which layout for <screen>? Mix if you like ("the list from 2 with the header from 3"), or ask for more.
 
 4. **A mix** is built by hand from layouts already shown, and said so. **More** is `--part <name>` again: layouts not shown yet come first. **Nothing fits**, or the library has no layouts for this screen: `design-direction` one-piece mode for it, with its own slug, then back here.
-5. **Finish that screen.** The empty, loading and error states a person can reach, as frames in the same file (`?state=empty`, hidden switcher when the URL has `capture`). A product with more than one theme shows each. Read it back in one line and wait for their yes, then the next screen.
+5. **Record it.** `deal.mjs … --choose <n>` on that round records the layout, so the screens after it are dealt knowing it. A mix is recorded by its main layout, and said so.
+6. **Finish that screen.** The empty, loading and error states a person can reach, as frames in the same file (`?state=empty`, hidden switcher when the URL has `capture`). A product with more than one theme shows each. Read it back in one line and wait for their yes, then the next screen.
 
 A pattern a layout brings that the brief does not have is named when it is shown: if they keep it, that is a product change (`idea`, Change) before `DESIGN.md`.
 

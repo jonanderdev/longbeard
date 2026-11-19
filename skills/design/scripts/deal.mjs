@@ -27,12 +27,16 @@
 // - No recipe is dealt twice, in any round.
 //
 // --choose n records recipe n of the last round as the screen they settled on,
-//   and deals nothing.
+//   and deals nothing. On a --part round it records that screen's layout, so
+//   the screens after it are dealt knowing it.
 // --part <name> deals layouts for another key screen (a menu, a list, an
 //   article) from the library's parts, each carrying the chosen look, so only
 //   the layout differs: up to --count (4), each from a different reference,
 //   ones not shown yet first. A layout from "first screen" (one that follows
-//   from the chosen screen) is always dealt when the part has one.
+//   from the chosen screen) is always dealt when the part has one. A layout's
+//   optional "needs" lists the entries it only works with (the navigation it
+//   grows from, a layout chosen for an earlier screen): it is dealt only when
+//   every one is already chosen.
 //   node deal.mjs design-exploration/<slug>/library.json --choose 3
 //   node deal.mjs design-exploration/<slug>/library.json --part navigation
 //
@@ -80,7 +84,10 @@ const lists = ["arrangements", "navigation", "type", "grounds", "accents"];
 const field = { arrangements: "arrangement", navigation: "navigation", type: "type", grounds: "ground", accents: "accent" };
 for (const [part, entries] of Object.entries(lib.parts || {})) {
   if (!Array.isArray(entries)) fail(`parts.${part} must be a list of layouts`);
-  for (const entry of entries) if (!entry.id || !Array.isArray(entry.from) || !entry.from.length) fail(`every layout in parts.${part} needs an id and a from list of references`);
+  for (const entry of entries) {
+    if (!entry.id || !Array.isArray(entry.from) || !entry.from.length) fail(`every layout in parts.${part} needs an id and a from list of references`);
+    if (entry.needs !== undefined && !Array.isArray(entry.needs)) fail(`parts.${part}.${entry.id}: needs is a list of entry ids`);
+  }
 }
 for (const list of lists) {
   if (!Array.isArray(lib[list]) || !lib[list].length) fail(`the library has no ${list}`);
@@ -194,8 +201,17 @@ if (chooseArg) {
   const last = rounds.at(-1);
   if (!last) fail("nothing dealt yet: deal a round before --choose");
   const r = last.recipes.find((x) => x.n === Number(chooseArg)) || fail(`round ${last.round} has no recipe ${chooseArg}`);
+  if (last.kind === "part") {
+    if (!saved.chosen) fail("no first screen chosen: --choose it before a part's layout");
+    saved.chosen.parts = { ...(saved.chosen.parts || {}), [last.part]: r.arrangement };
+    save();
+    console.log(`chosen for ${last.part}: ${r.arrangement} (round ${last.round}, ${r.n}). Screens so far: ${Object.entries(saved.chosen.parts).map(([k, v]) => `${k} ${v}`).join(", ")}`);
+    process.exit(0);
+  }
   for (const list of lists) entry(list, r[field[list]]);
-  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, round: last.round, n: r.n };
+  // A new first screen starts the other screens over: what was chosen for them was chosen next to another look.
+  if (saved.chosen?.parts && Object.keys(saved.chosen.parts).length) console.error(`deal: a new first screen; the layouts chosen for ${Object.keys(saved.chosen.parts).join(", ")} are cleared`);
+  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, round: last.round, n: r.n, parts: {} };
   save();
   console.log(`chosen: ${lists.map((list) => r[field[list]]).join(" · ")} (round ${last.round}, ${r.n})`);
   process.exit(0);
@@ -216,8 +232,13 @@ if (kind === "part") {
   if (!saved.chosen) fail("no screen chosen yet: --choose the one they settled on first");
   const shown = new Map();
   for (const round of rounds) for (const r of round.recipes) if (r.part === partArg) shown.set(r.arrangement, (shown.get(r.arrangement) || 0) + 1);
-  const follows = layouts.filter((x) => x.from.includes("first screen"));
-  const others = shuffle(layouts.filter((x) => !x.from.includes("first screen"))).sort((a, b) => (shown.get(a.id) || 0) - (shown.get(b.id) || 0));
+  // Only layouts that fit what is already chosen: the first screen's entries and the earlier screens' layouts.
+  const have = new Set([...lists.map((list) => saved.chosen[field[list]]), ...Object.values(saved.chosen.parts || {})]);
+  const fits = layouts.filter((x) => (x.needs || []).every((id) => have.has(id)));
+  const left = layouts.length - fits.length;
+  if (left) console.error(`deal: ${left} layout${left === 1 ? "" : "s"} for ${partArg} left out: ${left === 1 ? "it needs" : "they need"} what was not chosen (${[...new Set(layouts.filter((x) => !fits.includes(x)).flatMap((x) => x.needs.filter((id) => !have.has(id))))].join(", ")})`);
+  const follows = fits.filter((x) => x.from.includes("first screen"));
+  const others = shuffle(fits.filter((x) => !x.from.includes("first screen"))).sort((a, b) => (shown.get(a.id) || 0) - (shown.get(b.id) || 0));
   const taken = new Set();
   const picked = [];
   // Each layout from a different reference, so no one reference lays out the whole part.
@@ -227,8 +248,9 @@ if (kind === "part") {
     picked.push(x);
     x.from.forEach((ref) => taken.add(ref));
   }
-  const { round: _round, n: _n, ...look } = saved.chosen;
-  for (const x of picked) recipes.push({ ...look, part: partArg, arrangement: x.id });
+  // Each layout carries the chosen look and the screens chosen so far, so the page builds it among them.
+  const { round: _round, n: _n, parts: chosenParts = {}, arrangement: firstScreen, ...look } = saved.chosen;
+  for (const x of picked) recipes.push({ ...look, first: firstScreen, parts: chosenParts, part: partArg, arrangement: x.id });
   if (recipes.length < 2) console.error(`deal: only ${recipes.length} layout for ${partArg}: the references show little of this part, so offer a search for more (design-direction, one piece)`);
 } else if (kind !== "deal") {
   const last = rounds.at(-1);

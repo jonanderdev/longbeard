@@ -396,3 +396,40 @@ test("deal --choose then --part: layouts for another screen carry the chosen loo
   assert.ok(unseen.every((id) => again.includes(id) || lib.parts.navigation.find((x) => x.id === id).from.some((ref) => again.some((a) => lib.parts.navigation.find((x) => x.id === a).from.includes(ref)))), `${again}`);
   assert.equal(run(deal, dir, ["library.json", "--part", "footer"]).status, 1);
 });
+
+test("deal --part: earlier choices carry forward, and a layout that needs what was not chosen is left out", () => {
+  const lib = library({
+    parts: {
+      navigation: [
+        { id: "follows-nav", what: "x", from: ["first screen"] },
+        { id: "overlay", what: "x", from: ["a"], needs: ["nav-1"] },
+        { id: "sidebar", what: "x", from: ["b"], needs: ["nav-3"] },
+        { id: "sheet", what: "x", from: ["c"] },
+      ],
+      index: [
+        { id: "follows-index", what: "x", from: ["first screen"] },
+        { id: "cards", what: "x", from: ["d"], needs: ["overlay"] },
+        { id: "rows", what: "x", from: ["e"], needs: ["sheet"] },
+      ],
+    },
+  });
+  const dir = project(lib);
+  // A first screen with nav-1, chosen by writing a round whose recipe 1 has it.
+  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-b", navigation: "nav-1", type: "type-2", ground: "dark", accent: "red" }] }] }));
+  run(deal, dir, ["library.json", "--choose", "1"]);
+  const nav = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "2"]);
+  assert.match(nav.stderr, /1 layout for navigation left out: it needs what was not chosen \(nav-3\)/);
+  const navRound = rounds(dir).at(-1);
+  assert.deepEqual(navRound.recipes.map((r) => r.arrangement).sort(), ["follows-nav", "overlay", "sheet"]);
+  assert.ok(navRound.recipes.every((r) => r.navigation === "nav-1" && r.first === "arr-b"));
+  // They pick the overlay menu; the index is dealt knowing it.
+  const overlay = navRound.recipes.find((r) => r.arrangement === "overlay").n;
+  assert.match(run(deal, dir, ["library.json", "--choose", String(overlay)]).stdout, /chosen for navigation: overlay/);
+  run(deal, dir, ["library.json", "--part", "index", "--seed", "3"]);
+  const indexRound = rounds(dir).at(-1);
+  assert.deepEqual(indexRound.recipes.map((r) => r.arrangement).sort(), ["cards", "follows-index"]);
+  assert.ok(indexRound.recipes.every((r) => r.parts.navigation === "overlay"));
+  // A new first screen clears what was chosen for the other screens.
+  writeFileSync(join(dir, "deal.json"), JSON.stringify({ ...JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")), rounds: [...rounds(dir), { round: 9, kind: "deal", seed: 1, recipes: [{ n: 1, arrangement: "arr-c", navigation: "nav-3", type: "type-4", ground: "cream", accent: "none" }] }] }));
+  assert.match(run(deal, dir, ["library.json", "--choose", "1"]).stderr, /layouts chosen for navigation are cleared/);
+});
