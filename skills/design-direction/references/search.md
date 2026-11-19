@@ -16,7 +16,7 @@ A picture they gave is a **seed**: a picker row with source `seed`, which starts
 
 ## 2. Search wide
 
-Read [sources.md](sources.md) before keeping anything. Do not narrate while looking. One line at the end is enough ("Found 210 across Dribbble, Awwwards and Recent, every part covered, building the picker.").
+Read [sources.md](sources.md) before keeping anything. Post one line as each source or part is done ("Dribbble done: 64 candidates, home and navigation covered. Awwwards next."), and one at the end ("Found 210 across Dribbble, Awwwards and Recent, every part covered, building the picker."). Not every query or page.
 
 - **They choose, so the pool is wide:** about twice the keep (150 to 250 for the default), across the sources they chose and every part. Cut only what is not a candidate: off-form, off-topic, under the source's quality floor, a near-twin from the same designer, anything sources.md drops. Never cut for taste here. A pool holding only what you would pick is the problem this step exists to fix.
 - **Query the form, not the word.** "writing app" returns T-shirts. `product-design?q=text+editor+screen` returns screens.
@@ -32,7 +32,7 @@ Read [sources.md](sources.md) before keeping anything. Do not narrate while look
 node <skill>/scripts/picker.mjs design-exploration/<slug>/candidates.tsv --out design-exploration/<slug>/picker.html
 ```
 
-**Check the pool before the picker.** Look at every candidate on contact sheets, not one by one (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`, about 36 a sheet). Drop only what is not a candidate: not a screen (an illustration, packaging, a logo sheet, a poster, merch), a broken or blank thumbnail, an exact twin. Never drop for taste or for a look: a gradient, a typeface, a colour, a style the rules call a tell. Say how many went and why in one line.
+**Check the pool before the picker.** Look at every candidate on contact sheets, not one by one (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`, about 36 a sheet). Drop only what is not a candidate: not a screen (an illustration, packaging, a logo sheet, a poster, merch), a broken or blank thumbnail, an exact twin. Never drop for taste or for a look: a gradient, a typeface, a colour, a style the rules call a tell. Say how many went and why in one line. A big pool: a line every few sheets ("Sheets 3 of 6 checked: 9 dropped so far").
 
 The check never shrinks the pool to fit. If what is left is under about one and a half times the keep, or a part has only a handful, search again for what is thin (another query, another source) and check the new rows the same way. A person can only pick from what the pool holds.
 
@@ -62,7 +62,7 @@ node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<nam
 node <skill>/scripts/capture.mjs <url> --out design-exploration/<slug>/refs/<name>-intro --frames 12
 ```
 
-Motion is never judged from a still: a motion keep is recorded frames (`--frames`, with `--scroll` or `--click` for what moves on scroll or on a click). Run up to four captures at a time. Open every file, and capture again or drop the keep if it is blank, still loading, or repeats a band.
+Motion is never judged from a still: a motion keep is recorded frames (`--frames`, with `--scroll` or `--click` for what moves on scroll or on a click). Run up to four captures at a time, and post a line every batch or so ("Captured 24 of 58"). Open every file, and capture again or drop the keep if it is blank, still loading, or repeats a band.
 
 - **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names and its empty state.
 - **Site:** live sites outweigh Dribbble shots.

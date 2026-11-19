@@ -606,6 +606,10 @@ async function measurePage(tab, url) {
 const images = targets.map((t, i) => [t, i]).filter(([t], i) => !isUrl(t) && !results[i]);
 const pages = targets.map((t, i) => [t, i]).filter(([t], i) => isUrl(t) && !results[i]);
 if (images.length || pages.length) await startChrome();
+// Progress on stderr for a long run: what is being measured, then every tenth done.
+const todo = images.length + pages.length;
+let done = 0;
+if (todo > 10) console.error(`measure: ${images.length} pictures and ${pages.length} pages to measure${pages.length ? `, about ${Math.max(1, Math.round((pages.length * (wait + 2000)) / Math.min(jobs, pages.length) / 60000))} min` : ""}`);
 const run = async (queue, measure) => {
   const tab = await openTab();
   for (let item = queue.shift(); item; item = queue.shift()) {
@@ -613,6 +617,7 @@ const run = async (queue, measure) => {
     try {
       results[i] = { target, ...(await measure(tab, target)) };
       toCache(results[i]);
+      if (todo > 10 && ++done % 10 === 0 && done < todo) console.error(`measure: ${done} of ${todo}`);
     } catch (error) {
       results[i] = { target, error: error.message };
     }

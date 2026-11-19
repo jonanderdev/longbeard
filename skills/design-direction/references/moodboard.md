@@ -14,6 +14,7 @@ Their board already holds their taste, so it is the pool. A rich board needs no 
   ```
 
   It lists each section (id, name, size, cards) as `new`, `same` or `changed` since the last read, and the cards to read: new ones, and ones renamed or resized. A board read before: `--reuse design-exploration/<slug>/refs` copies back the keeps of every unchanged card, and lists the ones dropped before with why. Read only what is left. Say it in one line ("Board read on 2026-11-02: 61 cards as they were, 3 new to read."). They say the pictures changed inside cards: `--fresh`.
+- **Say where you are.** A line after each section ("Section 3 of 7, Type: 18 cards, 15 kept. Motion next."), and one after each download batch ("Saved 40 of 61 originals").
 - **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section that has cards to read, with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
 - **Remember the read.** Write `design-exploration/<slug>/cards.tsv` as you go, one row per card read: `card id<TAB>the file it was saved to, or drop<TAB>why`. Then `figma-board.mjs <the saved metadata> --board <fileKey>:<nodeId> --done design-exploration/<slug>/cards.tsv`, so the next run reads only what changes.
 

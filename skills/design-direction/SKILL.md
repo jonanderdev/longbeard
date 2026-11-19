@@ -38,6 +38,8 @@ Everything goes in `design-exploration/<slug>/`: `candidates.tsv` and `picker.ht
 
 Picking up, or a folder already there: `node <skill>/scripts/status.mjs` says where each exploration stopped, from its files. Go on from there; do not start over or reread what is saved.
 
+**Keep them posted.** Searching and reading a moodboard take a while, and silence reads as stuck. Send a short line at each milestone, and at least every few minutes of work: what is done, with numbers, and what comes next ("Dribbble done: 64 candidates. Awwwards next.", "Section 3 of 7 read: 41 kept so far.", "Measuring 120 references, about 3 minutes."). Before a step that takes long, say what it is and about how long. One line each, no narration of every click, and never a question: they only answer at the asks.
+
 On the first write, add `design-exploration/` to `.gitignore` if it is missing, and say why in one line: it is a working folder for inspiration, not part of the product. References, their links, their authors and their shots stay in this folder and in chat. Nothing the product keeps (`DESIGN.md`, Figma, code, commits) ever names one. If `git ls-files design-exploration` already lists files, say so and leave `git rm -r --cached design-exploration` to them.
 
 ## Identity
