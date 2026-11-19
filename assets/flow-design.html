@@ -16,7 +16,7 @@
   .canvas { width: 1200px; padding: 28px 36px 44px; border: var(--stroke) solid var(--ink); border-radius: 20px; background: radial-gradient(circle, var(--dot) 1.1px, transparent 1.2px) 0 0 / 18px 18px, var(--canvas); }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
   .brand { display: flex; align-items: center; gap: 12px; }
-  .logo { position: relative; width: 64px; height: 64px; border-radius: 16px; background: #fff; border: var(--stroke) solid var(--ink); overflow: hidden; }
+  .logo { position: relative; width: 64px; height: 64px; border-radius: 16px; overflow: hidden; }
   .logo img { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); }
   .brand b { display: block; font-size: 20px; font-weight: 600; }
   .brand span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; max-width: 640px; }
@@ -54,8 +54,9 @@
   .detour b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
   .detour span { display: block; margin-top: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink); }
   svg.links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 0; pointer-events: none; }
-  svg.links path { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 2 6; stroke-linecap: round; }
-  svg.links polygon { fill: var(--ink); }
+  svg.links path.line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; }
+  svg.links path.head { fill: none; stroke: var(--ink); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+  svg.links circle { fill: var(--canvas); stroke: var(--ink); stroke-width: 2; }
   footer { display: flex; gap: 18px; margin-top: 26px; padding-top: 18px; border-top: 2px solid var(--ink); font-size: 13.5px; color: var(--muted); line-height: 1.45; }
   footer div { flex: 1; }
   footer b { color: var(--ink); font-weight: 600; }
@@ -121,21 +122,36 @@ function draw() {
   const svg = document.getElementById("links");
   const r = (id) => { const b = document.getElementById(id).getBoundingClientRect(); return { l: b.left - box.left, r: b.right - box.left, t: b.top - box.top, b: b.bottom - box.top, m: (b.top + b.bottom) / 2 - box.top }; };
   const out = [];
-  // From a card's left edge to a detour's right edge, or back: a soft S, arrow at the end.
-  const link = (a, b, toCard, ya, yb) => {
-    const x1 = toCard ? r(a).r : r(a).l, x2 = toCard ? r(b).l : r(b).r;
-    const mx = (x1 + x2) / 2;
-    out.push(`<path d="M${x1} ${ya} C ${mx} ${ya}, ${mx} ${yb}, ${x2} ${yb}"/>`);
-    const d = toCard ? 1 : -1;
-    out.push(`<polygon points="${x2} ${yb} ${x2 - 9 * d} ${yb - 5} ${x2 - 9 * d} ${yb + 5}"/>`);
+  const k = 12;
+  const ring = (x, y) => out.push(`<circle cx="${x}" cy="${y}" r="3.5"/>`);
+  const head = (x, y, dx, dy) => out.push(`<path class="head" d="M${x - dx * 8 - dy * 6} ${y - dy * 8 - dx * 6} L${x} ${y} L${x - dx * 8 + dy * 6} ${y - dy * 8 + dx * 6}"/>`);
+  const line = (d) => out.push(`<path class="line" d="${d}"/>`);
+  // Into a detour: out of the card's left side, along, then down into the detour's top.
+  const down = (card, pill) => {
+    const c = r(card), p = r(pill), y = Math.min(c.b - 22, p.t - 30), x = p.l + (p.r - p.l) * 0.62, top = p.t - 3;
+    line(`M${c.l} ${y} H${x + k} Q${x} ${y} ${x} ${y + k} V${top}`);
+    ring(c.l, y); head(x, top, 0, 1);
   };
+  // Back to the line: out of the detour's right side, along a lane, into the card's left side.
+  const back = (pill, card, from, lane) => {
+    const p = r(pill), c = r(card), y = r(card).m, tip = c.l - 3, s = Math.sign(y - from) || 1;
+    line(Math.abs(y - from) < 2 ? `M${p.r} ${from} H${tip}` : `M${p.r} ${from} H${lane - k} Q${lane} ${from} ${lane} ${from + s * k} V${y - s * k} Q${lane} ${y} ${lane + k} ${y} H${tip}`);
+    head(tip, y, 1, 0);
+  };
+  const lane = (r("c1").l + r("d-families").r) / 2;
   const f = r("d-families"), c = r("d-content"), w = r("d-wordmark");
-  link("c2", "d-families", false, r("c2").m, f.t + 18);
-  link("d-families", "c3", true, f.b - 18, r("c3").m);
-  link("d-content", "c4", true, c.m - 8, r("c4").m);
-  link("d-content", "c5", true, c.m + 8, r("c5").m);
-  link("c5", "d-wordmark", false, r("c5").b - 18, w.t + 18);
-  link("d-wordmark", "c6", true, w.b - 18, r("c6").m);
+  down("c2", "d-families");
+  ring(f.r, f.b - 22); back("d-families", "c3", f.b - 22, lane);
+  // design-content feeds two steps from one trunk.
+  {
+    const y4 = r("c4").m, y5 = r("c5").m, t4 = r("c4").l - 3, t5 = r("c5").l - 3;
+    ring(c.r, c.m);
+    line(`M${c.r} ${c.m} H${lane}`);
+    line(`M${t4} ${y4} H${lane + k} Q${lane} ${y4} ${lane} ${y4 + k} V${y5 - k} Q${lane} ${y5} ${lane + k} ${y5} H${t5}`);
+    head(t4, y4, 1, 0); head(t5, y5, 1, 0);
+  }
+  down("c5", "d-wordmark");
+  ring(w.r, w.b - 22); back("d-wordmark", "c6", w.b - 22, lane);
   svg.innerHTML = out.join("");
 }
 document.fonts.ready.then(() => { draw(); setTimeout(() => (document.title = "ready"), 200); });
