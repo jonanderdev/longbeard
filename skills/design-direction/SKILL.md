@@ -29,6 +29,8 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
 2. A direction exists → a change: show it, ask what changes, deal again only if the composition does.
 
+**At `pace: quick`** (the design brief): one round of eight, a vary only if they ask, no mix or more rounds offered. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, never a rougher screen.
+
 ## 0. Pictures of the subject
 
 Before the grid: three or four pictures of what the product is about (the bakery's bread, the climbing gym's wall, the app's real data), not other designs. Every screen from here on uses them, and their colours join the deal. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How, and what to check: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with the message in step 1, as stand-ins theirs replace.
@@ -83,7 +85,9 @@ Show the sheet, a table of each number's arrangement, navigation, ground and acc
 - **More of one thing:** `--more 4:ground`.
 - **None:** deal again once. None again: ask what is missing; a search for it is `design-moodboard`.
 
-Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
+Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`.
+
+**The other width, before the yes, without a stop.** When the grid was dealt at desktop size, render the screen they settled on at 390 yourself (`grid.html?n=<n>&size=390x844`) and look. Say nothing when it carries over. Say one line only when the composition's core depends on the width ("the headline only works across the full desktop width; on a phone it breaks into five lines"), so they choose knowingly; the phone is designed properly in `design-prototype`. When the grid was dealt at phone size, the same with the desktop. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
 
 ## 5. The touch-up pass
 
@@ -105,7 +109,11 @@ Make the fixes as URL overrides or rule edits on a copy, capture before and afte
 
 > Keep all, or turn any off?
 
-The before wins any change they turn off. Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy the page to `.longbeard/design/direction/prototype/first.html` and write the URL overrides into the copy, since a copied file keeps no query string. Without `?n=`, the page shows the chosen screen.
+The before wins any change they turn off.
+
+**Then the five-second check** on the touched-up screen: three fresh agents who know nothing of the product say what it is, who it is for, what they would do first, and how it feels, and that is set against the takeaway. How, and what a miss allows: [five-second.md](references/five-second.md). Its fixes are the touch-up's own, shown before and after like them.
+
+Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy the page to `.longbeard/design/direction/prototype/first.html` and write the URL overrides into the copy, since a copied file keeps no query string. Without `?n=`, the page shows the chosen screen.
 
 ## Write `docs/design/design-direction.md`
 
@@ -116,6 +124,7 @@ The before wins any change they turn off. Record the result: `deal.mjs … --cho
 - headline: "<the one they picked>"
 - must carry: <the list>
 - ownable: <what, from the product's world>
+- five seconds: <what it is n of 3, what to do n of 3, feel words; people's answers when given; "not run" and why otherwise>
 
 ## Composition
 <The chosen first screen in words, complete enough to rebuild with no picture: where everything sits, what overlaps or runs off, how much is empty, how big type is against the rest.>

@@ -735,3 +735,23 @@ test("deal: a library too narrow for a spread says so", () => {
   assert.match(result.stderr, /every ground in the library is light/);
   assert.match(result.stderr, /4 references give 4 arrangements/);
 });
+
+test("links: walks a prototype and says what breaks a flow", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-links-"));
+  writeFileSync(join(dir, "home.html"), `<a href="menu.html">Menu</a> <a href="#">Order</a> <a href="gone.html">Gone</a> <a href="https://example.com">out</a>
+<button>Dead</button><button id="b">Wired</button><div id="p"><button>Delegated</button></div>
+<script>document.getElementById("b").addEventListener("click",()=>{});document.getElementById("p").addEventListener("click",()=>{});</script>`);
+  writeFileSync(join(dir, "menu.html"), `<a href="basket.html?state=empty">Basket</a><a href="home.html">Home</a>`);
+  writeFileSync(join(dir, "basket.html"), "Your basket");
+  writeFileSync(join(dir, "checkout.html"), `<a href="home.html">home</a>`);
+  const result = spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "home.html")}`, "--expect", "menu,basket,checkout", "--json"], { encoding: "utf8" });
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 1, result.stderr);
+  const out = JSON.parse(result.stdout);
+  assert.deepEqual(out.pages, [{ page: "home", clicks: 0 }, { page: "menu", clicks: 1 }, { page: "basket", clicks: 2 }]);
+  assert.deepEqual(out.broken.map((b) => b.to), ["gone.html"]);
+  assert.deepEqual(out.nowhere.map((n) => n.what), ['link "Order"', 'button "Dead"']);
+  assert.deepEqual(out.deadEnds, ["basket"]);
+  assert.deepEqual(out.unreached, ["checkout"]);
+  assert.equal(out.outside.length, 1);
+});

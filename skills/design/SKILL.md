@@ -38,22 +38,22 @@ On the first write of either, add `.longbeard/design/` to `.gitignore` if it is 
 
 ## What to suggest
 
-Look at the repo. Do not ask what is there. Then say, in up to four lines, where the project stands and what to run next, with the reason. Name one next step, and the optional ones only when they earn it.
+Look at the repo. Do not ask what is there. Read the design brief's `pace` first: with `quick`, skip what the steps below mark optional, and say so in the suggestion. Then say, in up to four lines, where the project stands and what to run next, with the reason. Name one next step, and the optional ones only when they earn it.
 
 1. No `docs/brief.md` → `idea` first. The brief says no UI → there is nothing to design; say so.
 2. No `docs/design/design-brief.md` → `design-brief`. Every other skill needs it.
 3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is dealt from it, so it is not skipped.
 4. **The board's size decides families.**
-   - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?"
+   - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?" (Not at `pace: quick`.)
    - About 8 to 60 → no sorting. A board this size is already chosen.
-   - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only.
+   - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only. At `pace: quick`, three or more references are enough: go on.
 5. No `design-direction.md` → `design-direction`.
 6. No `design-identity.md` → `design-identity`.
 7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
 9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
 
-**Offered once, never pushed:**
+**Offered once, never pushed** (and not at `pace: quick`):
 - `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.
 - `design-wordmark`, once the identity is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
 

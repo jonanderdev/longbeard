@@ -27,6 +27,8 @@ Read [design-rules.md](references/design-rules.md) before the first screen: it i
 
 Read the brief, `docs/design/design-brief.md`, `design-identity.md`, `design-direction.md`, and `design-content.md` if it exists. The chosen first screen is `.longbeard/design/direction/prototype/first.html`. If the private folder is gone, rebuild the first screen from `design-direction.md`'s composition and the identity, and say so.
 
+**At `pace: quick`** (the design brief): options only when they ask, never offered at a fork (build the one that follows the first screen, and name the fork). Everything else is as full: the states, contrast, the walks and the five-second check are what make it work, and quick never skips them.
+
 ## First pass
 
 ### 1. Finish the first screen
@@ -74,7 +76,19 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/prototype/home.h
 node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/prototype/home.html" --wait-title ready
 ```
 
-Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it. Then ask whether this is the product, and iterate until it is. Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
+Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it.
+
+**Walk the links.** Every page the key screens list, reached by clicking from the first:
+
+```
+node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.html" --expect menu,product,basket,checkout
+```
+
+It says each broken link, each link or button that goes nowhere, each page with no way on, each key screen no click reaches, and how many clicks each page is from the start. Fix every one before they see it. A key screen deeper than its flow needs is said.
+
+**Walk the flows.** For each flow in the brief, one fresh agent that knows nothing of the product: a new agent or a clean session, given the first page's path and the flow's goal in the person's words, never the steps ("you want a sourdough for Saturday pickup"). It clicks through the prototype in a browser and says where it went, where it hesitated, and whether it got there. A flow it cannot finish, a wrong turn two of them take, or a step it calls unclear is fixed inside the identity and the direction: a label, a missing link or action, an order of sections. No agent can be started clean: walk it yourself, say so, and say it is weaker.
+
+**The five-second check** on the first screen and each key screen, with what each screen is for as its takeaway: [five-second.md](references/five-second.md). Then show the screens with what the walks and the five-second check found and fixed, ask whether this is the product, and iterate until it is. Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
 
 ### 5. Approve: write `DESIGN.md` in one go
 

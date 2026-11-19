@@ -15,4 +15,4 @@ node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html .long
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
 ```
 
-For an app, render and capture at the device size instead (`grid.html?n=1&size=390x844`, `--width 390`, a clip of that size), and use the app's navigation (a tab bar, a side rail) as the navigation entries.
+For an app, render and capture at the device size instead (`grid.html?n=1&size=390x844`, `--width 390`, a clip of that size), and use the app's navigation (a tab bar, a side rail) as the navigation entries. The same for a site whose design brief says `first seen on: phone` (a restaurant, an event, a local shop): its first screen is the phone's, so the grid is dealt at 390 with the site's phone navigation; the desktop comes in `design-prototype`.
