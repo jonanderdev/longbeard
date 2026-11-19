@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  The identity page, to copy to design-exploration/<slug>/prototype/identity.html.
+  Two views of the identity they are deciding in step 5, from what they picked,
+  never from a menu of new options:
+
+  ?view=marks   the wordmark round: every mark in MARKS, numbered, each in the
+                navigation bar and at hero size, on the chosen ground.
+  ?view=board   the bento board: the mark, the palette with every role and its
+                contrast, the type styles in use, two or three toned pictures,
+                one voice line set large, the ownable, and a crop of the hero.
+
+  A run writes only what is marked WRITE: the identity (ID) and the marks. The
+  page sets document.title to "ready" once the faces are in, so a capture can
+  wait for it. &size=1440x1100 sets the page size for a capture.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>identity</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--ground); color: var(--ink); font-family: var(--body-face), system-ui, sans-serif; font-size: 16px; line-height: 1.45; }
+  .display { font-family: var(--face), serif; font-weight: var(--weight); text-transform: var(--case); letter-spacing: var(--tracking); line-height: 0.9; }
+  /* Marks */
+  .marks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 24px; }
+  .mark-tile { position: relative; min-width: 0; border: 1px solid var(--hairline); }
+  .mark-tile .n { position: absolute; top: 8px; right: 10px; font: 600 13px/1 system-ui; opacity: 0.6; }
+  .mark-nav { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 28px; border-bottom: 1px solid var(--hairline); font-size: 13px; }
+  .mark-nav .links { margin-left: auto; display: flex; gap: 22px; }
+  .mark-hero { display: grid; place-items: center; height: 300px; overflow: hidden; padding: 0 28px; white-space: nowrap; }
+  .mark-nav > :first-child { white-space: nowrap; }
+  /* Board: a bento, one tile leading */
+  .board { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 160px; grid-auto-flow: dense; gap: var(--gap); padding: var(--gap); background: color-mix(in srgb, var(--ink) 10%, var(--ground)); }
+  .tile { border-radius: var(--radius); overflow: hidden; padding: 20px; position: relative; background: var(--ground); }
+  .tile h6 { font: 600 11px/1 system-ui; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 12px; }
+  .lead { grid-column: span 3; grid-row: span 2; display: grid; place-items: center; }
+  .palette { grid-column: span 3; grid-row: span 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
+  .swatch { border-radius: calc(var(--radius) / 2); padding: 10px; min-height: 64px; font: 12px/1.3 system-ui; border: 1px solid var(--hairline); }
+  .type { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; gap: 10px; }
+  .photo { grid-column: span 2; grid-row: span 2; padding: 0; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo::after { content: ""; position: absolute; inset: 0; background: var(--tone); mix-blend-mode: color; opacity: var(--toning); }
+  .voice { grid-column: span 4; grid-row: span 1; display: flex; align-items: center; }
+  .ownable { grid-column: span 2; grid-row: span 1; display: grid; place-items: center; text-align: center; }
+  .hero { grid-column: span 4; grid-row: span 2; padding: 0; }
+  .hero img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+</style>
+</head>
+<body>
+<div id="page"></div>
+<script>
+// ---------------------------------------------------------------- WRITE: the identity
+// Only what they picked: the faces from the face rows, the three colours from the colour rows,
+// the roles from `colours.mjs --roles --json`, the mark from the wordmark round, the hero concept
+// they chose (its capture), the ownable, a voice line from direction.md, their own pictures.
+const ID = {
+  name: "Product name",
+  links: ["First", "Second", "Third"],
+  face: "Newsreader", weight: 400, case: "none", tracking: "0", css: "",
+  body: "Inter", bodyCss: "",
+  ground: "#f4ecdc", ink: "#2a1a10", accent: "#c2410c",
+  roles: [], // [{ role, colour, on, contrast, need }] from colours.mjs --roles --json
+  styles: [], // [{ name: "display", size: "96px", weight: 400, sample: "…" }, { name: "body", size: "16px", … }]
+  mark: "", // the mark they picked, by id; empty during the wordmark round
+  photos: [], // two or three of their pictures: "img/bake-1.jpg"
+  toning: 0.35, // how far pictures are toned toward the picture tone
+  voice: "One line in the voice, set large.",
+  ownable: "", // HTML: the ownable, as it will be built
+  hero: "", // the chosen hero concept's capture: "../grid/concept-stamp.png"
+  radius: "0px", gap: "12px",
+};
+
+// ---------------------------------------------------------------- WRITE: marks
+// Four to six wordmarks, each from the chosen faces and the family's own devices (a rule, a
+// shape, a case, a ligature, a cut): never a stock icon or a reference's mark. Each returns HTML
+// at the size given in px (its cap height, roughly), so one function serves the nav and the hero.
+const MARKS = {
+  // plain: { what: "the name in the display face, tracked tight", html: (ID, px) => `<span class="display" style="font-size:${px}px">${ID.name}</span>` },
+};
+
+// ---------------------------------------------------------------- the same every run
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const view = q.get("view") || "board";
+  const set = (k, v) => document.documentElement.style.setProperty(k, v);
+  const role = (name) => (ID.roles.find((r) => r.role === name) || {}).colour;
+  set("--ground", ID.ground);
+  set("--ink", ID.ink);
+  set("--accent", ID.accent);
+  set("--hairline", role("hairline") || "color-mix(in srgb, var(--ink) 20%, transparent)");
+  set("--tone", role("picture tone") || ID.ground);
+  set("--toning", ID.toning);
+  set("--face", `"${ID.face}"`);
+  set("--body-face", `"${ID.body}"`);
+  set("--weight", ID.weight);
+  set("--case", ID.case);
+  set("--tracking", ID.tracking);
+  set("--radius", ID.radius);
+  set("--gap", ID.gap);
+  const [W] = (q.get("size") || "1440x1100").split("x").map(Number);
+  document.body.style.width = W + "px";
+
+  // Faces: the chosen display and body faces, each on its own request.
+  const sheets = [];
+  for (const [face, css, weights] of [[ID.face, ID.css, [ID.weight]], [ID.body, ID.bodyCss, [400, 700]]]) {
+    const href = css || `https://fonts.googleapis.com/css2?family=${encodeURIComponent(face).replace(/%20/g, "+")}:wght@${weights.join(";")}&display=block`;
+    const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href });
+    sheets.push(new Promise((done) => ((link.onload = done), (link.onerror = done))));
+    document.head.appendChild(link);
+  }
+  await Promise.all(sheets);
+  await Promise.all([document.fonts.load(`${ID.weight} 100px "${ID.face}"`), document.fonts.load(`400 16px "${ID.body}"`)].map((p) => p.catch(() => [])));
+
+  const page = document.getElementById("page");
+  const mark = (px) => (MARKS[ID.mark] ? MARKS[ID.mark].html(ID, px) : `<span class="display" style="font-size:${px}px">${ID.name}</span>`);
+  if (view === "marks") {
+    const ids = Object.keys(MARKS);
+    page.innerHTML = ids.length
+      ? `<div class="marks">${ids.map((id, i) => `<figure class="mark-tile"><span class="n">${i + 1} · ${id}</span>
+          <div class="mark-nav">${MARKS[id].html(ID, 22)}<span class="links">${ID.links.map((l) => `<a>${l}</a>`).join("")}</span></div>
+          <div class="mark-hero">${MARKS[id].html(ID, 120)}</div></figure>`).join("")}</div>`
+      : `<p style="padding:40px">No marks written yet.</p>`;
+  } else {
+    // A swatch's label in the ink or the ground, whichever reads on it.
+    const lum = (hex) => { const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+    const cr = (a, b) => { const [h, l] = [lum(a), lum(b)].sort((x, y) => y - x); return (h + 0.05) / (l + 0.05); };
+    const swatch = (r) => `<div class="swatch" style="background:${r.colour};color:${cr(ID.ink, r.colour) >= cr(ID.ground, r.colour) ? ID.ink : ID.ground}">
+      <b>${r.role}</b><br>${r.colour}${r.contrast ? `<br>${r.contrast}:1${r.on ? ` on ${r.on}` : ""}` : ""}</div>`;
+    // Rows of six: the mark and the palette; the hero and the type; the pictures; the voice and the ownable.
+    const tiles = [
+      `<div class="tile lead">${mark(140)}</div>`,
+      `<div class="tile palette"><h6 style="grid-column:1/-1">Colour</h6>${[{ role: "ground", colour: ID.ground }, ...ID.roles].map(swatch).join("")}</div>`,
+      ID.hero ? `<div class="tile hero"><img src="${ID.hero}" alt=""></div>` : "",
+      ID.styles.length ? `<div class="tile type"><h6>Type</h6>${ID.styles.map((s) => `<div style="font-family:${s.name === "body" || s.body ? "var(--body-face)" : "var(--face)"};font-size:${s.size};font-weight:${s.weight || 400};line-height:1.1">${s.sample || s.name}</div><small style="opacity:.6">${s.name} · ${s.size}</small>`).join("")}</div>` : "",
+      ...ID.photos.slice(0, 3).map((src) => `<div class="tile photo"><img src="${src}" alt=""></div>`),
+      `<div class="tile voice" style="background:var(--ink);color:var(--ground)"><span class="display" style="font-size:44px;line-height:1.05">${ID.voice}</span></div>`,
+      ID.ownable ? `<div class="tile ownable" style="background:var(--accent)">${ID.ownable}</div>` : "",
+    ];
+    page.innerHTML = `<div class="board">${tiles.join("")}</div>`;
+  }
+  await document.fonts.ready;
+  // A mark at hero size is drawn again smaller until it fits its tile.
+  if (view === "marks") {
+    for (const box of document.querySelectorAll(".mark-hero")) {
+      const id = Object.keys(MARKS)[[...document.querySelectorAll(".mark-hero")].indexOf(box)];
+      for (let px = 120; px > 24 && box.scrollWidth > box.clientWidth; px -= 8) box.innerHTML = MARKS[id].html(ID, px);
+    }
+  }
+  document.title = "ready";
+})();
+</script>
+</body>
+</html>

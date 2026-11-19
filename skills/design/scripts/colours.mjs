@@ -9,8 +9,17 @@
 //   node colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" \
 //     --family "#ebe4e0,#b6bc94,#fd3b19" --theirs "#2b4c7e"
 //
+// Three choices only: the ground, the text colour (ink) and one accent. The
+// ink has its own row, the dealt ink first: lighter, darker, warmer and cooler
+// steps of it, near-black and near-white, each checked on the dealt ground.
+//
 // Prints one row per option: row, label, colour, ink (for grounds), contrast.
 // --json prints the same as JSON, for a page that renders the rows.
+//
+// --roles: once the three are picked, every other role is derived by rule and
+// checked, never chosen one by one: soft text, a hairline, the button's fill
+// and label, a picture tone, and status (ok, warn, error) on the ground.
+//   node colours.mjs --roles --ground "#3b2416" --ink "#d8b98c" --accent "#e8643c"
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -18,6 +27,7 @@ const flag = (name) => {
   return i === -1 ? "" : (args.splice(i, 2)[1] ?? "");
 };
 const json = args.includes("--json");
+const rolesMode = args.includes("--roles");
 const groundArg = flag("ground");
 const inkArg = flag("ink");
 const accentArg = flag("accent");
@@ -86,6 +96,54 @@ const step = (hex, kind) => {
   return fromOklch([L, Math.max(C, 0.02), toward(H, 250, 20)]);
 };
 
+// A colour between two, in OKLCH: t of the way from a to b.
+const mix = (a, b, t) => {
+  const [L1, C1, H1] = oklch(a), [L2, C2, H2] = oklch(b);
+  const dh = ((H2 - H1 + 540) % 360) - 180;
+  return fromOklch([L1 + (L2 - L1) * t, C1 + (C2 - C1) * t, (H1 + dh * t + 360) % 360]);
+};
+if (rolesMode) {
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const roles = [];
+  const role = (name, colour, on, need, rule) => roles.push({ role: name, colour, on, contrast: r1(contrast(colour, on)), need, rule, ok: contrast(colour, on) >= need });
+  role("text", ink, ground, 4.5, "the ink they picked");
+  // Soft text: the ink toward the ground, as far as it still reads at 4.5:1.
+  let soft = ink;
+  for (let t = 0.05; t <= 0.6; t += 0.05) {
+    const c = mix(ink, ground, t);
+    if (contrast(c, ground) < 4.5) break;
+    soft = c;
+  }
+  role("soft text", soft, ground, 4.5, "the ink toward the ground, while it reads at 4.5:1");
+  role("hairline", mix(ink, ground, 0.8), ground, 1.2, "the ink, 20% over the ground: a line, not text");
+  // The button: the accent when it stands off the ground at 3:1, else the ink; its label the
+  // ground or the ink, whichever reads on the fill.
+  const fill = accent && contrast(accent, ground) >= 3 ? accent : ink;
+  role("button fill", fill, ground, 3, fill === ink ? "the ink: the accent is under 3:1 on the ground" : "the accent");
+  const label = [ground, ink].find((c) => c !== fill && contrast(c, fill) >= 4.5) || ["#111111", "#f7f7f5"].sort((a, b) => contrast(b, fill) - contrast(a, fill))[0];
+  role("button label", label, fill, 4.5, "the ground or the ink where it reads on the fill, else near-black or near-white");
+  // A picture tone: the ground's hue at low chroma, for duotones and the overlay under text on photos.
+  const [gL, , gH] = oklch(ground);
+  roles.push({ role: "picture tone", colour: fromOklch([gL < 0.5 ? 0.25 : 0.75, 0.04, gH]), rule: "the ground's hue, low colour: tone photos toward it, and lay it under text on a photo" });
+  // Status: green, amber and red at the lightness that reads on the ground at 3:1 (marks, not body text).
+  for (const [name, hue] of [["ok", 145], ["warn", 75], ["error", 25]]) {
+    const dark = oklch(ground)[0] < 0.5;
+    let found = null;
+    for (let L = dark ? 0.6 : 0.6; dark ? L <= 0.95 : L >= 0.2; L += dark ? 0.02 : -0.02) {
+      const c = fromOklch([L, 0.15, hue]);
+      if (contrast(c, ground) >= 3) { found = c; break; }
+    }
+    if (found) role(`status ${name}`, found, ground, 3, "its hue at the lightness that reads on the ground");
+  }
+  const failing = roles.filter((r) => r.ok === false);
+  if (json) console.log(JSON.stringify({ roles }, null, 1));
+  else {
+    for (const r of roles) console.log([r.role, r.colour, r.on || "", r.contrast ?? "", r.need ? `${r.need}:1` : "", r.rule].join("\t"));
+  }
+  for (const r of failing) console.error(`colours: ${r.role} ${r.colour} is ${r.contrast}:1 on ${r.on}, under ${r.need}:1`);
+  process.exit(failing.length ? 1 : 0);
+}
+
 const rows = [];
 const seen = new Set();
 const add = (row, label, colour, extra) => {
@@ -111,6 +169,16 @@ const family = list(familyArg);
 const theirs = list(theirsArg);
 for (const c of family) if (oklch(c)[1] < 0.08) groundOption("the family's", c);
 for (const c of theirs) groundOption("theirs", c);
+// Ink: its own row, the dealt ink first, each on the dealt ground at 4.5:1 or out.
+const inkOption = (label, colour) => {
+  const k = contrast(colour, ground);
+  if (k >= 4.5) add("ink", label, colour, { contrast: Math.round(k * 10) / 10 });
+};
+inkOption("as dealt", ink);
+for (const kind of ["lighter", "darker", "warmer", "cooler"]) inkOption(kind, step(ink, kind));
+inkOption("near-black", "#111111");
+inkOption("near-white", "#f7f7f5");
+for (const c of theirs) inkOption("theirs", c);
 // Accents: against the chosen ground, 3:1 or out.
 const accentOption = (label, colour) => {
   const k = contrast(colour, ground);

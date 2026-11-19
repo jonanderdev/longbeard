@@ -7,7 +7,8 @@
   and each arrangement (and each part's layouts, in step 7), as small
   functions that return HTML.
 
-  URL: ?n=3 shows recipe 3 of the last round. A --part round shows that
+  URL: ?n=3 shows recipe 3 of the last round. ?concept=<id> shows a hero
+  concept (step 5) in the chosen look (deal --choose), with the overrides. A --part round shows that
   screen's layout n. Overrides, for step 5: &ground=%23f1ede4 &ink=%23111111
   &accent=%23fe2601 &face=Newsreader &body=Inter &weight=300 &space=1.25. &state=empty
   passes a state to the layout. &size=390x844 renders at a phone's size. The page sets document.title to "ready" once
@@ -127,6 +128,14 @@ const ARRANGEMENTS = {
   // },
 };
 
+// ---------------------------------------------------------------- WRITE: hero concepts (step 5)
+// Three or four complete first screens in the chosen look, each built on one idea that states the
+// takeaway: headline, picture and type as one move. Exactly one hero; everything else a clear step
+// down. Every must-carry item placed, as in an arrangement. Shown with ?concept=<id>.
+const CONCEPTS = {
+  // stamp: { idea: "the claim as a baker's stamp on today's bread", html: (C, ctx) => `…` },
+};
+
 // ---------------------------------------------------------------- WRITE: parts (step 7)
 // Layouts for the other key screens, by part, then by layout id, only for screens that fork or
 // that they asked options for. ctx.parts holds the layouts already chosen for earlier screens.
@@ -140,7 +149,9 @@ const PARTS = {
   const q = new URLSearchParams(location.search);
   const round = (D.rounds || []).at(-1);
   if (!round) return void (document.body.textContent = "No deal yet: run deal.mjs first.");
-  const r = round.recipes.find((x) => x.n === Number(q.get("n") || 1)) || round.recipes[0];
+  const concept = q.get("concept");
+  if (concept && !D.chosen) return void (document.body.textContent = "No screen chosen yet: deal.mjs --choose first.");
+  const r = concept ? { ...D.chosen, concept } : round.recipes.find((x) => x.n === Number(q.get("n") || 1)) || round.recipes[0];
   const lib = D.library;
   const get = (list, id) => (lib[list] || []).find((x) => x.id === id) || {};
   const type = { ...get("type", r.type) };
@@ -215,10 +226,10 @@ const PARTS = {
   const space = Number(q.get("space")) > 0 ? Number(q.get("space")) : 1;
   const ctx = { recipe: r, type, ground, accent, nav, state: q.get("state") || "", parts: r.parts || {}, W, H, space };
   const navOut = NAVIGATION[r.navigation] ? NAVIGATION[r.navigation](C, ctx) : { top: 0, bottom: 0, html: "" };
-  const layout = r.part ? (PARTS[r.part] || {})[r.arrangement] : ARRANGEMENTS[r.arrangement];
+  const layout = concept ? CONCEPTS[concept] : r.part ? (PARTS[r.part] || {})[r.arrangement] : ARRANGEMENTS[r.arrangement];
   const el = document.getElementById("screen");
   if (!layout) {
-    el.innerHTML = `<p style="padding:40px">No ${r.part ? `layout ${r.arrangement} for ${r.part}` : `arrangement ${r.arrangement}`} written yet.</p>`;
+    el.innerHTML = `<p style="padding:40px">No ${concept ? `concept ${concept}` : r.part ? `layout ${r.arrangement} for ${r.part}` : `arrangement ${r.arrangement}`} written yet.</p>`;
     return void (document.title = "ready");
   }
   set("--top", (navOut.top || 0) + "px");

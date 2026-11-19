@@ -499,6 +499,19 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
+test("identity template: its script parses, it marks what a run writes, and it has the marks and board views", () => {
+  const html = readFileSync(join(root, "skills/design/references/identity-template.html"), "utf8");
+  const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-identity-"));
+  writeFileSync(join(dir, "page.js"), js);
+  const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
+  assert.equal(check.status, 0, check.stderr);
+  for (const part of ["the identity", "marks"]) assert.match(html, new RegExp(`WRITE: ${part}`));
+  for (const hook of ['view === "marks"', "class=\"board\"", "picture tone", 'document.title = "ready"']) assert.ok(html.includes(hook), hook);
+  const grid = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
+});
+
 test("deal: their own entries are not one shared reference", () => {
   const lib = library();
   lib.type = [{ id: "their-face", from: ["theirs"] }];
@@ -667,6 +680,18 @@ test("colours: step 5's colour rows are made by rule, every option passes contra
   // The dealt ink is part of the look: tan on brown stays tan wherever it reads, not white.
   const tan = JSON.parse(spawnSync(process.execPath, [colours, "--ground", "#3b2416", "--ink", "#d8b98c", "--json"], { encoding: "utf8" }).stdout);
   assert.equal(tan.rows.find((r) => r.label === "as dealt").ink, "#d8b98c");
+  // The text colour has its own row, the dealt ink first, every option on the ground at 4.5:1.
+  const inks = tan.rows.filter((r) => r.row === "ink");
+  assert.equal(inks[0].colour, "#d8b98c");
+  assert.ok(inks.length >= 3 && inks.every((r) => r.contrast >= 4.5));
+  // --roles derives every other role from the three picks, each checked.
+  const roles = spawnSync(process.execPath, [colours, "--roles", "--ground", "#f4ecdc", "--ink", "#2a1a10", "--accent", "#f2c94c", "--json"], { encoding: "utf8" });
+  assert.equal(roles.status, 0, roles.stderr);
+  const by = Object.fromEntries(JSON.parse(roles.stdout).roles.map((r) => [r.role, r]));
+  assert.equal(by["button fill"].colour, "#2a1a10", "a yellow under 3:1 on cream does not fill the button");
+  assert.equal(by["button label"].colour, "#f4ecdc", "the ground reads on an ink button");
+  assert.ok(by["soft text"].contrast >= 4.5 && by["soft text"].colour !== "#2a1a10");
+  for (const name of ["hairline", "picture tone", "status ok", "status warn", "status error"]) assert.ok(by[name], name);
 });
 
 test("fonts: faces of the same kind only, nearest in shape first, the chosen one on top", async (t) => {

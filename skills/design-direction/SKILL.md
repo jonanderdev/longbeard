@@ -215,6 +215,8 @@ A family is a group of references that look alike: what a person would see from 
 
    The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, icon, shape, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`, and `scale` (quiet, heading, large, huge): how big the largest type is, which a live page measures but a picture alone, a Figma board or a folder, only has from this tag. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
 
+**A small pool takes the light funnel.** Under about 100 keeps, or a board of one page or section, sorting costs more than it gives: measure the keeps (one browser run, cheap), skip the tag sheets and `families.mjs`, and group by eye from one or two contact sheets of the whole pool, with the measured lines beside each. Skip the families board and go straight to the moodboard to mark. Say in one line that the light funnel is in use. The time saved goes to step 5 of `design`, the identity, which is where the result is made.
+
 **Sort by the profiles, then by eye.**
 
 ```

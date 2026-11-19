@@ -4,8 +4,11 @@ description: >
   Turn a direction into the product's look. A script deals first-screen
   recipes from the direction's library, each built in plain HTML with the
   product's real content and shown as one numbered grid. They pick, see each
-  pick varied one thing at a time, and pick again, then tune its colour and
-  type from rows of options rendered on it. The chosen screen is finished and the brief's other key screens follow from it. On approval:
+  pick varied one thing at a time, and pick again: look probes. The identity
+  is then decided in small rendered steps (faces, three colours, a wordmark,
+  hero concepts) and approved on a bento board; only then is the home screen
+  finished, the other key screens prototyped, and the result set beside a
+  plain agent's screen it must beat. On approval:
   DESIGN.md in one go, a bento board of the look in Figma, and the screens
   built from it. Colour, type, spacing and copy are chosen here, by them, on
   rendered screens. Runs when design-exploration/<slug>/direction.md exists
@@ -66,6 +69,8 @@ Say in one line what changed in the library.
 The headline they pick is the same in every recipe, as copy. The ownable is content on every dealt screen, placed by each arrangement like a must-carry item, so it is judged in the grid and not added after a screen is chosen.
 
 ### 2. Deal
+
+Steps 2 to 4 are **look probes**. The dealt screens are identity sketches, not screens: they exist to find the look on real content without choosing it in words. Nothing in them is polished: no spacing pass, no detail, no states, and no fault-fixing beyond what blocks judging the look (a clipped name, an overlap, a missing must-carry item, text that cannot be read). The identity is decided in step 5, and the screen is finished only in step 6, after they have said "this is us".
 
 ```
 node <skill>/scripts/deal.mjs design-exploration/<slug>/library.json
@@ -129,15 +134,18 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 > Which one? Mix if you like ("7 with the ground from 3"), or ask for more of one thing ("more typefaces for 4").
 
 - **A mix** is `deal.mjs … --mix 7,ground=3` (an entry id works too: `ground=dark`). Its arrangement, type and ground should still come from three different references. When the script warns that a mix breaks that, build it, and say that it now takes most of its look from one reference.
+- **A change inside the arrangement** ("the left side of 4", "drop the repeated line") is a zone: `deal.mjs … --mix 7,zone.side=4` takes recipe 4's side into 7, and `zone.band=none` leaves a zone out. The zone's references count with the arrangement's, so the script warns when the mix breaks the three sources. A change no zone covers ("the name on top of the picture, not behind it") is a new arrangement entry in the library, `"from"` both references it takes from, its zones named, dealt with `--mix chosen,arrangement=<id>`.
 - **More of one thing** is `deal.mjs … --more 4:type`: the pick, then every entry of that list it can take and has not had.
 - Every flag reads its numbers from the last round shown, so a variation can be varied again. Each ask is a new round: capture it and show its sheet. Never edit `deal.json` by hand.
-- A grid screen is a sketch. Never set it beside a finished proposal, or ask "is this the product?", before step 6 has finished it: any comparison waits until the chosen screen is polished. Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes. On the yes, record it: `deal.mjs … --choose <n>` (n in the last round shown). Steps 5 and 7 build on it.
+- A grid screen is a sketch. Never polish it, set it beside a finished proposal, or ask "is this the product?": the identity comes next, and any comparison waits for the finished screen (step 8). Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes. On the yes, record it: `deal.mjs … --choose <n>` (n in the last round shown). Steps 5 and 7 build on it.
 
-### 5. Colour and type, by them
+### 5. The identity, in small rendered steps
 
-The chosen screen took its colours and faces from the library, which holds only what the references use. Before it is finished, they tune them on the screen itself, one thing at a time, from rendered options. The look stays the family's; the exact values become theirs.
+The chosen sketch found the look. Now the identity is decided as its own thing, one small rendered step at a time, each shown on the chosen sketch or on the identity page, never chosen in words: the faces, three colours, the wordmark, the hero concept, and then the board that puts them together. A designer spends most of the time here; so does this step. Copy [identity-template.html](references/identity-template.html) to `design-exploration/<slug>/prototype/identity.html` for the marks and the board.
 
-One sheet, a row per thing, every option on the chosen screen at the grid's size (`sheet.mjs --cols 4`), numbered, never ranked:
+Every option is numbered, never ranked. They pick, keep, or name their own.
+
+**a. Faces.** One sheet, a row per face, every option on the chosen sketch at the grid's size (`sheet.mjs --cols 4`):
 
 - **Display face:** the face it has, then up to five more of the same kind, from `scripts/fonts.mjs`, never from memory. It takes every face of that kind in Google Fonts' list (serif or sans, display or text, with the weight in use), measures each in one Chrome (width, x-height, how dark it sets, stroke contrast) and lists them nearest in shape first, each with how widely it is used. An `eye` stand-in is always in this row.
 - **Body face:** the body face it has, then up to five from `fonts.mjs --body` (text faces with 400 and 700) that sit with the chosen display face.
@@ -147,41 +155,67 @@ One sheet, a row per thing, every option on the chosen screen at the grid's size
   node <skill>/scripts/fonts.mjs "Inter" --body
   node <skill>/scripts/fonts.mjs "Their Face" --kind sans --css "<its stylesheet>"
   ```
-- **Ground and ink, and accent:** made by `scripts/colours.mjs`, never picked by hand: the ground and accent as dealt, even steps around each (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), none for the accent, and theirs. Each ground keeps the dealt ink where it reads, and takes near-black or near-white only where it does not; an option under 4.5:1 for text, or 3:1 for an accent on its ground, is left out, and the script says so.
+
+Which of the listed faces go in a row is the agent's to choose, never by taste: take the nearest, and at least two of the five from beyond the hundred most used (`used` over 100), so the row is not only the faces every site has. Say for each, from its numbers, how it is of the same kind ("as narrow, darker, less contrast"). Every face is free to license, or theirs.
+
+**b. Colour: three choices only.** The ground, the text colour and one accent, each a row on the chosen sketch, made by `scripts/colours.mjs`, never picked by hand: the dealt value first, even steps around it (lighter, darker, warmer, cooler, in OKLCH), the family's other colours (their palettes in `profiles.json`), and theirs. The text colour has its own row, the dealt ink first: it is part of the look (tan on brown stays tan where it reads). An option under 4.5:1 for text, or 3:1 for the accent on its ground, is left out, and the script says so.
 
   ```
   node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the family's colours>" --theirs "<theirs>"
   ```
 
-- **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes through `--space`). Show this row on a crop (the top-left quarter, where the margin and the nav meet), as well as whole: at grid size three spacings can look the same. If they still do, an arrangement is writing plain px: fix it first.
+Every other role is **derived by rule** from the three, and checked, never chosen one by one: soft text, hairlines, the button's fill and label, the picture tone, and status colours. Show them on the board, not as rows.
 
-Which of the listed faces go in a row is the agent's to choose, never by taste: take the nearest, and at least two of the five from beyond the hundred most used (`used` over 100), so the row is not only the faces every site has. Say for each, from its numbers, how it is of the same kind ("as narrow, darker, less contrast"). Every face is free to license, or theirs.
+  ```
+  node <skill>/scripts/colours.mjs --roles --ground "<picked>" --ink "<picked>" --accent "<picked>" --json
+  ```
 
 > Pick one in each row, or name your own: a colour, a face. "Keep" leaves a row as it is.
 
 - **A pick** becomes a library entry with `"from": ["theirs"]`, and the chosen screen is dealt with it (`deal.mjs … --mix chosen,accent=<id>,type=<id>`: `chosen` is the screen recorded in step 4, whatever round is last), captured and shown again, once, with everything they picked together. On their yes, `--choose 1` records it.
 - **Something they name** is built the same way, checked the same way, and shown before it counts.
-- **A change inside the arrangement** ("the left side of 4", "drop the repeated line") is a zone: `deal.mjs … --mix 7,zone.side=4` takes recipe 4's side into 7, and `zone.band=none` leaves a zone out. The zone's references count with the arrangement's, so the script warns when the mix breaks the three sources. A change no zone covers ("the name on top of the picture, not behind it") is a new arrangement entry in the library, `"from"` both references it takes from, its zones named, dealt with `--mix chosen,arrangement=<id>`.
 - **"Go"** keeps what the screen has, and says so.
 
-Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes.
 
-### 6. Finish the chosen screen
+**c. The wordmark.** Four to six marks made from the chosen faces and the family's own devices (a rule, a shape, a case, a cut, a ligature, the accent), written in `identity.html`'s `MARKS`, shown in the navigation and at hero size (`?view=marks`, captured). Never a stock icon, a generic star, or a reference's mark. The name set plainly in the display face is one of them, so not making a mark is a choice too.
 
-Until now every screen was a sketch at one size. Now it becomes the design. Read [design-rules.md](references/design-rules.md) again and work through it on this screen.
+> Which mark? Or one to push further ("2, but tighter").
+
+**d. Hero concepts.** Three or four complete first screens in the locked look, written in `grid.html`'s `CONCEPTS` and shown with `?concept=<id>`. Each is built on one idea that states the takeaway ("the claim as a baker's stamp on today's bread"): the headline, the picture and the type are one move, not three slots. Each carries every must-carry item and the ownable, with the picked mark in the navigation.
+
+- **Hierarchy is judged here,** not only checked as a fault: exactly one hero, and everything else a clear step down (design-rules, rule 1). A concept where the name and the headline compete is not done: fix it before it is shown.
+- **Controls from the look:** buttons, chips and list rows drawn from the family's devices (its edges, radius, case, rules), not generic pills or plain blocks. `library.controls` is where to start.
+- **The arrangement holds:** a concept may move what sits where inside the chosen arrangement, and swap a zone, but it stays that arrangement. A concept that needs another arrangement is a new entry, dealt as in step 4.
+
+Show one sheet with each concept's idea in one line. Never say which you prefer.
+
+> Which concept? Mix if you like ("the stamp of 2 on 3").
+
+**e. The board: "this is us".** `identity.html?view=board`, built from the picks only, never another menu: the mark, the palette with every role and its contrast, the type styles in use, two or three of their pictures toned with the picture tone, one voice line set large, the ownable, and a crop of the chosen hero. Capture it and show it.
+
+> Is this us? Or notes on any part of it.
+
+- **A note** reopens only that row or round (a face, a colour, the mark, the concept); the board is rebuilt and shown again.
+- **Their yes** is the identity. Record the board's picks in `design-exploration/<slug>/identity.json` (faces, the three colours and the roles, the mark, the concept), the look stays recorded as `deal.mjs`'s chosen screen, with every pick mixed in. Only now are screens finished.
+
+### 6. Finish the home screen
+
+Only on their yes to the board. Until now every screen was a sketch at one size. Now the chosen hero concept becomes the design, in the identity they approved. Read [design-rules.md](references/design-rules.md) again and work through it on this screen.
 
 - **The faces they chose** in step 5, loaded properly and set at every size. A face still marked `eye` that they kept is said again here: it is a stand-in, and the product ships whatever it stands in for, or it.
+- **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25` on the grid page: the margins and the gaps every arrangement writes through `--space`). Show this row on a crop (the top-left quarter, where the margin and the nav meet), as well as whole: at grid size three spacings can look the same. If they still do, an arrangement is writing plain px: fix it first.
 - **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone. The family's ranges hold here too: measure the finished screen with design-direction's script (`node <design-direction skill>/scripts/measure.mjs "file://$PWD/design-exploration/<slug>/prototype/<screen>.html"`) and say where it falls outside them.
 - **Navigation on this screen** as it was dealt and tuned. The menu open, what it does on scroll and what it becomes on a phone are prototyped in step 7, first.
 - **Motion.** A reference that moves is felt again, not remembered. Play its recorded frames and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
-- **The ownable.** Proposed with the headline in step 1 and on every dealt screen since. Finish it here, made from the product's own world and not from a reference, and confirm it on the finished screen or replace it. It is `ownable` in `DESIGN.md`.
+- **The ownable.** Proposed with the headline in step 1, on every dealt screen since, and approved on the board. Finish it here, made from the product's own world and not from a reference. It is `ownable` in `DESIGN.md`.
+- **The states** a person can reach on this screen (empty, loading, error), and the phone.
 - **The second theme**, if they asked for both: the same screen on a ground from the library that fits it.
 
-The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`: a copy of `grid.html` that still loads `../deal.js` and still takes the URL overrides, with the chosen recipe fixed (`?n=` ignored) and only its own arrangement and navigation kept. Never rewrite it as a standalone page: the overrides are how a colour, a face or a spacing is tried again later. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
+The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`: a copy of `grid.html` that still loads `../deal.js` and still takes the URL overrides, with the chosen concept fixed and only its own concept and navigation kept. Never rewrite it as a standalone page: the overrides are how a colour, a face or a spacing is tried again later. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
 
 ### 7. Prototype the rest, choose where it forks
 
-The identity is chosen: the first screen, its navigation, its faces and colours. The other key screens follow it, and a working prototype shows them better than a sheet of options per screen, so they are prototyped, not dealt. Choosing comes back only where the layout really forks, or where they ask.
+The identity is approved on the board, and the home screen is finished. The other key screens follow it, and a working prototype shows them better than a sheet of options per screen, so they are prototyped, not dealt. Choosing comes back only where the layout really forks, or where they ask.
 
 1. **Which screens.** List the brief's other key screens, navigation's details first (the menu open, what it does on scroll, what it becomes on a phone), and ask once:
 
@@ -207,7 +241,9 @@ node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototyp
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/today.html?capture" --out <scratch>/today-mobile.png --width 390
 ```
 
-Shoot every state, in every theme, not only the default. Check them against the rules: Idea first, then hard, then soft. That includes the hard rules about controls: every input has a visible label, focus and pressed exist, and what looks tappable has a stated result. A hard finding after approval reopens an approved screen. Fix what fails before they see it. Then give the paths, name the colours and faces in use, and ask whether this is the product. Iterate on the prototype until they say it is right.
+Shoot every state, in every theme, not only the default. Check them against the rules: Idea first, then hard, then soft. That includes the hard rules about controls: every input has a visible label, focus and pressed exist, and what looks tappable has a stated result. A hard finding after approval reopens an approved screen. Fix what fails before they see it.
+
+**Beat this.** Before they are asked whether this is the product, the home screen must clearly beat a plain proposal. Start a fresh agent with no families, deal or rows: give it the brief, `direction.md`'s takeaway and voice, the must-carry list, the headline, the ownable and the approved identity (faces, the three colours and roles, the mark), and ask for one finished home screen. Set the two side by side at full size, and say where each is stronger: hierarchy, concept, the mark, content, the look. Where the plain one wins, say so plainly and go back to the concept round (step 5d) or the finish (step 6) for that point, then compare again. Show them both; they judge, and they may take a move from the plain one. Then give the paths, name the colours and faces in use, and ask whether this is the product. Iterate on the prototype until they say it is right.
 
 A pattern can bring a feature the brief does not have. Name it when you show it. If they keep it, that is a product change: `idea`, Change, before `DESIGN.md`.
 
@@ -246,7 +282,7 @@ Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and foll
 
 ### The board
 
-Before any component, lay the whole look out on one frame, `Board`, on the Cover page: a bento of tiles in different sizes that shows the identity at a glance, the way a studio presents a brand. It is where they see colour, type, imagery and voice working together, and where a weak look shows before a screen is built on it.
+Before any component, rebuild the board they approved in step 5 on one frame, `Board`, on the Cover page. It is the same board, now bound to tokens, never a new one shown for the first time: a bento of tiles in different sizes that shows the identity at a glance, the way a studio presents a brand. It is where they see colour, type, imagery and voice working together, and where a weak look shows before a screen is built on it.
 
 - **What it holds**, each its own tile: the product's name set in the display face; the type, each text style named and shown in use; the colours, each token as a swatch with its name, and every theme; two or three of the prototype's real pictures, cropped hard; one line in the voice, set large; a crop of an approved key screen in a device frame; the `ownable`; and, if the brief has one, a number or fact about the product set very large. Add a tile for anything else that makes this look this look (a mark, a shape, an illustration). Leave out a tile that would be empty.
 - **Composed, not listed.** One tile leads and is the largest; the rest vary in size and in which colour they sit on. Tiles share one gap and one radius from `DESIGN.md`. Text sits on its tile's colour at the contrast `DESIGN.md` checked.
@@ -278,7 +314,8 @@ A feature with screens, once `DESIGN.md` exists.
 - Choose, swap, drop or rank a dealt recipe, or say which screen you prefer. Tune one recipe instead of fixing its arrangement.
 - Ask them to describe the look they want. Show them screens.
 - Pick a colour or a face for them in step 5, rank the options, or show one that fails contrast.
-- Build more than the first screen before they have chosen one.
+- Build more than the first screen before they have chosen one, or finish any screen before they say "this is us" to the board.
+- Polish a look probe: spacing, detail and states wait for step 6.
 - Take a reference's content, pictures or wording, or all of its arrangement, type and ground together.
 - Write `DESIGN.md` before they approve a rendered prototype, or rewrite it during a feature. Only a rebrand's first pass replaces it.
 - Name a reference, its link, its author or a `design-exploration/` path in anything that outlives the exploration: `DESIGN.md`, Figma, code, comments, commits, PRs, specs, tickets.
