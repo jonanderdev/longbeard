@@ -99,12 +99,26 @@ Their board already holds their taste, so it is the pool. A rich board needs no 
 **Read it.** A folder: open every image. Links: capture each page (sources.md has the options). Figma, a section at a time:
 
 - `create_session` with the file key first.
+- **Ask the scope first on a big board.** Over about 200 cards, ask once before extracting: "The whole file, or one page or section?" A board of 1,300 cards cost about 800K tokens to extract and tag. Where the board carries its own tags, offer to pre-filter on them ("only the cards tagged web-hero, web-page, web-section").
 - **Find the sections.** A section link: start there. A page or file link: `get_metadata` on the page. A board of hundreds of cards returns about 100K tokens, saved to a file: read only its section lines from it (name, id, size), never the whole dump into context.
 - **Read the cards.** Metadata gives frames and names, not the text on them. `get_screenshot` a section with `maxDimension` set to its longer side, so it renders at full size, and open it in crops of about 1100 px tall: a whole section opened at once is shrunk until its captions blur.
 
-**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line. Marks they already made on the board (a star, a tag, a "yes" section) are their picks: they stay, and are named on the families board.
+**Read their marks before your own.** A card's caption, tags and stars are read from the nodes with `use_figma` (text children and names), paged so each return stays under its 48 KB cap, never from a screenshot. Their tags seed `tags.tsv` (map each to the vocabulary where it fits, and tag only what is left), and a star is a pick that stays and is named on the families board.
+
+**Keep** every card that fits the brief, however many: the board is their taste, and the keep never cuts it to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many went and why in one line.
+
+**Screens and non-screens.** The same check as the picker's: a poster, a type specimen, packaging, a logo sheet or an illustration is not a screen. On a moodboard it is not dropped (it is their taste), but it is marked `screen: no` on its card, using the board's own type tag where there is one, and it never leads: an arrangement, a navigation or a type size cannot be read from it, so with no live page its face is `eye` and its `size` null. When a non-screen is marked Lead, say so before the library is read, and offer a screen from its family as the lead with the non-screen kept as a donor for colour and picture treatment.
 
 Save each keep's original to `refs/<name>.<format>`. For Figma, `download_assets` returns `rawImages`, the original uploads at full size, GIFs included, up to 20 from anywhere under the node: call it on the card, or on a frame holding up to 20 cards when the result shows which card each image belongs to. A card's render on the board is a thumbnail, so it is never what is saved.
+
+**Cards cut from shared sheets.** Many boards crop each card from a larger uploaded image (a fill with `scaleMode: CROP` and an `imageTransform` `[[a,0,tx],[0,d,ty]]`, the region x from tx to tx+a, y from ty to ty+d of the image, as fractions). Then many cards share one `imageHash`. Read each card's name, hash, transform, caption and tags with `use_figma` (paged as above) into `cards.json`, then:
+
+  ```
+  node <skill>/scripts/crops.mjs cards.json --list
+  node <skill>/scripts/crops.mjs cards.json --sheets <scratch>/sheets --out design-exploration/<slug>/refs
+  ```
+
+  The first lists each distinct image once: download each to `<scratch>/sheets/<hash>.<ext>`. The second checks each sheet's SHA-1 against its hash, crops every card at the sheet's own size, and writes `crops.tsv` (name, file, caption, tags) for seeding the tags. A sheet that does not match, is missing, or a card that is rotated is named and skipped. A board of 1,300 cards took 115 downloads this way, against about 1,300 card by card. Name each crop by the card's own name, so it stays the same across board versions.
 
 **Motion** is judged from frames. For a GIF, write a page in the slug folder that shows it at its own size, and record it: `capture.mjs "file://…/<name>.html" --out design-exploration/<slug>/refs/<name>-frames --frames 16 --every 250`. A moving reference with no playable source counts for its layout only. Say so.
 
@@ -201,11 +215,15 @@ A family is a group of references that look alike: what a person would see from 
 
    The first makes sheets of 16 untagged keeps and prints the vocabulary: `picture` (photo, illustration, render, lettering, ui, product, pattern, icon, shape, collage, none), `photo`, `type`, `weight`, `layout`, `colour`, `surface`, and `scale` (quiet, heading, large, huge): how big the largest type is, which a live page measures but a picture alone, a Figma board or a folder, only has from this tag. Open each sheet and write one row per keep; two values join with `+`, the main one first; a short `note` of what is seen is optional. The second checks every word and merges the rows. Tag what is there, never what is good: a gradient, chrome or a default typeface is a tag like any other.
 
+**A small pool takes the light funnel.** Under about 100 keeps, or a board of one page or section, sorting costs more than it gives: measure the keeps (one browser run, cheap), skip the tag sheets and `families.mjs`, and group by eye from one or two contact sheets of the whole pool, with the measured lines beside each. Skip the families board and go straight to the moodboard to mark. Say in one line that the light funnel is in use. The time saved goes to step 5 of `design`, the identity, which is where the result is made.
+
 **Sort by the profiles, then by eye.**
 
 ```
 node <skill>/scripts/families.mjs design-exploration/<slug>/profiles.json --board design-exploration/<slug>/board.md
 ```
+
+On a pool of pictures only (a Figma board or a folder, no live pages), the numbers carry less, and one spread can make a few huge bins beside many strays. `families.mjs` sorts a family far bigger than the rest (over three times the median family, or two fifths of the pool) again on its own, at a lower spread, and says the split; the first line's nearby spreads give the largest family too, so a bin that holds steady shows. A bin it could not split is named: sort it alone (`families.mjs profiles.json --only design-exploration/<slug>/families/f3.tsv --spread 0.4`, its new families in `families/f3-split/`, the pool's left as they are), and split it by eye where that does not.
 
 It joins the closest keeps first and stops when the closest groups no longer look alike, so outliers stay apart and become strays. It prints one line per family, its tags' majority first ("lettering · edge-type · display | light · type 165–564px…"), names each pair of strays (the seed of a family the pool is too thin for) and each stray's nearest family, and writes a board skeleton with every keep in its family, most typical first. Each kind of trait gives a distance from 0 to 1, and two keeps are compared on the kinds both have. The measured traits hold about two thirds of the weight and the tags one third, so the eye steers the families without deciding them. A wide gap on any one of what is seen first (how empty, how loud, how big the type, where things sit, what the picture is, the layout) keeps two keeps apart, however much else agrees. Light or dark is not one of them: the same look on a dark and on a light ground is one family, and its library keeps both grounds for `design` to deal (they choose light, dark or both there). Tag every keep before sorting: an untagged one is compared on its numbers only and is named. Two shots of one site (the same link) are one reference, the others listed beside it as `also`. `--spread` lower splits finer; the first line says what a little lower and higher would give, so a grouping sitting on an edge shows.
 
@@ -214,6 +232,10 @@ Then the eye, family by family, from contact sheets, never from each picture ope
 ```
 node <skill>/scripts/contact-sheet.mjs design-exploration/<slug>/families/f1.tsv --out <scratch>/f1 --contain
 ```
+
+**On a big pool** (hundreds of keeps), the eye works in two passes: before the families board, each family's six most typical (what that board shows) and its strays; once a family is taken, its every member, before its moodboard. Say both passes happen: the second is where cards move out of a taken family, and the move is said with the board.
+
+**Presentation shots.** A screen shown on a plain grey or black surround (a Dribbble-style frame, a device on a backdrop) would be measured on its surround. `measure.mjs` finds such a frame and reads the screen inside it, naming the surround and the box in `frame`. It takes only a solid screen on a low-colour surround with a margin on every side, so a light page with a small mark in the middle is never cropped. A frame it misses (a gradient backdrop, a tilted device) shows on the contact sheet: crop that shot to the screen and measure it again.
 
 A family is seen from across a room, so thumbnails are the right size for this step. Contact sheets are also where broken captures show (blank, a loader, an error page): `families.mjs` names the near-blank ones, and the live pages that may not be the real site (an error status, a maintenance or bot-check page, nothing on it): those are sorted on their picture alone, but only the sheet confirms either. A picture that is that wrong page too goes to `Dropped`, with the reason. Split a family that holds two looks, merge two that are one, move a stray, and name each. Say in the family's line what the eye changed. Full size is for step 6, the anchor and the donors.
 
@@ -266,7 +288,7 @@ Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`):
 
 > Open the families board. Take the families you want to see in full, any number, and note one that looks like two or belongs with another. Then paste the copy-out here.
 
-Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. A small board skips the first step, and its families are presented with the same lines.
+Apply their notes (a split, a merge), then write the board of the taken families only, and go on below. When they reply from a phone or another machine, the local board does not reach them: send its captures as images (one per family, `--clip-selector`), and have them reply by card name or by family and position, never by a tile id the page made up, since those change between versions of the board. A small board skips the first step, and its families are presented with the same lines.
 
 **None taken** is an answer, not a dead end. Ask in one line what is missing, from what they see ("closer to the photographs, but warmer", "nothing like any of these"). Their words count like a note: offer a search sized to them (a pool of 20 to 60, one picker round as in step 3), its likes sorted into the families or into a new one, then the families board again.
 
@@ -300,11 +322,12 @@ The library is what the anchor and the donors use, written down so `design` can 
 {
   "anchor": "<the anchor's card name>",
   "family":       { "tone": "light", "empty": "55–70%", "loud": "under 5%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated: crop, bleed, colour, grain>", "edges": "<rules, borders, or none>", "density": "<one sentence: how much sits on the first screen>", "from": ["<card name>"] },
-  "arrangements": [{ "id": "<a short word>", "what": "<one sentence>", "from": ["<card name>"] }],
+  "arrangements": [{ "id": "<a short word>", "what": "<one sentence>", "zones": { "hero": "<one sentence>", "side": "…", "band": "…" }, "from": ["<card name>"] }],
   "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
   "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase | lowercase", "italic": true, "tracking": "-0.02em", "size": "<the display size at 1440 wide, or null>", "body": { "face": "<the face its running text uses>", "size": "16px", "leading": "1.5" }, "from": ["…"] }],
   "grounds":      [{ "id": "…", "ground": "#…", "panel": "#… or null", "ink": "#…", "gradient": "<the CSS as measured, or null>", "pattern": "<the CSS as measured, or null>", "from": ["…"] }],
   "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }],
+  "controls":     { "button": { "fill": "accent | ink | none", "radius": "0px", "case": "none | uppercase", "weight": 600, "size": "15px", "padding": "12px 20px" }, "secondary": { "border": "1.5px solid currentColor", "underline": false }, "chip": { "radius": "999px" }, "row": { "rule": "1px solid …" }, "from": ["…"] },
   "parts":        { "<part>": [{ "id": "…", "what": "<one sentence>", "needs": ["<ids it only works with>"], "from": ["…"] }] }
 }
 ```
@@ -314,6 +337,8 @@ Open each reference at full size again. Its measurements are already in `profile
 - **Family.** What the anchor and every donor share: their measured traits as ranges, and in words what numbers cannot carry: how pictures are treated, edges, density. A trait they do not share is left out, never averaged. The family is not dealt: every screen gets it, so it is what makes eight different screens one look.
 - **Parts, later and only when needed.** Leave `parts` out here. `design` prototypes the other screens from `direction.md`'s Other parts, and reads a screen's layouts into `parts` only when that screen forks or they ask for options. When it does: one per reference that shows that kind of screen, from any family (the look is fixed by then, so a reference only lends the layout), named for the part (`navigation`, `index`, `article`, an app's key screen). The same rules as an arrangement: complete enough to build from with the picture closed, no content, colour or typeface. For `navigation`, the menu open, what it does on scroll, and what it becomes on a phone. `needs` lists what a layout only works with: the navigation it grows from (a full-screen menu that opens from a small corner link needs `corners`), or another screen's layout (a detail page that continues an index's cards needs that index layout). Leave it out when a layout works with anything. `design` deals them one screen at a time, in the chosen look, and only those whose needs were chosen. A part no keep shows is left out, and named under `Missing`.
 - **Arrangements.** One per reference: where the title, the pictures and the small text sit on the first screen, and how they relate (what overlaps what, what is centred, what runs off an edge, how much is left empty). One sentence, complete enough to build from with the picture closed. It carries no content, no colour and no typeface: those are other lists.
+- **Zones.** Where an arrangement has distinct parts a person could point to (the hero, a side column, a footer band), name each in `zones` with its own sentence, the same names across arrangements for the same kind of part. `design` can then swap one zone between arrangements ("the left side of 4") as a dealt move. One-piece arrangements leave `zones` out.
+- **Controls.** How the references draw actions: the primary button (filled with the accent or the ink, or outlined; its radius, case, weight), the secondary (outlined, or a plain underlined link), a status chip, a list row and its rule. Not dealt: one set the anchor and donors share, like the family, `from` the references it was read from. Where they show none, leave `controls` out and `design` uses plain defaults that follow design-rules.md.
 - **Navigation.** Where the name and the links sit, how many are shown, and what rides with them (a caption, a button, a count). One sentence, the same rules.
 - **Type.** The kind of face in plain words, and `face`: a face the product can use, free to license or one they own. `by` is `page` when the reference's own face was read from its page and can be used, `eye` when it is the nearest match judged from the picture. Weight, case, italic and tracking as measured, or as seen when there is only a picture. `size` is the display size from the page, `null` with only a picture. `axes` holds variable-font settings the reference uses (`"\"wdth\" 25"` for a condensed width), and `css` a stylesheet URL when the face is not on Google Fonts (Fontshare, their own) or its axes need one: the grid page loads it. `body` is the face, size and leading its running text uses, so a display face stays with the body face it was paired with.
 - **Grounds.** The ground colour, the ink, and `panel` when the design sits as a panel on a surround of another colour. `gradient` and `pattern` when the ground carries one: `measure.mjs` lists them as written (`gradients`, `patterns`), with how much of the screen each covers. Measured, never judged by eye.

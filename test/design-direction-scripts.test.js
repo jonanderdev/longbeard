@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -190,7 +190,7 @@ test("families: splits on measured traits, keeps light and dark of one look toge
   // The same look on a light and a dark ground is one family; the posters are another.
   assert.deepEqual(groups.sort(), ["night,paper", "poster"], result.stdout);
   assert.equal(families.find((f) => f.stray), undefined);
-  assert.match(result.stdout, /21 references, 2 families .* spread 0.52 \(0.48 → \d+, 0.56 → \d+\)/);
+  assert.match(result.stdout, /21 references, 2 families .* spread 0.52 \(0.48 → \d+, largest \d+, 0.56 → \d+, largest \d+\)/);
   const board = readFileSync(join(dir, "board.md"), "utf8");
   assert.match(board, /^Families: f1 \(/);
   assert.equal(board.match(/^### /gm).length, 21);
@@ -320,4 +320,38 @@ test("families --sliders: each family is placed on the sliders they answered, an
   const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--sliders", "loud=9"], { cwd: dir, encoding: "utf8" });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /each 1 to 5/);
+});
+
+test("families --only: sorts one family's members alone, into its own folder, leaving the pool's families as they are", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) refs[`quiet${i}`] = profile(`quiet${i}`, { lum: 0.9, empty: 90 + i, loud: 0, picture: "none", layout: "centred", colours: 3 });
+  for (let i = 0; i < 4; i++) refs[`loud${i}`] = profile(`loud${i}`, { lum: 0.9, empty: 10 + i, loud: 80, picture: "photo", layout: "full-bleed", colours: 400 });
+  refs.other = profile("other", { lum: 0.05, empty: 50, picture: "render", layout: "left" });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "families/f9.tsv": ["quiet0", "quiet1", "quiet2", "loud0", "loud1", "loud2"].map((n) => `${n}\trefs/${n}.jpg`).join("\n") + "\n" });
+  run("families.mjs", dir, ["profiles.json", "--only", "families/f9.tsv"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families/f9-split/families.json"), "utf8"));
+  const members = families.flatMap((f) => f.members);
+  assert.equal(members.length, 6);
+  assert.ok(!members.some((m) => /other|quiet3|loud3/.test(m)));
+  assert.ok(families.filter((f) => !f.stray).every((f) => f.members.every((m) => /quiet/.test(m)) || f.members.every((m) => /loud/.test(m))));
+  assert.ok(!existsSync(join(dir, "families.json")));
+  const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--only", "quiet0,nobody"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /not in profiles.json: nobody/);
+});
+
+test("families: a bin far bigger than the other families is sorted again on its own and split, and said", () => {
+  const refs = {};
+  const photo = (name, empty) => profile(name, { lum: 0.9, empty, picture: "photo", layout: "full-bleed", busy: 3, soft: 30 });
+  for (let i = 0; i < 40; i++) refs[`a${i}`] = photo(`a${i}`, 50 + (i % 4));
+  for (let i = 0; i < 40; i++) refs[`b${i}`] = photo(`b${i}`, 88 + (i % 4));
+  for (let i = 0; i < 20; i++) refs[`c${i}`] = profile(`c${i}`, { lum: 0.05, empty: 90 + (i % 3), picture: "none", layout: "centred", loud: 40, colours: 3 });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json"]);
+  assert.match(result.stdout, /split on their own, too big for one look: a bin of 80 at [\d.]+ into 2 families/);
+  assert.match(result.stdout, /0\.48 → \d+, largest \d+/);
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  const real = families.filter((f) => !f.stray);
+  assert.equal(real.length, 3);
+  for (const f of real) assert.equal(new Set(f.members.map((m) => m.match(/refs\/([a-c])/)[1])).size, 1, JSON.stringify(f.members.slice(0, 5)));
 });

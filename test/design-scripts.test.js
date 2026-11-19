@@ -190,6 +190,34 @@ test("deal --mix records a hand mix as its own round, and warns when it breaks t
   assert.match(broken.stderr, /fewer than three references/);
 });
 
+test("deal --mix zone: a zone from another arrangement is a dealt move, its references counted, none drops a zone", () => {
+  const lib = library();
+  lib.arrangements[1].zones = { hero: "name on the picture", side: "a caption column" };
+  lib.arrangements[2].zones = { hero: "name behind the picture", side: "a thin index on the left" };
+  const dir = project(lib);
+  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [
+    { n: 1, arrangement: "arr-b", navigation: "nav-2", type: "type-3", ground: "dark", accent: "red" },
+    { n: 2, arrangement: "arr-c", navigation: "nav-1", type: "type-4", ground: "cream", accent: "none" },
+  ] }] }));
+  const ok = run(deal, dir, ["library.json", "--mix", "1,zone.side=2"]);
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.deepEqual(rounds(dir)[1].recipes[0].zones, { side: "arr-c" });
+  assert.match(ok.stdout, /zones side=arr-c/);
+  // arr-c is from c; type-3 from e and f, dark from d and g: still three sources. With a ground from c it is not.
+  assert.equal(ok.stderr, "");
+  const broken = run(deal, dir, ["library.json", "--mix", "1,zone.side=arr-c,ground=light"]);
+  assert.match(broken.stderr, /fewer than three references/);
+  // Numbers read from the last round, so a mix of a mix keeps the zone it already took.
+  const none = run(deal, dir, ["library.json", "--mix", "1,zone.hero=none"]);
+  assert.equal(none.status, 0, none.stderr);
+  assert.deepEqual(rounds(dir).at(-1).recipes[0].zones, { side: "arr-c", hero: "none" });
+  const missing = run(deal, dir, ["library.json", "--mix", "1,zone.footer=arr-c"]);
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /no zone called footer: its zones are hero, side/);
+  run(deal, dir, ["library.json", "--choose", "1"]);
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")).chosen.zones, { side: "arr-c", hero: "none" });
+});
+
 test("deal: a library with no family still deals, and says what is missing", () => {
   const lib = library();
   delete lib.family;
@@ -302,6 +330,28 @@ test("measure: an image gives its colours with their share of the picture", asyn
   const traits = JSON.parse((await measured([four])).stdout).traits;
   assert.deepEqual([traits.ground, traits.tone, traits.empty, traits.loud], ["#fdfdfd", "light", 75, 25]);
   assert.equal((await measured(["notes.txt"])).status, 2);
+});
+
+test("measure: a screen on a grey surround is read inside the frame; a centred mark on an empty page is not a frame", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-frame-"));
+  const pic = (w, h, at) => {
+    const rgb = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) rgb.push(...at(x, y));
+    return png(w, h, rgb);
+  };
+  // A cream screen with a red bar, on a mid-grey surround of 20 px.
+  writeFileSync(join(dir, "framed.png"), pic(200, 140, (x, y) => (x < 20 || x >= 180 || y < 20 || y >= 120 ? [90, 90, 90] : y < 40 ? [220, 20, 20] : [244, 236, 220])));
+  // An empty white page with a small dark mark in the middle.
+  writeFileSync(join(dir, "mark.png"), pic(200, 140, (x, y) => (x > 90 && x < 110 && y > 60 && y < 80 ? [20, 20, 20] : [255, 255, 255])));
+  const framed = await measured([join(dir, "framed.png")]);
+  if (/No Chrome/.test(framed.stderr)) return t.skip("no Chrome installed");
+  const out = JSON.parse(framed.stdout);
+  assert.equal(out.frame?.colour, "#5a5a5a");
+  assert.equal(out.traits.tone, "light");
+  assert.ok(out.traits.empty > 70, JSON.stringify(out.traits));
+  const mark = JSON.parse((await measured([join(dir, "mark.png")])).stdout);
+  assert.equal(mark.frame, undefined);
+  assert.ok(mark.traits.empty > 95);
 });
 
 test("measure: a folder in one browser, as one TSV row per image", async (t) => {
@@ -447,6 +497,11 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   assert.equal(check.status, 0, check.stderr);
   for (const part of ["content", "navigation", "arrangements", "parts (step 7)"]) assert.match(html, new RegExp(`WRITE: ${part.replace(/[()]/g, "\\$&")}`));
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
+});
+
+test("grid template: hero concepts, must-carry and zones are wired", () => {
+  const grid = readFileSync(join(root, "skills/design/references/grid-template.html"), "utf8");
+  for (const hook of ["WRITE: hero concepts", "CONCEPTS[concept]", "D.chosen", "function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
 });
 
 test("deal: their own entries are not one shared reference", () => {
@@ -614,6 +669,21 @@ test("colours: step 5's colour rows are made by rule, every option passes contra
   const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
   assert.match(pale.stderr, /left out the dealt accent/);
   assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
+  // The dealt ink is part of the look: tan on brown stays tan wherever it reads, not white.
+  const tan = JSON.parse(spawnSync(process.execPath, [colours, "--ground", "#3b2416", "--ink", "#d8b98c", "--json"], { encoding: "utf8" }).stdout);
+  assert.equal(tan.rows.find((r) => r.label === "as dealt").ink, "#d8b98c");
+  // The text colour has its own row, the dealt ink first, every option on the ground at 4.5:1.
+  const inks = tan.rows.filter((r) => r.row === "ink");
+  assert.equal(inks[0].colour, "#d8b98c");
+  assert.ok(inks.length >= 3 && inks.every((r) => r.contrast >= 4.5));
+  // --roles derives every other role from the three picks, each checked.
+  const roles = spawnSync(process.execPath, [colours, "--roles", "--ground", "#f4ecdc", "--ink", "#2a1a10", "--accent", "#f2c94c", "--json"], { encoding: "utf8" });
+  assert.equal(roles.status, 0, roles.stderr);
+  const by = Object.fromEntries(JSON.parse(roles.stdout).roles.map((r) => [r.role, r]));
+  assert.equal(by["button fill"].colour, "#2a1a10", "a yellow under 3:1 on cream does not fill the button");
+  assert.equal(by["button label"].colour, "#f4ecdc", "the ground reads on an ink button");
+  assert.ok(by["soft text"].contrast >= 4.5 && by["soft text"].colour !== "#2a1a10");
+  for (const name of ["hairline", "picture tone", "status ok", "status warn", "status error"]) assert.ok(by[name], name);
 });
 
 test("fonts: faces of the same kind only, nearest in shape first, the chosen one on top", async (t) => {
@@ -652,4 +722,7 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   assert.equal((await run(["Their Face"])).status, 1);
   assert.match((await run(["Their Face"])).stderr, /not in Google Fonts' list: say its kind with --kind/);
   assert.equal((await run(["DejaVu Serif", "--weight", "50"])).status, 2);
+  // --kind wins over the list's kind: a face Google files wrongly gets a row of what it is.
+  const sans = JSON.parse((await run(["DejaVu Serif", "--kind", "sans", "--json"])).stdout);
+  assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
 });
