@@ -5,11 +5,13 @@ description: >
   references. Their own moodboard (a Figma board, a folder, links) is the pool.
   Without one, or with one too thin: a wide pool from every source they
   choose, which they mark like or no on a picker page, and a sharper second
-  search from those picks. The pool is then sorted into families that look
-  alike. On one board they mark, in the family they want, one anchor and the
-  donors. Those are read into a library: how the screens are arranged, how
-  they do navigation, what type, grounds and accents they use, each measured
-  and none chosen. Runs after docs/brief.md exists and the brief has a UI, or
+  search from those picks. Every reference is read into a profile (measured,
+  and tagged for what its picture is), and the pool is sorted on the
+  profiles into families that look alike. They take families, and on one
+  board mark, in the family they want, one anchor and the donors. Those are
+  read into a library: what the family shares, how the screens are arranged,
+  how they do navigation, what type, grounds and accents they use, each
+  measured and none chosen, shown to them before the direction is written. Runs after docs/brief.md exists and the brief has a UI, or
   when design hits a gap and needs references for one piece. Writes
   design-exploration/<slug>/direction.md and library.json, a proposal, then
   offers to take it into design.
@@ -17,7 +19,7 @@ description: >
 
 # Design direction
 
-Two files come out, both in `design-exploration/<slug>/`: `direction.md`, a proposal for what the product's look should say and sound like, and `library.json`, what their chosen references use. Neither is official. `design` deals screens from the library, and only an approved prototype becomes `DESIGN.md`.
+Two files come out, both in `design-exploration/<slug>/`: `direction.md`, a proposal for what the product's look should say and sound like, and `library.json`, what their chosen references use. They are what `design` explores from, not its result. Neither is official. `design` deals screens from the library, and only an approved prototype becomes `DESIGN.md`.
 
 Direction is the inspiration step: it gathers good designs, sorts them, and reads the ones they choose. It records what references use and chooses nothing: no colour, typeface, size or spacing value is picked here, no combination is proposed, and no reference is ranked. Choosing happens in `design`, by them, on rendered screens. Direction never writes `DESIGN.md`.
 

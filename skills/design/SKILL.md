@@ -4,8 +4,8 @@ description: >
   Turn a direction into the product's look. A script deals first-screen
   recipes from the direction's library, each built in plain HTML with the
   product's real content and shown as one numbered grid. They pick, see each
-  pick varied one thing at a time, and pick again. The chosen screen is
-  finished and the brief's other key screens follow from it. On approval:
+  pick varied one thing at a time, and pick again, then tune its colour and
+  type from rows of options rendered on it. The chosen screen is finished and the brief's other key screens follow from it. On approval:
   DESIGN.md in one go, a bento board of the look in Figma, and the screens
   built from it. Colour, type, spacing and copy are chosen here, by them, on
   rendered screens. Runs when design-exploration/<slug>/direction.md exists
