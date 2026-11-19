@@ -40,17 +40,38 @@ On the first write, add `design-exploration/` to `.gitignore` if it is missing, 
 
 ## Identity
 
-### 1. Three questions, one round
+### 1. The brief round: one message of questions
 
-Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, the position, and the identity nouns. Do not ask for any of that again. Send one message and wait. Do not search in that turn. These questions are how they steer the look, so always ask them, however the run was set up. Only they can say "go".
+Read `docs/brief.md` first. It gives the subject, the people, the surface (site or app), the key screens, the position, and the identity nouns. Do not ask for any of that again. Ask what a design studio asks a client before it looks for anything: what the first screen must do, the personality, who to stand apart from, what is already fixed, and where to look. Send one message and wait. Do not search in that turn. These questions are how they steer, so always ask them, however the run was set up. Only they can say "go".
+
+Every question carries a suggested answer in brackets, drawn from the brief, so a "yes" settles it. The suggestions are the agent's best reading of the brief, never a look: no layout, colour, typeface or style name in them.
 
 ```
-Before I look, three questions. Skip any with "go" and I'll decide.
+Before I look, a few questions. Each has my suggestion in brackets: "yes" takes it, "go" skips the rest and I'll decide.
 
-1. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
-2. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
-3. No moodboard, or a small one: where should I look, and how many should I keep? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
+1. In five seconds on the first screen, what should someone think or do? [<from the brief's remembered for>]
+2. Personality, 1 to 5 on each (3 is the middle, skip any you don't mind):
+   quiet 1 · · · 5 loud
+   type-led 1 · · · 5 picture-led
+   plain 1 · · · 5 rich
+   warm 1 · · · 5 cool
+   [<a suggestion for each, or "no lean">]
+3. How should <product> feel, and never feel? Any apps, sites, brands, books or places you love for this?
+4. Who should it stand apart from: competitors, or products it could be mistaken for? [<the alternatives the brief names>]
+5. What is already fixed? Colours, typefaces or a logo you own and must use, or refuse; light, dark or both; and your own pictures (photographs, illustrations), or none yet. [<what the brief or the repo shows>]
+6. Do you already have a moodboard, or a few pictures you like? A Figma link (file, page or section), a folder of images, screenshots or links. A moodboard, I'll work from. A few pictures steer the search.
+   No moodboard, or a small one: where should I look, and how many should I keep? [x] <source> — <what it gives> … [ ] your own. Default about 100, across <the parts>. You'll pick from a wider pool first.
 ```
+
+Then read the answers back in one line before anything else ("Leads with <takeaway>; quiet, picture-led, warm; apart from <X>; fixed: <…>; from your moodboard."), and go on. A correction to the read-back is one more line, not a second round.
+
+What each answer does. None of them chooses the look: they steer the search, they are hints on the families, and they are kept for design.
+
+- **The takeaway** is the subject's second half in `direction.md`, and the line every dealt screen is built to say.
+- **The sliders** go to `families.mjs --sliders "loud=2,picture=4,rich=2,cool=2"` (the numbers they gave; leave out a skipped one). Each family is placed on them from what is measured and tagged, and its line says whether it sits near what they asked or is off on one. That is said on the families board as a hint, like "never feel": no family is hidden or dropped for it. They also steer the search queries ("photographic", "type-only", "monochrome").
+- **Feel and never feel** steer the search and are hinted on the families, as before.
+- **Stand apart from:** open each one's site and keep its first screen as a reference card marked `apart`, in no family. It is not a reference to explore from: on the board it shows what the product must not be mistaken for, and a family that looks like it is said so, as a hint. It goes into `leave` in `direction.md`.
+- **What is fixed** goes into `direction.md` as `fixed`, and into the library when it is read: a refusal removes matching entries, something they own is added with `"from": ["theirs"]`, light or dark removes the grounds that do not fit. No pictures of their own rules nothing out (stand-ins are made in design), but say which families rely on photographs they do not have.
 
 A moodboard → **Their moodboard**, below, then step 4. Skip steps 2 and 3. A few pictures or links, not a board → seeds for the search, below.
 
@@ -206,7 +227,7 @@ A family is seen from across a room, so thumbnails are the right size for this s
 Write `board.md`: a few header lines, then one card per keep.
 
 ```
-Asked: <feel, never feel, loves, or none>
+Asked: <the takeaway, the sliders, feel and never feel, loves, apart from, fixed; or none>
 Sources: <their moodboard (what it was), or what was searched, and any skip: "Awwwards: no fit">
 Picked: <the likes, by id, and what they share; leave out with their own moodboard>
 Noes: <what the noes share, or none>
@@ -234,7 +255,7 @@ Families: <each family, what its members share, its measured ranges ("light · e
 node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --overview 6 --out design-exploration/<slug>/families.html
 ```
 
-Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. Then say which families fit what they asked for, and which ones look like what they said it should never feel. That is a hint: no family is hidden or dropped for it.
+Before the ask, in chat, one line per family: its name, and what the eye changed from what the numbers proposed ("merged f2 and f5: both centred app pages", "moved r29 out: a photograph among renders"), so they can push back on the grouping itself. Then say which families fit what they asked for (the sliders, from `families.mjs --sliders`, and their words), which look like what they said it should never feel or like what it must stand apart from, and which rely on pictures they do not have. That is a hint: no family is hidden or dropped for it.
 
 Pairs of strays are on the board as their own small groups (`Pair 1`, `Pair 2`): the seed of a look the pool holds only twice. Taking one is taking a family: offer a search for more like it before marking, since a family needs six to deal from.
 
@@ -250,7 +271,7 @@ node <skill>/scripts/moodboard.mjs design-exploration/<slug>/board.md --out desi
 
 The page groups the keeps by family. Each tile has Lead, Like and No, and a note.
 
-Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line with what the eye changed in it (unless the families board already said so), say which ones fit what they asked for and why, and which look like what they said it should never feel, as a hint and never a cut. Then ask one line:
+Look at it yourself first, one family at a time so every tile stays readable (`capture.mjs "file://$PWD/design-exploration/<slug>/moodboard.html" --out <scratch>/moodboard-<family>.jpg --clip-selector "#t-<family>"`, the family's name in lowercase with dashes). A family whose tiles do not look alike side by side is wrong: regroup and run it again. Fix a wrong caption or a missing picture too. Then say where it is, name each family in one line with what the eye changed in it (unless the families board already said so), say which ones fit what they asked for and why (the sliders and their words), and which look like what they said it should never feel or must stand apart from, as a hint and never a cut. Then ask one line:
 
 > Open the board. In the family you want, Lead the one reference that should set the tone, Like the ones I should draw from, and No what doesn't belong. Add a note where you have one, then paste the copy-out here.
 
@@ -324,10 +345,12 @@ From their answers. Short: it is read by `design`, not by a client.
 
 Proposal, not official. design deals screens from the library. Only an approved prototype becomes DESIGN.md.
 
-- subject: <what the first screen must say, in one sentence, in the brief's own words, and the one thing it must show: the brief's `remembered for`>
-- feel: <their words for feel and never feel>
+- subject: <what the first screen must say, in one sentence, in the brief's own words, and what someone should think or do in five seconds: their takeaway, or the brief's `remembered for`>
+- feel: <their words for feel and never feel, and the sliders they gave: "quiet 2 · picture-led 4 · plain 2 · warm 2">
+- apart from: <what it must not be mistaken for, with links, or none>
+- fixed: <what they own and must use, what they refuse, light or dark or both, and their pictures or none yet>
 - voice: <how it talks: the brief's personality, and one sample line in that voice>
-- leave: <what stays behind: every reference's name and content, what the brief's `against` looks like, what their noes share, and whatever they said feels wrong>
+- leave: <what stays behind: every reference's name and content, what the brief's `against` and what they stand apart from look like, what their noes share, and whatever they said feels wrong>
 - family: <its name> — <what its members share>
 - library: design-exploration/<slug>/library.json
 
@@ -345,7 +368,7 @@ Proposal, not official. design deals screens from the library. Only an approved 
 - **Notes count.** A tile note is about that reference: it goes into `leave`, or into the library entry it speaks of.
 - **No values here.** No hex, no font name, no size in `direction.md`. The measured values live in `library.json`, as a record of what the references use.
 
-Then say the direction in chat in four lines (subject, family, anchor and donors, leave), the library readout from step 6 under it, and end with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
+Then say the direction in chat in five lines (subject, family, anchor and donors, leave, fixed), the library readout from step 6 under it, and end with one question. Wait for the answer, however the run was set up: the direction and what the screens are dealt from are theirs to correct before anything is built on them.
 
 > Change anything (the direction, or an entry in the library), or take this into design?
 
@@ -379,7 +402,7 @@ Usually called from `design` when a key screen has a gap no reference covers. Sa
 - Write a size, a weight or a colour into the library from looking at a picture when it can be measured. Sort keeps into families before every keep is measured.
 - Measure one image per call, open every keep at full size to sort it, or read a big pool's traits into the chat. One browser for the folder, contact sheets for the eye, `families.mjs` for the numbers.
 - Cut their moodboard to a number, or force its families to one.
-- Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the three questions are answered, answer them yourself, or ask them a second round of questions. Run a third picker round.
+- Search past their moodboard when it is enough, or search for its gaps before they say yes. Search before the brief round is answered, answer it yourself, or ask them a second round of questions. Put a look (a layout, a colour, a typeface, a style name) in a suggested answer. Run a third picker round.
 - Cut the pool for taste before they pick. Pad the keep by lowering the filter. Save a thumbnail as a shot, or read a reference into the library from one.
 - Screenshot a source's listing or search page, or a candidate you are not keeping. Never stitch screenshots or frames into one picture.
 - Judge motion from a still.

@@ -40,6 +40,14 @@
 // many families a slightly lower and higher --spread would give, and the
 // near-blank shots. --board writes a board.md skeleton: one card per
 // reference in its family, most typical first, pairs as their own groups.
+//
+// --sliders "loud=2,picture=4,rich=3,cool=2" places each family on the
+// sliders they answered in the first questions, 1 to 5: quiet (1) to loud (5),
+// type-led to picture-led, plain to rich, warm to cool. Each reference's place
+// comes from what is already measured and tagged, never from the eye; a
+// family's is its members' median. Each family's line then says whether it
+// sits near what they asked or is off on a slider: a hint for the families
+// board, never a cut.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 
@@ -54,8 +62,9 @@ const boardArg = flag("board", "");
 const linksArg = flag("links", "");
 const outArg = flag("out", "");
 const pagesArg = flag("pages", "");
+const slidersArg = flag("sliders", "");
 const [input] = args;
-const usage = "usage: node families.mjs profiles.json | traits.tsv [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json]";
+const usage = "usage: node families.mjs profiles.json | traits.tsv [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json] [--sliders loud=2,picture=4,rich=3,cool=2]";
 if (!input || args.length !== 1 || (spreadArg && !(Number(spreadArg) > 0 && Number(spreadArg) < 1)) || !(Number.isInteger(min) && min >= 1)) {
   console.error(usage);
   process.exit(2);
@@ -105,6 +114,54 @@ if (/\.json$/i.test(input)) {
   });
 }
 if (refs.length < 2) fail("fewer than two references to sort");
+
+// ------------------------------------------------------------------ the sliders they answered
+// Each 1 to 5, from what is measured and tagged. null where nothing says.
+const SLIDERS = {
+  loud: ["quiet", "loud"],
+  picture: ["type-led", "picture-led"],
+  rich: ["plain", "rich"],
+  cool: ["warm", "cool"],
+};
+const asked = {};
+for (const part of slidersArg.split(",").map((x) => x.trim()).filter(Boolean)) {
+  const [key, value] = part.split("=").map((x) => x.trim());
+  if (!SLIDERS[key] || !(Number(value) >= 1 && Number(value) <= 5)) fail(`--sliders ${part}: use ${Object.keys(SLIDERS).join(", ")}, each 1 to 5 (${Object.entries(SLIDERS).map(([k, [a, b]]) => `${k}: 1 ${a}, 5 ${b}`).join("; ")})`);
+  asked[key] = Number(value);
+}
+const mean = (xs) => (xs.filter((x) => x !== null).length ? xs.filter((x) => x !== null).reduce((t, x) => t + x, 0) / xs.filter((x) => x !== null).length : null);
+const to5 = (x) => 1 + 4 * Math.min(1, Math.max(0, x));
+const hueSat = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(String(hex).slice(i, i + 2), 16) / 255);
+  if ([r, g, b].some(Number.isNaN)) return null;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  if (!d) return [0, 0];
+  const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h * 60, d / (1 - Math.abs(mx + mn - 1) || 1)];
+};
+const PICTURE_PLACE = { none: 0, lettering: 0, ui: 0.5, icon: 0.5, shape: 0.5, pattern: 0.5, photo: 1, render: 1, illustration: 1, collage: 1, product: 1 };
+const COLOUR_PLACE = { neutral: 0, muted: 0.25, "one-accent": 0.4, bright: 0.75, multi: 1 };
+function placeOf(r) {
+  const empty = num(r.image.empty), loud = num(r.image.loud);
+  const pic = r.tags?.picture?.[0], col = r.tags?.colour?.[0];
+  // Warm or cool: the ground and the figure's palette, each colour by its share and how saturated it is.
+  const swatches = [[r.image.ground, empty ?? 0], ...(r.figure?.palette || []).map((c) => [c.colour, ((100 - (empty ?? 0)) * c.share) / 100])];
+  let warm = 0, cool = 0, all = 0;
+  for (const [hex, share] of swatches) {
+    const hs = hex && hueSat(hex);
+    if (!hs) continue;
+    const w = share * hs[1];
+    all += share;
+    if (hs[0] < 75 || hs[0] >= 330) warm += w;
+    else if (hs[0] >= 150 && hs[0] < 270) cool += w;
+  }
+  return {
+    loud: empty === null ? null : to5(0.45 * (1 - empty / 100) + 0.55 * Math.min(1, (loud ?? 0) / 25)),
+    picture: mean([pic in PICTURE_PLACE ? to5(PICTURE_PLACE[pic]) : null, r.page && has(r.page.pictures) ? to5(num(r.page.pictures) / 60) : null]),
+    rich: mean([col in COLOUR_PLACE ? to5(COLOUR_PLACE[col]) : null, r.figure?.colours ? to5(Math.log(Math.max(1, r.figure.colours)) / Math.log(200)) : null]),
+    cool: all ? 3 + 2 * Math.max(-1, Math.min(1, (cool - warm) / (all * 0.25))) : null,
+  };
+}
 
 // Two shots of one site are one reference: the shortest name leads, the others ride along.
 const byLink = new Map();
@@ -273,11 +330,29 @@ const wideOn = (group) =>
     .filter(([, d]) => d > 0.45)
     .map(([name]) => name);
 
+// Where a family sits on each slider they answered (its members' median), and how far that is from
+// what they asked: off by 1.5 or more on a slider is said, as a hint.
+const median = (xs) => {
+  const v = xs.filter((x) => x !== null).sort((a, b) => a - b);
+  return v.length ? (v[(v.length - 1) >> 1] + v[v.length >> 1]) / 2 : null;
+};
+function sliderFit(group) {
+  if (!Object.keys(asked).length) return {};
+  const at = {}, off = [];
+  for (const key of Object.keys(asked)) {
+    const m = median(group.map((i) => placeOf(refs[i])[key]));
+    if (m === null) continue;
+    at[key] = Math.round(m * 10) / 10;
+    if (Math.abs(m - asked[key]) >= 1.5) off.push(`${SLIDERS[key][m > asked[key] ? 1 : 0]} (${at[key]}, asked ${asked[key]})`);
+  }
+  return { sliders: at, fit: off.length ? `off on ${off.join(", ")}` : Object.keys(at).length ? "near what they asked" : "" };
+}
+
 const families = done.map((group, f) => {
   const ordered = [...group].sort((a, b) => meanTo(a, group) - meanTo(b, group));
   const radius = ordered.reduce((t, i) => t + meanTo(i, group), 0) / ordered.length;
   const alsoOf = Object.fromEntries(ordered.filter((i) => also.has(refs[i].name)).map((i) => [refs[i].shot, also.get(refs[i].name)]));
-  return { id: `f${f + 1}`, size: group.length, small: group.length < 6, radius: Math.round(radius * 100) / 100, wide: wideOn(group), ranges: describe(group), members: ordered.map((i) => refs[i].shot), ...(Object.keys(alsoOf).length ? { also: alsoOf } : {}) };
+  return { id: `f${f + 1}`, size: group.length, small: group.length < 6, radius: Math.round(radius * 100) / 100, wide: wideOn(group), ranges: describe(group), ...sliderFit(group), members: ordered.map((i) => refs[i].shot), ...(Object.keys(alsoOf).length ? { also: alsoOf } : {}) };
 });
 if (strays.length) {
   const nearest = Object.fromEntries(
@@ -301,6 +376,7 @@ const line = (f) => (f.stray ? "far from every family: place each by eye" : `${t
 const real = families.filter((f) => !f.stray);
 console.log(`${n} references${folded ? ` (${folded} more shots of the same sites folded in)` : ""}, ${real.length} families (${real.filter((f) => f.small).length} small), ${strays.length} strays, spread ${spread} (${nearby.join(", ")})`);
 console.log(`compared on: ${kinds.map(([name]) => name).join(", ")}`);
+if (Object.keys(asked).length) console.log(`sliders asked: ${Object.entries(asked).map(([k, v]) => `${SLIDERS[k][0]}–${SLIDERS[k][1]} ${v}`).join(", ")} (a hint for each family, never a cut)`);
 const untagged = refs.filter((r) => !r.tags);
 if (untagged.length && untagged.length < n) console.log(`untagged, compared on their numbers only, and able to join groups the tags would keep apart: ${untagged.map((r) => r.name).join(", ")}. Tag them (tag.mjs) and sort again`);
 const blank = refs.filter((r) => num(r.image.empty) >= 99 && num(r.image.busy) < 0.5);
@@ -314,7 +390,7 @@ if (stray?.pairs.length) console.log(`pairs, each a family seed: ${stray.pairs.m
 if (stray) console.log(`nearest family of each stray: ${stray.members.map((s) => `${nameOfShot(s)}→${stray.nearest[s] || "none"}`).join(", ")}`);
 for (const f of families) {
   const notes = [f.small ? "small" : "", f.wide.length ? `wide on ${f.wide.join(", ")}` : ""].filter(Boolean).join(", ");
-  console.log(`${f.id}  ${String(f.size).padStart(4)}  ${line(f)}${notes ? `  [${notes}]` : ""}  typical: ${f.members.slice(0, 6).map(nameOfShot).join(", ")}`);
+  console.log(`${f.id}  ${String(f.size).padStart(4)}  ${line(f)}${notes ? `  [${notes}]` : ""}${f.fit ? `  {${f.fit}}` : ""}  typical: ${f.members.slice(0, 6).map(nameOfShot).join(", ")}`);
 }
 
 // ------------------------------------------------------------------ the board skeleton
