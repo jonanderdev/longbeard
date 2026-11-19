@@ -38,17 +38,15 @@ No Figma connection → say Figma is required for UI projects, and stop before t
 
 The first pass has one rule above the others: **you build, they choose.** You never pick a combination, drop one, or rank what you show. A script deals the combinations, and they choose from rendered screens. A screen you would not have picked may be the one they pick.
 
-### 1. Ask what is fixed
+### 1. Check what is fixed
 
-Read the brief, `direction.md` and `library.json`, then send one message and wait. Always ask, however the run was set up. Only they can say "go".
+Read the brief, `direction.md` and `library.json`. What is fixed was asked in design-direction's first round and is in `direction.md` as `fixed`. Say it back in one line, with what it changes in the library, and wait. Always ask, however the run was set up. Only they can say "go".
 
 ```
-Before I build, what is already fixed? Skip any with "go".
-
-1. Colours or typefaces you already own and must use, or refuse?
-2. Light, dark, or both?
-3. Pictures: which of yours should I use? <what the brief's key screens need>
+Fixed, from the start: <what they own, what they refuse, light/dark/both, their pictures>. That <removes / adds> <entries> in the library. Still right, or anything new?
 ```
+
+A `direction.md` with no `fixed` line (from an earlier version) gets the three questions instead: colours or typefaces they own and must use, or refuse; light, dark or both; which of their pictures to use for <what the brief's key screens need>.
 
 Never ask them to choose a look in words. That is what the grid is for.
 

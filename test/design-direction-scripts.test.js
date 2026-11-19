@@ -300,3 +300,24 @@ test("families: a page that is not the real site is named and left out; its refe
   assert.match(result.stdout, /pages that may not be the real site.*quiet0 \(HTTP 503\)/);
   assert.doesNotMatch(result.stdout, /video or canvas/);
 });
+
+test("families --sliders: each family is placed on the sliders they answered, and one far off is said", () => {
+  const refs = {};
+  // Quiet type-only pages, and loud picture pages.
+  for (let i = 0; i < 4; i++) refs[`type${i}`] = profile(`type${i}`, { lum: 0.95, empty: 92 + i, loud: 0, picture: "none", layout: "left", colours: 3 });
+  for (let i = 0; i < 4; i++) refs[`poster${i}`] = profile(`poster${i}`, { lum: 0.5, empty: 30 + i, loud: 40, picture: "photo", layout: "full-bleed", colours: 300 });
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json", "--sliders", "loud=1,picture=1"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  const typeFamily = families.find((f) => f.members.some((m) => m.includes("type0")));
+  const posterFamily = families.find((f) => f.members.some((m) => m.includes("poster0")));
+  assert.equal(typeFamily.fit, "near what they asked");
+  assert.ok(typeFamily.sliders.loud < 1.5 && typeFamily.sliders.picture === 1, JSON.stringify(typeFamily.sliders));
+  assert.match(posterFamily.fit, /off on loud .*picture-led/);
+  assert.match(result.stdout, /sliders asked: quiet–loud 1, type-led–picture-led 1/);
+  // Half the pool is loud photo posters: what they chose sits away from "type-led", and that is one question.
+  assert.match(result.stdout, /what they chose sits at: loud [\d.]+, picture [\d.]+; away from what they said on .*picture-led \(3, asked 1\): ask which should lead/);
+  const bad = spawnSync(process.execPath, [join(scripts, "families.mjs"), "profiles.json", "--sliders", "loud=9"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /each 1 to 5/);
+});

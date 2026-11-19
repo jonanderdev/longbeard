@@ -21,11 +21,18 @@ It is a base. You keep going from here.
 | Stage | What happens | You get |
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
-| 2. Direction | Three questions about what you like. Your own moodboard, or a wide search you mark like or no on a picker page. The agent sorts the result into families that look alike, and on one board you mark an anchor and the references to draw from | `design-exploration/<slug>/direction.md` and `library.json`: what your references use, measured, with nothing chosen yet |
+| 2. Direction | One round of questions, like a studio's brief: what the first screen must do, personality sliders, feel, who to stand apart from, what is fixed, and where to look. Your own moodboard, or a wide search you mark like or no on a picker page. The agent sorts the result into families that look alike, and on one board you mark an anchor and the references to draw from | `design-exploration/<slug>/direction.md` and `library.json`: what your references use, measured, with nothing chosen yet |
 | 3. Design | Eight first screens dealt from your references, with your real content. You pick, see each pick varied one thing at a time, and pick again, then tune its colours and fonts from options rendered on it. The agent finishes that screen and prototypes the other key screens in your look, offering layout options where a screen forks or you ask | `DESIGN.md` on your yes, a bento board of the look in Figma, then the screens, checked and marked Ready |
 | 4. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
 | 5. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 6. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
+
+### Why it designs this way
+
+A product's look should be chosen by the people who own it, and built with a designer's care.  
+So Long Beard works like a designer: it gathers references that share a look, from your moodboard or fresh ones it finds, and makes something new inside them. Every screen mixes several, so none is copied and all of them belong.  
+The agent builds; you choose. Taste rules give everyone the same good-looking site; your references and your choices give you yours.  
+Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
 
 Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Direction and Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
 
