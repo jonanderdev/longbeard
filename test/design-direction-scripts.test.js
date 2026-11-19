@@ -176,32 +176,49 @@ test("picker: wrong usage exits 2", () => {
   assert.equal(result.status, 2);
 });
 
-test("families: splits on measured traits, keeps groups of at least --min, and writes a board skeleton", () => {
+test("families: splits on measured traits, keeps light and dark of one look together, and writes a board skeleton", () => {
   const head = "ref\ttone\tlum\tempty\tloud\tbusy\tground\tdisplay\tbody\tscale\tpictures\tmargin\tradius";
   const row = (name, lum, empty, loud, busy) => `refs/${name}.jpg\t\t${lum}\t${empty}\t${loud}\t${busy}\t#000000\t\t\t\t\t\t`;
   const rows = [];
   for (let i = 0; i < 8; i++) rows.push(row(`paper${i}`, 0.85, 80 + i, 1, 2));
-  for (let i = 0; i < 7; i++) rows.push(row(`night${i}`, 0.01, 85 + i, 2, 1));
+  for (let i = 0; i < 7; i++) rows.push(row(`night${i}`, 0.01, 81 + i, 1, 2));
   for (let i = 0; i < 6; i++) rows.push(row(`poster${i}`, 0.5, 20 + i, 60, 12));
-  rows.push(row("odd", 0.5, 50, 30, 8));
   const dir = project({ "traits.tsv": [head, ...rows].join("\n") });
   const result = run("families.mjs", dir, ["traits.tsv", "--board", "board.md"]);
   const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
-  const groups = families.map((f) => f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")).sort().join(","));
-  assert.ok(groups.some((g) => /^(paper,?)+$/.test(g)), result.stdout);
-  assert.ok(groups.some((g) => /^(night,?)+$/.test(g)), result.stdout);
-  assert.ok(families.filter((f) => !f.stray).every((f) => f.size >= 3));
-  // The one far from every group is set aside for the eye, not forced into a family.
-  assert.deepEqual(families.find((f) => f.stray)?.members, ["refs/odd.jpg"]);
-  assert.match(result.stdout, /22 references \(radius [\d.]+\), \d+ families/);
+  const groups = families.filter((f) => !f.stray).map((f) => [...new Set(f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")))].sort().join(","));
+  // The same look on a light and a dark ground is one family; the posters are another.
+  assert.deepEqual(groups.sort(), ["night,paper", "poster"], result.stdout);
+  assert.equal(families.find((f) => f.stray), undefined);
+  assert.match(result.stdout, /21 references, 2 families .* spread 0.52 \(0.48 → \d+, 0.56 → \d+\)/);
   const board = readFileSync(join(dir, "board.md"), "utf8");
   assert.match(board, /^Families: f1 \(/);
-  assert.equal(board.match(/^### /gm).length, 22);
+  assert.equal(board.match(/^### /gm).length, 21);
   assert.match(board, /- measured: light · empty 8\d% · loud 1% · busy 2/);
   assert.match(readFileSync(join(dir, "families/f1.tsv"), "utf8"), /\t\/.+\.jpg/);
   // A skeleton never overwrites a board.
   const again = spawnSync(process.execPath, [join(scripts, "families.mjs"), "traits.tsv", "--board", "board.md"], { cwd: dir, encoding: "utf8" });
   assert.equal(again.status, 1);
+});
+
+test("families: numbers far apart split even when the tags agree, an untagged reference is named, and two shots of one site are one", () => {
+  const refs = {};
+  const base = (name, empty, loud, colours, extra = {}) => ({ ...profile(name, { lum: 0.9, empty, loud, picture: "none", layout: "centred", colours }), ...extra });
+  for (let i = 0; i < 4; i++) refs[`quiet${i}`] = base(`quiet${i}`, 90 + i, 0, 3);
+  for (let i = 0; i < 4; i++) refs[`loud${i}`] = base(`loud${i}`, 10 + i, 80, 400);
+  refs.site = base("site", 91, 0, 3, { link: "https://example.com/" });
+  refs["site-menu"] = base("site-menu", 60, 0, 3, { link: "https://example.com/" });
+  refs.bare = { ...base("bare", 92, 0, 3) };
+  delete refs.bare.tags;
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json", "--board", "board.md"]);
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  const groups = families.filter((f) => !f.stray).map((f) => [...new Set(f.members.map((m) => m.replace(/^refs\/|\d*\.jpg$/g, "")))].sort().join(","));
+  assert.ok(groups.some((g) => g.startsWith("loud") && !g.includes("quiet")), result.stdout);
+  assert.ok(groups.some((g) => g.includes("quiet") && !g.includes("loud")), result.stdout);
+  assert.match(result.stdout, /1 more shots of the same sites folded in/);
+  assert.match(readFileSync(join(dir, "board.md"), "utf8"), /### site\n[\s\S]*?- also: site-menu/);
+  assert.match(result.stdout, /untagged, compared on their numbers only.*bare/);
 });
 
 test("moodboard --overview: a few tiles per family, its ranges, and one Take per family", () => {
