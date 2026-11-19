@@ -40,7 +40,8 @@
   .chip i { font-style: normal; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 10.5px; font-weight: 600; display: grid; place-items: center; }
   .note { z-index: 1; max-width: 250px; background: #fff; border: var(--stroke) dashed var(--ink); border-radius: 10px; padding: 9px 12px; font-size: 13.5px; line-height: 1.4; color: var(--muted); align-self: center; justify-self: start; }
   .note b { color: var(--ink); font-weight: 600; }
-  .stage { justify-self: start; align-self: start; font-size: 22px; font-weight: 600; border-bottom: var(--stroke) solid var(--ink); padding: 0 4px 4px; margin-top: -26px; }
+  .stage { justify-self: start; align-self: start; font-size: 22px; font-weight: 600; border-bottom: var(--stroke) solid var(--ink); padding: 0 4px 6px; margin-top: -26px; }
+  .stage small { display: block; font-size: 14px; font-weight: 400; color: var(--muted); margin-top: 3px; }
   .end { z-index: 1; background: var(--ink); color: #fff; border: var(--stroke) solid var(--ink); border-radius: 12px; padding: 11px 18px; font-size: 15px; font-weight: 500; white-space: nowrap; }
   svg.links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 0; }
   svg.links path { fill: none; stroke: var(--line); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -60,7 +61,7 @@
   </header>
 
   <div class="flow" id="flow">
-    <div class="stage" style="grid-column:1;grid-row:1;margin-top:0">Direction</div>
+    <div class="stage" style="grid-column:1;grid-row:1;margin-top:0">Direction<small>What to explore from</small></div>
     <div class="node" id="q" style="grid-column:2;grid-row:1"><span class="pill you">You decide</span><div class="card"><h3>Three questions</h3><p>How it should feel and never feel · your moodboard · where to look</p></div></div>
 
     <span class="chip" id="c-board" style="grid-column:1;grid-row:2"><i>?</i>Your moodboard</span>
@@ -87,7 +88,7 @@
     <div class="node" id="direction" style="grid-column:2;grid-row:11"><span class="pill agent">Agent</span><div class="card"><h3>Write direction.md</h3></div></div>
     <div class="node" id="take" style="grid-column:2;grid-row:12"><span class="pill you">You decide</span><div class="card"><h3>Change anything, or take it into design?</h3></div></div>
 
-    <div class="stage" style="grid-column:1;grid-row:13">Design</div>
+    <div class="stage" style="grid-column:1;grid-row:13">Design<small>Explore it and choose</small></div>
     <div class="node" id="fixed" style="grid-column:2;grid-row:13"><span class="pill you">You decide</span><div class="card"><h3>What is fixed?</h3><p>Colours or faces you own or refuse · light, dark or both · your pictures</p></div></div>
     <div class="node" id="deal" style="grid-column:2;grid-row:14"><span class="pill agent">Agent</span><div class="card"><h3>Deal eight first screens</h3><p>From your family's library, with your real content. No reference supplies a whole screen</p></div></div>
     <div class="node" id="grid" style="grid-column:2;grid-row:15"><span class="pill you">You decide</span><div class="card"><h3>Pick from the grid</h3><p>Any number of them. The agent never ranks or says which it prefers</p></div></div>
