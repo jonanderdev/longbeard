@@ -57,6 +57,14 @@ Never ask them to choose a look in words. That is what the grid is for.
 
 Say in one line what changed in the library.
 
+**What the first screen must carry.** From the brief, list what the first screen has to hold for a person to act on it: the status (open now, in stock, live), the main content (today's bakes, the latest issue, the account's balance), the primary and secondary actions, and where or how to reach it. Say the list back in one line with the fixed things. It goes into the grid's content as `C.must`, every arrangement places all of it, and a screen that drops an item fails the fault pass. A look that leaves no room for what the page must do is not a design for this product.
+
+**The headline and the ownable.** Then offer three or four headline concepts that say `direction.md`'s takeaway outright, in the brief's voice: the point, not a voice sample. With them, propose the ownable: the one thing from the product's own world that only it would show (a stamp that states its claim, a live count, a mark). Numbered, never ranked:
+
+> Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <what, in one line>. Pick one, rewrite it, or keep the ownable for later?
+
+The headline they pick is the same in every recipe, as copy. The ownable is content on every dealt screen, placed by each arrangement like a must-carry item, so it is judged in the grid and not added after a screen is chosen.
+
 ### 2. Deal
 
 ```
@@ -78,7 +86,10 @@ The grid is the first screen only: for a site, the screen a person lands on, at 
 
 One page, `design-exploration/<slug>/prototype/grid.html`, plain HTML and CSS, no build step, that shows recipe `n` of the last round at `?n=`. **Start from [grid-template.html](references/grid-template.html):** copy it there. It already loads the deal (`../deal.js`, since a page opened as a file cannot fetch JSON), sets the look as variables, takes overrides in the URL, loads the faces, fits the type and signals `ready` for a capture. Write only what it marks WRITE: the content, one function per navigation, one per arrangement, and in step 7 the layouts of a screen that forks. Never change the template's part for one run: a fault in it is fixed in `references/grid-template.html`.
 
-- **The same real content in every recipe.** The name, the line and the pictures from the brief and `direction.md`'s subject, in its voice. No lorem, no grey boxes. Only the look differs, so the look is what they judge.
+- **The same real content in every recipe.** The name, the headline they picked, the must-carry items, the ownable and the pictures from the brief and `direction.md`'s subject, in its voice. No lorem, no grey boxes. Only the look differs, so the look is what they judge.
+- **Every must-carry item, on every screen.** Each arrangement places every key in `C.must`, marked `data-must`. The page draws a red "missing" label for any it cannot find inside the screen: fix the arrangement's rule, never drop the item.
+- **Controls with a hierarchy.** Actions are buttons, not text links: `.btn` for the primary, `.btn2` for the secondary, `.chip` for a status, `.row` for a list item, styled from `library.controls`. With no `controls` in the library (it is from before them, or the references show none), the template's plain defaults stand, and the rules in design-rules.md hold.
+- **Arrangements made of zones.** When an arrangement's library entry names `zones` (hero, side, band…), write each as `ZONES["<arrangement>.<zone>"]` and place it with `zone("<zone>", C, ctx)`, so a mix of zones is built without a rewrite.
 - **The family holds on every recipe.** `library.family` is not dealt: every screen gets it, whatever else was dealt. Its scale, how empty, how much is pictures and how they are treated, its margin, radius, edges and density are variables every arrangement reads. A screen outside the family's ranges is a fault, fixed in the rule.
 - **Each arrangement and each navigation is built once, as a rule.** Write it from its sentence in the library, with the references' shots open for what a sentence cannot carry. It does not know which type, ground or accent it will get: those arrive as variables. An arrangement fills the space the navigation leaves, wherever that is.
 - **Take the arrangement, never the reference.** Nothing of a reference's content, pictures or wording is used.
@@ -87,7 +98,11 @@ One page, `design-exploration/<slug>/prototype/grid.html`, plain HTML and CSS, n
 - **Overrides in the URL.** The page also takes `&ground=%23hex&ink=%23hex&accent=%23hex&face=Name&body=Name`, so a colour or a face can be tried on a recipe by capturing it, not by rebuilding it. Step 5 uses this.
 - **Every offset through `--space`.** Margins, gaps, padding and insets use the template's `--m`, `--g`, `--g2`, `--g3` (or `calc(… * var(--space))`), never plain px, so step 5's spacing row really changes the screen.
 - **Fix faults, never taste.** Capture every recipe and open each at full size. An overlap, a clipped word, a stray element, text that cannot be read: fix it with a rule in the arrangement, so the fix holds for whatever is dealt into it, and capture again. Never tune one recipe, and never change what was dealt. Read the words too, not only the boxes: the same sentence on the screen twice, the same call to action in more than one place, one word alone on the last line of a quote or a heading. Each is a fault, fixed in the content or the rule.
-- **Contrast on the screen, not the swatch.** Text over a picture, or text that runs off a picture onto the ground, is read where it sits: sample the rendered screen under each text box (`contrast.mjs` on the darkest and lightest pixels behind it), not the ground's swatch. A pale name that reads on the ground and vanishes on the photo is a fault.
+- **Contrast on the screen, not the swatch.** Text over a picture, or text that runs off a picture onto the ground, is read where it sits. `screen-contrast.mjs` hides the text, samples the rendered screen under every text box, and names each text under 4.5:1 (3:1 for large). A pale name that reads on the ground and vanishes on the photo is a fault.
+
+  ```
+  node <skill>/scripts/screen-contrast.mjs "file://$PWD/design-exploration/<slug>/prototype/grid.html?n=1" --wait-title ready
+  ```
 
 ```
 node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/grid.html?n=1" --out "$PWD/design-exploration/<slug>/grid/1.png" --clip 0,0,1440,900
@@ -116,7 +131,7 @@ Each pick gets a row: the pick, then one variation for each of navigation, type,
 - **A mix** is `deal.mjs … --mix 7,ground=3` (an entry id works too: `ground=dark`). Its arrangement, type and ground should still come from three different references. When the script warns that a mix breaks that, build it, and say that it now takes most of its look from one reference.
 - **More of one thing** is `deal.mjs … --more 4:type`: the pick, then every entry of that list it can take and has not had.
 - Every flag reads its numbers from the last round shown, so a variation can be varied again. Each ask is a new round: capture it and show its sheet. Never edit `deal.json` by hand.
-- Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes. On the yes, record it: `deal.mjs … --choose <n>` (n in the last round shown). Steps 5 and 7 build on it.
+- A grid screen is a sketch. Never set it beside a finished proposal, or ask "is this the product?", before step 6 has finished it: any comparison waits until the chosen screen is polished. Iterate until one screen is theirs. Read it back in one line (its arrangement, navigation, type, ground and accent) and wait for their yes. On the yes, record it: `deal.mjs … --choose <n>` (n in the last round shown). Steps 5 and 7 build on it.
 
 ### 5. Colour and type, by them
 
@@ -146,7 +161,7 @@ Which of the listed faces go in a row is the agent's to choose, never by taste: 
 
 - **A pick** becomes a library entry with `"from": ["theirs"]`, and the chosen screen is dealt with it (`deal.mjs … --mix chosen,accent=<id>,type=<id>`: `chosen` is the screen recorded in step 4, whatever round is last), captured and shown again, once, with everything they picked together. On their yes, `--choose 1` records it.
 - **Something they name** is built the same way, checked the same way, and shown before it counts.
-- **A change inside the arrangement** ("the name on top of the picture", "the left side of 4", "drop the repeated line") is not a list entry: `--mix` swaps whole entries only. Build it as a variant of the arrangement's rule (a new arrangement id in the library, `"from"` both references it takes from), deal it with `--mix chosen,arrangement=<id>`, and say when it now takes more than one of arrangement, type and ground from one reference.
+- **A change inside the arrangement** ("the left side of 4", "drop the repeated line") is a zone: `deal.mjs … --mix 7,zone.side=4` takes recipe 4's side into 7, and `zone.band=none` leaves a zone out. The zone's references count with the arrangement's, so the script warns when the mix breaks the three sources. A change no zone covers ("the name on top of the picture, not behind it") is a new arrangement entry in the library, `"from"` both references it takes from, its zones named, dealt with `--mix chosen,arrangement=<id>`.
 - **"Go"** keeps what the screen has, and says so.
 
 Read the screen back in one line (arrangement, navigation, display and body faces, ground, ink, accent) and wait for their yes.
@@ -159,7 +174,7 @@ Until now every screen was a sketch at one size. Now it becomes the design. Read
 - **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone. The family's ranges hold here too: measure the finished screen with design-direction's script (`node <design-direction skill>/scripts/measure.mjs "file://$PWD/design-exploration/<slug>/prototype/<screen>.html"`) and say where it falls outside them.
 - **Navigation on this screen** as it was dealt and tuned. The menu open, what it does on scroll and what it becomes on a phone are prototyped in step 7, first.
 - **Motion.** A reference that moves is felt again, not remembered. Play its recorded frames and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
-- **The ownable.** The one thing `direction.md`'s subject says this screen must show is on it, somewhere you can point to, made from the product's own world and not from a reference. It is unconfirmed until they have seen it rendered: confirm it or replace it here. It is `ownable` in `DESIGN.md`.
+- **The ownable.** Proposed with the headline in step 1 and on every dealt screen since. Finish it here, made from the product's own world and not from a reference, and confirm it on the finished screen or replace it. It is `ownable` in `DESIGN.md`.
 - **The second theme**, if they asked for both: the same screen on a ground from the library that fits it.
 
 The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`: a copy of `grid.html` that still loads `../deal.js` and still takes the URL overrides, with the chosen recipe fixed (`?n=` ignored) and only its own arrangement and navigation kept. Never rewrite it as a standalone page: the overrides are how a colour, a face or a spacing is tried again later. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.

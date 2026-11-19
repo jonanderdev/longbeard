@@ -49,6 +49,13 @@
 // --mix n,list=m: recipe n with one list's entry from recipe m (or an entry
 //   id), as many lists as asked. A mix that breaks the three sources is still
 //   dealt, with a warning: it is their call.
+// --mix n,zone.side=m: recipe n with one zone of its arrangement (a hero, a side
+//   column, a footer band) taken from recipe m's arrangement, or an arrangement
+//   id; zone.side=none leaves that zone out. People choose inside arrangements
+//   ("the left side of 4", "the name on top of the picture"), so a zone is a
+//   dealt move, not a hand edit. Zones are named in the library's arrangement
+//   entries ("zones": { "hero": "…", "side": "…" }); the zone's references
+//   count with the arrangement's for the three sources.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
@@ -72,7 +79,7 @@ const partArg = flag("part");
 const colsArg = flag("cols");
 const outArg = flag("out");
 const libArg = args[0];
-const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix chosen,accent=theirs-red | --choose 3 | --part navigation] [--out deal.json]";
+const usage = "usage: node deal.mjs design-exploration/<slug>/library.json [--count 8] [--seed N] [--cols 2] [--vary 4,7,8 | --more 4:type | --mix 7,ground=3 | --mix 7,zone.side=4 | --mix chosen,accent=theirs-red | --choose 3 | --part navigation] [--out deal.json]";
 if (!libArg || args.length !== 1 || [varyArg, moreArg, mixArg, chooseArg, partArg].filter(Boolean).length > 1) {
   console.error(usage);
   process.exit(2);
@@ -158,7 +165,8 @@ const standsOff = (accent, ground) => {
 
 const saved = existsSync(outPath) ? JSON.parse(readFileSync(outPath, "utf8")) : { rounds: [] };
 const rounds = saved.rounds || [];
-const key = (r) => lists.map((list) => r[field[list]]).join("|");
+const zoneKey = (r) => Object.entries(r.zones || {}).sort().map(([z, a]) => `${z}=${a}`).join(",");
+const key = (r) => lists.map((list) => r[field[list]]).join("|") + (zoneKey(r) ? `|${zoneKey(r)}` : "");
 const dealt = new Set(rounds.flatMap((round) => round.recipes.map(key)));
 const entry = (list, id) => lib[list].find((x) => x.id === id) || fail(`${list} has no entry called ${id}`);
 // "theirs" is not a reference: a face and a ground they own are two of their choices, not one source.
@@ -239,15 +247,17 @@ if (chooseArg) {
   for (const list of lists) entry(list, r[field[list]]);
   // A new first screen starts the other screens over: what was chosen for them was chosen next to another look.
   if (saved.chosen?.parts && Object.keys(saved.chosen.parts).length) console.error(`deal: a new first screen; the layouts chosen for ${Object.keys(saved.chosen.parts).join(", ")} are cleared`);
-  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, round: last.round, n: r.n, parts: {} };
+  saved.chosen = { arrangement: r.arrangement, navigation: r.navigation, type: r.type, ground: r.ground, accent: r.accent, ...(r.zones ? { zones: r.zones } : {}), round: last.round, n: r.n, parts: {} };
   save();
   console.log(`chosen: ${lists.map((list) => r[field[list]]).join(" · ")} (round ${last.round}, ${r.n})`);
   process.exit(0);
 }
-const strip = ({ arrangement, navigation, type, ground, accent }) => ({ arrangement, navigation, type, ground, accent });
+const strip = ({ arrangement, navigation, type, ground, accent, zones }) => ({ arrangement, navigation, type, ground, accent, ...(zones && Object.keys(zones).length ? { zones: { ...zones } } : {}) });
+// The references an arrangement's screen draws on: its own, and those of every zone taken from another.
+const arrangementRefs = (r) => [...refs(entry("arrangements", r.arrangement)), ...Object.values(r.zones || {}).filter((id) => id !== "none").flatMap((id) => refs(entry("arrangements", id)))];
 // Arrangement, type and ground from three different references.
 const threeSources = (r) => {
-  const [a, t, g] = [refs(entry("arrangements", r.arrangement)), refs(entry("type", r.type)), refs(entry("grounds", r.ground))];
+  const [a, t, g] = [arrangementRefs(r), refs(entry("type", r.type)), refs(entry("grounds", r.ground))];
   return !a.some((ref) => t.includes(ref)) && !a.some((ref) => g.includes(ref)) && !t.some((ref) => g.includes(ref));
 };
 const legible = (r) => standsOff(entry("accents", r.accent), entry("grounds", r.ground));
@@ -331,6 +341,22 @@ if (kind === "part") {
     const from = [];
     for (const swap of swaps) {
       const [word, value] = swap.split("=").map((x) => (x || "").trim());
+      if (/^zone\./.test(word)) {
+        const zone = word.slice(5);
+        if (!zone) fail("name the zone: --mix 7,zone.side=4");
+        if (value === "none") {
+          mixed.zones = { ...(mixed.zones || {}), [zone]: "none" };
+          from.push(`no ${zone}`);
+          continue;
+        }
+        const id = /^\d+$/.test(value) ? base(Number(value)).arrangement : entry("arrangements", value).id;
+        const zones = entry("arrangements", id).zones || {};
+        if (!zones[zone]) fail(`the arrangement ${id} has no zone called ${zone}: its zones are ${Object.keys(zones).join(", ") || "not named in the library"}`);
+        mixed.zones = { ...(mixed.zones || {}), [zone]: id };
+        if (id === mixed.arrangement) delete mixed.zones[zone];
+        from.push(`${zone} from ${value}`);
+        continue;
+      }
       const list = listOf(word);
       const name = field[list];
       mixed[name] = /^\d+$/.test(value) ? base(Number(value))[name] : entry(list, value).id;
@@ -393,5 +419,5 @@ const pad = (text, n) => String(text).padEnd(n);
 console.log(`round ${round.round} · ${round.kind} · seed ${seed}`);
 for (const r of recipes) {
   const lead = kind === "part" ? `${pad(r.n, 3)}${pad(r.part, 14)}` : kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
-  console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}`);
+  console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}${zoneKey(r) ? `  zones ${zoneKey(r)}` : ""}`);
 }

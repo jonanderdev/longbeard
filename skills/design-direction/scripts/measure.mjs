@@ -4,7 +4,9 @@
 //
 // An image: its most common colours and its loud ones, each with its share of
 // the picture, and its traits: how light the ground is, how much of the
-// picture is that ground (empty), and how much is loud colour.
+// picture is that ground (empty), and how much is loud colour. A screen shown
+// on a plain grey or black surround (a presentation frame) is read inside the
+// frame, and "frame" names the surround and the box that was read.
 //   node measure.mjs design-exploration/<slug>/refs/name.jpg
 //
 // A live page: its ground colour, the fonts it loaded, and every piece of text
@@ -223,12 +225,47 @@ const readImage = (src) => `(async () => {
   await img.decode();
   // Only the first screen: a tall desktop capture (a full page) is cut to the 1440 by 900 it opens on.
   // A phone or portrait shot is narrower than 1000 px and is read whole.
-  const sw = img.naturalWidth;
-  const sh = sw >= 1000 && img.naturalHeight > sw * 0.75 ? Math.round((sw * 900) / 1440) : img.naturalHeight;
+  let sw = img.naturalWidth;
+  let sh = sw >= 1000 && img.naturalHeight > sw * 0.75 ? Math.round((sw * 900) / 1440) : img.naturalHeight;
+  // A presentation shot: the screen on a plain grey or black surround (a Dribbble frame, a device
+  // on a backdrop). Its ground, tone and empty would describe the surround, so the screen inside
+  // is what is read. A surround is one low-colour tone on all four sides, and the screen inside is
+  // a solid rectangle: its edge rows differ from the surround almost everywhere. A centred logo on
+  // an empty page has sparse edges and is never taken for a frame.
+  let sx = 0, sy = 0, frame = null;
+  {
+    const fk = Math.min(1, 300 / Math.max(sw, sh));
+    const fw = Math.max(1, Math.round(sw * fk)), fh = Math.max(1, Math.round(sh * fk));
+    const fc = Object.assign(document.createElement("canvas"), { width: fw, height: fh }).getContext("2d");
+    fc.drawImage(img, 0, 0, sw, sh, 0, 0, fw, fh);
+    const p = fc.getImageData(0, 0, fw, fh).data, at = (x, y) => (y * fw + x) * 4;
+    const ref = [p[0], p[1], p[2]];
+    const same = (i) => Math.abs(p[i] - ref[0]) <= 12 && Math.abs(p[i + 1] - ref[1]) <= 12 && Math.abs(p[i + 2] - ref[2]) <= 12;
+    const corners = [at(fw - 1, 0), at(0, fh - 1), at(fw - 1, fh - 1)].every(same);
+    const lowColour = Math.max(...ref) - Math.min(...ref) <= 24;
+    const rowSame = (y) => { let n = 0; for (let x = 0; x < fw; x++) n += same(at(x, y)); return n / fw; };
+    const colSame = (x) => { let n = 0; for (let y = 0; y < fh; y++) n += same(at(x, y)); return n / fh; };
+    if (corners && lowColour) {
+      let t = 0, b = fh - 1, l = 0, r = fw - 1;
+      while (t < fh / 2 && rowSame(t) > 0.98) t++;
+      while (b > fh / 2 && rowSame(b) > 0.98) b--;
+      while (l < fw / 2 && colSame(l) > 0.98) l++;
+      while (r > fw / 2 && colSame(r) > 0.98) r--;
+      const iw = r - l + 1, ih = b - t + 1;
+      const edge = (xs, ys) => { let n = 0, m = 0; for (const y of ys) for (const x of xs) { m++; n += !same(at(x, y)); } return m ? n / m : 0; };
+      const span = (a, z) => Array.from({ length: Math.max(0, z - a + 1) }, (_, i) => a + i);
+      const solid = Math.min(edge(span(l, r), [t]), edge(span(l, r), [b]), edge([l], span(t, b)), edge([r], span(t, b)));
+      const margins = [t / fh, (fh - 1 - b) / fh, l / fw, (fw - 1 - r) / fw];
+      if (margins.every((m) => m >= 0.03) && iw * ih >= 0.25 * fw * fh && iw * ih <= 0.95 * fw * fh && solid >= 0.85) {
+        sx = Math.round(l / fk); sy = Math.round(t / fk); sw = Math.round(iw / fk); sh = Math.round(ih / fk);
+        frame = { colour: "#" + ref.map((v) => v.toString(16).padStart(2, "0")).join(""), box: [sx, sy, sw, sh] };
+      }
+    }
+  }
   const k = Math.min(1, 200 / Math.max(sw, sh));
   const w = Math.max(1, Math.round(sw * k)), h = Math.max(1, Math.round(sh * k));
   const c = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d");
-  c.drawImage(img, 0, 0, sw, sh, 0, 0, w, h);
+  c.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
   const d = c.getImageData(0, 0, w, h).data, bins = new Map();
   for (let i = 0; i < d.length; i += 4) {
     const key = (d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4);
@@ -262,7 +299,7 @@ const readImage = (src) => `(async () => {
   const k2 = Math.min(1, 400 / Math.max(sw, sh));
   const w2 = Math.max(1, Math.round(sw * k2)), h2 = Math.max(1, Math.round(sh * k2));
   const c2 = Object.assign(document.createElement("canvas"), { width: w2, height: h2 }).getContext("2d");
-  c2.drawImage(img, 0, 0, sw, sh, 0, 0, w2, h2);
+  c2.drawImage(img, sx, sy, sw, sh, 0, 0, w2, h2);
   const e = c2.getImageData(0, 0, w2, h2).data;
   const isFig = (i) => Math.max(Math.abs(e[i] - top[0]), Math.abs(e[i + 1] - top[1]), Math.abs(e[i + 2] - top[2])) > 24;
   const lumOf = (i) => 0.3 * e[i] + 0.59 * e[i + 1] + 0.11 * e[i + 2];
@@ -312,7 +349,7 @@ const readImage = (src) => `(async () => {
     busy: Math.round((10 * edges) / (2 * n * 2.55)) / 10,
     lum: Math.round(l * 1000) / 1000,
   };
-  return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: sh < img.naturalHeight, traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: !frame && sh < img.naturalHeight, ...(frame ? { frame } : {}), traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
 })()`;
 
 const readPage = `(() => {
@@ -593,7 +630,7 @@ if (profilesArg) {
     const link = links.get(name);
     const page = link && byTarget.get(link);
     const old = store.refs[name] || {};
-    store.refs[name] = { ...old, shot: t, link: link || old.link || null, image: { traits: r.traits, figure: r.figure, common: r.common, loud: r.loud }, page: page ? pageOf(page) : old.page || null };
+    store.refs[name] = { ...old, shot: t, link: link || old.link || null, image: { traits: r.traits, figure: r.figure, common: r.common, loud: r.loud, ...(r.frame ? { frame: r.frame } : {}) }, page: page ? pageOf(page) : old.page || null };
   }
   writeFileSync(profilesArg, `${JSON.stringify(store, null, 1)}\n`);
   const n = Object.keys(store.refs).length;

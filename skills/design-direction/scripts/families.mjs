@@ -278,18 +278,20 @@ const pairDist = (a, b) => {
 const D = refs.map((a) => refs.map((b) => pairDist(a, b)));
 
 // ------------------------------------------------------------------ join, closest first
-function cluster(cut) {
-  const groups = refs.map((r, i) => ({ members: [i], alive: true }));
-  const link = D.map((row) => [...row]);
+// Over the whole pool, or over some of it (to split a bin).
+function cluster(cut, among = refs.map((_, i) => i)) {
+  const m = among.length;
+  const groups = among.map((i) => ({ members: [i], alive: true }));
+  const link = among.map((a) => among.map((b) => D[a][b]));
   for (;;) {
     let best = Infinity, bi = -1, bj = -1;
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < m; i++) {
       if (!groups[i].alive) continue;
-      for (let j = i + 1; j < n; j++) if (groups[j].alive && link[i][j] < best) [best, bi, bj] = [link[i][j], i, j];
+      for (let j = i + 1; j < m; j++) if (groups[j].alive && link[i][j] < best) [best, bi, bj] = [link[i][j], i, j];
     }
     if (bi < 0 || best > cut) break;
     const [gi, gj] = [groups[bi], groups[bj]];
-    for (let k = 0; k < n; k++) {
+    for (let k = 0; k < m; k++) {
       if (!groups[k].alive || k === bi || k === bj) continue;
       link[bi][k] = link[k][bi] = (gi.members.length * link[bi][k] + gj.members.length * link[bj][k]) / (gi.members.length + gj.members.length);
     }
@@ -299,12 +301,43 @@ function cluster(cut) {
   return groups.filter((g) => g.alive).map((g) => g.members);
 }
 const groups = cluster(spread);
+// A bin: one family of 20 or more holding far more than its share: over three times the median of
+// the other families, or over two fifths of the pool. On a
+// pool of pictures only, one spread can make a few huge bins beside many strays, and lowering it
+// for the whole pool only adds strays. So a bin alone is sorted again at a lower spread, step by
+// step, until it splits into two or more families with most of it still in one; it is said.
+const splits = [];
+const isBin = (g, all) => {
+  if (g.length < 20) return false;
+  const others = all.filter((x) => x !== g && x.length >= min).map((x) => x.length).sort((a, b) => a - b);
+  const med = others.length ? others[others.length >> 1] : 0;
+  return g.length > 0.4 * n || (others.length >= 2 && g.length > 3 * med);
+};
+for (let pass = 0; pass < 6; pass++) {
+  const bin = groups.find((g) => !g.tried && isBin(g, groups));
+  if (!bin) break;
+  bin.tried = true;
+  for (let cut = spread - 0.02; cut >= Math.max(0.16, spread / 2) - 1e-9; cut -= 0.02) {
+    const sub = cluster(cut, bin);
+    const fams = sub.filter((g) => g.length >= min);
+    const loose = sub.filter((g) => g.length < min).flat().length;
+    if (fams.length >= 2 && Math.max(...fams.map((g) => g.length)) < 0.75 * bin.length && loose <= 0.3 * bin.length) {
+      groups.splice(groups.indexOf(bin), 1, ...sub);
+      splits.push(`a bin of ${bin.length} at ${Math.round(cut * 100) / 100} into ${fams.length} families${loose ? ` and ${loose} strays` : ""}`);
+      break;
+    }
+  }
+}
 const done = groups.filter((g) => g.length >= min).sort((a, b) => b.length - a.length);
 const strayGroups = groups.filter((g) => g.length < min);
 const strays = strayGroups.flat();
 const pairs = strayGroups.filter((g) => g.length === 2);
 // How sensitive the cut is: what a little lower and higher would give.
-const countAt = (cut) => cluster(cut).filter((g) => g.length >= min).length;
+// With the largest family's size, so a count that holds steady while one bin swallows the pool shows.
+const countAt = (cut) => {
+  const fams = cluster(cut).filter((g) => g.length >= min);
+  return `${fams.length}${fams.length ? `, largest ${Math.max(...fams.map((g) => g.length))}` : ""}`;
+};
 const nearby = [Math.max(0.05, spread - 0.04), spread + 0.04].map((cut) => `${Math.round(cut * 100) / 100} → ${countAt(cut)}`);
 
 // ------------------------------------------------------------------ describe each family
@@ -396,6 +429,9 @@ const line = (f) => (f.stray ? "far from every family: place each by eye" : `${t
 const real = families.filter((f) => !f.stray);
 console.log(`${n} references${folded ? ` (${folded} more shots of the same sites folded in)` : ""}, ${real.length} families (${real.filter((f) => f.small).length} small), ${strays.length} strays, spread ${spread} (${nearby.join(", ")})`);
 console.log(`compared on: ${kinds.map(([name]) => name).join(", ")}`);
+if (splits.length) console.log(`split on their own, too big for one look: ${splits.join("; ")}. Check each on its sheet: the eye still merges what is one look`);
+const bins = done.filter((g) => isBin(g, done));
+if (bins.length) console.log(`still far bigger than the other families, likely a bin: ${bins.map((g) => g.length).join(", ")}. Split it by eye, or sort it alone with --only families/<id>.tsv --spread <lower>`);
 if (Object.keys(asked).length) {
   console.log(`sliders asked: ${Object.entries(asked).map(([k, v]) => `${SLIDERS[k][0]}–${SLIDERS[k][1]} ${v}`).join(", ")} (a hint for each family, never a cut)`);
   // The pool is what they chose or liked: where it sits against what they said.

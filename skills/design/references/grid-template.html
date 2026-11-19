@@ -13,6 +13,19 @@
   passes a state to the layout. &size=390x844 renders at a phone's size. The page sets document.title to "ready" once
   the faces are in and the type is fitted, so a capture can wait for it.
 
+  Must-carry: every item in C.must is placed by every arrangement, marked
+  data-must="<key>". An item missing from the screen, or outside it, is drawn
+  as a red fault label and listed in document.body.dataset.missing: the fault
+  pass fails that screen until the arrangement's rule places it.
+
+  Controls: library.controls (buttons, a chip, a list row) set the classes
+  .btn, .btn2, .chip and .row, so actions have a hierarchy on every recipe.
+
+  Zones: an arrangement built from zones (hero, side, band…) writes each as
+  ZONES["<arrangement>.<zone>"] and places it with zone("side", C, ctx). A
+  recipe mixed with --mix n,zone.side=m then takes m's side; zone.side=none
+  leaves it out.
+
   Type rules, kept by fit():
   - data-fit="w,h" on display type: sized so its text (not its box) is w of
     the area's width, and never taller than h of its height (fractions).
@@ -43,6 +56,15 @@
   .display { width: max-content; font-family: var(--face), serif; font-weight: var(--weight); font-variation-settings: var(--axes); text-transform: var(--case); letter-spacing: var(--tracking); font-style: var(--italic); line-height: 0.86; white-space: nowrap; color: var(--title); }
   .small { font-size: var(--body-size); }
   .tiny { font-size: 12px; }
+  /* Controls, from library.controls (or design-rules' defaults): primary, secondary, a status chip, a list row. */
+  .btn, .btn2 { display: inline-flex; align-items: center; white-space: nowrap; gap: var(--g2); padding: var(--btn-pad); border-radius: var(--btn-radius); font: inherit; font-size: var(--btn-size); font-weight: var(--btn-weight); text-transform: var(--btn-case); letter-spacing: var(--btn-tracking); cursor: pointer; }
+  .btn { background: var(--btn-fill); color: var(--btn-ink); border: var(--btn-border); }
+  .btn2 { background: transparent; color: var(--ink); border: var(--btn2-border); text-decoration: var(--btn2-underline); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--chip-radius); border: 1px solid currentColor; font-size: 12px; }
+  .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .row { display: flex; justify-content: space-between; gap: var(--g); padding: var(--g2) 0; border-top: var(--row-rule); }
+  .row s, .row .gone { opacity: 0.5; }
+  .must-missing { position: fixed; left: 8px; width: max-content; z-index: 99; padding: 4px 8px; background: #e00; color: #fff; font: 600 12px/1.2 system-ui; }
   /* WRITE: styles your navigations and arrangements need, by class. */
 </style>
 </head>
@@ -56,9 +78,23 @@
 // twice, and one call to action, not the same one in the nav, the hero and a band.
 const C = {
   name: "Product name",
-  line: "The one line the first screen must say.",
+  // The headline they picked in step 1: direction.md's takeaway, said outright in the brief's voice.
+  headline: "The takeaway, as the headline.",
   sub: "A sentence or two of real supporting copy.",
-  links: ["First", "Second", "Third", "Primary action"],
+  // The ownable, proposed with the headline: content on every screen, not a late detail.
+  ownable: "The one thing only this product would show.",
+  links: ["First", "Second", "Third"],
+  primary: "Primary action",
+  secondary: "Secondary action",
+  // The must-carry list from step 1: what this screen must hold, by key. Every arrangement places
+  // each one with data-must="<key>"; the page flags any it cannot find on the screen.
+  must: {
+    // status: "Open now · until 19:00",
+    // main: [{ name: "Today's first item", note: "€3" }, { name: "Sold out item", gone: true }],
+    // place: "Street 12, City · Directions",
+    primary: true,
+    secondary: true,
+  },
 };
 
 // ---------------------------------------------------------------- WRITE: navigation
@@ -72,10 +108,22 @@ const NAVIGATION = {
 // One function per arrangement id, written from its sentence in the library, never tuned for one
 // recipe. It gets the content and ctx (the entries dealt, the area's size, the state), and returns
 // HTML. after(el, ctx) is optional: it runs once the type is fitted, to place what must sit clear.
+// An arrangement made of zones places each with zone(name, C, ctx): its own zone, the one a mix
+// took from another arrangement, or nothing when the mix left it out.
+const ZONES = {
+  // "queue.side": (C, ctx) => `<aside style="…">${C.sub}</aside>`,
+};
+const zone = (name, C, ctx) => {
+  const from = (ctx.recipe.zones || {})[name];
+  if (from === "none") return "";
+  const write = ZONES[`${from || ctx.recipe.arrangement}.${name}`];
+  return write ? write(C, ctx) : `<div class="must-missing" style="top:40px">no zone ${from || ctx.recipe.arrangement}.${name} written</div>`;
+};
 const ARRANGEMENTS = {
   // queue: {
   //   html: (C, ctx) => `<div class="area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--g)">
-  //     <div class="display" data-fit="0.66,0.42">${C.name}</div><p class="small">${C.line}</p></div>`,
+  //     <div class="display" data-fit="0.66,0.42">${C.name}</div><p class="small">${C.headline}</p>
+  //     <span style="display:flex;gap:var(--g2)"><a class="btn" data-must="primary">${C.primary}</a><a class="btn2" data-must="secondary">${C.secondary}</a></span></div>`,
   // },
 };
 
@@ -126,6 +174,22 @@ const PARTS = {
   set("--body-leading", body.leading || "1.45");
   set("--accent", accent.colour || ground.ink || "#111");
   set("--title", ground.ink || "#111");
+  // Controls: one set for the look (library.controls), with design-rules' plain defaults where it says nothing.
+  const ctl = lib.controls || {};
+  const btn = ctl.button || {}, btn2 = ctl.secondary || {}, chip = ctl.chip || {}, row = ctl.row || {};
+  set("--btn-radius", btn.radius || "0px");
+  set("--btn-pad", btn.padding || "calc(12px * var(--space)) calc(20px * var(--space))");
+  set("--btn-size", btn.size || "15px");
+  set("--btn-weight", btn.weight || 600);
+  set("--btn-case", btn.case || "none");
+  set("--btn-tracking", btn.tracking || "0");
+  set("--btn-fill", btn.fill === "ink" ? "var(--ink)" : btn.fill === "none" ? "transparent" : "var(--accent)");
+  set("--btn-ink", btn.fill === "none" ? "var(--ink)" : "var(--ground)");
+  set("--btn-border", btn.border || (btn.fill === "none" ? "1.5px solid currentColor" : "0"));
+  set("--btn2-border", btn2.border || "1.5px solid currentColor");
+  set("--btn2-underline", btn2.underline ? "underline" : "none");
+  set("--chip-radius", chip.radius || "999px");
+  set("--row-rule", row.rule || "1px solid color-mix(in srgb, var(--ink) 25%, transparent)");
   if (ground.gradient) document.body.style.backgroundImage = ground.gradient;
   if (ground.pattern) document.body.style.backgroundImage = [ground.pattern, ground.gradient].filter(Boolean).join(", ");
 
@@ -163,6 +227,7 @@ const PARTS = {
   await document.fonts.ready;
   fit(el);
   if (layout.after) layout.after(el, ctx);
+  mustCarry(el);
   document.title = "ready";
 })();
 
@@ -191,6 +256,19 @@ function fit(el) {
     const row = words[0].parentElement;
     if (row.scrollWidth > row.clientWidth) for (const d of words) d.style.fontSize = (one * (row.clientWidth - 40)) / row.scrollWidth + "px";
   }
+}
+
+// Every must-carry item is on the screen, inside it, and not hidden; a missing one is a fault, shown.
+function mustCarry(el) {
+  const s = el.getBoundingClientRect();
+  const missing = Object.keys(C.must || {}).filter((key) => {
+    const node = el.querySelector(`[data-must="${key}"]`);
+    if (!node) return true;
+    const r = node.getBoundingClientRect();
+    return !r.width || !r.height || r.bottom > s.bottom || r.right > s.right || r.top < s.top || r.left < s.left || getComputedStyle(node).visibility === "hidden";
+  });
+  document.body.dataset.missing = missing.join(" ");
+  missing.forEach((key, i) => el.insertAdjacentHTML("beforeend", `<div class="must-missing" style="top:${8 + i * 28}px">missing: ${key}</div>`));
 }
 
 // The clear space beside display type: where small text and bands go, never on the letters.

@@ -190,6 +190,34 @@ test("deal --mix records a hand mix as its own round, and warns when it breaks t
   assert.match(broken.stderr, /fewer than three references/);
 });
 
+test("deal --mix zone: a zone from another arrangement is a dealt move, its references counted, none drops a zone", () => {
+  const lib = library();
+  lib.arrangements[1].zones = { hero: "name on the picture", side: "a caption column" };
+  lib.arrangements[2].zones = { hero: "name behind the picture", side: "a thin index on the left" };
+  const dir = project(lib);
+  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [
+    { n: 1, arrangement: "arr-b", navigation: "nav-2", type: "type-3", ground: "dark", accent: "red" },
+    { n: 2, arrangement: "arr-c", navigation: "nav-1", type: "type-4", ground: "cream", accent: "none" },
+  ] }] }));
+  const ok = run(deal, dir, ["library.json", "--mix", "1,zone.side=2"]);
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.deepEqual(rounds(dir)[1].recipes[0].zones, { side: "arr-c" });
+  assert.match(ok.stdout, /zones side=arr-c/);
+  // arr-c is from c; type-3 from e and f, dark from d and g: still three sources. With a ground from c it is not.
+  assert.equal(ok.stderr, "");
+  const broken = run(deal, dir, ["library.json", "--mix", "1,zone.side=arr-c,ground=light"]);
+  assert.match(broken.stderr, /fewer than three references/);
+  // Numbers read from the last round, so a mix of a mix keeps the zone it already took.
+  const none = run(deal, dir, ["library.json", "--mix", "1,zone.hero=none"]);
+  assert.equal(none.status, 0, none.stderr);
+  assert.deepEqual(rounds(dir).at(-1).recipes[0].zones, { side: "arr-c", hero: "none" });
+  const missing = run(deal, dir, ["library.json", "--mix", "1,zone.footer=arr-c"]);
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /no zone called footer: its zones are hero, side/);
+  run(deal, dir, ["library.json", "--choose", "1"]);
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")).chosen.zones, { side: "arr-c", hero: "none" });
+});
+
 test("deal: a library with no family still deals, and says what is missing", () => {
   const lib = library();
   delete lib.family;
@@ -302,6 +330,28 @@ test("measure: an image gives its colours with their share of the picture", asyn
   const traits = JSON.parse((await measured([four])).stdout).traits;
   assert.deepEqual([traits.ground, traits.tone, traits.empty, traits.loud], ["#fdfdfd", "light", 75, 25]);
   assert.equal((await measured(["notes.txt"])).status, 2);
+});
+
+test("measure: a screen on a grey surround is read inside the frame; a centred mark on an empty page is not a frame", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-frame-"));
+  const pic = (w, h, at) => {
+    const rgb = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) rgb.push(...at(x, y));
+    return png(w, h, rgb);
+  };
+  // A cream screen with a red bar, on a mid-grey surround of 20 px.
+  writeFileSync(join(dir, "framed.png"), pic(200, 140, (x, y) => (x < 20 || x >= 180 || y < 20 || y >= 120 ? [90, 90, 90] : y < 40 ? [220, 20, 20] : [244, 236, 220])));
+  // An empty white page with a small dark mark in the middle.
+  writeFileSync(join(dir, "mark.png"), pic(200, 140, (x, y) => (x > 90 && x < 110 && y > 60 && y < 80 ? [20, 20, 20] : [255, 255, 255])));
+  const framed = await measured([join(dir, "framed.png")]);
+  if (/No Chrome/.test(framed.stderr)) return t.skip("no Chrome installed");
+  const out = JSON.parse(framed.stdout);
+  assert.equal(out.frame?.colour, "#5a5a5a");
+  assert.equal(out.traits.tone, "light");
+  assert.ok(out.traits.empty > 70, JSON.stringify(out.traits));
+  const mark = JSON.parse((await measured([join(dir, "mark.png")])).stdout);
+  assert.equal(mark.frame, undefined);
+  assert.ok(mark.traits.empty > 95);
 });
 
 test("measure: a folder in one browser, as one TSV row per image", async (t) => {
