@@ -4,15 +4,16 @@ description: >
   Find the composition. First screens are dealt by script from the references
   they like, each screen's arrangement, navigation and zones taken from
   different references and set in the identity they chose, with the product's
-  real content; they pick on a rendered grid, vary and mix; then a hierarchy
-  pass repairs what reads wrong without touching the composition. Writes
+  real content; they pick on a rendered grid, vary and mix; then a light
+  touch-up pass fixes contrast, anything missing and anything plainly broken,
+  never the composition. Writes
   docs/design/design-direction.md. Runs after design-brief, design-moodboard
   and design-identity.
 ---
 
 # Design direction
 
-The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking ideas from different references makes compositions none of them has, and that is the point. What the agent owns is the craft afterwards: a hierarchy pass that makes the chosen screen read right while keeping its composition.
+The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking ideas from different references makes compositions none of them has, and that is the point. What the agent owns afterwards is a light touch-up: the chosen screen came from references, not from the agent's taste, so the agent only repairs what is broken and never redesigns it.
 
 Comes out:
 
@@ -74,7 +75,7 @@ It writes the identity's faces, grounds (each with the identity colour that read
 
 One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html): it loads `../deal.js`, sets the look as variables, takes overrides in the URL, fits the type and sets the title to `ready`. Write only what it marks WRITE: the content, one function per navigation, one per arrangement (zones through `ZONES` and `zone()`). The first screen only: 1440×900 for a site, the first key screen's device size for an app.
 
-- **The same real content on every screen:** the name, the headline, every must-carry item (`data-must`; the page flags a missing one in red), the ownable, pictures of the product's subject (theirs, or stand-ins from `design-content`; never the references' subject).
+- **The same real content on every screen:** the name, the headline, every must-carry item (`data-must`; the page flags a missing one in red), the ownable, pictures of the product's subject (theirs, or the stand-ins `design-identity` found in `.longbeard/design/pictures/`; never the references' subject).
 - **Each arrangement is a rule,** built once from its sentence with the shots open; it receives type and colour as variables. Take the arrangement, never the reference's content.
 - **Every offset through `--space`.** Type fills by rule, not by number.
 - **Fix faults, never taste:** an overlap that hides text, a clipped word, a missing item, a repeated sentence, a lone word on a heading's last line, text under 4.5:1 where it sits (`screen-contrast.mjs`). Fix in the rule so the fix holds for every recipe.
@@ -98,22 +99,23 @@ Show the sheet, a table of each number's arrangement, navigation, ground and acc
 
 Every flag reads the last round shown. Iterate until one screen is theirs, read it back in one line, and on their yes: `deal.mjs … --choose <n>`.
 
-## 5. The hierarchy pass
+## 5. The touch-up pass
 
-On the chosen screen only, after their yes. The grid screens stay raw; this pass is the craft.
+On the chosen screen only, after their yes. Every grid screen was built by script from their references and chosen by them: **the composition is theirs, not the agent's.** This pass repairs; it never redesigns. Done carelessly, it is where a distinctive screen turns generic, so touch as little as possible.
 
-**It checks,** whatever the style:
-- The headline is the strongest text: biggest, heaviest or most contrasted. Nothing smaller in rank outranks it.
-- One clear first read, a clear second, then the rest.
-- The primary action is found at a glance and does not fight the headline.
-- Every must-carry item is there and findable.
-- Text reads: 4.5:1 where it sits (3:1 large), body at a readable size.
+**Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, tiny navigation, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
 
-**It leaves alone,** because that is taste: overlaps, collisions, crops, bleeds, off-grid placement, extreme scale jumps, wide empty space, tiny navigation, an odd reading path that still starts at the headline.
+**It fixes only:**
+- **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
+- **Something missing.** A must-carry item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls.
+- **Something plainly off.** A clipped word, text hidden where it cannot be read at all, a control that looks tappable and is not, the same line twice.
+- **Rank, only when inverted.** The headline outranked by smaller text (a description bigger or louder than the title): the smaller one is brought down, not the headline restyled.
 
-**It fixes only** with size, weight, colour or contrast, and spacing inside a zone. It never moves a zone, changes the arrangement or adds a section. A problem only a composition change can fix is named, not fixed.
+**Only with:** colour, weight, size within a step, and spacing inside a zone. Never a zone moved, the arrangement changed, a section added, or a device the references use removed.
 
-Make the fixes as URL overrides or rule edits on a copy, capture before and after side by side, and list each change in one line ("headline 48→72px: now the biggest text"). Then:
+**When unsure, leave it** and ask in one line ("the name sits under the photo's edge: on purpose, or should it clear it?").
+
+Make the fixes as URL overrides or rule edits on a copy, capture before and after side by side, and list each change in one line ("description 32→20px: it outranked the headline"). Nothing to fix is a fine result: say so. Then:
 
 > Keep all, or turn any off?
 
@@ -154,6 +156,6 @@ Yes → `design-prototype`.
 
 - Pick, swap, drop or rank a dealt screen, or say which you prefer.
 - Polish grid screens. Spacing, detail and states wait for `design-prototype`.
-- Move a zone, change an arrangement or add a section in the hierarchy pass.
+- In the touch-up pass: move a zone, change the arrangement, add a section, or tidy an overlap, a crop or a collision the references use on purpose.
 - Take a reference's content, pictures or words.
 - Choose type or colour here: they are the identity's. A composition that clearly wants another face is said in one line, never changed silently.

@@ -4,8 +4,11 @@ description: >
   The product's identity: a type pairing and a small set of colours, chosen by
   them on rendered options drawn from their references, measured font lists and
   even colour steps, never picked by the agent. Ends in the identity board: the
-  faces at size and the colours as swatches with their values and roles. Runs after docs/design/design-brief.md exists,
-  best after design-moodboard; or for a rebrand.
+  faces at size and the colours as swatches with their values and roles.
+  Starts by making sure there are three or four pictures of the product's own
+  subject to design with: theirs, or licensed stand-ins it finds. Runs after
+  docs/design/design-brief.md exists, best after design-moodboard; or for a
+  rebrand.
 ---
 
 # Design identity
@@ -15,7 +18,7 @@ Two files come out, both committed:
 - **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-direction` deals from.
 - **`docs/design/design-identity.html`**: the identity board. `design-figma` puts it on the Figma Cover.
 
-Options and captures live in `.longbeard/design/identity/`, gitignored.
+Options and captures live in `.longbeard/design/identity/`, and the subject's pictures in `.longbeard/design/pictures/`, both gitignored.
 
 Three stops, no more: options, one refinement, the board.
 
@@ -26,6 +29,23 @@ Three stops, no more: options, one refinement, the board.
 3. An identity exists → a change. Show the board, ask what changes, and reopen only that.
 
 Read the design brief (personality, feel, never, what is fixed) and the moodboard: `design-moodboard.md`, the taken families in `design-families.md`, and the captures under `.longbeard/design/`. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+
+## 0. Pictures of the subject
+
+Before any option: three or four pictures of what the product is about (the bakery's bread and its bench, the climbing gym's wall, the app's real data on a desk). Not inspiration from other designs, which is the moodboard's job: the product's own world. They feed the palette options below, and every screen after this (`design-direction`'s grid, `design-prototype`) uses them, so no screen is judged on grey boxes or on another product's pictures.
+
+- **Theirs first.** The design brief says whether they have pictures. If they do, ask for three or four, and save them to `.longbeard/design/pictures/`.
+- **None yet:** find stand-ins, a few, never a bulk search. Search the subject, not a mood: the brief's identity nouns ("sourdough loaf", "flour on a wooden bench"), one query per picture you need.
+
+  ```
+  node <skill>/scripts/pictures.mjs "sourdough loaf" --out .longbeard/design/pictures --count 2
+  node <skill>/scripts/pictures.mjs "flour on a wooden bench" --out .longbeard/design/pictures --count 2 --orientation landscape
+  ```
+
+  It keeps only clearly licensed pictures (CC0, public domain, CC BY, CC BY-SA) large enough for a screen, and writes `credits.tsv` beside them. Open each and drop one that is off-subject, then search again for it.
+- **Of the kind the look uses.** When the moodboard is photographs, look for photographs; when it is illustration or renders, say that stand-ins for those are not searched, and use the closest photographs, cropped and toned as the moodboard does, until theirs exist.
+
+Do not stop to ask: show the pictures on a contact sheet (`contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures`) with the options in step 1, and say they are stand-ins that theirs replace. They can swap any there.
 
 ## 1. Options, in one message
 
@@ -44,7 +64,7 @@ Read the design brief (personality, feel, never, what is fixed) and the moodboar
 
 **Palettes, three to five.** A palette is three to five colours, each with a role: `ground` (a surface it can stand on), `ink` (text), `accent`. A colour can hold more than one role.
 
-- **From the references:** the colours their likes share, from the captures' measured palettes.
+- **From the references and the subject:** the colours their likes share, from the captures' measured palettes, and the colours of the subject's pictures (`measure.mjs` on the pictures folder gives each its palette).
 - **Even steps:** `colours.mjs` gives steps around a colour (lighter, darker, warmer, cooler, in OKLCH) and the derived roles, and leaves out what fails contrast.
 
   ```
@@ -64,7 +84,7 @@ When there are many, show pairings on one sheet and palettes on another, each on
 
 Number them, never rank them. For each, one line of where it comes from ("the serif three of your likes share", "a narrower, darker cousin of it, less used"), never which is best.
 
-> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X".
+> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". The pictures are stand-ins I found: swap any.
 
 ## 2. One refinement
 
@@ -116,3 +136,4 @@ Then the next step in one line: `design-direction`. Offer `design-wordmark` only
 - List faces from memory, or describe an option instead of rendering it.
 - Run more than one refinement round before the board.
 - Choose spacing, layout or a logo here.
+- Search for more than a handful of pictures, or use the references' pictures as the subject's.

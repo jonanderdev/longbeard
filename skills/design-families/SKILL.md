@@ -26,7 +26,7 @@ Comes out:
 2. Under about 40 references → say a board this size is easier to choose from as it is, and stop unless they insist.
 3. A Figma board of hundreds → ask once, "The whole file, or one page or section?", and offer to read only cards their own tags mark as screens. Reading and tagging 1,300 cards cost about 800K tokens.
 
-A board `design-moodboard` already read has its captures in `.longbeard/design/moodboard/refs/` and `board.md`. Otherwise read it the way `design-moodboard` does (Figma originals, crops from shared sheets, captures for links).
+A board `design-moodboard` already read has its captures in `.longbeard/design/moodboard/refs/` and `board.md`. Otherwise run `design-moodboard` on it first: it reads the board (Figma originals, crops from shared sheets, captures for links) and keeps every card, with no picker.
 
 ## 1. Measure, in one browser run
 

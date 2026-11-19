@@ -110,7 +110,7 @@
       "license": "MIT",
       "source": "local",
       "when": "An identity and a moodboard, no direction",
-      "why": "First screens dealt from the references in the identity; they pick; a hierarchy pass. Writes docs/design/design-direction.md.",
+      "why": "First screens dealt from the references in the identity; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
       "via": "design"
     },
     {

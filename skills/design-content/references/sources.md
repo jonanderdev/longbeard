@@ -60,7 +60,7 @@ node <skill>/scripts/capture.mjs "file://<abs path to image>" --out .longbeard/d
 
 Search the subject, not a stock category. One real place or material beats a pile of similar ones. Zero imagery is a complete answer.
 
-- **Wikimedia Commons.** Query the API with `-A "<project>-hunt/0.1"`, `prop=imageinfo&iiprop=url&iiurlwidth=1920`. Save `thumburl`. `descriptionurl` is the `link`.
+- **Wikimedia Commons.** `pictures.mjs` (in `design-identity`) searches it, keeps only clear licences and large enough files, and writes the credits. For a picker row by hand: the API with `prop=imageinfo&iiprop=url&iiurlwidth=1920`; `thumburl` is the thumbnail, `descriptionurl` the `link`.
 
 ## Contact sheets
 
