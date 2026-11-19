@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -315,6 +315,31 @@ test("measure: a folder in one browser, as one TSV row per image", async (t) => 
   const [head, ...rows] = result.stdout.trim().split("\n").map((l) => l.split("\t"));
   assert.deepEqual(head.slice(0, 6), ["ref", "tone", "lum", "empty", "loud", "busy"]);
   assert.deepEqual(rows.map((r) => [r[0].split("/").pop(), r[1]]), [["a.png", "light"], ["b.png", "dark"]]);
+});
+
+test("measure: a picture is measured once, then read from the cache, even under another name in another exploration", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-measure-"));
+  const one = join(dir, "design-exploration/identity/refs");
+  const two = join(dir, "design-exploration/identity-2/refs");
+  mkdirSync(one, { recursive: true });
+  mkdirSync(two, { recursive: true });
+  const red = png(2, 1, [255, 0, 0, 255, 255, 255]);
+  writeFileSync(join(one, "a.png"), red);
+  writeFileSync(join(two, "renamed.png"), red);
+  writeFileSync(join(two, "new.png"), png(2, 1, [10, 10, 10, 10, 10, 10]));
+  const first = await measured([one, "--tsv"]);
+  if (/No Chrome/.test(first.stderr)) return t.skip("no Chrome installed");
+  assert.equal(first.status, 0, first.stderr);
+  assert.equal(readdirSync(join(dir, "design-exploration/.cache/images")).length, 1);
+  const second = await measured([two, "--tsv"]);
+  assert.match(second.stderr, /1 of 2 from the cache, 1 measured/);
+  const rows = second.stdout.trim().split("\n").slice(1).map((l) => l.split("\t"));
+  assert.deepEqual(rows.map((r) => [r[0].split("/").pop(), r[1]]), [["new.png", "dark"], ["renamed.png", "mid"]]);
+  assert.equal(first.stdout.split("\n")[1].split("\t").slice(1).join().replace(/,+$/, ""), rows[1].slice(1).join().replace(/,+$/, ""));
+  // With every picture cached, no browser is needed; --fresh measures again.
+  const third = await measured([two, "--tsv"]);
+  assert.match(third.stderr, /2 of 2 from the cache, 0 measured/);
+  assert.doesNotMatch((await measured([two, "--tsv", "--fresh"])).stderr, /from the cache/);
 });
 
 test("deal: a type and ground pair repeats at most once in a round, even in a tight library", () => {

@@ -28,10 +28,18 @@
 // is what families.mjs reads and costs far fewer tokens than the JSON.
 //   node measure.mjs design-exploration/<slug>/refs --tsv > design-exploration/<slug>/traits.tsv
 //   node measure.mjs refs/a.jpg refs/b.png https://example.com --jobs 4 --tsv
+//
+// Nothing is measured twice. Every result is kept in design-exploration/.cache
+// (or --cache dir): a picture under the hash of its bytes, so the same picture
+// in another exploration is free, and a live page under its link and width for
+// --max-age days (14), since sites change. A change to this script starts the
+// cache over. --fresh measures everything again. A flagged page is not kept.
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, extname, join, resolve } from "node:path";
+import { basename, dirname, extname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {
@@ -51,9 +59,12 @@ const jobs = Math.round(Number(flag("jobs", "4")));
 const tsv = has("tsv");
 const linksArg = flag("links", "");
 const profilesArg = flag("profiles", "");
+const cacheArg = flag("cache", "");
+const maxAge = Number(flag("max-age", "14"));
+const fresh = has("fresh");
 const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif" };
 const isUrl = (t) => /^(https?|file):\/\//.test(t);
-const usage = "usage: node measure.mjs <https://url | image | folder> … [--tsv | --links links.tsv --profiles profiles.json] [--jobs 4] [--wait ms] [--width 1440]";
+const usage = "usage: node measure.mjs <https://url | image | folder> … [--tsv | --links links.tsv --profiles profiles.json] [--jobs 4] [--wait ms] [--width 1440] [--cache dir] [--max-age days] [--fresh]";
 if (!args.length) {
   console.error(usage);
   process.exit(2);
@@ -140,64 +151,101 @@ function findChrome() {
   return candidates.find((path) => path && existsSync(path)) || null;
 }
 
-const exe = findChrome();
-if (!exe) {
-  console.error("No Chrome/Edge/Chromium found. Install one or set CHROME_PATH.");
-  process.exit(1);
-}
-if (typeof WebSocket === "undefined") {
-  console.error("Node 22+ is required.");
-  process.exit(1);
-}
-
-const dir = mkdtempSync(join(tmpdir(), "measure-chrome-"));
-let proc;
-process.once("exit", () => {
+// The cache: what was measured, by the picture's bytes or the page's link, for this version of the script.
+const inExploration = targets.map((t) => (isUrl(t) ? "" : resolve(t).match(/^(.*[\\/]design-exploration)[\\/]/)?.[1])).find(Boolean);
+const cacheDir = cacheArg || (existsSync("design-exploration") ? "design-exploration/.cache" : inExploration ? join(inExploration, ".cache") : "");
+// A local file:// page is work in progress, so it is always measured.
+const cacheable = (t) => !t.startsWith("file:");
+const version = createHash("sha256").update(readFileSync(fileURLToPath(import.meta.url))).digest("hex").slice(0, 12);
+const keyOf = (t) => createHash("sha256").update(isUrl(t) ? `${version} page ${width} ${t}` : `${version} image ${createHash("sha256").update(readFileSync(t)).digest("hex")}`).digest("hex").slice(0, 32);
+const cachePath = (t) => join(cacheDir, isUrl(t) ? "pages" : "images", `${keyOf(t)}.json`);
+function fromCache(t) {
+  if (!cacheDir || fresh || !cacheable(t)) return null;
   try {
-    if (proc?.pid) process.kill(proc.pid, "SIGKILL");
-  } catch {}
-  try {
-    rmSync(dir, { recursive: true, force: true });
-  } catch {}
-});
-
-// One browser for every reference. Each tab is a session on one socket.
-proc = spawn(
-  exe,
-  ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--hide-scrollbars", "--mute-audio", "--force-color-profile=srgb", `--window-size=${width},${height}`, "about:blank"],
-  { stdio: ["ignore", "ignore", "pipe"] },
-);
-let buf = "";
-const wsUrl = await new Promise((done, fail) => {
-  const t = setTimeout(() => fail(new Error("Chrome did not start")), 20000);
-  proc.stderr.on("data", (d) => {
-    buf += d.toString();
-    const m = buf.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-    if (m) {
-      clearTimeout(t);
-      done(m[1]);
-    }
-  });
-});
-const ws = new WebSocket(wsUrl);
-await new Promise((done, fail) => {
-  ws.onopen = done;
-  ws.onerror = () => fail(new Error("CDP socket failed"));
-});
-let nextId = 0;
-const pending = new Map();
-ws.onmessage = (ev) => {
-  const msg = JSON.parse(typeof ev.data === "string" ? ev.data : Buffer.from(ev.data).toString());
-  if (msg.id && pending.has(msg.id)) {
-    pending.get(msg.id)(msg);
-    pending.delete(msg.id);
+    const hit = JSON.parse(readFileSync(cachePath(t), "utf8"));
+    if (isUrl(t) && !(Date.now() - Date.parse(hit.at) < maxAge * 864e5)) return null;
+    delete hit.at;
+    return { target: t, ...hit };
+  } catch {
+    return null;
   }
-};
-const send = (method, params = {}, sessionId) =>
-  new Promise((done) => {
-    pending.set(++nextId, done);
-    ws.send(JSON.stringify(sessionId ? { id: nextId, method, params, sessionId } : { id: nextId, method, params }));
+}
+function toCache(r) {
+  if (!cacheDir || r.error || r.flag || !cacheable(r.target)) return;
+  try {
+    const { target, ...rest } = r;
+    mkdirSync(dirname(cachePath(target)), { recursive: true });
+    writeFileSync(cachePath(target), JSON.stringify({ at: new Date().toISOString(), ...rest }));
+  } catch {}
+}
+const results = targets.map(fromCache);
+const reused = results.filter(Boolean).length;
+if (!Number.isFinite(maxAge) || maxAge < 0) {
+  console.error("max-age must be days, 0 or more");
+  process.exit(2);
+}
+
+let ws, send;
+async function startChrome() {
+  const exe = findChrome();
+  if (!exe) {
+    console.error("No Chrome/Edge/Chromium found. Install one or set CHROME_PATH.");
+    process.exit(1);
+  }
+  if (typeof WebSocket === "undefined") {
+    console.error("Node 22+ is required.");
+    process.exit(1);
+  }
+
+  const dir = mkdtempSync(join(tmpdir(), "measure-chrome-"));
+  let proc;
+  process.once("exit", () => {
+    try {
+      if (proc?.pid) process.kill(proc.pid, "SIGKILL");
+    } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
+
+  // One browser for every reference. Each tab is a session on one socket.
+  proc = spawn(
+    exe,
+    ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--hide-scrollbars", "--mute-audio", "--force-color-profile=srgb", `--window-size=${width},${height}`, "about:blank"],
+    { stdio: ["ignore", "ignore", "pipe"] },
+  );
+  let buf = "";
+  const wsUrl = await new Promise((done, fail) => {
+    const t = setTimeout(() => fail(new Error("Chrome did not start")), 20000);
+    proc.stderr.on("data", (d) => {
+      buf += d.toString();
+      const m = buf.match(/DevTools listening on (ws:\/\/[^\s]+)/);
+      if (m) {
+        clearTimeout(t);
+        done(m[1]);
+      }
+    });
+  });
+  ws = new WebSocket(wsUrl);
+  await new Promise((done, fail) => {
+    ws.onopen = done;
+    ws.onerror = () => fail(new Error("CDP socket failed"));
+  });
+  let nextId = 0;
+  const pending = new Map();
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(typeof ev.data === "string" ? ev.data : Buffer.from(ev.data).toString());
+    if (msg.id && pending.has(msg.id)) {
+      pending.get(msg.id)(msg);
+      pending.delete(msg.id);
+    }
+  };
+  send = (method, params = {}, sessionId) =>
+    new Promise((done) => {
+      pending.set(++nextId, done);
+      ws.send(JSON.stringify(sessionId ? { id: nextId, method, params, sessionId } : { id: nextId, method, params }));
+    });
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function openTab() {
@@ -555,15 +603,16 @@ async function measurePage(tab, url) {
   return out;
 }
 
-const results = new Array(targets.length);
-const images = targets.map((t, i) => [t, i]).filter(([t]) => !isUrl(t));
-const pages = targets.map((t, i) => [t, i]).filter(([t]) => isUrl(t));
+const images = targets.map((t, i) => [t, i]).filter(([t], i) => !isUrl(t) && !results[i]);
+const pages = targets.map((t, i) => [t, i]).filter(([t], i) => isUrl(t) && !results[i]);
+if (images.length || pages.length) await startChrome();
 const run = async (queue, measure) => {
   const tab = await openTab();
   for (let item = queue.shift(); item; item = queue.shift()) {
     const [target, i] = item;
     try {
       results[i] = { target, ...(await measure(tab, target)) };
+      toCache(results[i]);
     } catch (error) {
       results[i] = { target, error: error.message };
     }
@@ -573,7 +622,8 @@ const workers = [];
 if (images.length) workers.push(run(images, measureImage));
 for (let k = 0; k < Math.min(jobs, pages.length); k++) workers.push(run(pages, measurePage));
 await Promise.all(workers);
-ws.close();
+ws?.close();
+if (reused) console.error(`measure: ${reused} of ${targets.length} from the cache, ${targets.length - reused} measured`);
 
 const failed = results.filter((r) => r.error);
 for (const r of failed) console.error(`measure: ${r.target}: ${r.error}`);

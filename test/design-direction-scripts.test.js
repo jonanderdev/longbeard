@@ -269,6 +269,97 @@ test("tag: checks every word against the vocabulary, then merges the rows and th
   assert.equal(a.note, "chrome 3D wordmark");
 });
 
+test("tag: a picture tagged in one exploration is tagged in the next without a sheet", () => {
+  const untagged = (shot) => ({ shot, image: { traits: {} }, page: null });
+  const dir = project({
+    "design-exploration/identity/refs/a.jpg": "same bytes",
+    "design-exploration/identity-2/refs/z.jpg": "same bytes",
+    "design-exploration/identity/profiles.json": JSON.stringify({ refs: { a: untagged("design-exploration/identity/refs/a.jpg") } }),
+    "design-exploration/identity-2/profiles.json": JSON.stringify({ refs: { z: untagged("design-exploration/identity-2/refs/z.jpg") } }),
+    "tags.tsv": "a\tphoto\tcolour\tserif\tregular\tleft\tneutral\tflat\theading\twarm studio light\n",
+  });
+  run("tag.mjs", dir, ["design-exploration/identity/profiles.json", "tags.tsv"]);
+  const again = run("tag.mjs", dir, ["design-exploration/identity-2/profiles.json", "--sheets", "sheets"]);
+  assert.match(again.stdout, /1 tagged before, from the cache/);
+  assert.match(again.stdout, /every reference is tagged/);
+  const z = JSON.parse(readFileSync(join(dir, "design-exploration/identity-2/profiles.json"), "utf8")).refs.z;
+  assert.deepEqual([z.tags.picture, z.note], [["photo"], "warm studio light"]);
+});
+
+test("figma-board: lists sections and cards, then after a read only what changed is read again", () => {
+  const meta = (cards) => `<canvas id="0:1" name="Moodboard"><section id="1:1" name="Type" x="0" y="0" width="2000" height="1000">${cards.type}</section><section id="1:2" name="Motion &amp; 3D" x="0" y="1200" width="2000" height="1000">${cards.motion}</section></canvas>`;
+  const frame = (id, name, w = 400) => `<frame id="${id}" name="${name}" x="0" y="0" width="${w}" height="300"><rectangle id="${id}9" name="image" x="0" y="0" width="${w}" height="300"/></frame>`;
+  const before = { type: frame("2:1", "kiln") + frame("2:2", "dust"), motion: frame("3:1", "orbit") };
+  const dir = project({
+    "meta.xml": meta(before),
+    // The second read comes as the JSON the tool returned: one card resized, one added, one gone.
+    "meta.json": JSON.stringify([{ type: "text", text: meta({ type: frame("2:1", "kiln") + frame("2:2", "dust", 500), motion: frame("3:2", "loop") }) }]),
+    "design-exploration/identity/refs/kiln.jpg": "kiln",
+    "cards.tsv": "2:1\tdesign-exploration/identity/refs/kiln.jpg\n2:2\tdrop\toff-topic\n3:1\tdrop\tbroken\n",
+  });
+  const first = run("figma-board.mjs", dir, ["meta.xml", "--board", "abc:0-1"]);
+  assert.match(first.stdout, /2 sections, 3 cards; not read before/);
+  assert.match(first.stdout, /1:2\tMotion & 3D\t2000x1000\t1\tnew/);
+  assert.match(first.stdout, /to read: 3 cards in 2 sections/);
+  const bad = spawnSync(process.execPath, [join(scripts, "figma-board.mjs"), "meta.xml", "--board", "abc:0-1", "--done", "meta.xml"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(run("figma-board.mjs", dir, ["meta.xml", "--board", "abc:0-1", "--done", "cards.tsv"]).stdout, /3 cards known, 1 kept, 2 dropped; 0 not read yet/);
+  assert.match(run("figma-board.mjs", dir, ["meta.xml", "--board", "abc:0-1"]).stdout, /nothing to read/);
+  const second = run("figma-board.mjs", dir, ["meta.json", "--board", "abc:0-1"]).stdout;
+  assert.match(second, /1:1\tType\t2000x1000\t2\tchanged: 1 new or edited, 0 gone/);
+  assert.match(second, /1:2\tMotion & 3D\t2000x1000\t1\tnew/);
+  assert.deepEqual(second.split("card\tname")[1].trim().split("\n").slice(1).map((l) => l.split("\t")[0]), ["2:2", "3:2"]);
+  const reuse = run("figma-board.mjs", dir, ["meta.json", "--board", "abc:0-1", "--reuse", "design-exploration/identity-2/refs"]).stdout;
+  assert.match(reuse, /reused 1 keeps/);
+  assert.equal(readFileSync(join(dir, "design-exploration/identity-2/refs/kiln.jpg"), "utf8"), "kiln");
+});
+
+test("library: the numbers come from the profiles, only words are left to write, and deal refuses it until they are", () => {
+  const withPage = (name, size, colour) => ({
+    shot: `refs/${name}.jpg`,
+    image: { traits: { tone: "light", empty: 60, loud: 3, ground: "#f4ecdc" }, common: [{ colour: "#f4ecdc", share: 60 }, { colour: "#111111", share: 20 }], loud: [{ colour: "#d20401", share: 3 }] },
+    page: { flag: "", ground: "rgb(244, 236, 220)", traits: { scale: 6, pictures: 30, margin: 3, radius: "0px", body: "16px" }, gradients: [], patterns: [{ css: "radial-gradient(#000 1px, transparent 1px)" }], texts: [{ face: "Fraunces", size, weight: "300", style: "italic", tracking: "-1.5px", case: "none", colour, leading: "normal" }, { face: "Inter", size: "16px", weight: "400", style: "normal", tracking: "normal", case: "none", colour, leading: "24px" }] },
+  });
+  const pictureOnly = { shot: "refs/c.jpg", image: { traits: { tone: "light", empty: 70, loud: 0, ground: "#ffffff" }, common: [{ colour: "#ffffff", share: 70 }, { colour: "#222222", share: 10 }], loud: [] }, page: null };
+  const dir = project({ "profiles.json": JSON.stringify({ refs: { a: withPage("a", "96px", "rgb(17, 17, 17)"), b: withPage("b", "120px", "rgb(32, 32, 32)"), c: pictureOnly } }) });
+  const made = run("library.mjs", dir, ["profiles.json", "--anchor", "a", "--donors", "b,c", "--out", "library.json"]);
+  assert.match(made.stdout, /from a and 2 donors; \d+ fields to write; picture only, type by eye: c/);
+  const lib = JSON.parse(readFileSync(join(dir, "library.json"), "utf8"));
+  assert.deepEqual([lib.family.tone, lib.family.empty, lib.family.scale, lib.family.radius, lib.family.from], ["light", "60–70%", "6", "0px", ["a", "b", "c"]]);
+  const [ta, , tc] = lib.type;
+  assert.deepEqual([ta.face, ta.by, ta.weight, ta.italic, ta.tracking, ta.size, ta.body], ["Fraunces", "page", 300, true, "-1.5px", "96px", { face: "Inter", size: "16px", leading: "24px" }]);
+  assert.deepEqual([tc.by, tc.size], ["eye", null]);
+  assert.deepEqual(lib.grounds.map((g) => [g.ground, g.ink]), [["#f4ecdc", "#111111"], ["#f4ecdc", "#202020"], ["#ffffff", "#222222"]]);
+  assert.match(lib.grounds[0].pattern, /radial-gradient/);
+  assert.deepEqual(lib.accents.map((a) => a.colour), ["#d20401", "#d20401", null]);
+  const again = spawnSync(process.execPath, [join(scripts, "library.mjs"), "profiles.json", "--anchor", "a", "--donors", "b", "--out", "library.json"], { cwd: dir, encoding: "utf8" });
+  assert.equal(again.status, 1);
+  const checked = spawnSync(process.execPath, [join(scripts, "library.mjs"), "library.json", "--check"], { cwd: dir, encoding: "utf8" });
+  assert.equal(checked.status, 1);
+  assert.match(checked.stdout, /arrangements\[0\]\.what: one sentence/);
+  const dealt = spawnSync(process.execPath, [join(scripts, "../../design/scripts/deal.mjs"), "library.json"], { cwd: dir, encoding: "utf8" });
+  assert.equal(dealt.status, 1);
+  assert.match(dealt.stderr, /fields to write/);
+  const written = JSON.parse(JSON.stringify(lib).replace(/"WRITE:[^"]*"/g, (_, i) => `"w${i}"`));
+  writeFileSync(join(dir, "library.json"), JSON.stringify(written));
+  assert.match(run("library.mjs", dir, ["library.json", "--check"]).stdout, /every field is written/);
+});
+
+test("status: says where each exploration stopped, from its files", () => {
+  const dir = project({
+    "design-exploration/identity/profiles.json": JSON.stringify({ refs: { a: { tags: {} }, b: {} } }),
+    "design-exploration/identity-2/library.json": JSON.stringify({ arrangements: [{ what: "WRITE: one sentence" }] }),
+    "design-exploration/pricing/direction.md": "# Direction",
+    "design-exploration/.cache/images/x.json": "{}",
+  });
+  const out = run("status.mjs", dir, []).stdout;
+  assert.match(out, /^identity: 2 measured, 1 to tag/m);
+  assert.match(out, /^identity-2: library prefilled, 1 fields to write/m);
+  assert.match(out, /^pricing: direction written/m);
+  assert.doesNotMatch(out, /\.cache/);
+  assert.match(run("status.mjs", project({}), []).stdout, /no explorations yet/);
+});
+
 test("families: from profiles, what the picture is separates references the numbers alone would join", () => {
   const refs = {};
   // Three looks with the same tone and emptiness: photographs, 3D renders, and type alone on the ground.

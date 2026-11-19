@@ -14,7 +14,12 @@
 // The note is optional, a few words of what is seen ("chrome 3D wordmark, pixel
 // fill"): it is not sorted on, but it names families and reads into the library.
 // A header row starting with "name" is skipped.
+//
+// Tags are kept in design-exploration/.cache/tags by the picture's bytes, so a
+// picture tagged once is never tagged again, in this exploration or another:
+// --sheets fills those first and makes sheets of the rest only.
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -58,6 +63,23 @@ const fail = (text) => {
   process.exit(1);
 };
 
+// The cache sits beside the explorations: design-exploration/<slug>/profiles.json → design-exploration/.cache/tags.
+const tagCache = (profilesArg) => join(dirname(dirname(resolve(profilesArg))), ".cache", "tags");
+const hashOf = (path) => createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 32);
+function remember(dir, profile) {
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, `${hashOf(profile.shot)}.json`), JSON.stringify({ tags: profile.tags, note: profile.note || "" }));
+  } catch {}
+}
+function recall(dir, profile) {
+  try {
+    return JSON.parse(readFileSync(join(dir, `${hashOf(profile.shot)}.json`), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 function main() {
   const args = process.argv.slice(2);
   const at = args.indexOf("--sheets");
@@ -72,6 +94,19 @@ function main() {
   const refs = store.refs || {};
 
   if (sheetsArg) {
+    let recalled = 0;
+    for (const p of Object.values(refs)) {
+      if (p.tags || !p.shot || !existsSync(p.shot)) continue;
+      const hit = recall(tagCache(profilesArg), p);
+      if (!hit) continue;
+      p.tags = hit.tags;
+      if (hit.note && !p.note) p.note = hit.note;
+      recalled++;
+    }
+    if (recalled) {
+      writeFileSync(profilesArg, `${JSON.stringify(store, null, 1)}\n`);
+      console.log(`${recalled} tagged before, from the cache`);
+    }
     const todo = Object.entries(refs).filter(([, p]) => !p.tags && p.shot && existsSync(p.shot));
     if (!todo.length) return console.log("every reference is tagged");
     mkdirSync(sheetsArg, { recursive: true });
@@ -120,6 +155,7 @@ function main() {
   }
   if (problems.length) fail(`nothing merged:\n${problems.join("\n")}`);
   writeFileSync(profilesArg, `${JSON.stringify(store, null, 1)}\n`);
+  for (const p of Object.values(refs)) if (p.tags && p.shot && existsSync(p.shot)) remember(tagCache(profilesArg), p);
   const left = Object.values(refs).filter((p) => !p.tags).length;
   console.log(`tagged ${merged}, ${left} left untagged`);
 }

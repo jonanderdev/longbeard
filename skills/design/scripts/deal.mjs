@@ -95,6 +95,9 @@ if (!Number.isInteger(cols) || cols < 1 || cols > 8) fail("--cols is the sheet's
 const libPath = resolve(libArg);
 if (!existsSync(libPath)) fail(`no library at ${libArg}`);
 const lib = JSON.parse(readFileSync(libPath, "utf8"));
+// A library prefilled by library.mjs is not finished while a WRITE: is left in it.
+const unwritten = JSON.stringify(lib).match(/"WRITE:[^"]*"/g);
+if (unwritten) fail(`the library still has ${unwritten.length} fields to write (${unwritten[0]}): node library.mjs ${libPath} --check lists them`);
 const outPath = outArg ? resolve(outArg) : join(dirname(libPath), "deal.json");
 
 const lists = ["arrangements", "navigation", "type", "grounds", "accents"];
