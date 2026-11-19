@@ -31,7 +31,7 @@ It is a base. You keep going from here.
 
 Designers don't copy one reference. They gather many that share a look and make something new inside it.  
 Long Beard does the same, from your moodboard or from fresh references it finds for you. Every screen mixes several, so none is copied and all of them belong.  
-The agent builds; you choose. The taste is yours, not the model's.  
+The agent builds; you choose. Taste rules give everyone the same good-looking site; your references and your choices give you yours.  
 Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
 
 Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Direction and Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
