@@ -40,7 +40,7 @@ Open the approved prototype (`.longbeard/design/screens/`) beside every screen y
 
 ## The Cover: the identity board
 
-Rebuild `docs/design/design-identity.html` on one frame, `Identity`, on the Cover page: the same board they approved, now bound to the variables and styles. Primary and secondary type at size with their names; every colour as a squircle swatch with its token name and value, for each theme; the faces in use on each ground with a button. Add the wordmark if `design-wordmark` made one.
+Rebuild `docs/design/design-identity.html` on one frame, `Identity`, on the Cover page: the same board they approved, now bound to the variables and styles. Primary and secondary type at size with their names; every colour as a squircle swatch with its token name and value, for each theme. Add the wordmark if `design-wordmark` made one.
 
 - Every fill, text and radius bound to a variable or style, so the board changes when the tokens do.
 - Real copy: the name and one line in the voice. No reference's name or picture.

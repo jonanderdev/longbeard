@@ -4,8 +4,7 @@ description: >
   The product's identity: a type pairing and a small set of colours, chosen by
   them on rendered options drawn from their references, measured font lists and
   even colour steps, never picked by the agent. Ends in the identity board: the
-  faces at size, the colours as swatches with values, and the pair in use on
-  each ground, contrast-checked. Runs after docs/design/design-brief.md exists,
+  faces at size and the colours as swatches with their values and roles. Runs after docs/design/design-brief.md exists,
   best after design-moodboard; or for a rebrand.
 ---
 
@@ -77,7 +76,7 @@ On what they picked, one row of nearby choices, rendered the same way: the displ
 
 ## 3. The board
 
-Write the final `IDENTITY` block into a copy of the template at `docs/design/design-identity.html`, capture it, read it yourself (every face loaded, every pair shown in use, nothing clipped), and show it.
+Write the final `IDENTITY` block into a copy of the template at `docs/design/design-identity.html`, capture it, read it yourself (every face loaded, every colour shown, nothing clipped), and show it.
 
 > Is this us?
 
