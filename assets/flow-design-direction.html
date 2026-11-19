@@ -98,9 +98,14 @@
     <div class="note" id="n-choose" style="grid-column:3;grid-row:17"><b>Not there yet</b> → vary again, until one screen is yours</div>
     <div class="node" id="tune" style="grid-column:2;grid-row:18"><span class="pill you">You decide</span><div class="card"><h3>Colour and type</h3><p>Rows of fonts, grounds and accents on your screen. Pick, keep, or name your own</p></div></div>
     <div class="note" id="n-tune" style="grid-column:3;grid-row:18"><b>Every option</b> is contrast-checked before you see it</div>
-    <div class="node" id="finish" style="grid-column:2;grid-row:19"><span class="pill agent">Agent</span><div class="card"><h3>Finish it, then the other key screens</h3><p>Every width, states, motion</p></div></div>
-    <div class="node" id="approve" style="grid-column:2;grid-row:20"><span class="pill you">You decide</span><div class="card"><h3>Is this the product?</h3></div></div>
-    <span class="end" id="design" style="grid-column:2;grid-row:21">DESIGN.md, then the screens in Figma</span>
+    <div class="node" id="finish" style="grid-column:2;grid-row:19"><span class="pill agent">Agent</span><div class="card"><h3>Finish the first screen</h3><p>Every width, states, motion</p></div></div>
+    <div class="node" id="order" style="grid-column:2;grid-row:20"><span class="pill you">You decide</span><div class="card"><h3>Order of the other screens</h3><p>Navigation first, then the order people meet them. Reorder, skip or add</p></div></div>
+    <div class="node" id="parts" style="grid-column:2;grid-row:21"><span class="pill agent">Agent</span><div class="card"><h3>Deal layouts for the next screen</h3><p>Up to four, in your look, each from another reference, one that follows your first screen</p></div></div>
+    <div class="node" id="layout" style="grid-column:2;grid-row:22"><span class="pill you">You decide</span><div class="card"><h3>Pick its layout</h3><p>Pick, mix, or ask for more. Then its states</p></div></div>
+    <div class="note" id="n-next" style="grid-column:3;grid-row:22"><b>Next screen</b> → until every key screen is done</div>
+    <div class="note" id="n-nofit" style="grid-column:1;grid-row:22;justify-self:end"><b>Nothing fits</b> → a small search for that screen</div>
+    <div class="node" id="approve" style="grid-column:2;grid-row:23"><span class="pill you">You decide</span><div class="card"><h3>Is this the product?</h3></div></div>
+    <span class="end" id="design" style="grid-column:2;grid-row:24">DESIGN.md, then the screens in Figma</span>
 
     <svg class="links" id="links"></svg>
   </div>
@@ -137,14 +142,14 @@
     link("gap", "profile"); link("picker", "profile");
     link("profile", "sort"); link("sort", "families"); link("families", "mark");
     link("mark", "library"); link("library", "readout"); link("readout", "direction"); link("direction", "take");
-    link("take", "fixed"); link("fixed", "deal"); link("deal", "grid"); link("grid", "vary"); link("vary", "choose"); link("choose", "tune"); link("tune", "finish"); link("finish", "approve"); link("approve", "design");
+    link("take", "fixed"); link("fixed", "deal"); link("deal", "grid"); link("grid", "vary"); link("vary", "choose"); link("choose", "tune"); link("tune", "finish"); link("finish", "order"); link("order", "parts"); link("parts", "layout"); link("layout", "approve"); link("approve", "design");
     // From a card's side to a note beside it, dashed: a branch you may take, not the main line.
     const sideOf = (cardId, noteId) => {
       const a = cardOf(cardId).getBoundingClientRect(), f = flow.getBoundingClientRect(), b = at(noteId);
       const right = b.x > (a.left + a.right) / 2 - f.left, x1 = (right ? a.right : a.left) - f.left + (right ? 8 : -8), x2 = right ? b.l - 6 : b.r + 6, y = Math.min(Math.max(b.y, a.top - f.top + 14), a.bottom - f.top - 14);
       draw(`M${x1},${y} L${x2},${y}`, true, `<circle cx="${x1}" cy="${y}" r="5"/>${arrowSide(x2, y, right ? 1 : -1)}`);
     };
-    sideOf("families", "n-none"); sideOf("mark", "n-likes"); sideOf("mark", "n-six"); sideOf("grid", "n-grid"); sideOf("choose", "n-choose"); sideOf("tune", "n-tune");
+    sideOf("families", "n-none"); sideOf("mark", "n-likes"); sideOf("mark", "n-six"); sideOf("grid", "n-grid"); sideOf("choose", "n-choose"); sideOf("tune", "n-tune"); sideOf("layout", "n-next"); sideOf("layout", "n-nofit");
     document.title = "ready";
   });
 </script>

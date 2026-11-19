@@ -145,24 +145,35 @@ Until now every screen was a sketch at one size. Now it becomes the design. Read
 
 - **The faces they chose** in step 5, loaded properly and set at every size. A face still marked `eye` that they kept is said again here: it is a stand-in, and the product ships whatever it stands in for, or it.
 - **The detail the sketch skipped:** the small text, the spacing between things, the page below the first screen, every width down to the phone. The family's ranges hold here too: measure the finished screen (`measure.mjs` on its file URL) and say where it falls outside them.
-- **Navigation that works:** the menu open, what it does on scroll, what it becomes on a phone.
+- **Navigation on this screen** as it was dealt and tuned. The menu open, what it does on scroll and what it becomes on a phone are the first screen of step 7, chosen there.
 - **Motion.** A reference that moves is felt again, not remembered. Play its recorded frames and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
 - **The ownable.** The one thing `direction.md`'s subject says this screen must show is on it, somewhere you can point to, made from the product's own world and not from a reference. It is unconfirmed until they have seen it rendered: confirm it or replace it here. It is `ownable` in `DESIGN.md`.
 - **The second theme**, if they asked for both: the same screen on a ground from the library that fits it.
 
 The finished screen moves to its own file, `design-exploration/<slug>/prototype/<screen>.html`. The folder is gitignored: the winner goes into `DESIGN.md`, not into git.
 
-### 7. The other key screens
+### 7. The other key screens, one at a time
 
-Read the brief's key screens (2–4). Each keeps the chosen navigation, type, ground and accent. Its arrangement comes from `direction.md`'s Other parts where a reference shows that kind of screen, taken as an arrangement and never whole, and otherwise follows from the finished first screen.
+The first screen is the look. Every other screen keeps it: the chosen navigation, faces, ground, ink and accent. What is still open on each is its layout, and they choose it the way they chose the first screen, from rendered options.
 
-- **2–3 variants** behind `?variant=` only where a real choice is open (two references arrange that screen differently, or nothing shows it). A screen with one clear answer is built once.
-- **Hide the switcher when the URL has `capture`** (`?variant=B&capture`), so screenshots show only the design.
-- **Real content:** real copy in the voice from `direction.md`, the longest real names, real or properly chosen pictures.
+**The order, proposed and asked.** List the screens still to make, in the order they will be done. Navigation first (the menu open, what it does on scroll, what it becomes on a phone), since every other screen sits inside it. Then, for a site, the order a visitor meets them: a listing, then a detail, then the rest. For an app, the brief's main journey. Ask once, and wait:
 
-The default state is not enough. Each key screen also gets the empty, loading and error states a person can reach, as frames in the same file (`?state=empty`), built once the screen's variant is chosen. A product with more than one theme shows each one, so they approve every theme, not only the first.
+> Next I'd do: <navigation>, then <screen>, then <screen>. Reorder, skip, or add?
 
-A gap no reference covers (a screen, a control) → `design-direction` one-piece mode with its own slug, then back here.
+Their order is the order. A screen they skip is not built. One they add is listed with what it is for.
+
+**Then each screen, in that order:**
+
+1. **One layout that follows** from the finished first screen, written into the library's `parts` for this screen with `"from": ["first screen"]`.
+2. **Deal.** Once, `deal.mjs … --choose <n>` records the screen they settled on in step 5. Then `deal.mjs … --part <name>`: up to four layouts for this screen, each from a different reference, the one that follows first, all carrying the chosen look, so only the layout differs.
+3. **Build and show.** Each layout is built as a rule, like the grid's arrangements, with this screen's real content: real copy in the voice from `direction.md`, the longest real names, real or properly chosen pictures. Capture each, make one sheet, and show it with a line per layout saying what it does. Never ranked.
+
+   > Which layout for <screen>? Mix if you like ("the list from 2 with the header from 3"), or ask for more.
+
+4. **A mix** is built by hand from layouts already shown, and said so. **More** is `--part <name>` again: layouts not shown yet come first. **Nothing fits**, or the library has no layouts for this screen: `design-direction` one-piece mode for it, with its own slug, then back here.
+5. **Finish that screen.** The empty, loading and error states a person can reach, as frames in the same file (`?state=empty`, hidden switcher when the URL has `capture`). A product with more than one theme shows each. Read it back in one line and wait for their yes, then the next screen.
+
+A pattern a layout brings that the brief does not have is named when it is shown: if they keep it, that is a product change (`idea`, Change) before `DESIGN.md`.
 
 ### 8. Self-check, then show
 

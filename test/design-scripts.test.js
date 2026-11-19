@@ -357,3 +357,42 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
     server.close();
   }
 });
+
+test("deal --choose then --part: layouts for another screen carry the chosen look, each from another reference", () => {
+  const lib = library({
+    parts: {
+      navigation: [
+        { id: "follows", what: "the first screen's bar, opened", from: ["first screen"] },
+        { id: "overlay", what: "x", from: ["a"] },
+        { id: "drawer", what: "x", from: ["b"] },
+        { id: "inline", what: "x", from: ["a", "c"] },
+        { id: "dock", what: "x", from: ["d"] },
+        { id: "tabs", what: "x", from: ["e"] },
+      ],
+    },
+  });
+  const dir = project(lib);
+  const early = run(deal, dir, ["library.json", "--part", "navigation"]);
+  assert.equal(early.status, 1);
+  run(deal, dir, ["library.json", "--seed", "4"]);
+  assert.match(run(deal, dir, ["library.json", "--part", "navigation"]).stderr, /no screen chosen yet/);
+  const chose = run(deal, dir, ["library.json", "--choose", "3"]);
+  assert.equal(chose.status, 0, chose.stderr);
+  const { chosen } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
+  const result = run(deal, dir, ["library.json", "--part", "navigation", "--seed", "5"]);
+  assert.equal(result.status, 0, result.stderr);
+  const part = rounds(dir).at(-1);
+  assert.equal(part.kind, "part");
+  assert.equal(part.recipes.length, 4);
+  assert.equal(part.recipes[0].arrangement, "follows");
+  for (const r of part.recipes) for (const k of ["navigation", "type", "ground", "accent"]) assert.equal(r[k], chosen[k]);
+  const refs = part.recipes.flatMap((r) => lib.parts.navigation.find((x) => x.id === r.arrangement).from);
+  assert.equal(new Set(refs).size, refs.length);
+  // Asked again, the layouts not shown yet come first.
+  run(deal, dir, ["library.json", "--part", "navigation", "--seed", "6"]);
+  const again = rounds(dir).at(-1).recipes.map((r) => r.arrangement);
+  const before = part.recipes.map((r) => r.arrangement);
+  const unseen = lib.parts.navigation.map((x) => x.id).filter((id) => !before.includes(id));
+  assert.ok(unseen.every((id) => again.includes(id) || lib.parts.navigation.find((x) => x.id === id).from.some((ref) => again.some((a) => lib.parts.navigation.find((x) => x.id === a).from.includes(ref)))), `${again}`);
+  assert.equal(run(deal, dir, ["library.json", "--part", "footer"]).status, 1);
+});
