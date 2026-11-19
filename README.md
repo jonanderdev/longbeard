@@ -36,7 +36,7 @@ Four skills are written here, in [`skills/`](skills/). `init` copies them from t
 | Skill | What it is for | Author |
 |---|---|---|
 | [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
-| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like, sorts them into families, and reads the ones you mark into a library. Never picks colours or type. [How it flows](skills/design-direction/flow.md) | Long Beard |
+| [design-direction](skills/design-direction/SKILL.md) | Finds references from what you like, sorts them into families, and reads the ones you mark into a library. Never picks colours or type. [How it flows](assets/design-direction-flow.png) | Long Beard |
 | [design](skills/design/SKILL.md) | Deals first screens from the library for you to pick from, prototypes the key screens, writes `DESIGN.md` on approval, builds the screens in Figma | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame. Reports; does not redesign | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
