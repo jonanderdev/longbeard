@@ -14,18 +14,20 @@ The design work is a family of small skills. Each does one job, reads what it ne
 
 ## The family
 
-| Skill | Job | Needs | Writes |
-|---|---|---|---|
-| `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed | `docs/brief.md` | `docs/design/design-brief.md` |
-| `design-moodboard` | Find references, or read their board and fill its gaps | design brief | `docs/design/design-moodboard.md` |
-| `design-families` | Optional. Sort a big board or search into looks; they take one or two | a board | `docs/design/design-families.md` |
-| `design-identity` | Three or four pictures of the subject (theirs or licensed stand-ins), then type pairing and colours picked on rendered options, ending in the identity board | design brief (a moodboard helps) | `docs/design/design-identity.md` and `.html` |
-| `design-direction` | First screens dealt from the references in the identity; they pick; a light touch-up pass | brief, moodboard, identity | `docs/design/design-direction.md` |
-| `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` | direction | `DESIGN.md` |
-| `design-figma` | Tokens, the identity board, components and Ready frames | `DESIGN.md` | Figma |
-| `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list | design brief | `docs/design/design-content.md` |
-| `design-wordmark` | Optional, late. A mark made from the chosen type | identity, brief | adds to `design-identity.md` |
-| `design-check` | Checks a screen against the rules and `DESIGN.md` | a screen | findings |
+Each skill says at its top what it **Needs**, what it **Uses if there**, and what it **Writes**. Read those lines, not this table, to see what a skill is missing before you suggest it.
+
+| Skill | Job |
+|---|---|
+| `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed |
+| `design-moodboard` | Find references, or read their board and fill its gaps |
+| `design-families` | Optional. Sort a big board or search into looks; they take one or two |
+| `design-identity` | Three or four pictures of the subject (theirs or licensed stand-ins), then type pairing and colours picked on rendered options, ending in the identity board |
+| `design-direction` | First screens dealt from the references in the identity; they pick; a light touch-up pass |
+| `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
+| `design-figma` | Tokens, the identity board, components and Ready frames |
+| `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
+| `design-wordmark` | Optional, late. A mark made from the chosen type |
+| `design-check` | Checks a screen against the rules and `DESIGN.md` |
 
 ## Where things go
 

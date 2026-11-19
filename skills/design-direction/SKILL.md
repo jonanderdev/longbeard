@@ -13,6 +13,10 @@ description: >
 
 # Design direction
 
+**Needs:** `docs/design/design-brief.md`, `docs/design/design-moodboard.md`, `docs/design/design-identity.md`  
+**Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
+**Writes:** `docs/design/design-direction.md`
+
 The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking ideas from different references makes compositions none of them has, and that is the point. What the agent owns afterwards is a light touch-up: the chosen screen came from references, not from the agent's taste, so the agent only repairs what is broken and never redesigns it.
 
 Comes out:
@@ -85,6 +89,8 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/protot
 node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
 ```
+
+For an app, render and capture at the device size instead (`grid.html?n=1&size=390x844`, `--width 390`, a clip of that size), and use the app's navigation (a tab bar, a side rail) as the navigation entries.
 
 Show the sheet, a table of each number's arrangement, navigation, ground and accent in plain words, and any fault you could not fix. Never say which you prefer.
 

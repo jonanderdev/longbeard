@@ -12,6 +12,9 @@ description: >
 
 # Design brief
 
+**Needs:** `docs/brief.md`  
+**Writes:** `docs/design/design-brief.md`
+
 One doc comes out, `docs/design/design-brief.md`, committed. Every other design skill reads it, so nobody is asked the same question twice. It records what they want the look to do, in words. It chooses no look: no layout, colour, typeface or style name.
 
 ## Gate

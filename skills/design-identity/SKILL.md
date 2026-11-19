@@ -13,6 +13,10 @@ description: >
 
 # Design identity
 
+**Needs:** `docs/design/design-brief.md`  
+**Uses if there:** `docs/design/design-moodboard.md`, `docs/design/design-families.md`  
+**Writes:** `docs/design/design-identity.md`, `docs/design/design-identity.html`
+
 Two files come out, both committed:
 
 - **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-direction` deals from.

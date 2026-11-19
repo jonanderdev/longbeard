@@ -11,6 +11,10 @@ description: >
 
 # Design wordmark
 
+**Needs:** `docs/design/design-identity.md`  
+**Uses if there:** `docs/design/design-direction.md`, `DESIGN.md`  
+**Writes:** `docs/design/wordmark.svg`, a section in `docs/design/design-identity.md`
+
 A product does not need a mark to be designed: until then, the name is set in the display face. This skill is for when they want one. It is not a logo project: it draws marks from the type and colour already chosen.
 
 Comes out: the chosen mark as SVG in `docs/design/wordmark.svg`, a section in `design-identity.md`, and the mark on the identity board. Options live in `.longbeard/design/wordmark/`.

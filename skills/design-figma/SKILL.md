@@ -10,6 +10,9 @@ description: >
 
 # Design Figma
 
+**Needs:** `DESIGN.md`, `docs/design/design-identity.html`  
+**Writes:** Ready Figma frames
+
 Figma is the truth for screens. `DESIGN.md` is the written summary of the rules behind them. This skill builds the first from the second, faithful to the approved prototype.
 
 Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and follow them. This skill adds only what they do not decide.

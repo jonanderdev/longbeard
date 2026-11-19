@@ -13,6 +13,10 @@ description: >
 
 # Design content
 
+**Needs:** `docs/design/design-brief.md`  
+**Uses if there:** `docs/design/design-identity.md`, `docs/design/design-direction.md`  
+**Writes:** `docs/design/design-content.md`
+
 The screens skill drafts copy on its own, so this one is never required. Run it when content deserves its own decisions: a site that lives on its words, a product with no pictures yet, or a team that wants to sign off copy before screens.
 
 Comes out:

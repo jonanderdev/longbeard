@@ -12,6 +12,10 @@ description: >
 
 # Design moodboard
 
+**Needs:** `docs/design/design-brief.md`  
+**Uses if there:** their own board (a Figma link, a folder, links)  
+**Writes:** `docs/design/design-moodboard.md`
+
 Two things come out:
 
 - **`docs/design/design-moodboard.md`**, committed: what the board says. The moves it holds, what the likes share, what the noes share, what is missing. Never a source.
@@ -93,6 +97,9 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
    ```
 
    Motion is judged from recorded frames, never a still. Up to four captures at a time; open every file and capture again if it is blank or still loading.
+
+- **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names, real numbers and an empty state.
+- **Site:** live sites outweigh Dribbble shots.
 
 "You choose" instead of picking: pick closest to the design brief, and say so.
 

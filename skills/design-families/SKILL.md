@@ -12,6 +12,10 @@ description: >
 
 # Design families
 
+**Needs:** `docs/design/design-moodboard.md`  
+**Uses if there:** `docs/design/design-brief.md`  
+**Writes:** `docs/design/design-families.md`
+
 One job: sort a board into looks so choosing is easy. It marks no anchor, builds no library and deals nothing.
 
 Comes out:

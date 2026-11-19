@@ -11,6 +11,10 @@ description: >
 
 # Design prototype
 
+**Needs:** `docs/design/design-direction.md`, `docs/design/design-identity.md`  
+**Uses if there:** `docs/design/design-content.md`, `docs/design/design-moodboard.md`  
+**Writes:** `DESIGN.md`
+
 Comes out: a prototype they approved (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed, the official look. Then `design-figma`.
 
 Read [design-rules.md](references/design-rules.md) before the first screen: it is the checklist here and in `design-check`.
