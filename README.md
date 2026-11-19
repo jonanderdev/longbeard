@@ -29,14 +29,10 @@ It is a base. You keep going from here.
 
 ### Why a family, not a reference
 
-Designers don't copy one reference. They gather many that share a look, then make something new inside it.  
-Long Beard works the same way. It sorts your references into families, measures what each one shares, and builds new screens from it. Every screen mixes several references, so none is copied and all of them belong.  
-The agent builds and you choose. It never decides what looks good, so the result carries your taste, not the model's.
-
-It keeps working as things change.  
-Trends live in your references, not in the skill: a new moodboard is a new look, with nothing to rewrite.  
-Better models make each step sharper (seeing, sorting, building) without changing the steps.  
-It scales from ten references to a thousand: the sorting is measured, and you only ever look at families.
+Designers don't copy one reference. They gather many that share a look and make something new inside it.  
+Long Beard does the same, from your moodboard or from fresh references it finds for you. Every screen mixes several, so none is copied and all of them belong.  
+The agent builds; you choose. The taste is yours, not the model's.  
+Trends live in the references, not the skill, so it stays current, and it works the same for ten references or a thousand.
 
 Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Direction and Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
 
