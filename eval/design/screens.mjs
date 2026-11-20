@@ -164,7 +164,9 @@ const inspect = `(() => {
     if (!inside) continue;
     if (size < min) (min = size), (minText = text.slice(0, 40));
     // Clipped: out of the screen, or out of a box that hides its overflow. Big display type cropped on purpose is a device.
-    if (size < 48) {
+    // Text set on a curve or turned (a seal's ring, rotated labels) has boxes that run past its own: not clipped.
+    const turned = (() => { for (let up = el; up && up !== screen; up = up.parentElement) if (/matrix|rotate/.test(getComputedStyle(up).transform) || up.closest("svg")) return true; return false; })();
+    if (size < 48 && !turned) {
       let out = rects.some((r) => r.left < -1 || r.top < -1 || r.right > W + 1 || r.bottom > H + 1);
       for (let up = el; up && up !== document.body && !out; up = up.parentElement) {
         const s = getComputedStyle(up);
