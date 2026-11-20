@@ -61,6 +61,12 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 
 The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 
+**A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once:
+
+> Your like for <reference> names <what>, and the brief says <what it fixes>. I'll keep the brief and carry <what> by its role (the gold on a light ground). Or change the brief?
+
+Their answer either stands, or goes under **Changes** in the design brief, with why.
+
 ## 2. Read the references
 
 Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, a reading complete enough to rebuild it at screen size, its concept and its move, its layout as measured, its type (faces, sizes in px at 1440, weights, tracking, leading), its spacing, its palette, how it treats pictures, how much text it carries, and every device on it. **Measured, never judged by eye when it can be measured:** a live page with `measure.mjs <link>`; a picture with `measure.mjs <picture> --lines` and `fonts.mjs --shape` for the nearest free face. Add the subject's palette, proposed by `subject-colours.mjs` and named as part of the subject after a look ([subject.md](references/subject.md)), and anything they own. How: [library.md](references/library.md).
