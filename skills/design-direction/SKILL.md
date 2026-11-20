@@ -30,7 +30,7 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
 2. A direction exists → a change: show it, ask what changes, build new screens only if the composition does.
 
-**At `pace: quick`** (the design brief): one round of eight, a vary only if they ask, no mix or more rounds offered. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, never a rougher screen.
+**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, never a rougher screen.
 
 ## 0. Pictures of the subject
 
@@ -79,13 +79,13 @@ Show the sheet, the sheet of each screen beside its base, and a table: each numb
 
 **Against the brief,** one column of the table, facts only: what you see with the sheet open against the design brief's never, its three words, its personality (a cool palette for a warm brief, a script face for a serious one), and apart from (a screen that could be mistaken for the kind of product named there, when its distance is 4–5). Blank where nothing sits against it. It is there so they choose knowingly, not to steer them: a screen against the brief is shown like any other. Taken, it goes under **Changes** in the design brief, with why.
 
-> Which would you take further? Any number, or none.
+> Which would you take further? Any number, or none. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
 
 ## 4. More, mix, choose
 
 - **More of some:** for each pick, three more screens on the same base with other moves (another palette, another face, another element), built and checked the same way. Capture, sheet with `--cols 4`, show.
 - **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built the same way.
-- **None:** eight more, on the same references with other moves, once. None again: ask what is missing; a search for it is `design-moodboard`.
+- **More, or none:** a fresh round of eight, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
 Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
 
