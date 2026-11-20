@@ -13,8 +13,10 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
 ## Which screens
 
 - **Bases:** every reference they liked is the base of at least one screen, the lead of two. Fewer than eight references: the lead, then the likes, take a second screen, with other moves.
+- **Kept exactly, or kept by role.** What they said they like in the base is kept exactly: "this red" stays this red. Everything else in it is kept by its role, not its value. A big red they never named is "a punchy accent over a quarter of the page": it may become a punchy orange from the subject or a punchy yellow from another reference, at the same strength and the same share. A face they never named is "a light, wide serif headline": another face of that role may take its place. The role is what made the base work; the value is free to change.
 - **Moves:** one or two per screen, each borrowed from another reference on the board, and spread: across the eight screens, the moves come from as many references as there are. A move is one of:
   - **a palette:** another reference's whole palette (ground, ink and accent as they work together), or the subject's;
+  - **a colour by its role:** one colour of the base they did not name, swapped for another of the same role and strength (a punchy accent for a punchy accent, a quiet ground for a quiet ground), from another reference or the subject;
   - **an element:** one device from another reference (its disc, its arch window, its word band, its ring of text), placed by the base's own grid;
   - **the face:** another reference's display face, of a kind that can carry the base's headline (a heavy word stays heavy, a hairline line stays light), at the base's size;
   - **the picture treatment:** another reference's crop, tone or frame;
@@ -36,7 +38,7 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
   ```
   Fixed with the colours the screen already has (the palette's ink, the panel's ink), never by moving the text.
 - **Nothing that is not on the board.** A fresh agent, given only the screen, the reference pictures and the screen's `PROVENANCE`, lists anything on the screen that no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect. Each is taken out or replaced by what its reference uses. This is how taste stays out.
-- **Not a copy.** A fresh agent, given the screen and its base reference only, says whether it reads as the same design with new words. Where it does, add or strengthen a move (another reference's palette, element or face) until it reads as its own screen in that manner, the concept kept.
+- **Not a copy.** A fresh agent, given the screen and its base reference only, says whether it reads as the same design with new words and pictures. Every screen changes at least one thing in the base they did not name, beyond the content: a colour or the palette by its role, the face by its role, the picture treatment, or the layout turned. Where it still reads as the base, add or strengthen a move until it reads as its own design in that manner, what they liked and the concept kept.
 - **Faults:** a clipped word, text over a picture that cannot be read, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice. Overlaps, crops and collisions the references use are not faults.
 
 ## Capture and sheet
