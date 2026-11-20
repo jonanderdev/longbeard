@@ -61,7 +61,7 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 
 The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 
-**A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once:
+**A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there (the main action hidden), not every element that site happened to have (a reference's arrows or dots stay). Say it:
 
 > Your like for <reference> names <what>, and the brief says <what it fixes>. I'll keep the brief and carry <what> by its role (the gold on a light ground). Or change the brief?
 
