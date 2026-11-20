@@ -9,13 +9,12 @@
 //   node eval/design/run.mjs --out ../longbeard-eval --pace quick          the quick path instead of full
 //
 // --agent is any command that takes the prompt as its last argument and works in
-// the current folder. It needs Chrome, and the network for Google Fonts and
+// the current folder. The agent needs Chrome, and the network for Google Fonts and
 // Wikimedia Commons (the subject's stand-in pictures). Figma is not part of it.
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { refs } from "./fixture/refs.mjs";
+import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");
@@ -59,20 +58,10 @@ writeFileSync(join(dir, "CLAUDE.md"), "@AGENTS.md\n");
 writeFileSync(join(dir, ".gitignore"), ".longbeard/\n");
 spawnSync("git", ["init", "-q"], { cwd: dir });
 
-// The board: each reference page rendered to the picture a person would have saved.
-const pages = join(dir, ".longbeard/eval-pages");
-mkdirSync(pages, { recursive: true });
+// The board: the ten pictures a person would have saved, as they are (fixture/board/CREDITS.md).
 mkdirSync(join(dir, "moodboard"), { recursive: true });
-const capture = join(repo, "skills/design-moodboard/scripts/capture.mjs");
-for (const [name, html] of Object.entries(refs)) {
-  writeFileSync(join(pages, `${name}.html`), html);
-  const shot = spawnSync(process.execPath, [capture, pathToFileURL(join(pages, `${name}.html`)).href, "--out", join(dir, "moodboard", `${name}.png`), "--wait", "0"], { encoding: "utf8" });
-  if (shot.status !== 0) {
-    console.error(`run: could not render ${name}: ${shot.stderr.trim()}`);
-    process.exit(1);
-  }
-}
-rmSync(pages, { recursive: true, force: true });
+const board = readdirSync(join(here, "fixture/board")).filter((f) => f.endsWith(".jpg"));
+for (const f of board) cpSync(join(here, "fixture/board", f), join(dir, "moodboard", f));
 
 const prompt = [
   "Run this project's design flow end to end, from the `design` skill to an approved DESIGN.md, following each design-* skill exactly as written.",
@@ -81,7 +70,7 @@ const prompt = [
   "Do not run design-figma. Stop once DESIGN.md is written.",
 ].join(" ");
 writeFileSync(join(dir, "PROMPT.txt"), `${prompt}\n`);
-console.log(`project: ${dir} (pace ${pace}, ${skills.length} skills, ${Object.keys(refs).length} references)`);
+console.log(`project: ${dir} (pace ${pace}, ${skills.length} skills, ${board.length} references)`);
 if (!agent) {
   console.log(`run the agent there with the prompt in PROMPT.txt, e.g.\n  cd ${dir} && claude -p "$(cat PROMPT.txt)"\nthen: node ${join(here, "score.mjs")} ${dir}`);
   process.exit(0);

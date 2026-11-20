@@ -26,7 +26,7 @@ You are running the design flow for someone who is away. When a skill asks them 
 ## design-direction
 - Pictures: none of ours; stand-ins of our own subject are fine.
 - Headline: take the first you offer.
-- Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-still-life`, `05-orange-block`, `06-lime-letters`, `08-dark-arches`, `10-arch-portrait`.
+- Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-still-life`, `05-orange-block`, `08-dark-arches`, `09-teal-window`, `10-arch-portrait`.
 - The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No vary, no mix.
 - Touch-up: keep all.
 - Five-second check with people: no thanks.

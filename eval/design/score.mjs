@@ -12,9 +12,11 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { refs as fixtureRefs, sources } from "./fixture/refs.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
+// The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
+const sources = JSON.parse(readFileSync(join(here, "fixture/sources.json"), "utf8"));
+const boardNames = readdirSync(join(here, "fixture/board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 const repo = resolve(here, "../..");
 const args = process.argv.slice(2);
 const has = (name) => {
@@ -74,7 +76,7 @@ const leaks = [];
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 for (const f of committed) {
   const text = read(f);
-  for (const name of [...sources, ...Object.keys(fixtureRefs)]) if (new RegExp(`\\b${escape(name)}\\b`, "i").test(text)) leaks.push(`${f}: ${name}`);
+  for (const name of [...sources, ...boardNames]) if (new RegExp(`\\b${escape(name)}\\b`, "i").test(text)) leaks.push(`${f}: ${name}`);
   for (const path of [".longbeard/", "design-exploration/"]) if (text.includes(path)) leaks.push(`${f}: ${path}`);
   // A link is a source, except the stylesheets the identity board loads its faces from.
   for (const url of text.match(/https?:\/\/[^\s)"'<>]+/g) || []) if (!/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(url)) leaks.push(`${f}: ${url}`);
