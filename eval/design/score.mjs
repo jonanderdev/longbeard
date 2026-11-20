@@ -222,9 +222,10 @@ else {
 // Each screen of the first dealt round: no tiny or clipped text, contrast where text sits, no more
 // text than its reference carries and one more, a ground of a tone the references use; and measured
 // against its references, with the odd-one-out rate when the judges have run (odd-one-out.mjs).
-const gridPage = [at(".longbeard/design/direction/prototype/grid.html")].find(existsSync);
+// A run of this flow, or one from before it (design-exploration/<slug>/), which screens.mjs reads too.
+const gridPage = [at(".longbeard/design/direction/prototype/grid.html"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d, "prototype/grid.html")) : [])].find(existsSync);
 const gridIds = ["grid: no text under 12px", "grid: no clipped text", "grid: contrast on every screen", "grid: text within the reference's slots", "grid: grounds in the board's tones", "grid: measured against the references", "grid: odd one out"];
-if (!gridPage || !deal) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
+if (!gridPage) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
 else {
   const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
   if (r) {
