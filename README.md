@@ -13,8 +13,25 @@ One block in `AGENTS.md` tells the agent which stage it is in. Two commands: `in
 
 It is not an agent runtime.  
 It is not a marketplace.  
+It does not turn one prompt into a finished page.  
 It does not replace the commands you already use, or the skills you add yourself.   
 It is a base. You keep going from here.
+
+## Who it is for
+
+People who design, or who care how their product looks, and want work they can deliver.
+
+It works the way a studio does. It asks what the first screen must do. It reads your references. It shows real options, rendered, and waits for your choice at each step.  
+That takes some of your time, on purpose: a look nobody chose belongs to nobody.
+
+- **You have a brand or a moodboard.** They go in first: your colours, your typefaces, your references. The agent fills only what is missing.
+- **You have nothing yet.** It searches award-winning sites and the most-liked work, and you mark what you like. Your picks become the board.
+
+You leave with a design you can hand over and keep working on:
+
+- **A Figma file that is yours:** variables, text styles, the identity board, components, and every key screen with its states. Keep changing it by hand or with your agent. Later features add to it.
+- **`DESIGN.md` and `docs/design/`:** the look in words, with its tokens and the reasons behind each choice, so the next session or the next person starts from them.
+- **Code built from those screens**, and checked against them.
 
 ## The pipeline
 
@@ -41,16 +58,16 @@ Long Beard's own skills are written here, in [`skills/`](skills/). `init` copies
 | Skill | What it is for | Author |
 |---|---|---|
 | [idea](skills/idea/SKILL.md) | Grills an idea, or an existing repo, into `docs/brief.md` | Long Beard |
-| [design](skills/design/SKILL.md) | The way in: reads the project and suggests the next design skill | Long Beard |
-| [design-brief](skills/design-brief/SKILL.md) | A designer's questions before looking: feel, never, apart from, what is fixed | Long Beard |
-| [design-moodboard](skills/design-moodboard/SKILL.md) | Reads your board and fills its gaps, or finds references you mark like or no | Long Beard |
-| [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks, in Figma too, so choosing is easy | Long Beard |
-| [design-direction](skills/design-direction/SKILL.md) | A few pictures of your subject, then eight first screens dealt from your references, type and colours included; you pick; a light touch-up | Long Beard |
-| [design-identity](skills/design-identity/SKILL.md) | The chosen screen's type and colours, refined on it from rendered options; the identity board | Long Beard |
-| [design-prototype](skills/design-prototype/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
-| [design-figma](skills/design-figma/SKILL.md) | Tokens, the identity board, components and Ready screens in Figma | Long Beard |
-| [design-content](skills/design-content/SKILL.md) | Optional: what each screen says and shows, and the full picture list | Long Beard |
-| [design-wordmark](skills/design-wordmark/SKILL.md) | Optional, after the identity: a mark made from your type | Long Beard |
+| [design](skills/design/SKILL.md) | The design family, and the way in: reads the project and suggests which of the skills below to run next | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-brief](skills/design-brief/SKILL.md) | A designer's questions before looking: feel, never, apart from, what is fixed | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-moodboard](skills/design-moodboard/SKILL.md) | Reads your board and fills its gaps, or finds references you mark like or no | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks, in Figma too, so choosing is easy | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-direction](skills/design-direction/SKILL.md) | A few pictures of your subject, then eight first screens dealt from your references, type and colours included; you pick; a light touch-up | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-identity](skills/design-identity/SKILL.md) | The chosen screen's type and colours, refined on it from rendered options; the identity board | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-prototype](skills/design-prototype/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-figma](skills/design-figma/SKILL.md) | Tokens, the identity board, components and Ready screens in Figma | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-content](skills/design-content/SKILL.md) | Optional: what each screen says and shows, and the full picture list | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-wordmark](skills/design-wordmark/SKILL.md) | Optional, after the identity: a mark made from your type | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma screen or a built one against the design rules and its Ready frame, and that the design docs name no reference. Reports; does not redesign | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Kit: every skill he publishes. Grilling, specs, tickets, test-first building, code review, pull requests, bug diagnosis, handoff | Matt Pocock |
 | [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design-figma` writes tokens, components and screens in Figma | Figma |

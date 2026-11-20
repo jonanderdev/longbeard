@@ -8,7 +8,16 @@ A pipeline for agents you already use (Cursor, Claude Code, and the rest): start
 
 Public on npm, built for Jon's daily use first. Where the two disagree, daily use wins.
 
-It is not an agent runtime. It is not a marketplace. It is not a replacement for Cursor or Claude commands.
+It is not an agent runtime. It is not a marketplace. It is not a replacement for Cursor or Claude commands. It is not a way to get a finished page from one prompt.
+
+## Who it is for
+
+People who design, or who care how their product looks, and want work they can deliver. The design stage works the way a studio does: it asks the questions a design director asks, reads their references, shows rendered options, and waits for their choice at each step. That asks for some of their time on purpose, and the steps are never cut down to remove their choices.
+
+- With a brand or a moodboard: those go in first, and the agent fills only what is missing.
+- With nothing yet: the agent searches, and they mark what they like. Their picks are the board.
+
+What they leave with is the selling point: a Figma file of their own (variables, styles, the identity board, components, every key screen with its states) that they keep changing by hand or with their agent, `DESIGN.md` and `docs/design/` in words, and code checked against the frames. The README leads with this. It says why Long Beard is good and never compares it with another tool by name.
 
 The product is Long Beard. The GitHub repo is `jonanderdev/longbeard`. The npm package is `@jonandev/longbeard`. The command is `longbeard`.
 

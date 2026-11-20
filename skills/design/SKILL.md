@@ -12,6 +12,10 @@ description: >
 
 The design work is a family of small skills. Each does one job, reads what it needs from files, writes one doc, and ends by naming what could come next. None depends on the chat before it, so each can start in a fresh session. This skill only reads the project and suggests.
 
+## Where it ends
+
+This is a designer's process, a few short steps with their choice at each, and never one prompt to a finished page. It ends in work they can deliver: `DESIGN.md`, and a Figma file of their own (variables, styles, the identity board, components, every key screen with its states) that they keep changing by hand or with their agent. Say so in one line the first time you suggest a step in a project with no design docs. Never again after that.
+
 ## The family
 
 Each skill says at its top what it **Needs**, what it **Uses if there**, and what it **Writes**. Read those lines, not this table, to see what a skill is missing before you suggest it.
