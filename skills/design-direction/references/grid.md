@@ -69,7 +69,7 @@ Every reference they liked is the base of at least one screen, the lead of two. 
 
 ## Then check all eight
 
-Each check is done by a fresh agent that sees only the pictures named, so it judges what is there, not what was meant. Each finding is fixed by the principle it breaks, never by tidying the composition.
+Each screen gets one fresh reviewer that runs these checks in order, seeing only the pictures each check names, so it judges what is there, not what was meant. Make what it needs first (the captures, the translation's capture, the 3× crops beside the same crops of the source), since a reviewer may not run scripts; after its fixes, the screen gets a fresh reviewer again, until one finds nothing. Each finding is fixed by the principle it breaks, never by tidying the composition.
 
 - **What else changed.** Given the translation (`<n>-base.html`), the final screen and its moves in words: everything that differs that no move names (a colour, a gap, a size, a weight, an alignment, a picture's tone, balance). Each is put back as the translation had it. This is how a move stops carrying more than it names.
 - **Still feels like it.** Given the base reference and the final screen: in one line, what made the reference work (its colour mood, its rhythm of space, its type's colour and weight, its calm or its punch), then whether the screen keeps it. Where it does not, find what took it away and put it back.
