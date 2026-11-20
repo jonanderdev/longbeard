@@ -64,6 +64,7 @@ const PROMPT = [
   "This folder holds six pictures, a.png to f.png. Each is a design: a web page or a poster.",
   "Open all six at full size. Which one looks least finished in its craft: spacing, alignment, type setting, text that does not fit or is too small to read?",
   "Judge the craft, not the style: not which you like least.",
+  "Modern design breaks old rules on purpose: a headline split around a shape, text over a picture, words cropped at an edge, elements that overlap or collide, wide empty space. Those are choices, never faults. Judge how well they are carried out: alignment, spacing, sizes, text that is cut off by mistake or cannot be read.",
   "Answer with the first line exactly `pick: <letter>`, then one or two sentences on why.",
 ].join(" ");
 
