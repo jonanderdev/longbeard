@@ -19,7 +19,7 @@ node eval/design/run.mjs --out ../longbeard-eval-quick --pace quick     # the qu
 node eval/design/score.mjs ../longbeard-eval
 ```
 
-To change only how the direction's screens are built, start from a finished run: `run.mjs --out <dir> --from <finished run>` takes its design brief, moodboard, readings and pictures, and the agent only builds and checks the screens, in about half the time. Every such run builds on the same inputs, so a difference between sheets is the rules'. Run the whole flow again before merging, and whenever reading, measuring or matching faces changes.
+To change only how the direction's screens are built, start from a finished run: `run.mjs --out <dir> --from <finished run>` takes its design brief, moodboard, readings, pictures and board, and the agent only builds and checks the screens, in about half the time. Every such run builds on the same inputs, so a difference between sheets is the rules'. Run the whole flow again before merging, and whenever reading, measuring or matching faces changes.
 
 `run.mjs` builds a fresh project outside this repo: the brief, the answers, the moodboard folder, the design skills as an install lays them out (`.claude/skills` and `.agents/skills`), `AGENTS.md` from the router, and `PROMPT.txt`. The agent runs from `design` to `DESIGN.md`, never Figma, and keeps `eval-log.md`. It needs Chrome, and the network for Google Fonts and Wikimedia Commons.
 
@@ -40,6 +40,20 @@ To change only how the direction's screens are built, start from a finished run:
 - the odd-one-out rate (soft), once the judges have run.
 
 It prints `score: passed/checked` and exits 1 on any hard fail. What it cannot judge alone: whether the screens are good.
+
+## Against the default
+
+Better than the references' level is not enough: a round should beat what an agent makes from the same brief with no board, and two boards should not lead to the same screens.
+
+```
+node eval/design/run.mjs --out ../lb-plain --plain --from ../longbeard-eval --agent 'claude -p {prompt}'   # the baseline, once
+node eval/design/score.mjs ../longbeard-eval --plain ../lb-plain --other ../longbeard-eval-2
+```
+
+- **The baseline** (`run.mjs --plain`): the same product brief, design brief, pictures and content (`fixture/plain.md`), built by an agent with no board and no skills, in a folder of its own so it sees no other run: eight first screens, captured.
+- **The blind sheet** (`score.mjs --plain`): the round and the baseline shuffled into one sheet, numbered only, in `.longbeard/eval/blind/` (`sheet.png`; `key.json` apart). The owner writes good, OK or bad beside each number in `marks.md`; the next score tallies the marks by set. Keep one baseline for a series of runs, so each round meets the same default.
+- **Tells of a generic page,** every run: gradient text, a gradient of two hues, frosted glass, soft drop shadows, pills, rounded cards with shadows, a default face, a violet accent, tracked caps labels, emoji, stock marketing words, read from each screen's source. Facts, not verdicts: a reference may use one on purpose. The baseline's are shown only once the marks are in, so nothing hints which tiles are which.
+- **Sameness** (`--other`): a run on the other board, built by the same rules. Every screen is measured alike (the faces it names, ground, ink, how empty, picture share, the headline's size, place and letter shapes), and the mean likeness across the two boards is set against the likeness within each; `.longbeard/eval/sameness/closest.html` shows the three closest pairs across, for the eye.
 
 ## Odd one out
 
