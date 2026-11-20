@@ -14,9 +14,6 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-// The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
-const sources = JSON.parse(readFileSync(join(here, "fixture/sources.json"), "utf8"));
-const boardNames = readdirSync(join(here, "fixture/board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 const repo = resolve(here, "../..");
 const args = process.argv.slice(2);
 const has = (name) => {
@@ -36,6 +33,12 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 const at = (...p) => join(dir, ...p);
+// The fixture the project was built from (run.mjs --fixture records it), else the default one.
+const fixtureFile = at(".longbeard/eval/fixture.txt");
+const fixture = existsSync(fixtureFile) ? readFileSync(fixtureFile, "utf8").trim() : join(here, "fixture");
+// The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
+const sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
+const boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 const read = (...p) => (existsSync(at(...p)) ? readFileSync(at(...p), "utf8") : null);
 // The scripts as installed in the project, so the run is judged with what it shipped; the repo's otherwise.
 const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), at(".agents/skills", skill, "scripts", name), join(repo, "skills", skill, "scripts", name)].find(existsSync);

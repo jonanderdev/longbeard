@@ -76,3 +76,23 @@ test("odd-one-out --tally: the rate is the share of judges who picked the dealt 
   assert.equal(result.reasons[0].why, "the text overflows");
   assert.equal(spawnSync(process.execPath, [join(root, "eval/design/odd-one-out.mjs"), dir], { encoding: "utf8" }).status, 2);
 });
+
+test("run.mjs --fixture builds from another board, and score.mjs guards that board's names", () => {
+  const fx = mkdtempSync(join(tmpdir(), "longbeard-fixture-"));
+  mkdirSync(join(fx, "board"));
+  writeFileSync(join(fx, "board/01-other-card.jpg"), "not really a jpeg");
+  writeFileSync(join(fx, "sources.json"), JSON.stringify(["Quillfeather Studio"]));
+  const out = join(mkdtempSync(join(tmpdir(), "longbeard-run-")), "p");
+  const run = spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--out", out, "--fixture", fx], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stdout, /1 references/);
+  assert.equal(readFileSync(join(out, "moodboard/01-other-card.jpg"), "utf8"), "not really a jpeg");
+  assert.equal(readFileSync(join(out, ".longbeard/eval/fixture.txt"), "utf8").trim(), fx);
+  // The brief and the answers come from the default fixture when the board has none of its own.
+  assert.ok(readFileSync(join(out, "answers.md"), "utf8").length > 0);
+  writeFileSync(join(out, "DESIGN.md"), "# Design\n\nThe headline is set like Quillfeather Studio's.\n");
+  const score = spawnSync(process.execPath, [join(root, "eval/design/score.mjs"), out, "--json", "--no-browser"], { encoding: "utf8" });
+  const leak = JSON.parse(score.stdout).results.find((r) => r.id === "no source in the docs");
+  assert.equal(leak.status, "FAIL", score.stdout);
+  assert.match(leak.detail, /Quillfeather Studio/);
+});

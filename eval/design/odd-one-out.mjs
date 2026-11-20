@@ -73,8 +73,11 @@ if (prepare) {
   const shots = [join(dir, ".longbeard/eval/screens"), join(dir, ".longbeard/design/direction/grid"), ...(existsSync(join(dir, "design-exploration")) ? readdirSync(join(dir, "design-exploration")).map((d) => join(dir, "design-exploration", d, "grid")) : [])].find((d) => existsSync(join(d, "1.png")));
   if (!shots) throw new Error("no screen captures: run screens.mjs first");
   const screens = readdirSync(shots).filter((f) => /^\d+\.png$/.test(f)).sort((a, b) => parseInt(a) - parseInt(b));
-  const board = join(here, "fixture/board");
-  const frames = JSON.parse(readFileSync(join(here, "fixture/frames.json"), "utf8"));
+  // The fixture the project was built from (run.mjs --fixture records it), else the default one.
+  const fixtureFile = join(dir, ".longbeard/eval/fixture.txt");
+  const fixture = existsSync(fixtureFile) ? readFileSync(fixtureFile, "utf8").trim() : join(here, "fixture");
+  const board = join(fixture, "board");
+  const frames = existsSync(join(fixture, "frames.json")) ? JSON.parse(readFileSync(join(fixture, "frames.json"), "utf8")) : {};
   const refs = readdirSync(board).filter((f) => f.endsWith(".jpg"));
   const out = resolve(outArg || join(tmpdir(), `odd-${basename(dir)}`));
   if (out.startsWith(dir) || out.startsWith(repo)) throw new Error("--out must be outside the project and this repo");
