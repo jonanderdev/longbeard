@@ -147,17 +147,20 @@ if (!chosen && !kindArg) fail(`${face} is not in Google Fonts' list: say its kin
 const [category, stroke] = kindArg ? KINDS[kindArg] : [chosen.category, chosen.stroke];
 const display = kindArg ? kindArg === "display" : isDisplay(chosen);
 const pool = families
-  .filter((f) => f !== chosen && f.category === category && (!stroke || !f.stroke || f.stroke === stroke) && isDisplay(f) === display)
+  // A shape read from a picture has no list to say display or text: both are in reach, and the shape decides.
+  .filter((f) => f !== chosen && f.category === category && (!stroke || !f.stroke || f.stroke === stroke) && (shapeArg ? true : isDisplay(f) === display))
   // A small-caps twin is the same face; a slab in a serif's row is another kind. A slab is one Google
   // lists as a slab, or, where it lists no stroke, one named so.
   .filter((f) => !/ SC$/.test(f.family) && (f.stroke === "Slab Serif" || /slab/i.test(f.family)) === (stroke === "Slab Serif"))
   .filter((f) => (f.subsets || []).includes("latin") && !f.isNoto && !(f.classifications || []).includes("Symbols"))
-  .filter((f) => (body ? offers(f, 400, false) && offers(f, 700, false) : offers(f, weight, italic)))
+  // A weight read from a picture is an estimate: a face within 100 of it is in reach, set at its nearest.
+  .filter((f) => (body ? offers(f, 400, false) && offers(f, 700, false) : shapeArg ? [weight, weight - 100, weight + 100].some((w) => offers(f, w, italic)) : offers(f, weight, italic)))
   .sort((a, b) => a.popularity - b.popularity);
 if (!pool.length) fail(`no faces of ${face}'s kind (${category}${stroke ? `, ${stroke}` : ""}${display ? ", display" : ""}) offer weight ${body ? "400 and 700" : weight}`);
 // Every face of the kind is measured (a stylesheet of the sample letters only is small), so the
 // less known are in reach as much as the most used. Past 800 faces, the most used 800.
 const candidates = pool.slice(0, 800);
+const weightOf = Object.fromEntries(candidates.map((f) => [f.family, shapeArg ? [weight, weight - 100, weight + 100].find((w) => offers(f, w, italic)) : weight]));
 const rank = new Map([...families].sort((a, b) => a.popularity - b.popularity).map((f, i) => [f.family, i + 1]));
 
 // The shape of each face, set at the weight in use. A face is only measured once it is really
@@ -166,18 +169,28 @@ await go("about:blank");
 const shapes = await evaluate(`(async () => {
   const W = ${weight}, IT = ${italic}, LOCAL = ${local}, CSS = ${JSON.stringify(cssArg)}, SAMPLE = "Hamburgefonstivxo";
   const faces = ${JSON.stringify([...(shapeArg ? [] : [face]), ...candidates.map((f) => f.family)])};
+  const WEIGHTS = ${JSON.stringify(weightOf)};
   const c = Object.assign(document.createElement("canvas"), { width: 2400, height: 420 }).getContext("2d", { willReadFrequently: true });
-  const font = (name, fb, size = 120) => (IT ? "italic " : "") + W + " " + size + "px \\"" + name + "\\", " + fb;
+  const font = (name, fb, size = 120) => (IT ? "italic " : "") + (WEIGHTS[name] || W) + " " + size + "px \\"" + name + "\\", " + fb;
   const load = (name) => new Promise((done) => {
     if (LOCAL && !(name === faces[0] && CSS)) return done();
     const fam = encodeURIComponent(name).replace(/%20/g, "+");
-    const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href: name === faces[0] && CSS ? CSS : "https://fonts.googleapis.com/css2?family=" + fam + ":" + (IT ? "ital,wght@1," : "wght@") + W + "&text=" + SAMPLE + "&display=block" });
+    const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href: name === faces[0] && CSS ? CSS : "https://fonts.googleapis.com/css2?family=" + fam + ":" + (IT ? "ital,wght@1," : "wght@") + (WEIGHTS[name] || W) + "&text=" + SAMPLE + "&display=block" });
     const t = setTimeout(done, 8000);
     link.onload = link.onerror = () => (clearTimeout(t), done());
     document.head.appendChild(link);
   });
-  await Promise.all(faces.map(load));
-  await Promise.all(faces.map((n) => document.fonts.load(font(n, "serif"), SAMPLE).catch(() => [])));
+  // In batches, and once more for any face not in yet: two hundred stylesheets at once time out by the half.
+  const arrived = (n) => document.fonts.check(font(n, "serif"), SAMPLE);
+  for (let pass = 0; pass < 2; pass++) {
+    const todo = faces.filter((n) => !pass || !arrived(n));
+    if (pass) for (const l of [...document.querySelectorAll("link[rel=stylesheet]")]) if (todo.some((n) => l.href.includes(encodeURIComponent(n).replace(/%20/g, "+")))) l.remove();
+    for (let i = 0; i < todo.length; i += 25) {
+      const batch = todo.slice(i, i + 25);
+      await Promise.all(batch.map(load));
+      await Promise.all(batch.map((n) => document.fonts.load(font(n, "serif"), SAMPLE).catch(() => [])));
+    }
+  }
   const ink = (n) => {
     c.clearRect(0, 0, 2400, 420);
     c.font = font(n, "serif");
@@ -213,6 +226,9 @@ const shapes = await evaluate(`(async () => {
 })()`);
 ws.close();
 
+// A picture's stroke contrast reads higher than a face's "o" does once hairlines are a pixel or two
+// thick; past 5 it is clamped, so a didone read at 10 still finds the didones.
+if (shapeArg && given.contrast > 5) given.contrast = 5;
 const mine = shapeArg ? given : shapes[face];
 if (!mine) fail(`${face} did not load${local ? " (--local: it must be installed)" : chosen ? "" : " (a face not in Google's list needs --css, its stylesheet)"}: check the name and the weight (${weight})`);
 const ln = (a, b) => Math.abs(Math.log(a / b));
@@ -243,8 +259,11 @@ const rows = Object.entries(shapes)
   .sort((a, b) => a.far - b.far)
   .slice(0, count);
 const missed = candidates.length - Object.keys(shapes).filter((n) => n !== face).length;
+// Nothing close: say so, so the face is shown as a stand-in and others are looked at, never taken quietly.
+const close = rows.length && rows[0].far <= 2;
+if (shapeArg && !close) console.error(`fonts: nothing close to the picture's type (nearest is ${rows[0]?.far ?? "none"} far): render the top three with the reference's words beside it and take the one of its kind, or try --kind display, and call it a stand-in`);
 const top = shapeArg ? { face, kind: row(face, { width: 1, xheight: 0, dark: 1 }).kind, ...given, far: 0 } : row(face, mine);
-if (json) console.log(JSON.stringify({ chosen: top, rows, measured: candidates.length - missed, missed }, null, 1));
+if (json) console.log(JSON.stringify({ chosen: top, close, rows, measured: candidates.length - missed, missed }, null, 1));
 else {
   const cols = ["face", "kind", "width", "xheight", "dark", "contrast", "weights", "italic", "axes", "used", "far"];
   console.log(cols.join("\t"));

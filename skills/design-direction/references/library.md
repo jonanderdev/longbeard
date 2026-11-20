@@ -45,7 +45,7 @@ What it cannot read (text on a photograph, rotated text, script faces, letters t
 node <skill>/scripts/fonts.mjs --shape width=<w>,xheight=<x>,contrast=<c> --kind serif --weight <weight>
 ```
 
-Take the top row unless it is plainly another kind (a slab for a didone): then the next. Never a face picked by eye when the shape was measured.
+Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` from `type.display`). Then set the top three in the reference's own words, at its size, beside the reference, and take the one that is plainly its kind (a hairline didone for a hairline didone, never a heavy slab). When it says nothing is close, the face is a stand-in: say so in the reading (`"stand-in": true`), and try `--kind display` too. Never one face for every reference because it came out on top before: each reference's face is matched on its own.
 
 ## What each part is for
 
