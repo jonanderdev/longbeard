@@ -21,6 +21,7 @@ A screen is its base reference, measured, until a move changes one named thing. 
 - The layout always comes from a reference, even when no like mentions layout. A move may turn it or take another reference's layout, never invent one.
 - What they said they like in the base is kept exactly ("this red" stays this red) and no move changes it. What they never named is kept by its role: a big red they never named is "a punchy accent over a quarter of the page", and a move may make it a punchy orange from another reference, at the same strength and share.
 - A borrowed thing fits around the base's anchors (placed, sized or set smaller to fit), or goes to a base with room for it.
+- Text on a picture relies on what is under it: the source chose a calm area (sky, skin, a plain wall) for its words. The product's picture is chosen and cropped so the text sits on an area as calm and as light or dark as the source's: the picture is fitted to the text, the text never leaves the picture. When no picture of theirs or stand-in has such an area, say so on the sheet and offer the screen with a picture that does, never one whose text cannot be read.
 - A device that held content in its source (a box with a product, a band of words, a thumbnail with a label) holds the product's content, or is left out; never empty.
 
 ### 2. Every measure is a share of the screen, and is kept
@@ -77,7 +78,7 @@ Each screen gets one fresh reviewer that runs these checks in order, seeing only
 - **Close up.** Crops at three times size of every small device, every rule and border, every tight gap and both ends of whatever runs off the screen, each beside the same crop of its source: where a part, a stroke, a spacing or a line's end differs. And each picture: `node <skill>/scripts/picture-cast.mjs <pictures>` on every picture the screen uses; a strong cast, blown highlights or crushed shadows the reference does not have is a picture to replace or correct.
 - **Not a copy.** Given the screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, add or strengthen a move.
 - **Nothing that is not on the board.** Given the screen, the reference pictures and its `PROVENANCE`: anything no reference has (a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect). Each comes out or is replaced by what its reference uses.
-- **Contrast,** every screen; a failure blocks the sheet until it is fixed, with colours the screen already has, never by moving the text:
+- **Contrast,** every screen; a failure blocks the sheet: no screen is shown with text that cannot be read. Fixed with the colours the screen already has, or another picture or crop with a calm area under the text (principle 1), never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
