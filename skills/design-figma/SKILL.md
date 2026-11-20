@@ -53,6 +53,8 @@ If a Figma decision changes a rule (a new token, a variant, a spacing step), upd
 
 ## Then
 
+Say in two lines what they now have: a Figma file of their own, with its link, built from variables and components, so a change to a token changes every screen. They can keep working in it by hand or by asking; a change to a rule goes into `DESIGN.md` too.
+
 Offer to delete `.longbeard/design/` working files: the docs, `DESIGN.md` and Figma carry the result. On no, leave them; they are gitignored. Then the next stage: architecture, which they start by typing `/grill-with-docs`.
 
 ## Do not
