@@ -75,9 +75,14 @@ Open the lead and every like at full size and write `.longbeard/design/direction
 
 Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base and its moves:
 
-1. **Translate the base** faithfully with the product's content and pictures, keep that translation, and check it beside the reference until its layout, sizes and gaps match as measured.
-2. **Make one or two moves** borrowed from other references, spread across the round. Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board.
-3. **Check all eight,** each by a fresh agent: what changed beyond the moves (against the kept translation, put back), whether the screen still feels like its reference, each borrowed thing beside its source, close-ups of devices, gaps and pictures, not a copy, nothing off the board; then contrast and faults.
+Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board. Each screen is made by fresh agents with one job each:
+
+1. **Plan** (you): the bases and moves for the eight, and a brief per screen.
+2. **Build:** translate the base faithfully, measured against it (`layout-diff.mjs`) until it matches, then make the moves.
+3. **Critique:** with only the pictures (the reference, the screen, an overlay of the two), every spot where the screen is less finished than its reference, each shown in the reference.
+4. **Fix:** only those spots, toward the reference; then a fresh critic again, at most three times. What is left is shown as a known fault.
+
+Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet), faults.
 
 How, with the list of moves and the checks: [grid.md](references/grid.md).
 

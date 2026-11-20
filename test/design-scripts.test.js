@@ -469,3 +469,11 @@ test("picture-cast: a grey wall reads neutral, a pink-tinted one is a cast, a wh
   assert.ok(blown.blown > 40 && blown.fault, JSON.stringify(blown));
   assert.equal(spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/picture-cast.mjs")], { encoding: "utf8" }).status, 2);
 });
+
+test("layout-diff: a reference and a screen are both required, and --out", () => {
+  const script = join(root, "skills/design-direction/scripts/layout-diff.mjs");
+  const r = spawnSync(process.execPath, [script, "a.png"], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: node layout-diff\.mjs <reference picture> <screen capture> --out <folder>/);
+  assert.equal(spawnSync(process.execPath, [script, "a.png", "b.png"], { encoding: "utf8" }).status, 2, "no --out");
+});

@@ -62,29 +62,41 @@ Every face, colour, element and effect names its reference in `PROVENANCE`. The 
 
 Every reference they liked is the base of at least one screen, the lead of two. With fewer than eight references, the lead, then the likes, take a second screen with other moves. Across the eight, the faces, picture treatments, palettes and pictures spread as widely as the board's: each face mostly on its own reference's screens, a borrowed thing on two screens at most, different photos and crops from screen to screen. Only a like that says it is the point ("always black and white") repeats more.
 
-## Build each screen
+## Build each screen: plan, build, critique, fix
 
-1. **Translate the base.** Rebuild its reading (library.md) at 1440, with the product's content in the base's slots, filled in order (the headline, the primary action, the status, what the product shows), each as long as the base's own, at most one more where the base has a place for it. Pictures treated only as the reference treats its own. Save it as `screens/<n>-base.html`.
-2. **Check the translation** beside the reference, on one sheet: the boxes in the same places, and principle 2's measures within 15%. Fix until they are. This is the one step where a screen should look like its reference.
-3. **Make the moves,** by principles 3 and 4, into `screens/<n>.html`.
+One agent does too much when it builds eight screens and judges them too: its attention thins and it defends its own choices. So each screen is made by fresh agents, each with one job and only what that job needs. You plan and run them; screens may be built side by side.
 
-## Then check all eight
+**1. Plan (you).** Pair bases and moves for the eight (Which screens, principles 3 and 4), write `screens.json`, and for each screen a brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path; each move in words with its source picture's path, the like it carries and its why; the content in the base's slots, in the fill order; the product's pictures to use (chosen for this base, principle 1); the five principles above, as written. Nothing else from this file or the session.
 
-Each screen gets one fresh reviewer that runs these checks in order, seeing only the pictures each check names, so it judges what is there, not what was meant. Make what it needs first (the captures, the translation's capture, the 3× crops beside the same crops of the source), since a reviewer may not run scripts; after its fixes, the screen gets a fresh reviewer again, until one finds nothing. Each finding is fixed by the principle it breaks, never by tidying the composition.
+**2. Build (a fresh agent per screen, from its brief only).**
+- Translate the base into `screens/<n>-base.html` from [screen-template.html](screen-template.html), with the product's content and pictures, treated only as the reference treats its own. Capture it, then measure it against the reference:
+  ```
+  node <skill>/scripts/layout-diff.mjs <reference picture> .longbeard/design/direction/grid/<n>-base.png --out .longbeard/design/direction/checks/<n>-base
+  ```
+  Fix the translation until nothing it lists is off, or each that is has a reason (longer copy set smaller). This is the one step where a screen should look like its reference.
+- Make the moves into `screens/<n>.html`, by principles 3 and 4, and capture it.
 
-- **What else changed.** Given the translation (`<n>-base.html`), the final screen and its moves in words: everything that differs that no move names (a colour, a gap, a size, a weight, an alignment, a picture's tone, balance). Each is put back as the translation had it. This is how a move stops carrying more than it names.
-- **Still feels like it.** Given the base reference and the final screen: in one line, what made the reference work (its colour mood, its rhythm of space, its type's colour and weight, its calm or its punch), then whether the screen keeps it. Where it does not, find what took it away and put it back.
-- **Each borrowed thing beside its source.** Given the screen and the references its moves came from: does each borrowed thing sit as it does there (where it crosses, how big, the room around it)?
-- **Close up.** Crops at three times size of every small device, every rule and border, every tight gap and both ends of whatever runs off the screen, each beside the same crop of its source: where a part, a stroke, a spacing or a line's end differs. And each picture: `node <skill>/scripts/picture-cast.mjs <pictures>` on every picture the screen uses; a strong cast, blown highlights or crushed shadows the reference does not have is a picture to replace or correct.
-- **Not a copy.** Given the screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, add or strengthen a move.
-- **Nothing that is not on the board.** Given the screen, the reference pictures and its `PROVENANCE`: anything no reference has (a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect). Each comes out or is replaced by what its reference uses.
+**3. Critique (a fresh agent per screen, pictures only).** It gets: the base reference (cropped to its screen), the final screen, `layout-diff.mjs`'s `side.png` and `overlay.png` for it (`--mirror` when the layout turned) and the lines its `diff.json` marks off, the translation's capture, 3× crops of every small device, rule, tight gap and edge beside the same crops of the source (make them for it; it may not run scripts), each move's source picture, the moves in words, and the contrast report. No rules, no brief, no session. It answers:
+- **Where is this screen less finished than its reference?** Every spot, small ones included (a gap, an edge, a size, a weight, a colour, a picture, text that cannot be read), each with the place in the reference that shows how it should be. The reference is the standard: what it does on purpose (overlaps, crops, collisions, tiny type) is never a fault.
+- **What changed from the translation that no move names?**
+- **In one line, what made the reference work, and does the screen keep it?**
+- **Anything on the screen that no reference has?**
+
+It lists; it never redesigns. "Nothing" is a fine answer.
+
+**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden.
+
+**Then the round (you):**
+- **Not a copy.** A fresh agent, given each screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, its plan gets another move, and it is built again from step 2.
+- **As varied as the board** (Which screens).
 - **Contrast,** every screen; a failure blocks the sheet: no screen is shown with text that cannot be read. Fixed with the colours the screen already has, or another picture or crop with a calm area under the text (principle 1), never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
-- **Faults:** a clipped word, text over a picture that cannot be read, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice. Overlaps, crops and collisions the references use are not faults.
+- **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
+- **Each picture:** `node <skill>/scripts/picture-cast.mjs <pictures>`; a strong cast, blown highlights or crushed shadows the reference does not have is a picture to replace or correct.
 
-**After a round they did not take, or a fix:** before showing a rebuilt screen again, put it beside the version they last saw and list what got worse, not only what changed. A fix that breaks something they liked is undone.
+**A screen shown again** (more of it, a mix, a fix they asked for) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone.
 
 ## Capture and sheet
 
