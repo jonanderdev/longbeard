@@ -1,50 +1,52 @@
-# Building the grid
+# Building the screens
 
 Read by `design-direction`, step 3.
 
-One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](grid-template.html): it loads `../deal.js`, sets the look as variables, takes overrides in the URL, fits the type and sets the title to `ready`. Write only what it marks WRITE: the content, one function per navigation, one per arrangement (zones through `ZONES` and `zone()`). The first screen only: 1440×900 for a site, the first key screen's device size for an app.
+Eight first screens, each built the way a designer works from a board: take one reference whose design works, rebuild it faithfully with the product's own content, then change it with one or two things borrowed from other references, and make sure it still works. The references are finished designs; what made each one work (its sizes, spacing, type and colour, chosen together) must still work on the screen. The agent's own taste adds nothing: every face, colour, element and effect comes from a reference on the board.
 
-## Content: what the reference carries, no more
-
-The grid is where they choose a direction, so each screen carries the same amount as its source reference: never a whole site's content fitted in by taste. Fitting everything is design work, and it belongs to `design-prototype`.
-
-- **The same real content, by rule:** the name, the headline, and `C.fill`, in this order: the primary action, then the status, then the thing the product shows (the ownable, today's bakes). Pictures of the product's subject (theirs, or the stand-ins from step 0 in `.longbeard/design/pictures/`; never the references' subject).
-- **Each screen takes its arrangement's slots** (`slots` in its library entry): a headline as long as the reference's (`C.headline`, or `C.short` where the reference's headline is one or two words), and as many small blocks as it has, filled from `C.fill` in order (`ctx.fill`), stopping when the slots run out. The template does the filling: never pick which items a screen gets.
-- **At most one extra** (`ctx.extra`): a subline or one more picture, only where the reference's own system gives it a place (aligned to an element already there, smaller than the headline). It never moves, resizes or restructures anything else. No place for it: leave it out.
-- The page flags a slot it cannot find (`missing:`), and a screen with more text blocks than its slots allow. Both are faults, fixed in the rule.
-- Everything else (the full list, the second action, the pickup times) goes under "for the prototype" in `design-direction.md`.
-
-## Each arrangement is a rule
-
-- **Built once from its sentence and its `move`,** with the reference open at full size; it receives type and colour as variables. Take the arrangement, never the reference's content.
-- **The type takes the arrangement's role.** The face comes from another reference; its weight, case, tracking and scale come from the arrangement's `role` (the template sets them). Size the display with `var(--display-size)` or `data-fit` as the role's `sits` says ("one word filling the width" is `data-fit="0.92,…"`; "a thin line at a fifth of the width" is `data-fit="0.2,…"`). Never size it from the type entry's own reference. `deal.mjs` notes a face that cannot carry the role: build it anyway, and keep the note for the table.
-- **Every colour a variable,** never a hex: `--ink`, `--accent`, `--accent-text` for words in the accent, `--on-accent` for words on an accent fill, `--muted` for quiet text. Panels and bands take `--ground`, `--ink` or `--accent`, so a screen dealt onto any ground still reads.
-- **Every offset through `--space`.** Type fills by rule, not by number.
-- **Fix faults, never taste:** an overlap that hides text, a clipped word, a missing slot, a repeated sentence, a lone word on a heading's last line, text under 4.5:1 where it sits (`screen-contrast.mjs`), text smaller than 12px at 1440. Fix in the rule so the fix holds for every recipe.
-
-## Capture, check, sheet
+Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. And one file for all eight, `.longbeard/design/direction/screens.json`:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/grid.html?n=1" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
-node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/prototype/grid.html?n=1" --wait-title ready
+[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>" }], "why": "<one line>" }]
 ```
 
-**Contrast on every screen,** not only the chosen one: a composition moved onto another reference's ground is where text stops reading. A failing text is fixed in the rule with the colour variables, never by moving it.
+## Which screens
 
-**The fidelity check, each arrangement against its reference.** Put each screen beside the reference its arrangement came from (the recipe's `sources.arrangement`), on one sheet:
+- **Bases:** every reference they liked is the base of at least one screen, the lead of two. Fewer than eight references: the lead, then the likes, take a second screen, with other moves.
+- **Moves:** one or two per screen, each borrowed from another reference on the board, and spread: across the eight screens, the moves come from as many references as there are. A move is one of:
+  - **a palette:** another reference's whole palette (ground, ink and accent as they work together), or the subject's;
+  - **an element:** one device from another reference (its disc, its arch window, its word band, its ring of text), placed by the base's own grid;
+  - **the face:** another reference's display face, of a kind that can carry the base's headline (a heavy word stays heavy, a hairline line stays light), at the base's size;
+  - **the picture treatment:** another reference's crop, tone or frame;
+  - **the layout turned:** the base mirrored, or its headline and picture traded, or one zone moved, the proportions kept;
+  - **the scale:** the headline larger or smaller, as far as another reference sets its own.
+- Choosing which move suits which base is design judgement, and it is yours: say why in one line (`why`). Choose moves that the base's system can take: a condensed face where the base's headline is one wide word, a palette whose contrast its type can carry.
+
+## Build each screen
+
+1. **Translate the base.** Rebuild its reading (library.md) at 1440: its layout as measured, its type at its measured sizes, weights, tracking and leading, its spacing, its palette, its picture treatment applied to the product's own pictures (`filter: grayscale(1)`, a duotone, the frame's shape: only what the reference does). The content is the product's, in the base's slots, filled in order: the headline, then the primary action, the status, what the product shows; as many small blocks as the base has, each as long as the base's own (a three-word label stays three words), and at most one more where the base's system has a place for it. Everything else waits for the prototype.
+2. **Check the translation against the base,** before any move: capture it and put it beside the reference on one sheet. The layout's boxes in the same places, the type at the same size against the screen (within 15%), the same amount of empty space, the concept and the move plainly there. Fix until they are. This is the one step where a screen should look like its reference.
+3. **Make the moves.** Change only what the move changes. Then **check that it still works:** the headline's size and weight still fit the layout they were made for, the spacing is the base's, a borrowed element sits on the base's grid and at a size the base would give it, the text reads on its ground (`screen-contrast.mjs`). A move the base cannot take is dropped for another, never forced.
+
+## Then check all eight
+
+- **Contrast,** every screen:
+  ```
+  node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
+  ```
+  Fixed with the colours the screen already has (the palette's ink, the panel's ink), never by moving the text.
+- **Nothing that is not on the board.** A fresh agent, given only the screen, the reference pictures and the screen's `PROVENANCE`, lists anything on the screen that no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect. Each is taken out or replaced by what its reference uses. This is how taste stays out.
+- **Not a copy.** A fresh agent, given the screen and its base reference only, says whether it reads as the same design with new words. Where it does, add or strengthen a move (another reference's palette, element or face) until it reads as its own screen in that manner, the concept kept.
+- **Faults:** a clipped word, text over a picture that cannot be read, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice. Overlaps, crops and collisions the references use are not faults.
+
+## Capture and sheet
 
 ```
-node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/fidelity.html .longbeard/design/direction/grid/1.png .longbeard/design/moodboard/refs/<arrangement's reference>.jpg … --cols 2
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/fidelity.html" --out .longbeard/design/direction/grid/fidelity.png
-```
-
-Look at each pair and ask one thing: **does the arrangement's `move` read?** The disc cuts into the title, not beside it; the window's corners are rounded the way the reference's are; the one word fills the width. Where it does not, the rule is wrong: fix the rule, capture again, and look again, until the move reads. Judge only the move. Type and ground come from other references on purpose (the three sources), so a screen is never meant to look like its reference as a whole, and is never made to. A fault is fixed in the rule, never by tidying the composition.
-
-Then the sheet of the eight:
-
-```
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
 node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
 ```
 
-For an app, render and capture at the device size instead (`grid.html?n=1&size=390x844`, `--width 390`, a clip of that size), and use the app's navigation (a tab bar, a side rail) as the navigation entries. The same for a site whose design brief says `first seen on: phone` (a restaurant, an event, a local shop): its first screen is the phone's, so the grid is dealt at 390 with the site's phone navigation; the desktop comes in `design-prototype`.
+And a second sheet of each screen beside its base (`grid/bases.html`, `--cols 2`), so they can see what each one keeps and what it changes.
+
+For an app, build and capture at the device size (`?size=390x844`, `--width 390`, a clip of that size), with the app's navigation. The same for a site whose design brief says `first seen on: phone`: its first screen is the phone's; the desktop comes in `design-prototype`.

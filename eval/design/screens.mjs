@@ -60,13 +60,21 @@ const fail = (text) => {
   process.exit(1);
 };
 // A run of this flow, or one from before it (design-exploration/<slug>/).
-const base = [at(".longbeard/design/direction"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d)) : [])].find((d) => existsSync(join(d, "deal.json")));
-if (!base) fail("no deal.json in .longbeard/design/direction/ or design-exploration/*/");
-const lib = readJson(join(base, "library.json")) || fail("no library.json beside deal.json");
-const deal = readJson(join(base, "deal.json"));
-const round = (deal.rounds || []).find((r) => r.kind === "deal") || fail("no dealt round");
-const grid = join(base, "prototype/grid.html");
-if (!existsSync(grid)) fail(`no grid page at ${grid}`);
+// Three layouts: screens built from references (screens.json, screens/<n>.html), a dealt grid
+// (deal.json, prototype/grid.html?n=), and a dealt grid from before the design-* split (design-exploration/<slug>/).
+const base = [at(".longbeard/design/direction"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d)) : [])].find((d) => existsSync(join(d, "screens.json")) || existsSync(join(d, "deal.json")));
+if (!base) fail("no screens.json or deal.json in .longbeard/design/direction/ or design-exploration/*/");
+const lib = readJson(join(base, "library.json")) || fail("no library.json beside them");
+const built = readJson(join(base, "screens.json"));
+const builtList = built ? (Array.isArray(built) ? built : built.screens || []) : null;
+// A built screen's pieces: its base, unless a move borrowed the face or the palette from another reference.
+const borrowed = (sc, pattern) => (sc.moves || []).find((m) => pattern.test(m.what || ""))?.from;
+const round = builtList
+  ? { recipes: builtList.map((sc) => ({ n: sc.n, arrangement: sc.base, type: borrowed(sc, /face|type/i) || sc.base, ground: borrowed(sc, /palette|colou?r/i) || sc.base, accent: "", sources: { arrangement: [sc.base], type: [borrowed(sc, /face|type/i) || sc.base], ground: [borrowed(sc, /palette|colou?r/i) || sc.base] } })) }
+  : (readJson(join(base, "deal.json")).rounds || []).find((r) => r.kind === "deal") || fail("no dealt round");
+const grid = builtList ? null : join(base, "prototype/grid.html");
+if (grid && !existsSync(grid)) fail(`no grid page at ${grid}`);
+const pageOf = (n) => (builtList ? join(base, "screens", `${n}.html`) : grid);
 const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), join(repo, "skills", skill, "scripts", name)].find(existsSync);
 // Measured with this repo's measure.mjs, so every run is read the same way.
 const measure = join(repo, "skills/design-families/scripts/measure.mjs");
@@ -178,7 +186,8 @@ const shotsDir = at(".longbeard/eval/screens");
 mkdirSync(shotsDir, { recursive: true });
 const screens = [];
 for (const r of round.recipes) {
-  const url = `${pathToFileURL(grid).href}?n=${r.n}${W !== 1440 || H !== 900 ? `&size=${W}x${H}` : ""}`;
+  const size = W !== 1440 || H !== 900 ? `size=${W}x${H}` : "";
+  const url = builtList ? `${pathToFileURL(pageOf(r.n)).href}${size ? `?${size}` : ""}` : `${pathToFileURL(grid).href}?n=${r.n}${size ? `&${size}` : ""}`;
   await call("Page.navigate", { url });
   let ok = false;
   for (let i = 0; i < 150 && !ok; i++) {
@@ -239,7 +248,8 @@ const tone = (g) => {
   const l = lum(hex);
   return l > 0.55 ? "light" : l < 0.08 ? "dark" : "mid";
 };
-const boardTones = new Set((lib.grounds || []).filter((g) => (g.from || []).some((r) => !notRefs.has(r))).map(tone));
+// Built screens: the references' own palettes; dealt ones: the grounds that come from a reference.
+const boardTones = new Set(lib.references ? lib.references.map((r) => tone({ ground: r.palette?.ground })) : (lib.grounds || []).filter((g) => (g.from || []).some((r) => !notRefs.has(r))).map(tone));
 
 for (const s of screens) {
   const me = of(s.png);
@@ -261,7 +271,8 @@ for (const s of screens) {
   // What the arrangement's reference carries: its measured text blocks, and one more.
   const blocks = Number.isInteger(arr?.type?.blocks) ? arr.type.blocks : null;
   s.capacity = blocks == null ? null : blocks + 1;
-  const g = (lib.grounds || []).find((x) => x.id === s.recipe.ground);
+  // A built screen's ground is what it shows, measured; a dealt one's is its library entry.
+  const g = builtList ? (me?.traits?.ground ? { ground: me.traits.ground } : null) : (lib.grounds || []).find((x) => x.id === s.recipe.ground);
   s.tone = g ? tone(g) : null;
   s.toneOnBoard = g ? boardTones.has(s.tone) : null;
 }

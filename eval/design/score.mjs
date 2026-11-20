@@ -98,7 +98,24 @@ const deal = (() => {
     return null;
   }
 })();
-if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
+// Screens built from references: each names its base and its moves, all of them on the board.
+const built = (() => {
+  try {
+    const j = JSON.parse(read(".longbeard/design/direction/screens.json") || "null");
+    return j ? { list: Array.isArray(j) ? j : j.screens || [], chosen: Array.isArray(j) ? null : j.chosen ?? null } : null;
+  } catch {
+    return null;
+  }
+})();
+if (built) {
+  const board = new Set([...(lib?.references || []).map((r) => r.name), ...boardNames]);
+  const bad = built.list.filter((sc) => !board.has(sc.base) || !(sc.moves || []).length || (sc.moves || []).some((m) => !board.has(m.from) && m.from !== "subject" && m.from !== "theirs")).map((sc) => sc.n);
+  check("screens: a base and moves from the board", true, built.list.length ? !bad.length : false, bad.length ? `screens ${bad.join(", ")} name no base, no move, or a source not on the board` : `${built.list.length} screens`);
+  const bases = new Set(built.list.map((sc) => sc.base));
+  const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
+  check("screens: every reference a base", false, !missed.length, missed.join(", "));
+  check("deal: a screen chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
+} else if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
 else {
   const lists = { arrangement: "arrangements", type: "type", ground: "grounds" };
   const notRefs = new Set(["theirs", "identity", "subject"]);
@@ -177,9 +194,10 @@ if (design) {
 const min = level === "AAA" ? ["--min", "7", "--large", "4.5"] : [];
 const sc = script("design-direction", "screen-contrast.mjs") || script("design-prototype", "screen-contrast.mjs");
 const browser = (id, hard, run) => {
-  if (noBrowser) return check(id, hard, null, "--no-browser");
+  // A skipped render returns nothing, so the caller writes no check of its own.
+  if (noBrowser) return void check(id, hard, null, "--no-browser");
   const r = run();
-  if (/No Chrome/.test(r.stderr)) return check(id, hard, null, "no Chrome");
+  if (/No Chrome/.test(r.stderr)) return void check(id, hard, null, "no Chrome");
   return r;
 };
 const first = at(".longbeard/design/direction/prototype/first.html");
@@ -223,11 +241,12 @@ else {
 // text than its reference carries and one more, a ground of a tone the references use; and measured
 // against its references, with the odd-one-out rate when the judges have run (odd-one-out.mjs).
 // A run of this flow, or one from before it (design-exploration/<slug>/), which screens.mjs reads too.
-const gridPage = [at(".longbeard/design/direction/prototype/grid.html"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d, "prototype/grid.html")) : [])].find(existsSync);
+const gridPage = [at(".longbeard/design/direction/screens.json"), at(".longbeard/design/direction/prototype/grid.html"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d, "prototype/grid.html")) : [])].find(existsSync);
 const gridIds = ["grid: no text under 12px", "grid: no clipped text", "grid: contrast on every screen", "grid: text within the reference's slots", "grid: grounds in the board's tones", "grid: measured against the references", "grid: odd one out"];
 if (!gridPage) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
 else {
   const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
+  if (!r) for (const id of gridIds.slice(1)) check(id, false, null, results.at(-1).detail);
   if (r) {
     let out = null;
     try {

@@ -1,61 +1,62 @@
-# The library
+# Reading the references
 
-Read by `design-direction`, step 2. The library is what the lead and the likes use, written down so `deal.mjs` can deal from it. Reading it is measuring, not judging: nothing here is a choice.
+Read by `design-direction`, step 2. Each reference the screens are built from is a finished design: its sizes, spacing, type and colours were chosen together and work together. Reading it is understanding that system well enough to rebuild it at screen size, and measuring it so the rebuild can be checked. Nothing here is a choice.
 
-Open the lead and every like at full size. Write `.longbeard/design/direction/library.json`: what each one uses, measured, never judged by eye when it can be measured. Nothing here is a choice.
+Write `.longbeard/design/direction/library.json`, one reading per reference (the lead and every like):
 
 ```
 {
-  "anchor": "<lead's card name>",
-  "family":       { "empty": "55–70%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated>", "edges": "<rules, borders, or none>", "density": "<how much sits on the first screen>", "from": ["…"] },
-  "arrangements": [{ "id": "<a plain word>", "what": "<one sentence>", "move": "<the one move that makes it>", "zones": { "hero": "…", "side": "…", "band": "…" },
-                     "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
-                     "role": { "scale": 0.16, "weight": 300, "width": "normal", "case": "none", "sits": "<how the headline sits>" },
-                     "measured": { "empty": 62, "pictures": 28 }, "from": ["<card name>"] }],
-  "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
-  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "kind": "serif | sans | condensed | display | mono | script", "face": "<a face the product can use>", "by": "page | measured | eye", "weight": 400, "weights": "300–700", "axes": "wght", "case": "none | uppercase", "tracking": "-0.02em", "body": { "face": "…", "size": "16px", "leading": "1.5" }, "css": null, "from": ["…"] }],
-  "grounds":      [{ "id": "…", "ground": "#…", "panel": null, "ink": "#…", "gradient": null, "pattern": null, "by": "page | measured", "from": ["…"] }],
-  "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }],
-  "controls":     { "button": { "fill": "accent | ink", "radius": "0px", "case": "none", "weight": 600 }, "from": ["…"] }
+  "lead": "<card name>",
+  "references": [{
+    "name": "<card name>",
+    "concept": "<what makes it, in one or two sentences: the idea a designer would defend>",
+    "move": "<the one move a person would point at: the disc cutting into the title, one word filling the width>",
+    "layout": "<where everything sits, as a share of the screen: margins, columns, the picture's box, the headline's box, the small text's places, what overlaps or runs off an edge, how much is empty>",
+    "type": { "display": { "face": "…", "by": "page | measured | eye", "kind": "serif | sans | condensed | display | mono | script", "size": 96, "weight": 300, "case": "none", "tracking": "-0.02em", "leading": 0.95, "lines": 2 },
+              "small": { "face": "…", "size": 13, "weight": 400, "case": "uppercase", "tracking": "0.12em" }, "scale": 7.4 },
+    "spacing": "<the margin, the gaps, how close small text sits to what it belongs to, at 1440>",
+    "palette": { "ground": "#…", "ink": "#…", "accent": "#… or null", "more": { "<role>": "#…" } },
+    "pictures": "<how pictures are treated: crop, tone (black and white, a duotone, as shot), frame (an arch, a rounded window, full bleed), how many, how big>",
+    "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
+    "devices": ["<each element that is not content: a disc, a ruled line, a word band, a ring of text>"],
+    "measured": { "empty": 62, "pictures": 28 }
+  }]
 }
 ```
 
-## Measure first
+## Measure first, then look
 
 **A live page:** `measure.mjs <link>` lists its fonts, sizes, weights, colours and gradients (`by: page`).
 
-**A reference that is only a picture** (a shot, a poster, a Dribbble frame): measure the picture, never judge it by eye when the numbers are there.
+**A reference that is only a picture** (a shot, a poster, a presentation frame):
 
 ```
 node <skill>/scripts/measure.mjs .longbeard/design/moodboard/refs/<name>.jpg --lines
 ```
 
-It reads inside a presentation frame, and gives:
-- `traits`: the ground, the `ink` (the colour most of the type is set in), how much is empty, and `pictures` (how much is photograph);
-- `common` and `loud`: the palette, each colour with its share;
-- `type`: the `display` line (its `size` as a share of the screen's height, `px1440`, `weight`, `stroke`, `contrast`, `width`, `xheight`, `case`, `ink`, `box`), the `body` size, the `scale` between them, the `headline` (its words and lines) and how many text `blocks` and `small` blocks the picture holds. `--lines` lists every line it read.
+It reads inside a presentation frame, and gives the ground, the `ink`, the palette (`common`, `loud`), how much is `empty` and how much is `pictures`, and the type: the display line's `px1440`, `weight`, `case`, `box`, the body size, the `scale`, the headline's words and lines, the text `blocks`. `--lines` lists every line it read, with its box: that is the layout's measurements. Sizes are given as px at 1440 wide, which is the size to build at.
 
-What it cannot read: text set on a photograph (unless in a strong colour), rotated text, script faces, letters so tight they touch. Look at the picture with its numbers beside it: a line it missed or misread is read by eye, and that entry says `by: eye`. A number that disagrees with what you plainly see is a misread: say so and use your reading.
+What it cannot read (text on a photograph, rotated text, script faces, letters that touch) is read by eye with the picture at full size, and says `by: eye`. A number that disagrees with what you plainly see is a misread: use your reading and say so.
 
-**The face, from a picture:** the nearest free face by its measured shape, of the kind you see (serif, sans, condensed…), at the measured weight:
+**The face, from a picture:** the nearest free face by its measured shape, of the kind you see:
 
 ```
 node <skill>/scripts/fonts.mjs --shape width=<w>,xheight=<x>,contrast=<c> --kind serif --weight <weight>
 ```
 
-Take the top row unless it is plainly another kind (a slab for a didone): then the next. Write `by: measured`, its `weights` and `axes` from the row. Never a face picked by eye when the shape was measured.
+Take the top row unless it is plainly another kind (a slab for a didone): then the next. Never a face picked by eye when the shape was measured.
 
-## Each list
+## What each part is for
 
-- **Arrangements:** one per reference. Where the title, pictures and small text sit, how they relate (what overlaps, what runs off an edge, how much is empty). One sentence, complete enough to build with the picture closed. No content, colour or face.
-  - **`move`:** the one thing that makes this arrangement, in a phrase a person would point at: "a red disc cuts into the title from below", "the photo sits in a rounded window, the text in its four corners", "one word fills the width". The fidelity check (grid.md) judges the built screen on this.
-  - **`slots`:** how much text and how many pictures the reference carries, from `measure.mjs` (`type.headline`, `type.small`) checked against the picture: the headline's words and lines, the number of small text blocks (not counting the navigation), the pictures. A screen built on it carries the same amount, and at most one more small element.
-  - **`role`:** what the move needs of the type, since the face itself is dealt from another reference: `scale` (the display's em as a share of the screen's height, from `type.display.size`), `weight`, `width` (condensed, normal, wide), `case`, and `sits`, how the headline sits (one word filling the width, a thin line at a fifth of it, two lines broken around a picture). The grid sets whatever face is dealt to this role; `deal.mjs` notes a face that cannot carry it.
-  - **`measured`:** its `empty` and `pictures` from `measure.mjs`, so a screen built on it can be checked against it.
-- **Zones:** name the parts a person could point to (hero, side, band) with the same names across arrangements, so "the left side of 4" is a dealt move.
-- **Family:** what the lead and likes share, as ranges, measured, never averaged. It is not dealt: every screen gets it, so eight screens stay one look.
-- **Type:** one per reference: the face it uses (`by: page`), or the nearest free face by its measured shape (`by: measured`), or by eye only where nothing could be measured (`by: eye`). Its `kind`, so the deal can spread kinds, its `weights`, so it can tell when a face cannot carry an arrangement's role. The body face it is paired with.
-- **Grounds and accents:** one per reference, measured: the ground, the ink on it (`traits.ink`, or `type.display.ink`), a panel, a gradient or pattern as written. The ink must read 4.5:1 on the ground: where the reference's own ink does not (a pale colour on a pale ground), take its hue at the lightness that reads, and say so. An accent is a colour and what carries it; none is an entry too.
-- **The subject's colours:** a quiet ground from the subject pictures, and an accent only when the subject has a second hue of its own (otherwise accents come from the references), chosen and tuned by rule, never sampled raw, and each named as part of the subject after a look: [subject.md](subject.md). `deal.mjs` keeps them to the board: a subject ground of a tone no reference uses is not dealt, and one more saturated than any reference's ground is dealt as an accent.
-- **What is fixed:** a face or colour they own is an entry with `"from": ["theirs"]`; a refused one is left out; light or dark only drops the other grounds.
-- **Record, never judge.** A gradient, a glow, a typeface the rules call a tell: if a reference uses it, it is an entry. Ids are plain words, never a reference's name. Merge only twins.
+- **`concept` and `move`:** what must survive every change. The fidelity check and the distance check judge a screen on them.
+- **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. The type's sizes are the reference's sizes against its screen: a 96 px headline on a 1440 screen stays 96 px.
+- **`palette`:** the colours as they work together. A palette is borrowed whole, never one colour from it.
+- **`pictures`:** the treatment the product's pictures get on a screen built from this reference.
+- **`slots`:** how much text it carries; a screen built on it carries the same, and at most one more small element.
+- **`devices`:** every element that is not content, so every element on a screen can be traced to one.
+
+## The subject's colours
+
+`subject-colours.mjs` proposes a palette from the product's own pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent" }`. It is one more palette a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages.
+
+**Record, never judge.** A gradient, a glow, a face the rules call a tell: if a reference uses it, it is in its reading. What they own goes in `"theirs"`; a refused face or colour is left out; light only or dark only leaves out the readings' palettes of the other kind as borrowable palettes, never the references.

@@ -440,22 +440,15 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
   }
 });
 
-test("grid template: its script parses, and it marks what a run writes", () => {
-  const html = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
+test("screen template: its script parses, marks what a run writes, and takes the look from the URL", () => {
+  const html = readFileSync(join(root, "skills/design-direction/references/screen-template.html"), "utf8");
   const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements"]) assert.match(html, new RegExp(`WRITE: ${part}`));
-  assert.doesNotMatch(html, /CONCEPTS|PARTS|\?concept=|--part/);
-  for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
-});
-
-test("grid template: slots, the type role, colour variables and zones are wired", () => {
-  const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
-  for (const hook of ["function mustCarry(", "function countBlocks(", "const zone = ", "arrangementEntry.slots", "arrangementEntry.role", "--accent-text", "--on-accent", "--display-size", "fill: ["]) assert.ok(grid.includes(hook), hook);
-  assert.doesNotMatch(grid, /C\.must\b/);
+  for (const part of ["the look", "provenance", "the screen's CSS", "the screen's HTML"]) assert.match(html, new RegExp(`WRITE: ${part}`));
+  for (const hook of ["const LOOK", "const PROVENANCE", 'document.title = "ready"', '["face", "body", "ground", "ink"]', 'q.get("weight")', 'q.get("accent")', 'q.get("size")']) assert.ok(html.includes(hook), hook);
 });
 
 test("deal: their own entries are not one shared reference", () => {
