@@ -14,6 +14,10 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
 
 - **Bases:** every reference they liked is the base of at least one screen, the lead of two. Fewer than eight references: the lead, then the likes, take a second screen, with other moves.
 - **The layout always comes from a reference.** Whatever they liked, and even when no like mentions layout, every design stands on its base's layout as measured: its zones, proportions, margins and where the headline, pictures and small text sit. A move may turn it (mirrored, a zone moved) or take another reference's layout, never invent one. A like about a colour or a face says what to carry; it never frees the layout.
+- **What the layout quietly relies on is part of it,** and a move never breaks it:
+  - **Balance.** A symmetrical base stays symmetrical; an asymmetric one keeps its counterweight. A move that adds weight on one side (a headline pushed off the axis, a borrowed element) is balanced by the base's own elements, or placed on the axis.
+  - **Alignment.** Every element sits on an edge or an axis of its zone in the base's grid (the panel's margin, the column's edge, the picture's side), never at a distance from the screen's edge. When the layout turns, the alignments turn with their zones: a title on the panel's left margin stays on the panel's left margin, wherever the panel goes, and the corners' elements move to the matching corners.
+  - **Edges.** Whatever runs off the screen's edge runs off as in its source: a band that loops off both sides, starting mid-word, never one that starts flush and is chopped at the other end.
 - **Kept exactly, or kept by role.** What they said they like in the base is kept exactly: "this red" stays this red. Everything else in it, apart from its layout, is kept by its role, not its value. A big red they never named is "a punchy accent over a quarter of the page": it may become a punchy orange from the subject or a punchy yellow from another reference, at the same strength and the same share. A face they never named is "a light, wide serif headline": another face of that role may take its place. The role is what made the base work; the value is free to change.
 - **Moves:** one or two per screen, each borrowed from another reference on the board, and spread: across the eight screens, the moves come from as many references as there are. A move is one of:
   - **a palette:** another reference's whole palette (ground, ink and accent as they work together), or the subject's;
@@ -33,6 +37,7 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
 
 ## Then check all eight
 
+- **Balance, alignment and edges.** A fresh agent, given each screen and its base, says where the balance shifted, where an element lost its alignment to its zone, and where something is cut at the edge differently from its source. Each is fixed by the principle above, never by tidying the composition.
 - **Each borrowed thing beside its source.** Put each screen beside the references its moves came from, and look at one thing: does each borrowed thing sit as it does there (where it crosses, how big, how much room around it)? Fix the placement until it does.
 - **The round is as varied as the board.** Across the eight: the faces, the picture treatments, the palettes and the pictures spread as widely as the board's do. A board with six display faces shows most of them, each mostly on its own reference's screens; a borrowed thing (a treatment, a face, a device) is on two screens at most; the pictures differ from screen to screen, other photos and other crops, never one picture everywhere. Only a like that says it is the point ("this face", "always black and white") repeats more.
 

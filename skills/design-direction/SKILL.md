@@ -81,7 +81,7 @@ Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-
 
 How, with the list of moves and the checks: [grid.md](references/grid.md).
 
-Show the sheet, the sheet of each screen beside its base, and a table: each number, its base and its moves in plain words, and any fault you could not fix. Never say which you prefer.
+Show the sheet, the sheet of each screen beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), so nothing on a screen is a mystery to them, and any fault you could not fix. Never say which you prefer.
 
 **Against the brief,** one column of the table, facts only: what you see with the sheet open against the design brief's never, its three words, its personality (a cool palette for a warm brief, a script face for a serious one), and apart from (a screen that could be mistaken for the kind of product named there, when its distance is 4–5). Blank where nothing sits against it. It is there so they choose knowingly, not to steer them: a screen against the brief is shown like any other. Taken, it goes under **Changes** in the design brief, with why.
 
