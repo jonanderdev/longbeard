@@ -89,7 +89,7 @@ if (from) {
     process.exit(1);
   }
   cpSync(join(src, "docs"), join(dir, "docs"), { recursive: true });
-  cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !/\/design\/direction\/(screens|grid|prototype|checks|fix-check)(\/|$)|\/screens\.json$|\/eval\/|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/.test(p) });
+  cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !/\/design\/direction\/(screens|grid|prototype|checks|fix-check|briefs|build)(\/|$)|\/screens\.json$|\/eval\/|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/.test(p) });
 }
 // Which fixture this project was built from, for score.mjs and odd-one-out.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
