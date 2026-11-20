@@ -109,7 +109,9 @@ const built = (() => {
 })();
 if (built) {
   const board = new Set([...(lib?.references || []).map((r) => r.name), ...boardNames]);
-  const bad = built.list.filter((sc) => !board.has(sc.base) || !(sc.moves || []).length || (sc.moves || []).some((m) => !board.has(m.from) && m.from !== "subject" && m.from !== "theirs")).map((sc) => sc.n);
+  // A source may carry a note after its name ("04-still-life (turned)", "subject (the brief: light only)").
+  const known = (from) => [...board, "subject", "theirs"].some((name) => String(from || "").trim().startsWith(name));
+  const bad = built.list.filter((sc) => !known(sc.base) || !(sc.moves || []).length || (sc.moves || []).some((m) => !known(m.from))).map((sc) => sc.n);
   check("screens: a base and moves from the board", true, built.list.length ? !bad.length : false, bad.length ? `screens ${bad.join(", ")} name no base, no move, or a source not on the board` : `${built.list.length} screens`);
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
