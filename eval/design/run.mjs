@@ -7,6 +7,12 @@
 //   node eval/design/run.mjs --out ../longbeard-eval                       builds the project, prints the command
 //   node eval/design/run.mjs --out ../longbeard-eval --agent "claude -p"   builds it and runs the agent there
 //   node eval/design/run.mjs --out ../longbeard-eval --pace quick          the quick path instead of full
+//   node eval/design/run.mjs --out ../longbeard-eval-2 --from ../longbeard-eval
+//                                   only the build: the design brief, the moodboard, the readings
+//                                   (library.json) and the pictures are taken from a finished run, and the
+//                                   agent builds the direction's screens and checks them, with this repo's
+//                                   skills. For changing the build rules: faster, and every run builds on
+//                                   the same inputs, so a difference between sheets is the rules'.
 //
 // --agent is any command that takes the prompt as its last argument and works in
 // the current folder. The agent needs Chrome, and the network for Google Fonts and
@@ -26,7 +32,8 @@ const flag = (name, def = "") => {
 const out = flag("out");
 const agent = flag("agent");
 const pace = flag("pace", "full");
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--pace full|quick] [--agent \"claude -p\"]";
+const from = flag("from");
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--pace full|quick] [--from <a finished run>] [--agent \"claude -p\"]";
 if (!out || args.length || !["full", "quick"].includes(pace)) {
   console.error(usage);
   process.exit(2);
@@ -63,7 +70,23 @@ mkdirSync(join(dir, "moodboard"), { recursive: true });
 const board = readdirSync(join(here, "fixture/board")).filter((f) => f.endsWith(".jpg"));
 for (const f of board) cpSync(join(here, "fixture/board", f), join(dir, "moodboard", f));
 
-const prompt = [
+// --from: the inputs of a finished run, up to and including the readings, never its screens.
+if (from) {
+  const src = resolve(from);
+  if (!existsSync(join(src, ".longbeard/design/direction/library.json"))) {
+    console.error(`run: ${src} has no .longbeard/design/direction/library.json to build from`);
+    process.exit(1);
+  }
+  cpSync(join(src, "docs"), join(dir, "docs"), { recursive: true });
+  cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !/\/design\/direction\/(screens|grid|prototype|checks|fix-check)(\/|$)|\/screens\.json$|\/eval\/|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/.test(p) });
+}
+const prompt = from ? [
+  "This project's design flow has been run up to design-direction step 2: the design brief, the moodboard, the pictures and the readings (`.longbeard/design/direction/library.json`) are done, and the person's answers so far are in answers.md.",
+  "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
+  "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
+  "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
+  "Stop when you would show the person the first round's sheet of screens (after its checks): write the sheet, then end, going no further.",
+].join(" ") : [
   "Run this project's design flow end to end, from the `design` skill to an approved DESIGN.md, following each design-* skill exactly as written.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",

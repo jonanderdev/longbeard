@@ -18,6 +18,8 @@ node eval/design/run.mjs --out ../longbeard-eval-quick --pace quick     # the qu
 node eval/design/score.mjs ../longbeard-eval
 ```
 
+To change only how the direction's screens are built, start from a finished run: `run.mjs --out <dir> --from <finished run>` takes its design brief, moodboard, readings and pictures, and the agent only builds and checks the screens, in about half the time. Every such run builds on the same inputs, so a difference between sheets is the rules'. Run the whole flow again before merging, and whenever reading, measuring or matching faces changes.
+
 `run.mjs` builds a fresh project outside this repo: the brief, the answers, the moodboard folder, the design skills as an install lays them out (`.claude/skills` and `.agents/skills`), `AGENTS.md` from the router, and `PROMPT.txt`. The agent runs from `design` to `DESIGN.md`, never Figma, and keeps `eval-log.md`. It needs Chrome, and the network for Google Fonts and Wikimedia Commons.
 
 ## Score
