@@ -8,7 +8,9 @@
 //
 // Pages are rendered (links a script builds count), and only pages in the
 // prototype's folder are walked; a link elsewhere (a real site, mailto:) is
-// listed, never followed. A query (?state=empty) or a hash is the same page.
+// listed, never followed. A query (?state=empty) or a hash is the same page, but the
+// page is opened with the query it was first reached by, so state a prototype keeps in
+// the address (a basket, a chosen slot) carries on as it does for a person.
 //
 // Says, one line each:
 //   broken     a link to a page that is not there
@@ -143,11 +145,12 @@ async function listened(i) {
 }
 
 const depth = new Map([[startPath, 0]]);
+const firstUrl = new Map([[startPath, start.split("#")[0]]]);
 const queue = [startPath];
 const broken = [], nowhere = [], deadEnds = [], outside = new Set();
 while (queue.length) {
   const path = queue.shift();
-  const nav = await call("Page.navigate", { url: pathToFileURL(path).href });
+  const nav = await call("Page.navigate", { url: firstUrl.get(path) || pathToFileURL(path).href });
   if (nav.result?.errorText) {
     broken.push({ from: "(start)", to: path });
     continue;
@@ -180,6 +183,7 @@ while (queue.length) {
     if (to !== path) out++;
     if (!depth.has(to)) {
       depth.set(to, depth.get(path) + 1);
+      firstUrl.set(to, l.url.split("#")[0]);
       queue.push(to);
     }
   }

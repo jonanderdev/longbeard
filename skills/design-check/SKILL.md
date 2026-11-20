@@ -77,7 +77,7 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
 On request, or when a design-* skill has written a doc. The design docs are committed and kept for good, so they stay clean.
 
 - Read `DESIGN.md` and every file in `docs/design/`.
-- **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; a path into `.longbeard/` or `design-exploration/`. The fix is the idea in plain words ("a quiet reading page", not whose).
+- **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; the site the stand-in pictures came from (their credits stay in `.longbeard/design/pictures/credits.tsv`); a path into `.longbeard/` or `design-exploration/`, comments in a copied template included. The fix is the idea in plain words ("a quiet reading page", not whose).
 - **Hard:** `design-identity.md`'s colours or faces differ from its `json identity` block, or `DESIGN.md`'s tokens differ from an identity that was not changed on purpose (a change is under Decisions with its date).
 - The product's own name, the faces and colours it uses, and anything the brief or design brief records as theirs are not findings.
 

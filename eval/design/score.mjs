@@ -111,12 +111,18 @@ else {
   for (const round of deal.rounds || []) {
     if (round.kind !== "deal") continue; // a mix may break the rule on their word, with a warning
     for (const r of round.recipes) {
-      const a = refsOf("arrangements", r.arrangement), t = refsOf("type", r.type), g = refsOf("grounds", r.ground);
+      // The sources deal.mjs recorded when it dealt; else the library as it is now.
+      let a = r.sources?.arrangement, t = r.sources?.type, g = r.sources?.ground;
       if (!a || !t || !g) {
-        unknown++; // an entry the identity later replaced in the library
-        continue;
+        a = refsOf("arrangements", r.arrangement);
+        t = refsOf("type", r.type);
+        g = refsOf("grounds", r.ground);
+        if (!a || !t || !g) {
+          unknown++; // an entry the identity later replaced, dealt before sources were recorded
+          continue;
+        }
+        for (const z of Object.values(r.zones || {})) if (z !== "none") a.push(...(refsOf("arrangements", z) || []));
       }
-      for (const z of Object.values(r.zones || {})) if (z !== "none") a.push(...(refsOf("arrangements", z) || []));
       judged++;
       if (a.some((x) => t.includes(x) || g.includes(x)) || t.some((x) => g.includes(x))) bad.push(`round ${round.round} #${r.n}`);
     }

@@ -439,6 +439,8 @@ if (kind !== "deal") {
 
 recipes.forEach((r, i) => {
   r.n = i + 1;
+  // The references each piece came from, as dealt: the identity may replace the entries later.
+  r.sources = { arrangement: arrangementRefs(r), type: refs(entry("type", r.type)), ground: refs(entry("grounds", r.ground)) };
   const notes = against(r);
   if (notes.length) r.against = notes;
 });

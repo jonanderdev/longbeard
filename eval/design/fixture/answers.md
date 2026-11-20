@@ -2,6 +2,9 @@
 
 You are running the design flow for someone who is away. When a skill asks them anything, answer from this file, as their words, and go on. When a question is not covered here, take the suggestion the skill itself offers (as if they said "yes"), and log it as **uncovered** in `eval-log.md`. Never stop to wait for them.
 
+## design
+- Each next step it suggests: yes, run it.
+
 ## design-brief
 - 1. Think: "a real neighbourhood bakery, and today's bread is still there". Do: order a loaf for pickup. Mostly seen on a desktop.
 - 2. Warm, honest, exact. Never: fussy.
@@ -18,21 +21,25 @@ You are running the design flow for someone who is away. When a skill asks them 
 
 ## design-moodboard
 - Read our folder as our board. It is enough: no gap search.
+- Anything wrong in how you read it: no, that's right.
 
 ## design-direction
 - Pictures: none of ours; stand-ins of our own subject are fine.
 - Headline: take the first you offer.
-- Lead: `01-editorial`. Likes: `02-swiss`, `03-dark-photo`, `05-warm-cards`, `06-giant-type`, `07-minimal`, `09-split`.
+- Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-blue-serif`, `05-orange-block`, `06-lime-letters`, `07-condensed-panel`, `09-split`.
 - The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No vary, no mix.
 - Touch-up: keep all.
 - Five-second check with people: no thanks.
+- Change anything, or take it into the identity: take it into the identity.
 
 ## design-identity
 - Type 1, colours 1. Refinement: go. The board: yes.
 
 ## design-prototype
+- Spacing: as dealt.
 - The list of screens: fine as it is.
 - Options at forks: no, build what follows the first screen.
+- Five-second check with people: no thanks.
 - Is this the product: yes. Write DESIGN.md: yes.
 
 ## design-figma

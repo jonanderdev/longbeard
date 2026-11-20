@@ -79,7 +79,8 @@ function fieldsOf(text) {
 // (an app's key screen, say) keeps the order it first appears in on the board.
 const TOPICS = [
   ["Home", /^(home|homepage|landing|hero)$/],
-  ["Navigation", /^(nav|navigation|menu|header)$/],
+  // "menu" is left out: for a restaurant or a bakery it is the list of dishes, not the navigation.
+  ["Navigation", /^(nav|navigation|nav menu|header)$/],
   ["Index", /^(index|listing|list|work|archive|grid|catalogue|catalog)$/],
   ["Case study", /^(case[ -]?stud(y|ies)|project|work detail)$/],
   ["Article", /^(article|editorial|reading|long[ -]?read|story)$/],

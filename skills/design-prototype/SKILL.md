@@ -33,7 +33,7 @@ Read the brief, `docs/design/design-brief.md`, `design-identity.md`, `design-dir
 
 ### 1. Finish the first screen
 
-Copy `first.html` to `.longbeard/design/prototype/home.html` (or the brief's first key screen) and finish it. In the copy, point `../deal.js` at `../direction/deal.js` and fix any relative picture path the same way, or the page finds no deal; and write in any URL overrides it was captured with, since a copied file keeps no query string.
+The chosen screen, `first.html`, is a fixed 1440×900 capture page built on the deal: the reference, not the page. Build `.longbeard/design/prototype/home.html` (or the brief's first key screen) as a real page from it: the same composition, type, colours, content and devices, responsive, on one stylesheet (and script) that every key screen shares. Keep `first.html` open beside it and compare captures at 1440: the first screen must still be the one they chose. Then finish it:
 
 - **The faces** loaded properly at every size. A stand-in face is said again: the product ships it, or the face it stands in for.
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25`), shown on a crop where the margin and the navigation meet as well as whole. They pick.
@@ -86,7 +86,7 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 
 It says each broken link, each link or button that goes nowhere, each page with no way on, each key screen no click reaches, and how many clicks each page is from the start. Fix every one before they see it. A key screen deeper than its flow needs is said.
 
-**Walk the flows.** For each flow in the brief, one fresh agent that knows nothing of the product: a new agent or a clean session, given the first page's path and the flow's goal in the person's words, never the steps ("you want a sourdough for Saturday pickup"). It clicks through the prototype in a browser and says where it went, where it hesitated, and whether it got there. A flow it cannot finish, a wrong turn two of them take, or a step it calls unclear is fixed inside the identity and the direction: a label, a missing link or action, an order of sections. No agent can be started clean: walk it yourself, say so, and say it is weaker.
+**Walk the flows.** For each flow in the brief, one fresh agent that knows nothing of the product: a new agent or a clean session, given the first page's path and the flow's goal in the person's words, never the steps ("you want a sourdough for Saturday pickup"). It uses the browser it already has (a browser tool, or Playwright from a script: never a browser tool written for the job) to click, fill and choose through the prototype like a person, and says where it went, where it hesitated, and whether it got there. A flow it cannot finish, a wrong turn two of them take, or a step it calls unclear is fixed inside the identity and the direction: a label, a missing link or action, an order of sections. No agent can be started clean: walk it yourself, say so, and say it is weaker.
 
 **The five-second check** on the first screen and each key screen, with what each screen is for as its takeaway: [five-second.md](references/five-second.md). Then show the screens with what the walks and the five-second check found and fixed, ask whether this is the product, and iterate until it is. Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
 
@@ -103,6 +103,8 @@ Only on their yes to the rendered prototype, and, when the design brief's `decid
 - **What makes it this design** goes under Components, with values, not adjectives.
 - **Soft rules overridden on purpose** go under Decisions, with the reason. A device the chosen look relies on that the rules call a tell is on purpose: write the idea it serves.
 - **Ideas, not sources.** Nothing names a reference, site, studio, designer, link or `.longbeard/` path.
+
+Then run `design-check` in docs mode on `DESIGN.md` and `docs/design/`: a picture site, a reference, a link or a `.longbeard/` path left in a committed doc (a copied template's comment counts) is fixed before you say it is done.
 
 Then the next step: `design-figma`.
 

@@ -89,7 +89,7 @@ test("eval score: a good run passes every hard check", () => {
 test("eval score: a leaked source, a gap in the brief, a failing pair, a one-source screen and a dead link each fail", () => {
   const bad = {
     ...good,
-    "docs/design/design-moodboard.md": "# Moodboard\n\nLike Marlow Quarterly's headlines; see .longbeard/design/moodboard/refs/01-editorial.png\n",
+    "docs/design/design-moodboard.md": "# Moodboard\n\nLike Marlow Quarterly's headlines; see .longbeard/design/moodboard/refs/08-editorial.png\n",
     "docs/design/design-brief.md": good["docs/design/design-brief.md"].replace("- accessibility: AA\n", "").replace("playful 2 · ", ""),
     "DESIGN.md": good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | #b8b2a8 |"),
     ".longbeard/design/direction/library.json": good[".longbeard/design/direction/library.json"].replace('{"id":"serif","from":["b"]}', '{"id":"serif","from":["a"]}'),
@@ -99,7 +99,7 @@ test("eval score: a leaked source, a gap in the brief, a failing pair, a one-sou
   assert.equal(result.status, 1);
   const results = byId(result.stdout);
   assert.equal(results["no source in the docs"].status, "FAIL");
-  assert.match(results["no source in the docs"].detail, /Marlow Quarterly.*\.longbeard\/.*01-editorial|Marlow Quarterly/);
+  assert.match(results["no source in the docs"].detail, /Marlow Quarterly.*\.longbeard\/.*08-editorial|Marlow Quarterly/);
   assert.equal(results["design brief complete"].status, "FAIL");
   assert.match(results["design brief complete"].detail, /no accessibility.*personality lacks playful/);
   assert.equal(results["DESIGN.md: contrast pairs pass"].status, "FAIL");
@@ -114,4 +114,18 @@ test("eval score: a project with nothing in it fails, and says what is missing",
   const result = run(project({ "docs/brief.md": "# x\n" }));
   assert.equal(result.status, 1);
   assert.match(byId(result.stdout).docs.detail, /missing: docs\/design\/design-brief\.md/);
+});
+
+test("eval score: screens dealt before the identity are judged by the sources deal.mjs recorded", () => {
+  const recipe = { n: 1, arrangement: "stack", navigation: "top", type: "serif", ground: "cream", accent: "none" };
+  const after = {
+    ...good,
+    // The identity replaced type and grounds in the library: "serif" and "cream" are gone.
+    ".longbeard/design/direction/library.json": JSON.stringify({ arrangements: [{ id: "stack", from: ["a"] }], navigation: [{ id: "top", from: ["b"] }], type: [{ id: "identity", from: ["identity"] }], grounds: [{ id: "Linen", from: ["identity"] }], accents: [{ id: "none", colour: null, from: ["identity"] }] }),
+    ".longbeard/design/direction/deal.json": JSON.stringify({ rounds: [{ round: 1, kind: "deal", recipes: [{ ...recipe, sources: { arrangement: ["a"], type: ["b"], ground: ["c"] } }, { ...recipe, n: 2, sources: { arrangement: ["a"], type: ["a"], ground: ["c"] } }] }], chosen: { round: 1, n: 1 } }),
+  };
+  const check = byId(run(project(after)).stdout)["deal: three sources a screen"];
+  assert.equal(check.status, "FAIL");
+  assert.match(check.detail, /round 1 #2/);
+  assert.doesNotMatch(check.detail, /#1\b/);
 });
