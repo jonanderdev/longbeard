@@ -218,6 +218,39 @@ else {
   if (ran) check("prototype: contrast where text sits", true, !failing.length, failing.slice(0, 4).join("; ") || `${ran} pages at ${level}`);
 }
 
+// ------------------------------------------------------------------ rendered: the dealt screens (screens.mjs)
+// Each screen of the first dealt round: no tiny or clipped text, contrast where text sits, no more
+// text than its reference carries and one more, a ground of a tone the references use; and measured
+// against its references, with the odd-one-out rate when the judges have run (odd-one-out.mjs).
+const gridPage = [at(".longbeard/design/direction/prototype/grid.html")].find(existsSync);
+const gridIds = ["grid: no text under 12px", "grid: no clipped text", "grid: contrast on every screen", "grid: text within the reference's slots", "grid: grounds in the board's tones", "grid: measured against the references", "grid: odd one out"];
+if (!gridPage || !deal) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
+else {
+  const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
+  if (r) {
+    let out = null;
+    try {
+      out = JSON.parse(r.stdout);
+    } catch {}
+    if (!out) for (const id of gridIds) check(id, false, false, (r.stderr || "screens.mjs gave no result").trim().slice(0, 200));
+    else {
+      const g = out.summary;
+      const list = (xs) => xs.slice(0, 4).join("; ") + (xs.length > 4 ? ` … ${xs.length} in all` : "");
+      check(gridIds[0], true, !g.tiny.length, g.tiny.length ? list(g.tiny) : `smallest ${g.minText}px`);
+      check(gridIds[1], true, !g.clipped.length, list(g.clipped));
+      check(gridIds[2], true, !g.contrast.length, g.contrast.length ? list(g.contrast) : `${g.screens} screens`);
+      check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
+      check(gridIds[4], false, !g.offBoard.length, list(g.offBoard));
+      const rates = ["arrangement", "type", "role", "colour"].filter((k) => g[k]);
+      const say = rates.map((k) => `${k} ${g[k].within}/${g[k].of}`).join(" · ");
+      check(gridIds[5], false, rates.length ? rates.every((k) => g[k].within * 2 >= g[k].of) : null, say || "nothing measured");
+      // Picked as least finished at chance (1 in 6) or less: the screens hold up beside the references.
+      const odd = g.oddOneOut;
+      check(gridIds[6], false, odd ? odd.rate <= 1 / 6 + 1e-9 : null, odd ? `${odd.picked}/${odd.judged} picks were a dealt screen (chance ${(odd.judged / 6).toFixed(1)})` : "not judged: run odd-one-out.mjs");
+    }
+  }
+}
+
 // ------------------------------------------------------------------ the run's own log
 const log = read("eval-log.md");
 if (log === null) check("eval log", false, false, "no eval-log.md");

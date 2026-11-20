@@ -11,6 +11,10 @@
 //   node fonts.mjs "Their Face" --kind serif --css https://…/their-face.css
 //                                                      a face not in Google's list, from its stylesheet
 //   node fonts.mjs "Italiana" --kind serif              the list calls it a sans: say what it is
+//   node fonts.mjs --shape width=0.53,xheight=0.54,contrast=1.3 --kind sans --weight 700
+//                                                      a reference that is only a picture: no face to
+//                                                      name, so the shape measure.mjs read from its
+//                                                      pixels (type.display) stands in for it
 //
 // Prints one row a face, nearest first: face, kind, width, x-height, dark, contrast (each the
 // face's own, the chosen one's first), weights, axes, how widely it is used (its rank in Google's
@@ -41,10 +45,15 @@ const json = has("json");
 const body = has("body");
 const italic = has("italic");
 const local = has("local");
-const face = args.join(" ").trim();
+const shapeArg = flag("shape");
+// --shape: the shape read from a picture (measure.mjs, type.display), as width, xheight, dark and
+// contrast; any left out are not compared. Its kind must be said: there is no face to look up.
+const given = Object.fromEntries(shapeArg.split(",").filter(Boolean).map((kv) => kv.split("=")).map(([k, v]) => [k.trim(), Number(v)]));
+const shapeBad = shapeArg && (!kindArg || !Object.keys(given).length || Object.entries(given).some(([k, v]) => !["width", "xheight", "dark", "contrast"].includes(k) || !(v > 0)));
+const face = shapeArg ? "the picture's type" : args.join(" ").trim();
 const KINDS = { serif: ["Serif", "Serif"], slab: ["Serif", "Slab Serif"], sans: ["Sans Serif", "Sans Serif"], display: ["Display", null], handwriting: ["Handwriting", null], mono: ["Monospace", null] };
-if (!face || !(weight >= 100 && weight <= 1000) || !(count >= 1 && count <= 40) || (kindArg && !KINDS[kindArg])) {
-  console.error(`usage: node fonts.mjs "Face" [--weight 400] [--italic] [--body] [--kind ${Object.keys(KINDS).join("|")}] [--count 8] [--json]`);
+if (!face || shapeBad || (shapeArg && args.length) || !(weight >= 100 && weight <= 1000) || !(count >= 1 && count <= 40) || (kindArg && !KINDS[kindArg])) {
+  console.error(`usage: node fonts.mjs "Face" [--weight 400] [--italic] [--body] [--kind ${Object.keys(KINDS).join("|")}] [--count 8] [--json]\n       node fonts.mjs --shape width=0.53,xheight=0.54,dark=0.2,contrast=1.3 --kind ${Object.keys(KINDS).join("|")} [--weight 400] [--count 8] [--json]`);
   process.exit(2);
 }
 
@@ -131,7 +140,7 @@ const families = JSON.parse(list.replace(/^\)\]\}'\s*/, "")).familyMetadataList 
 // The kind: the list's category and stroke, display or not, in Latin, with the weight in use.
 const offers = (f, w, it) => (it ? `${w}i` : `${w}`) in f.fonts || (f.axes || []).some((a) => a.tag === "wght" && a.min <= w && a.max >= w && (!it || Object.keys(f.fonts).some((k) => k.endsWith("i"))));
 const isDisplay = (f) => (f.classifications || []).includes("Display");
-const chosen = families.find((f) => f.family.toLowerCase() === face.toLowerCase());
+const chosen = shapeArg ? null : families.find((f) => f.family.toLowerCase() === face.toLowerCase());
 if (!chosen && !kindArg) fail(`${face} is not in Google Fonts' list: say its kind with --kind ${Object.keys(KINDS).join("|")}`);
 // --kind wins over the list: Google files some faces under the wrong kind (Italiana is listed as a
 // sans), and a row of the wrong kind is no row at all.
@@ -156,7 +165,7 @@ const rank = new Map([...families].sort((a, b) => a.popularity - b.popularity).m
 await go("about:blank");
 const shapes = await evaluate(`(async () => {
   const W = ${weight}, IT = ${italic}, LOCAL = ${local}, CSS = ${JSON.stringify(cssArg)}, SAMPLE = "Hamburgefonstivxo";
-  const faces = ${JSON.stringify([face, ...candidates.map((f) => f.family)])};
+  const faces = ${JSON.stringify([...(shapeArg ? [] : [face]), ...candidates.map((f) => f.family)])};
   const c = Object.assign(document.createElement("canvas"), { width: 2400, height: 420 }).getContext("2d", { willReadFrequently: true });
   const font = (name, fb, size = 120) => (IT ? "italic " : "") + W + " " + size + "px \\"" + name + "\\", " + fb;
   const load = (name) => new Promise((done) => {
@@ -204,10 +213,11 @@ const shapes = await evaluate(`(async () => {
 })()`);
 ws.close();
 
-const mine = shapes[face];
+const mine = shapeArg ? given : shapes[face];
 if (!mine) fail(`${face} did not load${local ? " (--local: it must be installed)" : chosen ? "" : " (a face not in Google's list needs --css, its stylesheet)"}: check the name and the weight (${weight})`);
 const ln = (a, b) => Math.abs(Math.log(a / b));
-const far = (s) => ln(s.width, mine.width) / 0.12 + Math.abs(s.xheight - mine.xheight) / 0.05 + ln(s.dark, mine.dark) / 0.2 + (s.contrast && mine.contrast ? ln(s.contrast, mine.contrast) / 0.3 : 1);
+// Only what is known counts: a shape read from a picture may lack a measure, and then it is left out.
+const far = (s) => (mine.width ? ln(s.width, mine.width) / 0.12 : 0) + (mine.xheight ? Math.abs(s.xheight - mine.xheight) / 0.05 : 0) + (mine.dark ? ln(s.dark, mine.dark) / 0.2 : 0) + (mine.contrast ? (s.contrast ? ln(s.contrast, mine.contrast) / 0.3 : 1) : 0);
 const meta = new Map(families.map((f) => [f.family, f]));
 const r2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
 const row = (name, s) => {
@@ -233,11 +243,12 @@ const rows = Object.entries(shapes)
   .sort((a, b) => a.far - b.far)
   .slice(0, count);
 const missed = candidates.length - Object.keys(shapes).filter((n) => n !== face).length;
-if (json) console.log(JSON.stringify({ chosen: row(face, mine), rows, measured: candidates.length - missed, missed }, null, 1));
+const top = shapeArg ? { face, kind: row(face, { width: 1, xheight: 0, dark: 1 }).kind, ...given, far: 0 } : row(face, mine);
+if (json) console.log(JSON.stringify({ chosen: top, rows, measured: candidates.length - missed, missed }, null, 1));
 else {
   const cols = ["face", "kind", "width", "xheight", "dark", "contrast", "weights", "italic", "axes", "used", "far"];
   console.log(cols.join("\t"));
-  for (const r of [row(face, mine), ...rows]) console.log(cols.map((k) => r[k] ?? "").join("\t"));
+  for (const r of [top, ...rows]) console.log(cols.map((k) => r[k] ?? "").join("\t"));
   console.error(`fonts: ${candidates.length - missed} of ${pool.length} faces of this kind measured${missed ? `, ${missed} did not load` : ""}; nearest first, the chosen face on top`);
 }
 process.exit(0);

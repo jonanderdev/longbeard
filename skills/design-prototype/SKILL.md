@@ -39,6 +39,7 @@ The chosen screen, `first.html`, is a fixed 1440×900 capture page built on the 
 - **Spacing:** as dealt, tighter and looser (`&space=0.8`, `&space=1.25`), shown on a crop where the margin and the navigation meet as well as whole. They pick.
 - **The rest of the page:** what sits below the first screen, the small text, every width down to the phone. The direction's ranges hold.
 - **Motion,** as much as the design brief's `motion` line asks: none is none (state changes only, no entrances); subtle is short fades and moves under 300 ms; expressive may run longer and lead. A reference that moves is played again from its frames or its live link (`capture.mjs <url> --out .longbeard/design/prototype/<name>-replay --frames 12`); build that kind of motion in CSS, none of its content. Every motion honours `prefers-reduced-motion`.
+- **What waits for the prototype.** The grid screen carried only what its reference carries; `design-direction.md`'s `for the prototype` line lists the rest the first screen needs (a second action, the full list, pickup times). Place each in the composition's own system: aligned to what is there, in its type sizes, never shrinking the headline or tidying a device to make room. What does not fit the first screen goes below it or onto the screen it belongs to. Where it forks (the full list on the first screen, or one line and a link to it), build two or three options and let them choose (at `pace: quick`, the one that keeps the first screen as chosen, and name the fork).
 - **The ownable**, finished from the product's own world.
 - **The states** a person can reach here (empty, loading, error), and the second theme if the design brief asked for both.
 
@@ -51,9 +52,9 @@ List them once, navigation's details first (the menu open, on scroll, on a phone
 Then build them all, linked so they click through, in the identity and the direction. Build once and reuse: one menu, one card, one row, one heading style everywhere.
 
 - **Layout:** where a moodboard reference shows that kind of screen, take its layout (never its content), from any family; the look is already fixed. Where none does, it follows from the first screen.
-- **The direction's devices carry over.** Overlaps, collisions, crops, giant type, wide empty space: the chosen screen's moves appear on the other screens too, never tidied away. Each screen gets the same light touch-up as the first: contrast where text sits, every item the screen must carry and its primary action present, nothing plainly broken. A screen is not done until it reads right *and* still looks like the chosen one.
+- **The direction's devices carry over.** Overlaps, collisions, crops, giant type, wide empty space: the chosen screen's moves appear on the other screens too, never tidied away. Each screen gets the same light touch-up as the first: contrast where text sits, every item the screen needs and its primary action present, nothing plainly broken. A screen is not done until it reads right *and* still looks like the chosen one.
 - **Density** as the design brief's `dense` asks, on every screen: how much sits on a screen, row heights, how much is shown before "more". An airy 1–2 shows less and lets it breathe; a dense 4–5 shows more per screen and keeps spacing tight.
-- **Real content, complete.** Copy in the voice, the longest real names, every section a person needs to act. With `design-content.md`, follow it. Without it, draft the copy and the sections yourself from the brief and the design brief, and say they are drafts. Pictures: theirs, or the stand-ins of the product's own subject in `.longbeard/design/pictures/` (more with `pictures.mjs`, or a full set planned with `design-content`); never grey boxes, never the references' subject.
+- **Real content, complete.** Copy in the voice, the longest real names, every section a person needs to act, and everything under `for the prototype` that belongs on this screen. With `design-content.md`, follow it. Without it, draft the copy and the sections yourself from the brief and the design brief, and say they are drafts. Pictures: theirs, or the stand-ins of the product's own subject in `.longbeard/design/pictures/` (more with `pictures.mjs`, or a full set planned with `design-content`); never grey boxes, never the references' subject.
 - **States,** once a screen is settled: empty, loading and error where reachable (`?state=empty`), every width, each theme.
 
 A pattern that brings a feature the brief does not have is named when shown: kept, it is a product change (`idea`, Change) before `DESIGN.md`.
@@ -122,5 +123,5 @@ A feature with screens, once `DESIGN.md` exists.
 - Write `DESIGN.md` before they approve a rendered prototype, or rewrite it in a feature.
 - Change the identity or the direction's composition while building screens. Say it, and send it back to that skill.
 - Pick a fork silently, or rank options.
-- Ship a screen with grey boxes, lorem, or a must-carry item missing.
+- Ship a screen with grey boxes, lorem, or an item it needs missing (the `for the prototype` list included).
 - Name a reference anywhere that is kept.

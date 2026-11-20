@@ -40,6 +40,10 @@
 // holds one or two grounds in deal.mjs's format, from ["subject"], to add to
 // library.json, and an accent only when the subject has a second hue of its own
 // (a one-hue accent stays in the proposals, for design-identity to offer).
+// The light ground is a quiet tint. The second may be the signature at full
+// strength: deal.mjs deals it as a ground only when a reference has a ground
+// that strong, and as an accent otherwise, and drops a ground of a tone no
+// reference uses, so the subject's colours never push a board somewhere it is not.
 //
 // --sheet out.html writes a page: each proposal's colours as large swatches,
 // and beside each, every picture with the pixels near its source colour lit

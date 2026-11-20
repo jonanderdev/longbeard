@@ -17,11 +17,11 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking the arrangement from one reference, the type from another and the colours from a third makes screens none of them has, and a round that offers several real directions. That is the point, so the spread is protected: enough references, and a deal that spreads light, dark and mid grounds and kinds of face. What the agent owns afterwards is a light touch-up: the chosen screen came from references, not from the agent's taste, so the agent only repairs what is broken and never redesigns it.
+The rule here: **you build, they choose.** A script deals the combinations; they choose on rendered screens; the agent never picks, drops or ranks a dealt screen. Taking the arrangement from one reference, the type from another and the colours from a third makes screens none of them has, and a round that offers several real directions. That is the point, so the spread is protected: enough references, and a deal that spreads the grounds across the tones the board uses and the faces across kinds. It never forces a tone the board does not have. What the agent owns afterwards is a light touch-up: the chosen screen came from references, not from the agent's taste, so the agent only repairs what is broken and never redesigns it.
 
 Comes out:
 
-- **`docs/design/design-direction.md`**, committed: the chosen composition in words, its hierarchy, the must-carry content, the headline, the voice, and the type and colours as dealt, for `design-identity` to refine.
+- **`docs/design/design-direction.md`**, committed: the chosen composition in words, its hierarchy, what the screen carries and what waits for the prototype, the headline, the voice, and the type and colours as dealt, for `design-identity` to refine.
 - **`.longbeard/design/direction/`**, gitignored: `library.json`, `deal.json`, `deal.js`, `prototype/grid.html`, the grid captures and sheets.
 
 ## Gate
@@ -37,7 +37,13 @@ Before the grid: three or four pictures of what the product is about (the bakery
 
 ## 1. The content and the references, in one message
 
-**What the first screen must carry.** From the brief and the design brief's takeaway: the status (open now, in stock), the main content (today's bakes, the balance), the primary and secondary actions, how to reach it. One line.
+**What the screens carry, in order.** The direction step is where they choose and scripts deal: the agent's taste is kept out on purpose. Handing it a whole site's content to fit would hand it the composition. So each screen carries what its reference carries, filled by rule:
+- **The headline** says the takeaway.
+- **The small slots** take real content in a fixed order: the primary action, then the status (open now, in stock), then the thing the product shows (today's bakes, the balance, the ownable). Each screen takes as many as its reference has, from the top, and stops.
+- **At most one extra** small element, only where the reference's own system gives it a place.
+- **The rest** (the second action, the full list, how to reach it) is written down for `design-prototype`, which fits it with options where it forks.
+
+Say the order in one line.
 
 **The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark).
 
@@ -49,14 +55,14 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 
 (When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
 
-> Must carry: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
+> Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
 > Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and paste the copy-out.
 
 The lead's arrangement is dealt twice; the likes are the donors. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before dealing: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A non-screen (a poster) as lead: say it lends picture treatment, not an arrangement, and offer a screen as lead.
 
 ## 2. Read the references into the library
 
-Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones), navigation, type (with its `kind`), ground and accent, measured where a live page exists, never judged by eye when it can be measured; the family they share; their controls; one or two grounds from the subject (an accent too when it has a second hue); what they own. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, its arrangement (with zones, its defining `move`, its `slots`, the type `role` the move needs), navigation, type (with its `kind`), ground and accent; the family they share; their controls; a quiet ground from the subject (an accent too when it has a second hue); what they own. **Measured, never judged by eye when it can be measured:** a live page with `measure.mjs <link>`; a reference that is only a picture with `measure.mjs <picture> --lines` (ground, ink, palette, empty share, type sizes, weight and text blocks) and `fonts.mjs --shape` for the nearest free face of its measured shape and kind. The format and the rules for each entry: [library.md](references/library.md). The subject's colours are proposed by `subject-colours.mjs`, then looked at and named as part of the subject before they go in: [subject.md](references/subject.md).
 
 Then deal:
 
@@ -64,13 +70,13 @@ Then deal:
 node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json
 ```
 
-Eight recipes: arrangement, navigation, type, ground, accent. A screen's arrangement, type and ground come from three different references; the lead's arrangement twice; no recipe twice; grounds spread across light, dark and mid and faces across kinds. Its `spread:` line says how wide the round is, and it warns when the library is too narrow (one tone, one kind of face, under six references): say that to them with the grid. Build what was dealt: never swap, drop or re-deal because a combination looks wrong to you.
+Eight recipes: arrangement, navigation, type, ground, accent. A screen's arrangement, type and ground come from three different references; the lead's arrangement twice; no recipe twice; grounds across the tones the references use, in about their share, and faces across kinds. A subject ground of a tone no reference uses is not dealt, and one more saturated than any reference's ground is dealt as an accent instead: it says so. Its `spread:` line says how wide the round is, and it warns when the library is too narrow (one tone, one kind of face, under six references): say that to them with the grid. Build what was dealt: never swap, drop or re-deal because a combination looks wrong to you.
 
-It reads `docs/design/design-brief.md` and notes, under a screen, when its colours or face sit plainly against the personality ("a cool ground for a warm brief"). A note, never a cut: keep it for the table in step 3.
+It reads `docs/design/design-brief.md` and notes, under a screen, when its colours or face sit plainly against the personality ("a cool ground for a warm brief"), and when the face cannot carry its arrangement's type role ("a hairline serif asked to be one heavy word"). Notes, never cuts: keep them for the table in step 3.
 
 ## 3. Build the grid
 
-One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html), with the same real content on every screen (the headline, every must-carry item, the ownable, the subject's pictures), each arrangement built once as a rule, and faults fixed in the rule, never taste. How to build, capture and sheet it, for a site or an app: [grid.md](references/grid.md).
+One page, `.longbeard/design/direction/prototype/grid.html`, from [grid-template.html](references/grid-template.html): the same real content in the same order on every screen, each screen carrying only what its arrangement's slots hold, each arrangement built once as a rule with the dealt face set to its type role, and faults fixed in the rule, never taste. Then **the fidelity check:** each screen beside the reference its arrangement came from, until the arrangement's move reads; and contrast on every screen, since a composition moved onto another ground is where text stops reading. How to build, check, capture and sheet it, for a site or an app: [grid.md](references/grid.md).
 
 Show the sheet, a table of each number's arrangement, navigation, ground and accent in plain words, and any fault you could not fix. Never say which you prefer.
 
@@ -97,7 +103,7 @@ On the chosen screen only, after their yes. Every grid screen was built by scrip
 
 **It fixes only:**
 - **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`; with the design brief's accessibility at AAA, `--min 7 --large 4.5`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
-- **Something missing.** A must-carry item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls.
+- **Something missing.** A slot's item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls. What waits for the prototype is not missing.
 - **Something plainly off.** A clipped word, text hidden where it cannot be read at all, a control that looks tappable and is not, the same line twice.
 - **Rank, only when inverted.** The headline outranked by smaller text (a description bigger or louder than the title): the smaller one is brought down, not the headline restyled.
 
@@ -122,7 +128,8 @@ Record the result: `deal.mjs … --choose` on it stays the chosen screen; copy t
 
 - takeaway: <from the design brief>
 - headline: "<the one they picked>"
-- must carry: <the list>
+- carries: <what the chosen screen holds, in the fill order>
+- for the prototype: <everything else the first screen needs, which design-prototype places>
 - ownable: <what, from the product's world>
 - five seconds: <what it is n of 3, what to do n of 3, feel words; people's answers when given; "not run" and why otherwise>
 

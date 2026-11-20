@@ -452,9 +452,10 @@ test("grid template: its script parses, and it marks what a run writes", () => {
   for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
 });
 
-test("grid template: must-carry and zones are wired", () => {
+test("grid template: slots, the type role, colour variables and zones are wired", () => {
   const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
-  for (const hook of ["function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
+  for (const hook of ["function mustCarry(", "function countBlocks(", "const zone = ", "arrangementEntry.slots", "arrangementEntry.role", "--accent-text", "--on-accent", "--display-size", "fill: ["]) assert.ok(grid.includes(hook), hook);
+  assert.doesNotMatch(grid, /C\.must\b/);
 });
 
 test("deal: their own entries are not one shared reference", () => {
@@ -720,9 +721,60 @@ test("deal: a round spreads across light, dark and mid grounds and kinds of face
   const line = result.stdout.split("\n").find((l) => l.startsWith("spread:"));
   assert.ok(line, result.stdout);
   for (const word of ["light", "dark", "serif", "sans", "condensed"]) assert.match(line, new RegExp(word));
-  // Three of the four grounds are light; dealt by evenness alone, dark would get 2 of 8. Spread gives it more.
+  // Six of the board's eight references are on light grounds: dark comes round in about that share, never forced up.
   const dark = Number((line.match(/dark (\d+)/) || [0, 0])[1]);
-  assert.ok(dark >= 3, line);
+  assert.ok(dark >= 1 && dark <= 3, line);
+});
+
+test("deal: grounds keep to the board's tones, a strong subject ground becomes an accent, and an unreadable ink is said", () => {
+  const lib = library();
+  lib.grounds = [
+    { id: "light", ground: "#ffffff", ink: "#111111", from: ["a", "c"] },
+    { id: "cream", ground: "#f4ecdc", ink: "#111111", from: ["b", "e"] },
+    { id: "paper", ground: "#f7f7f2", ink: "#222222", from: ["d", "g"] },
+    { id: "framed", ground: "#203040", panel: "#fbfbfb", ink: "#111111", from: ["f", "h"] },
+    // The subject: a near-black no reference uses, a saturated crust, a quiet tint, and a pale ink.
+    { id: "subject-dark", ground: "#1a1410", ink: "#f2ece4", from: ["subject"] },
+    { id: "subject-signature", ground: "#c4561c", ink: "#ffffff", from: ["subject"] },
+    { id: "subject-light", ground: "#f6efe6", ink: "#cccccc", from: ["subject"] },
+  ];
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "3"]);
+  assert.equal(result.status, 0, result.stderr);
+  const dealt = rounds(dir)[0].recipes;
+  assert.ok(dealt.every((r) => !["subject-dark", "subject-signature"].includes(r.ground)), JSON.stringify(dealt.map((r) => r.ground)));
+  assert.match(result.stderr, /subject-dark is dark and no reference has a dark ground: not dealt/);
+  assert.match(result.stderr, /subject-signature \(#c4561c\) is more saturated than any reference's ground: dealt as an accent/);
+  assert.match(result.stderr, /the ink #cccccc reads 1\.\d:1 on subject-light/);
+  const saved = JSON.parse(readFileSync(join(dir, "deal.js"), "utf8").replace(/^window\.DEAL = /, "").replace(/;\n$/, ""));
+  assert.ok(saved.library.accents.some((a) => a.colour === "#c4561c" && a.from.includes("subject")));
+  // A board that has a saturated ground of its own may deal the subject's.
+  lib.grounds[3] = { id: "orange", ground: "#e2501c", ink: "#ffffff", from: ["f", "h"] };
+  const strong = run(deal, project(lib), ["library.json", "--seed", "3"]);
+  assert.doesNotMatch(strong.stderr, /subject-signature .* more saturated/);
+});
+
+test("deal: an arrangement's type role is noted when the dealt face cannot carry it, and the screen is still dealt", () => {
+  const lib = library();
+  lib.arrangements = lib.arrangements.map((a) => ({ ...a, role: { weight: 800, width: "condensed", scale: 0.3, sits: "one word filling the width" } }));
+  lib.type = [
+    { id: "hairline", face: "Thin Serif", kind: "serif", weights: "200–400", from: ["a", "b"] },
+    { id: "heavy", face: "Heavy Grotesk", kind: "condensed", weights: [400, 700, 800, 900], from: ["c", "d"] },
+    { id: "wide", face: "Wide Sans", kind: "sans", weights: "100–900", axes: "wdth wght", from: ["e", "f"] },
+    { id: "plain", face: "Plain", kind: "sans", from: ["g", "h"] },
+  ];
+  const dir = project(lib);
+  const result = run(deal, dir, ["library.json", "--seed", "4"]);
+  assert.equal(result.status, 0, result.stderr);
+  const dealt = rounds(dir)[0].recipes;
+  assert.ok(dealt.length >= 6);
+  for (const r of dealt) {
+    const notes = r.role || [];
+    assert.equal(notes.some((n) => /Thin Serif has no weight near 800/.test(n)), r.type === "hairline", `${r.n} ${r.type}`);
+    assert.equal(notes.some((n) => /is not condensed/.test(n)), r.type === "hairline" || r.type === "plain", `${r.n} ${r.type}`);
+    if (r.type === "heavy" || r.type === "wide") assert.equal(notes.length, 0, JSON.stringify(notes));
+  }
+  if (dealt.some((r) => r.role)) assert.match(result.stdout, /the arrangement's type: /);
 });
 
 test("deal: a library too narrow for a spread says so", () => {
@@ -732,7 +784,7 @@ test("deal: a library too narrow for a spread says so", () => {
   const dir = project(lib);
   const result = run(deal, dir, ["library.json", "--seed", "1"]);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stderr, /every ground in the library is light/);
+  assert.match(result.stderr, /every reference's ground is light, so every screen is too/);
   assert.match(result.stderr, /4 references give 4 arrangements/);
 });
 
@@ -756,4 +808,52 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
   assert.deepEqual(out.deadEnds, ["basket"]);
   assert.deepEqual(out.unreached, ["checkout"]);
   assert.equal(out.outside.length, 1);
+});
+
+// A picture with type in it, drawn by rule: hollow letters (an "o" a block) on a light ground, a
+// headline of five tall ones, a body line of small ones, and a patch of noise standing for a photo.
+function typePicture() {
+  const W = 400, H = 300, rgb = new Array(W * H * 3).fill(244);
+  const dot = (x, y, v) => { const i = (y * W + x) * 3; rgb[i] = v[0]; rgb[i + 1] = v[1]; rgb[i + 2] = v[2]; };
+  const letter = (x0, y0, w, h, s, ink) => {
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if (x < x0 + s || x >= x0 + w - s || y < y0 + s || y >= y0 + h - s) dot(x, y, ink);
+  };
+  for (let i = 0; i < 5; i++) letter(30 + i * 52, 40, 40, 60, 8, [20, 20, 20]);
+  for (let i = 0; i < 12; i++) letter(30 + i * 12, 200, 8, 12, 2, [20, 20, 20]);
+  let seed = 7;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
+  for (let y = 150; y < 260; y++) for (let x = 260; x < 380; x++) dot(x, y, [rand() * 255, rand() * 255, rand() * 255].map(Math.round));
+  return png(W, H, rgb);
+}
+
+test("measure: a picture's type is read: the display's size and weight, the body, the scale, the headline and the blocks", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-measure-type-"));
+  writeFileSync(join(dir, "type.png"), typePicture());
+  const result = await measured([join(dir, "type.png"), "--lines"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const { type, traits } = JSON.parse(result.stdout);
+  // A 60 px letter is a cap of 60, an em of about 86: at 1440 wide, 86 × 1440 / 400.
+  assert.ok(Math.abs(type.display.px1440 - 309) < 20, JSON.stringify(type.display));
+  assert.equal(type.display.weight, 400, JSON.stringify(type.display));
+  assert.equal(type.display.case, "uppercase");
+  assert.equal(type.display.ink, "#141414");
+  assert.ok(Math.abs(type.scale - 5) < 0.6, String(type.scale));
+  assert.equal(type.body.weight, null, "a body line too small to weigh is given no weight");
+  assert.deepEqual(type.headline, { words: 1, lines: 1 });
+  assert.equal(type.blocks, 2);
+  assert.equal(type.lines.length, 2, "the noise is not read as type");
+  assert.equal(traits.ink, "#141414");
+  assert.ok(traits.pictures > 3 && traits.pictures < 20, String(traits.pictures));
+});
+
+test("fonts --shape: a picture's measured shape stands in for a face; its kind must be said", () => {
+  const fonts = join(root, "skills/design-identity/scripts/fonts.mjs");
+  const run = (args) => spawnSync(process.execPath, [fonts, ...args], { encoding: "utf8" });
+  assert.equal(run(["--shape", "width=0.5,xheight=0.5"]).status, 2, "no --kind");
+  assert.equal(run(["--shape", "width=0.5,height=2", "--kind", "serif"]).status, 2, "an unknown measure");
+  assert.equal(run(["--shape", "width=0.5", "--kind", "serif", "Georgia"]).status, 2, "a face and a shape at once");
+  assert.match(run(["--shape", "width=-1", "--kind", "serif"]).stderr, /--shape width=/);
+  // design-direction ships the same copy, for the library step.
+  assert.equal(readFileSync(join(root, "skills/design-direction/scripts/fonts.mjs"), "utf8"), readFileSync(fonts, "utf8"));
 });

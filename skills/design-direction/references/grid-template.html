@@ -12,13 +12,35 @@
   passes a state to the layout. &size=390x844 renders at a phone's size. The page sets document.title to "ready" once
   the faces are in and the type is fitted, so a capture can wait for it.
 
-  Must-carry: every item in C.must is placed by every arrangement, marked
-  data-must="<key>". An item missing from the screen, or outside it, is drawn
-  as a red fault label and listed in document.body.dataset.missing: the fault
-  pass fails that screen until the arrangement's rule places it.
+  Content by slots: a screen carries what its source reference carries, no
+  more. The arrangement's library entry says how much ("slots": the headline's
+  words and lines, how many small text blocks, how many pictures). The page
+  fills its small slots from C.fill in order (primary action, then status, then
+  what the product shows) and stops when they run out: ctx.fill is this
+  screen's list. An arrangement may add one more small element (ctx.extra)
+  only where its reference's own system has a place for it. What is left over
+  goes to design-prototype, never onto the grid. Each item in ctx.fill is
+  placed with data-must="<key>"; one missing from the screen, or outside it,
+  is drawn as a red fault label and listed in document.body.dataset.missing.
+  document.body.dataset.blocks counts the text blocks on the screen outside
+  the navigation, and dataset.capacity what the slots allow (headline + small
+  + one): more is drawn as a fault label too.
+
+  Type role: an arrangement whose entry has "role" (weight, case, tracking,
+  scale: the display's em as a share of the screen's height) sets the dealt
+  face to it: the face comes from its reference, its size and weight from the
+  arrangement's move. --display-size is that scale times the height; use it,
+  or data-fit, for the display.
 
   Controls: library.controls (buttons, a chip, a list row) set the classes
   .btn, .btn2, .chip and .row, so actions have a hierarchy on every recipe.
+
+  Colour on any ground: write every colour as a variable, never a hex, so a
+  screen moved to another ground still reads. --ink for text, --accent for
+  marks and fills, --accent-text for text in the accent colour (the accent
+  where it reads 4.5:1 on the ground, the ink where it does not), --on-accent
+  for text on an accent fill, --muted for quiet text (the ink, softened only
+  as far as 4.5:1 allows).
 
   Zones: an arrangement built from zones (hero, side, band…) writes each as
   ZONES["<arrangement>.<zone>"] and places it with zone("side", C, ctx). A
@@ -80,21 +102,18 @@ const C = {
   name: "Product name",
   // The headline they picked in design-direction step 1: the design brief's takeaway, said outright in the brief's voice.
   headline: "The takeaway, as the headline.",
-  sub: "A sentence or two of real supporting copy.",
-  // The ownable, proposed with the headline: content on every screen, not a late detail.
-  ownable: "The one thing only this product would show.",
+  // A shorter cut of it, for an arrangement whose headline holds one or two words.
+  short: "Takeaway.",
   links: ["First", "Second", "Third"],
-  primary: "Primary action",
-  secondary: "Secondary action",
-  // The must-carry list from design-direction step 1: what this screen must hold, by key. Every arrangement places
-  // each one with data-must="<key>"; the page flags any it cannot find on the screen.
-  must: {
-    // status: "Open now · until 19:00",
-    // main: [{ name: "Today's first item", note: "€3" }, { name: "Sold out item", gone: true }],
-    // place: "Street 12, City · Directions",
-    primary: true,
-    secondary: true,
-  },
+  // The small slots' content, in the order they are filled: the primary action, then the status, then the
+  // thing the product shows (the ownable, today's bakes, the balance). A screen takes as many as its
+  // arrangement has small slots, from the top, and stops. Each is short: as long as the reference's small text.
+  fill: [
+    { key: "primary", text: "Primary action", kind: "action" },
+    // { key: "status", text: "Open now · until 19:00", kind: "status" },
+    // { key: "main", text: "Today: first item, second item", kind: "text" },
+    // { key: "ownable", text: "The one thing only this product would show", kind: "text" },
+  ],
 };
 
 // ---------------------------------------------------------------- WRITE: navigation
@@ -119,11 +138,13 @@ const zone = (name, C, ctx) => {
   const write = ZONES[`${from || ctx.recipe.arrangement}.${name}`];
   return write ? write(C, ctx) : `<div class="must-missing" style="top:40px">no zone ${from || ctx.recipe.arrangement}.${name} written</div>`;
 };
+// One small slot's content, as its kind asks: an action is a button, a status a chip, the rest a line.
+const slot = (f, cls = "small") => (f.kind === "action" ? `<a class="btn" data-must="${f.key}">${f.text}</a>` : f.kind === "status" ? `<span class="chip" data-must="${f.key}">${f.text}</span>` : `<p class="${cls}" data-must="${f.key}">${f.text}</p>`);
 const ARRANGEMENTS = {
   // queue: {
   //   html: (C, ctx) => `<div class="area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--g)">
-  //     <div class="display" data-fit="0.66,0.42">${C.name}</div><p class="small">${C.headline}</p>
-  //     <span style="display:flex;gap:var(--g2)"><a class="btn" data-must="primary">${C.primary}</a><a class="btn2" data-must="secondary">${C.secondary}</a></span></div>`,
+  //     <div class="display" data-fit="0.66,0.42">${C.short}</div>
+  //     ${ctx.fill.map((f) => slot(f)).join("")}</div>`,
   // },
 };
 
@@ -139,6 +160,10 @@ const ARRANGEMENTS = {
   const lib = D.library;
   const get = (list, id) => (lib[list] || []).find((x) => x.id === id) || {};
   const type = { ...get("type", r.type) };
+  // The arrangement's type role: its move decides the display's weight, case, tracking and scale; the face is the dealt one.
+  const arrangementEntry = get("arrangements", r.arrangement);
+  const role = arrangementEntry.role || {};
+  for (const k of ["weight", "case", "tracking"]) if (role[k] != null) type[k] = role[k];
   const ground = { ...get("grounds", r.ground) };
   const accent = { ...get("accents", r.accent) };
   const nav = get("navigation", r.navigation);
@@ -170,6 +195,12 @@ const ARRANGEMENTS = {
   set("--body-leading", body.leading || "1.45");
   set("--accent", accent.colour || ground.ink || "#111");
   set("--title", ground.ink || "#111");
+  // Text in the accent only where it reads; text on an accent fill in whichever of ink and ground reads best.
+  const surface = ground.panel || ground.ground || "#fff", inkHex = ground.ink || "#111";
+  set("--accent-text", accent.colour && ratio(accent.colour, surface) >= 4.5 ? accent.colour : inkHex);
+  set("--on-accent", accent.colour ? (ratio(inkHex, accent.colour) >= ratio(surface, accent.colour) ? inkHex : surface) : surface);
+  set("--muted", `color-mix(in srgb, ${inkHex} ${mutedShare(inkHex, surface)}%, ${surface})`);
+  if (role.scale) set("--display-size", Math.round(role.scale * H) + "px");
   // Controls: one set for the look (library.controls), with design-rules' plain defaults where it says nothing.
   const ctl = lib.controls || {};
   const btn = ctl.button || {}, btn2 = ctl.secondary || {}, chip = ctl.chip || {}, row = ctl.row || {};
@@ -209,7 +240,12 @@ const ARRANGEMENTS = {
   await Promise.all(wanted.map(([face, weight, italic]) => document.fonts.load(`${italic ? "italic " : ""}${weight} 100px "${face}"`).catch(() => [])));
 
   const space = Number(q.get("space")) > 0 ? Number(q.get("space")) : 1;
-  const ctx = { recipe: r, type, ground, accent, nav, state: q.get("state") || "", W, H, space };
+  // The small slots this arrangement has, filled in order; the one extra its system may place.
+  const slots = arrangementEntry.slots || {};
+  const small = Number.isInteger(slots.small) ? slots.small : (C.fill || []).length;
+  const fill = (C.fill || []).slice(0, small);
+  const extra = (C.fill || [])[small] || null;
+  const ctx = { recipe: r, type, ground, accent, nav, role, slots, fill, extra, state: q.get("state") || "", W, H, space };
   const navOut = NAVIGATION[r.navigation] ? NAVIGATION[r.navigation](C, ctx) : { top: 0, bottom: 0, html: "" };
   const layout = ARRANGEMENTS[r.arrangement];
   const el = document.getElementById("screen");
@@ -223,9 +259,49 @@ const ARRANGEMENTS = {
   await document.fonts.ready;
   fit(el);
   if (layout.after) layout.after(el, ctx);
-  mustCarry(el);
+  mustCarry(el, fill);
+  countBlocks(el, slots);
   document.title = "ready";
 })();
+
+// WCAG contrast, and how far the ink can be softened toward the ground and still read 4.5:1.
+function lum(hex) {
+  const h = hex.replace("#", "");
+  const v = [0, 2, 4].map((i) => parseInt(h.length === 3 ? h[i / 2] + h[i / 2] : h.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+}
+function ratio(a, b) {
+  if (!/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(a) || !/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(b)) return 21;
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+}
+function mutedShare(ink, surface) {
+  if (!/^#[0-9a-f]{6}$/i.test(ink) || !/^#[0-9a-f]{6}$/i.test(surface)) return 100;
+  const mix = (t) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(ink.slice(i, i + 2), 16) * t + parseInt(surface.slice(i, i + 2), 16) * (1 - t)).toString(16).padStart(2, "0")).join("");
+  for (let t = 0.6; t <= 1; t += 0.05) if (ratio(mix(t), surface) >= 4.6) return Math.round(t * 100);
+  return 100;
+}
+
+// Text blocks outside the navigation: each element with words of its own, at its nearest box. A screen
+// carries what its reference carries (the headline, its small slots) and at most one more.
+function countBlocks(el, slots) {
+  const blocks = new Set();
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (!n.textContent.trim()) continue;
+    let box = n.parentElement;
+    if (!box || box.closest("nav") || box.closest(".must-missing")) continue;
+    while (box !== el && getComputedStyle(box).display === "inline") box = box.parentElement;
+    const r = box.getBoundingClientRect();
+    if (r.width && r.height && getComputedStyle(box).visibility !== "hidden") blocks.add(box);
+  }
+  document.body.dataset.blocks = blocks.size;
+  if (Number.isInteger(slots.small)) {
+    const capacity = 1 + slots.small + 1;
+    document.body.dataset.capacity = capacity;
+    if (blocks.size > capacity) el.insertAdjacentHTML("beforeend", `<div class="must-missing" style="bottom:8px">${blocks.size} text blocks: its reference carries ${capacity - 1}, and one more at most</div>`);
+  }
+}
 
 // Display type is sized by its text, one size per line, every line inside the margins.
 function fit(el) {
@@ -254,10 +330,10 @@ function fit(el) {
   }
 }
 
-// Every must-carry item is on the screen, inside it, and not hidden; a missing one is a fault, shown.
-function mustCarry(el) {
+// Every item this screen's slots hold is on the screen, inside it, and not hidden; a missing one is a fault, shown.
+function mustCarry(el, fill) {
   const s = el.getBoundingClientRect();
-  const missing = Object.keys(C.must || {}).filter((key) => {
+  const missing = fill.map((f) => f.key).filter((key) => {
     const node = el.querySelector(`[data-must="${key}"]`);
     if (!node) return true;
     const r = node.getBoundingClientRect();

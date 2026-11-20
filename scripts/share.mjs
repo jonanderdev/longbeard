@@ -16,6 +16,7 @@ export const shared = [
   ["skills/design-direction/scripts/deal.mjs", ["design-identity/scripts"]],
   ["skills/design-direction/references/five-second.md", ["design-prototype/references"]],
   ["skills/design-direction/scripts/subject-colours.mjs", ["design-identity/scripts"]],
+  ["skills/design-identity/scripts/fonts.mjs", ["design-direction/scripts"]],
 ];
 
 if (import.meta.url === `file://${process.argv[1]}`) {

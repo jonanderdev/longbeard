@@ -33,6 +33,22 @@ node eval/design/score.mjs ../longbeard-eval
 - rendered (skipped with `--no-browser` or without Chrome): the chosen screen and every prototype page pass `screen-contrast.mjs` at the level; `links.mjs` finds nothing broken, nowhere or a dead end from the first page; every key screen is reached (soft);
 - `eval-log.md` reports nothing in a skill the agent could not follow (soft), and counts the uncovered answers.
 
-It prints `score: passed/checked` and exits 1 on any hard fail. What it cannot judge: whether the screens are good. Open `.longbeard/design/direction/grid/sheet.png`, the identity board and the prototype, and read `eval-log.md`: a stop it calls unclear is a skill to fix.
+- rendered, the dealt screens (`screens.mjs`, which also runs on its own on any run, old or new): no text under 12px at 1440, no clipped text, contrast on every screen (hard); no more text blocks than the arrangement's reference carries and one more, grounds of a tone the references use, and each screen measured against its references (soft): empty share against the arrangement's reference, display size and weight against the type's, ground against the ground reference's palette;
+- the odd-one-out rate (soft), once the judges have run.
+
+It prints `score: passed/checked` and exits 1 on any hard fail. What it cannot judge alone: whether the screens are good.
+
+## Odd one out
+
+Blind judges, for whether the dealt screens hold up beside the references. Each judge gets six pictures in a random order (one screen and five references from the board, presentation frames cropped off by `fixture/frames.json`) and picks the least finished in craft: spacing, alignment, type setting, text that does not fit. Picked at chance (1 in 6) or less, the screens are at the references' level. Judges work in folders outside the project and this repo, see nothing else, and edit nothing; their reasons become fixes to rules, never to a screen.
+
+```
+node eval/design/screens.mjs ../longbeard-eval                    # captures the screens too
+node eval/design/odd-one-out.mjs ../longbeard-eval --prepare
+node eval/design/odd-one-out.mjs ../longbeard-eval --judge "claude -p {prompt} --model sonnet --allowedTools Read"
+node eval/design/odd-one-out.mjs ../longbeard-eval --tally          # writes eval-odd-one-out.json, read by score.mjs
+```
+
+Then show the person the sheets blind, as A and B: their choice is the last word. Open `.longbeard/design/direction/grid/sheet.png`, the identity board and the prototype, and read `eval-log.md`: a stop it calls unclear is a skill to fix.
 
 `test/eval-score.test.js` keeps the scorer honest: a hand-made good run passes every check, and a run with a leaked name, a gap in the brief, a failing pair, a one-source screen and a dead link fails each.

@@ -37,6 +37,17 @@
 //   and a type and ground already paired in this round are not paired again
 //   while another ground can be had: two screens on the same pair look alike.
 // - No recipe is dealt twice, in any round.
+// - Grounds keep to the board. The tones the references' own grounds have (light, mid, dark) are
+//   the tones dealt, in about the share the board has them: a board of six light grounds and one
+//   dark deals mostly light. A ground of a tone no reference uses (a dark one from the subject on an
+//   all-light board) is not dealt, and said. A subject ground more saturated than any reference's
+//   ground is dealt as an accent instead, and said: no reference set a page on a colour that strong.
+// - Every ground's ink reads on it (4.5:1); one that does not is said, with the ground.
+// - The arrangement's type role. An arrangement's entry can say what its move needs of the type
+//   ("role": weight, width, case, scale, how the headline sits). The face is still dealt from
+//   another reference; the grid sets it to the role. A face that cannot carry it (no weight near
+//   the role's, a wide face where the role is condensed) is noted under the screen, like the
+//   brief's notes, and the screen is still dealt.
 //
 // --brief docs/design/design-brief.md (read by default when it is there) notes
 // each screen that sits plainly against the design brief's personality, on what
@@ -203,6 +214,61 @@ function kindOf(type) {
   const words = `${type.what || ""} ${type.face || ""}`.toLowerCase();
   return kinds.find((k) => words.includes(k)) || "other";
 }
+// The board: the tones and the colour strength of the grounds the references themselves use.
+const refGrounds = lib.grounds.filter((g) => refs(g).length);
+const chroma = (hex) => {
+  const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return (Math.max(...v) - Math.min(...v)) / 255;
+};
+const surface = (g) => hex6(g.panel || g.ground);
+const boardShare = {};
+for (const g of refGrounds) boardShare[toneOf(g)] = (boardShare[toneOf(g)] || 0) + refs(g).length;
+{
+  const total = Object.values(boardShare).reduce((a, b) => a + b, 0);
+  for (const tone of Object.keys(boardShare)) boardShare[tone] /= total || 1;
+}
+const strongest = Math.max(0, ...refGrounds.map(surface).filter(isHex).map(chroma));
+const keptOut = [];
+if (refGrounds.length) {
+  for (const g of [...lib.grounds]) {
+    if (refs(g).length) continue;
+    const hex = surface(g);
+    if (g.from.includes("subject") && isHex(hex) && chroma(hex) > strongest + 0.1) {
+      keptOut.push(`${g.id} (${hex}) is more saturated than any reference's ground: dealt as an accent, not a ground`);
+      lib.grounds.splice(lib.grounds.indexOf(g), 1);
+      if (!lib.accents.some((a) => hex6(a.colour) === hex)) lib.accents.push({ id: `${g.id}-accent`, colour: hex, device: "the subject's own colour, as an accent", from: g.from });
+    } else if (!boardShare[toneOf(g)]) {
+      keptOut.push(`${g.id} is ${toneOf(g)} and no reference has a ${toneOf(g)} ground: not dealt`);
+      lib.grounds.splice(lib.grounds.indexOf(g), 1);
+    }
+  }
+}
+// A ground whose ink does not read on it cannot carry a screen's text.
+const unreadable = lib.grounds.filter((g) => isHex(surface(g)) && isHex(hex6(g.ink)) && contrast(hex6(g.ink), surface(g)) < 4.5);
+// The weights a face offers: "100–900", "400,700" or a list. Unknown: nothing is said.
+const weightsOf = (type) => {
+  const w = type.weights;
+  if (Array.isArray(w)) return w.map(Number);
+  if (typeof w === "string" && /^\d+\s*[–-]\s*\d+$/.test(w)) {
+    const [a, b] = w.split(/[–-]/).map(Number);
+    return Array.from({ length: (b - a) / 100 + 1 }, (_, i) => a + 100 * i);
+  }
+  if (typeof w === "string" && w.trim()) return w.split(/[,\s]+/).map(Number).filter(Boolean);
+  return null;
+};
+// What the arrangement's move needs of the type, against the face dealt to it.
+function roleNotes(r) {
+  const role = entry("arrangements", r.arrangement).role;
+  if (!role) return [];
+  const type = entry("type", r.type), notes = [];
+  const face = type.face || type.id, has = weightsOf(type);
+  if (role.weight && has && !has.some((w) => Math.abs(w - role.weight) <= 100)) notes.push(`${face} has no weight near ${role.weight}, which this arrangement's move needs (it has ${has.join(", ")})`);
+  const axes = String(type.axes || "");
+  if (role.width === "condensed" && kindOf(type) !== "condensed" && !/wdth/.test(axes)) notes.push(`${face} is not condensed, and this arrangement's move is a condensed headline`);
+  if (role.width === "wide" && kindOf(type) === "condensed") notes.push(`${face} is condensed, and this arrangement's move is a wide headline`);
+  return notes;
+}
+
 // The design brief's personality: "loud 2 · picture-led 4 · … · playful 1", each 1 to 5.
 const briefPath = briefArg || (existsSync("docs/design/design-brief.md") ? "docs/design/design-brief.md" : "");
 if (briefArg && !existsSync(briefArg)) fail(`no design brief at ${briefArg}`);
@@ -239,7 +305,8 @@ function against(r) {
 }
 const facet = (list, item) => (list === "grounds" ? `tone:${toneOf(item)}` : list === "type" ? `kind:${kindOf(item)}` : "");
 const spread = {};
-const weight = (list, item, used) => (used[list][item.id] || 0) + 3 * (spread[facet(list, item)] || 0);
+// A ground's tone weighs by how much of the board has it: a tone the board uses little comes round little.
+const weight = (list, item, used) => (used[list][item.id] || 0) + 3 * (list === "grounds" && boardShare[toneOf(item)] ? ((spread[facet(list, item)] || 0) + 1) / (3 * boardShare[toneOf(item)]) : spread[facet(list, item)] || 0);
 const note = (list, item, used) => {
   used[list][item.id] = (used[list][item.id] || 0) + 1;
   return item;
@@ -443,6 +510,8 @@ recipes.forEach((r, i) => {
   r.sources = { arrangement: arrangementRefs(r), type: refs(entry("type", r.type)), ground: refs(entry("grounds", r.ground)) };
   const notes = against(r);
   if (notes.length) r.against = notes;
+  const role = roleNotes(r);
+  if (role.length) r.role = role;
 });
 const round = { round: rounds.length + 1, kind, seed, recipes };
 rounds.push(round);
@@ -450,15 +519,17 @@ save();
 
 const pad = (text, n) => String(text).padEnd(n);
 console.log(`round ${round.round} · ${round.kind} · seed ${seed}`);
+for (const line of keptOut) console.error(`deal: ${line}`);
+for (const g of unreadable) console.error(`deal: the ink ${g.ink} reads ${contrast(hex6(g.ink), surface(g)).toFixed(1)}:1 on ${g.id} (${surface(g)}): fix the entry's ink to one that reads 4.5:1, or every screen on it fails`);
 // Say how wide the round is, and when the library cannot make it wider.
 if (kind === "deal" && recipes.length && lib.type.length > 1) {
   const count = (values) => Object.entries(values.reduce((m, v) => ({ ...m, [v]: (m[v] || 0) + 1 }), {})).map(([k, n]) => `${k} ${n}`).join(" · ");
   const tones = recipes.map((r) => toneOf(entry("grounds", r.ground)));
   const faces = recipes.map((r) => kindOf(entry("type", r.type)));
   console.log(`spread: ${count(tones)} | faces: ${count(faces)}`);
-  const libTones = new Set(lib.grounds.map(toneOf));
+  const libTones = new Set((refGrounds.length ? refGrounds : lib.grounds).map(toneOf));
   const libKinds = new Set(lib.type.map(kindOf));
-  if (libTones.size === 1 && !lib.type.every((t) => t.from.includes("identity"))) console.error(`deal: every ground in the library is ${[...libTones][0]}, so every screen will be too: like a reference on another ground for a wider spread`);
+  if (libTones.size === 1 && !lib.type.every((t) => t.from.includes("identity"))) console.error(`deal: every reference's ground is ${[...libTones][0]}, so every screen is too: the deal keeps to the board's tones. For a wider spread, like a reference on another ground`);
   if (libKinds.size === 1 && lib.type.length > 1) console.error(`deal: every face in the library is ${[...libKinds][0]}: like a reference with another kind of type for a wider spread`);
   if (lib.arrangements.length < 6) console.error(`deal: ${lib.arrangements.length} references give ${lib.arrangements.length} arrangements, so the screens will look alike: 6 to 10 likes give a wider spread`);
 }
@@ -466,6 +537,7 @@ for (const r of recipes) {
   const lead = kind !== "deal" ? `${pad(r.n, 3)}of ${pad(r.of, 3)}${pad(r.change, 12)} ` : pad(r.n, 3);
   console.log(`${lead}${pad(r.arrangement, 14)}${pad(r.navigation, 14)}${pad(r.type, 14)}${pad(r.ground, 14)}${r.accent}${zoneKey(r) ? `  zones ${zoneKey(r)}` : ""}`);
   if (r.against?.length) console.log(`   against the brief: ${r.against.join("; ")}`);
+  if (r.role?.length) console.log(`   the arrangement's type: ${r.role.join("; ")}`);
 }
 if (Object.keys(asked).length) {
   const off = recipes.filter((r) => r.against?.length).length;

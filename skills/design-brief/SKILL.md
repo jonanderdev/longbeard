@@ -96,7 +96,7 @@ So nobody asks again, and so each answer changes something:
 
 | Line | Read by |
 |---|---|
-| takeaway | `design-direction` (must carry, headlines, the five-second check), `design-prototype` (the five-second check), `design-content` |
+| takeaway | `design-direction` (what the screens carry, headlines, the five-second check), `design-prototype` (the five-second check), `design-content` |
 | first seen on | `design-direction` (the size the grid is dealt at) |
 | pace | `design` and every design skill: quick drops the optional stops |
 | words, personality, feel, never | `design-moodboard` (queries and picks), `design-families` (the sliders), `design-direction` (`deal.mjs --brief` flags and the eye's check), `design-identity` (options and their notes) |

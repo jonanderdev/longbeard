@@ -21,7 +21,7 @@ Do not stop to ask: show them on a contact sheet (`contact-sheet.mjs .longbeard/
 
 ## Colours
 
-One or two grounds, and an accent when the subject has a second hue of its own, proposed from the subject pictures, so some screens wear the product's own colours. Never a colour sampled raw from a photo (that gives background greys and shadow browns): `subject-colours.mjs` reads the pictures' main colours, drops noise, highlights and shadows, finds the signature colour (the crust, the wall, the leaf), and tunes each to its role: an off-white or near-black that keeps the subject's hue, an accent with enough chroma, ink at 4.5:1, the accent at 3:1. Each colour says what it came from and how it was tuned.
+A quiet ground (and a second one), and an accent when the subject has a second hue of its own, proposed from the subject pictures, so some screens wear the product's own colours. **As an accent or a quiet tint, never as a loud page.** The references set how strong a ground can be: `deal.mjs` deals a subject ground only in a tone the references' grounds have, and the saturated signature (the crust at full strength) only when a reference sets a page on a colour that strong; otherwise it is dealt as an accent, and it says so. Never a colour sampled raw from a photo (that gives background greys and shadow browns): `subject-colours.mjs` reads the pictures' main colours, drops noise, highlights and shadows, finds the signature colour (the crust, the wall, the leaf), and tunes each to its role: an off-white or near-black that keeps the subject's hue, an accent with enough chroma, ink at 4.5:1, the accent at 3:1. Each colour says what it came from and how it was tuned.
 
 ```
 node <skill>/scripts/subject-colours.mjs .longbeard/design/pictures --json
@@ -29,4 +29,4 @@ node <skill>/scripts/subject-colours.mjs .longbeard/design/pictures --json
 
 **Then look, and name every colour.** Open its sheet (`--sheet <scratch>/subject.html`, captured), which shows each proposed colour beside the pictures with the places it comes from lit up. Every colour must be something a person sees as the subject and can name: "the crust", "the flour", "the oven's black". A colour that lights up the backdrop, a cloth, a wall or a prop is not the subject's, even when it fills the photo: drop it (`--exclude "#hex"`) and run it again. The script already flags colours that sit mostly at the edges as background and never makes them the signature or the accent; the look is the check it cannot do. Write the name beside each colour wherever it is shown ("crust, lightened to carry white text").
 
-Only then its `library` entries go in, `"from": ["subject"]`.
+Only then its `library` entries go in, `"from": ["subject"]`. Never tune them stronger to make a screen livelier: a colour no reference would set a page on is not a direction they chose.
