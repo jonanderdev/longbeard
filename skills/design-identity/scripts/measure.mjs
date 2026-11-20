@@ -64,6 +64,7 @@ const waitArg = flag("wait", "");
 const jobs = Math.round(Number(flag("jobs", "4")));
 const tsv = has("tsv");
 const swatches = has("swatches");
+const allLines = has("lines");
 const linksArg = flag("links", "");
 const profilesArg = flag("profiles", "");
 const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif" };
@@ -237,7 +238,252 @@ async function openTab() {
 }
 
 // Colours are binned sixteen steps a channel. "Loud" is saturated and at least 0.4% of the picture.
+// The type in a picture, read from its pixels, for a reference that is only an image. Letters are
+// marks on the ground that are two-tone (ink, ground and the blend between), not too full of their
+// box, and set in lines. Photographs are many-toned or fill their box, so they are left out; text
+// set on a photograph is lost with it. Each line gives its size against the screen, its stroke (the
+// weight), its stroke contrast, its width, its x-height and its case, and its ink. Runs in the page.
+// d: RGBA pixels, w × h, ground: [r, g, b]. Sizes are px of this read; the caller scales them.
+// With an ink instead (a colour set over a photograph, where there is no ground to blend with),
+// the letters are the marks of that colour.
+function readType(d, w, h, ground, inkOnly) {
+  const n = w * h, far = new Float32Array(n), label = new Int32Array(n).fill(-1);
+  const base = inkOnly || ground;
+  for (let i = 0; i < n; i++) {
+    const dist = Math.max(Math.abs(d[4 * i] - base[0]), Math.abs(d[4 * i + 1] - base[1]), Math.abs(d[4 * i + 2] - base[2]));
+    // Ink mode: near the ink is a mark (far is high); ground mode: far from the ground is.
+    far[i] = inkOnly ? (dist < 40 ? 255 - dist : 0) : dist;
+  }
+  // Marks: 8-connected runs of pixels well off the ground.
+  const comps = [], stack = new Int32Array(n);
+  for (let s = 0; s < n; s++) {
+    if (label[s] >= 0 || far[s] <= 40) continue;
+    const id = comps.length;
+    let top = 0, x0 = w, y0 = h, x1 = 0, y1 = 0, count = 0;
+    stack[top++] = s;
+    label[s] = id;
+    while (top) {
+      const p = stack[--top], x = p % w, y = (p - x) / w;
+      count++;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const X = x + dx, Y = y + dy;
+        if (X < 0 || Y < 0 || X >= w || Y >= h) continue;
+        const q = Y * w + X;
+        if (label[q] < 0 && far[q] > 40) (label[q] = id), (stack[top++] = q);
+      }
+    }
+    comps.push({ id, x0, y0, x1, y1, count });
+  }
+  // Pictures: big marks that fill their box. On a ground, nothing inside one is a letter (light
+  // spots in a photograph make letter-sized shapes); an ink set over one is read in ink mode.
+  const pictures = inkOnly ? [] : comps.filter((c) => (c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1) > 0.02 * n && c.count > 0.5 * (c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1));
+  // And photographs that break into many marks: cells of 12 px that are nearly all off the ground
+  // and hold many colours. Type is two-tone: its cells are part ground, or one flat colour inside a stroke.
+  const S = 12, cw = Math.ceil(w / S), ch = Math.ceil(h / S), photo = new Uint8Array(cw * ch), pictured = new Uint8Array(cw * ch);
+  if (!inkOnly) for (let cy = 0; cy < ch; cy++) for (let cx = 0; cx < cw; cx++) {
+    let off = 0, all = 0;
+    const bins = new Set();
+    for (let y = cy * S; y < Math.min(h, cy * S + S); y++) for (let x = cx * S; x < Math.min(w, cx * S + S); x++) {
+      const i = y * w + x;
+      all++;
+      if (far[i] > 40) off++, bins.add(((d[4 * i] >> 5) << 6) | ((d[4 * i + 1] >> 5) << 3) | (d[4 * i + 2] >> 5));
+    }
+    photo[cy * cw + cx] = off > 0.9 * all && bins.size >= 6 ? 1 : 0;
+    // For the share, a looser cut: a flat-toned stretch of photograph (a sweater, a sky) still counts.
+    pictured[cy * cw + cx] = off > 0.9 * all && bins.size >= 3 ? 1 : 0;
+  }
+  const onPhoto = (c) => {
+    let on = 0, all = 0;
+    for (let cy = Math.floor(c.y0 / S); cy <= Math.floor(c.y1 / S); cy++) for (let cx = Math.floor(c.x0 / S); cx <= Math.floor(c.x1 / S); cx++) all++, (on += photo[cy * cw + cx]);
+    return on > 0.3 * all;
+  };
+  const pictureIds = new Set(pictures.map((p) => p.id));
+  // Inside a picture: most of the ring just outside the mark's box is that picture's pixels.
+  const inPicture = (c) => {
+    if (!inkOnly && onPhoto(c)) return true;
+    // A letter on a ground has ground around it: most of the ring just outside its box.
+    if (!inkOnly) {
+      let bare = 0, all = 0;
+      const X0 = Math.max(0, c.x0 - 2), X1 = Math.min(w - 1, c.x1 + 2), Y0 = Math.max(0, c.y0 - 2), Y1 = Math.min(h - 1, c.y1 + 2);
+      for (let x = X0; x <= X1; x++) for (const y of [Y0, Y1]) all++, (bare += far[y * w + x] <= 40);
+      for (let y = Y0; y <= Y1; y++) for (const x of [X0, X1]) all++, (bare += far[y * w + x] <= 40);
+      if (bare < 0.6 * all) return true;
+    }
+    if (!pictureIds.size || pictureIds.has(c.id)) return false;
+    let on = 0, all = 0;
+    const X0 = Math.max(0, c.x0 - 2), X1 = Math.min(w - 1, c.x1 + 2), Y0 = Math.max(0, c.y0 - 2), Y1 = Math.min(h - 1, c.y1 + 2);
+    for (let x = X0; x <= X1; x++) for (const y of [Y0, Y1]) all++, (on += pictureIds.has(label[y * w + x]));
+    for (let y = Y0; y <= Y1; y++) for (const x of [X0, X1]) all++, (on += pictureIds.has(label[y * w + x]));
+    return on > 0.5 * all;
+  };
+  // A letter: two-tone, not a solid block, a sensible shape. Its core colour is its ink.
+  const letters = [];
+  for (const c of comps) {
+    const bw = c.x1 - c.x0 + 1, bh = c.y1 - c.y0 + 1, fill = c.count / (bw * bh);
+    if (bh < 5 || bh > 0.45 * h || c.count < 8 || fill > 0.8 || bw / bh > 6 || bh / bw > 12 || inPicture(c)) continue;
+    const px = [];
+    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0; x <= c.x1; x++) if (label[y * w + x] === c.id) px.push(y * w + x);
+    let ink, tOf;
+    if (inkOnly) {
+      ink = inkOnly;
+      tOf = () => 1;
+    } else {
+      px.sort((a, b) => far[b] - far[a]);
+      const core = px.slice(0, Math.max(1, Math.ceil(px.length * 0.3)));
+      ink = [0, 1, 2].map((j) => core.reduce((t, p) => t + d[4 * p + j], 0) / core.length);
+      const seg = ink.map((v, j) => v - ground[j]), len2 = seg.reduce((t, v) => t + v * v, 0) || 1;
+      let onSeg = 0;
+      tOf = (p) => Math.max(0, Math.min(1, [0, 1, 2].reduce((t, j) => t + (d[4 * p + j] - ground[j]) * seg[j], 0) / len2));
+      for (const p of px) {
+        const t = tOf(p);
+        const off = Math.max(...[0, 1, 2].map((j) => Math.abs(d[4 * p + j] - (ground[j] + t * seg[j]))));
+        if (off < 34) onSeg++;
+      }
+      if (onSeg / px.length < 0.8) continue;
+    }
+    // Strokes: runs of ink (past half way from ground to ink) across and down the letter.
+    const across = [], down = [];
+    const inked = (x, y) => label[y * w + x] === c.id && tOf(y * w + x) >= 0.5;
+    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0, run = 0; x <= c.x1 + 1; x++) {
+      if (x <= c.x1 && inked(x, y)) run++;
+      else if (run) across.push(run), (run = 0);
+    }
+    for (let x = c.x0; x <= c.x1; x++) for (let y = c.y0, run = 0; y <= c.y1 + 1; y++) {
+      if (y <= c.y1 && inked(x, y)) run++;
+      else if (run) down.push(run), (run = 0);
+    }
+    // In ink mode, a letter has strokes of one steady width: hair, fur and texture do not.
+    if (inkOnly) {
+      const q = (xs, f) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length * f)] || 0;
+      if (q(across, 0.5) < Math.max(3, 0.03 * bh)) continue;
+    }
+    let area = 0;
+    for (const p of px) area += tOf(p);
+    letters.push({ ...c, bw, bh, ink, across, down, area });
+  }
+  // Lines: letters side by side that share most of their height.
+  letters.sort((a, b) => a.x0 - b.x0);
+  const parent = letters.map((_, i) => i);
+  const root = (i) => (parent[i] === i ? i : (parent[i] = root(parent[i])));
+  for (let i = 0; i < letters.length; i++) for (let j = i + 1; j < letters.length; j++) {
+    const a = letters[i], b = letters[j], big = Math.max(a.bh, b.bh);
+    if (b.x0 - a.x1 > 1.4 * big) continue;
+    const overlap = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
+    // Short letters (x, o) sit inside a tall one's height; a line holds both.
+    if (overlap < 0.45 * Math.min(a.bh, b.bh) || Math.min(a.bh, b.bh) < 0.3 * big) continue;
+    if (Math.abs(a.y1 - b.y1) > 0.35 * big && Math.abs(a.y0 - b.y0) > 0.35 * big) continue;
+    parent[root(j)] = root(i);
+  }
+  const groups = new Map();
+  letters.forEach((l, i) => groups.set(root(i), [...(groups.get(root(i)) || []), l]));
+  const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  const quart = (xs, q) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length * q)] : 0; };
+  const hex = (v) => "#" + v.map((x) => Math.round(x).toString(16).padStart(2, "0")).join("");
+  const lines = [];
+  for (const ls of groups.values()) {
+    // Two letters make a line only when they are big and of one height (SO over LA); three always.
+    if (ls.length < 2 || (ls.length === 2 && (Math.min(ls[0].bh, ls[1].bh) < 0.85 * Math.max(ls[0].bh, ls[1].bh) || ls[0].bh < 0.1 * h))) continue;
+    const hs = ls.map((l) => l.bh);
+    const cap = quart(hs, 0.8);
+    const shortOnes = hs.filter((x) => x < 0.82 * cap);
+    const caps = shortOnes.length < 0.25 * ls.length;
+    const xh = caps ? cap : median(shortOnes);
+    // The em: caps are about 0.7 of it; with lowercase, the x-height about 0.5 and the caps 0.7.
+    const em = cap / 0.7;
+    const x0 = Math.min(...ls.map((l) => l.x0)), x1 = Math.max(...ls.map((l) => l.x1));
+    const y0 = Math.min(...ls.map((l) => l.y0)), y1 = Math.max(...ls.map((l) => l.y1));
+    const stem = median(ls.flatMap((l) => l.across));
+    const thin = quart(ls.flatMap((l) => l.down), 0.25);
+    // Words: gaps between letters wider than a third of the em.
+    let words = 1;
+    for (let i = 1; i < ls.length; i++) if (ls[i].x0 - Math.max(...ls.slice(0, i).map((l) => l.x1)) > 0.22 * em) words++;
+    const ink = [0, 1, 2].map((j) => median(ls.map((l) => l.ink[j])));
+    // Text stands off its ground; marks under 2.5:1 on it are a photograph's greys, not type.
+    if (!inkOnly) {
+      const lin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      const L = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+      const [hi, lo] = [L(ink), L(ground)].sort((a, b) => b - a);
+      if ((hi + 0.05) / (lo + 0.05) < 2.5) continue;
+    }
+    lines.push({
+      box: [x0, y0, x1 - x0 + 1, y1 - y0 + 1], letters: ls.length, words, cap, em,
+      stroke: stem / em, contrast: thin ? stem / thin : null, width: (x1 - x0 + 1) / ls.length / em,
+      xheight: caps ? null : xh / em, case: caps ? "uppercase" : "mixed",
+      dark: ls.reduce((t, l) => t + l.area, 0) / ((x1 - x0 + 1) * em), ink: hex(ink), pass: inkOnly ? "ink" : "ground",
+    });
+  }
+  // How much of the picture is photograph, read on the main ground: its share of cells.
+  lines.photo = inkOnly ? null : Math.round((1000 * pictured.reduce((t, v) => t + v, 0)) / pictured.length) / 10;
+  return lines;
+}
+
+// The type reading, said against the screen: the largest line (the display) and the size most of
+// the small text is set in (the body), each as a share of the screen's height and as px at 1440
+// wide; the weight, from the stroke; how many text blocks there are, and how many words and lines
+// the headline holds, which is how much text the composition is made to carry.
+// passes: the lines read on each ground and each ink; a line two passes found is kept once.
+function typeOf(passes, w, h) {
+  const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  const lines = [];
+  const overlap = (a, b) => Math.max(0, Math.min(a[0] + a[2], b[0] + b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[1] + a[3], b[1] + b[3]) - Math.max(a[1], b[1]));
+  for (const l of passes.flat().sort((a, b) => b.letters - a.letters)) {
+    if (!lines.some((m) => overlap(l.box, m.box) > 0.5 * Math.min(l.box[2] * l.box[3], m.box[2] * m.box[3]))) lines.push(l);
+  }
+  // Blocks: lines of one size stacked close, the way a paragraph or a two-line headline is set.
+  lines.sort((a, b) => a.box[1] - b.box[1]);
+  const blocks = [];
+  for (const l of lines) {
+    const b = blocks.find((k) => {
+      const last = k.lines.at(-1);
+      const gap = l.box[1] - (last.box[1] + last.box[3]);
+      // A line of x-height letters reads smaller than one with capitals: 0.4 keeps a paragraph whole.
+      const same = Math.abs(Math.log(l.em / last.em)) < 0.4;
+      const beside = Math.min(l.box[0] + l.box[2], last.box[0] + last.box[2]) - Math.max(l.box[0], last.box[0]) > -0.5 * l.em;
+      return same && beside && gap < 1.2 * l.em && gap > -0.2 * l.em;
+    });
+    if (b) b.lines.push(l);
+    else blocks.push({ lines: [l] });
+  }
+  const blockList = blocks.map((b) => ({ lines: b.lines.length, em: median(b.lines.map((l) => l.em)), words: b.lines.reduce((t, l) => t + l.words, 0), box: [Math.min(...b.lines.map((l) => l.box[0])), b.lines[0].box[1], Math.max(...b.lines.map((l) => l.box[0] + l.box[2])) - Math.min(...b.lines.map((l) => l.box[0])), b.lines.at(-1).box[1] + b.lines.at(-1).box[3] - b.lines[0].box[1]] }));
+  return summary(lines, blockList, w, h);
+}
+function summary(lines, blocks, w, h) {
+  if (!lines.length) return { lines: 0, blocks: 0, note: "no lines of type found: text set on a photograph, rotated or in a script face is not read" };
+  // Stroke over em to a CSS weight, fitted on faces set at known weights: a 300 reads 0.05 to 0.07,
+  // a 400 0.08 to 0.095, a 700 0.13 to 0.15, a 900 0.19 and up. Lines under 40 px of this read have
+  // strokes of two or three pixels, thickened by antialiasing, so their weight is not given.
+  const weightOf = (l) => (l.em < 40 ? null : [[0.045, 100], [0.052, 200], [0.075, 300], [0.1, 400], [0.118, 500], [0.132, 600], [0.165, 700], [0.185, 800], [9, 900]].find(([s]) => l.stroke < s)[1]);
+  const r = (v, k = 100) => (v == null ? null : Math.round(v * k) / k);
+  const show = (l) => ({ size: r(l.em / h, 1000), px1440: Math.round((l.em * 1440) / w), weight: weightOf(l), stroke: r(l.stroke, 1000), contrast: r(l.contrast), width: r(l.width), xheight: r(l.xheight), case: l.case, dark: r(l.dark), ink: l.ink, box: l.box.map((v, i) => Math.round((1000 * v) / (i % 2 ? h : w)) / 1000), letters: l.letters, pass: l.pass });
+  const display = lines.reduce((a, b) => (b.em > a.em ? b : a));
+  // The body: of the lines under 0.6 of the display, the size that holds the most letters.
+  const small = lines.filter((l) => l.em < 0.6 * display.em);
+  let body = null, most = 0;
+  for (const l of small) {
+    const near = small.filter((m) => Math.abs(Math.log(m.em / l.em)) < 0.15).reduce((t, m) => t + m.letters, 0);
+    if (near > most) (most = near), (body = l);
+  }
+  const inks = {};
+  // Big letters give the truest colour: small ones never reach their ink for antialiasing.
+  for (const l of lines) inks[l.ink] = (inks[l.ink] || 0) + l.letters * l.em * l.em;
+  const head = blocks.find((b) => b.em >= 0.9 * display.em) || blocks[0];
+  return {
+    lines: ALL_LINES ? lines.map(show) : lines.length,
+    display: show(display),
+    body: body ? show(body) : null,
+    scale: body ? r(display.em / body.em, 10) : null,
+    ink: Object.entries(inks).sort((a, b) => b[1] - a[1])[0][0],
+    headline: { words: head.words, lines: head.lines },
+    blocks: blocks.length,
+    small: blocks.filter((b) => b.em < 0.6 * display.em).length,
+  };
+}
 const readImage = (src) => `(async () => {
+  const ALL_LINES = ${allLines};
   const img = new Image();
   img.src = ${JSON.stringify(src)};
   await img.decode();
@@ -375,7 +621,41 @@ const readImage = (src) => `(async () => {
     busy: Math.round((10 * edges) / (2 * n * 2.55)) / 10,
     lum: Math.round(l * 1000) / 1000,
   };
-  return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: !frame && sh < img.naturalHeight, ...(frame ? { frame } : {}), traits, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  // The type, read at up to 2000 px on the long side so a body line keeps strokes to measure.
+  const k3 = Math.min(1, 2000 / Math.max(sw, sh));
+  const w3 = Math.max(1, Math.round(sw * k3)), h3 = Math.max(1, Math.round(sh * k3));
+  const c3 = Object.assign(document.createElement("canvas"), { width: w3, height: h3 }).getContext("2d", { willReadFrequently: true });
+  paint(c3, w3, h3);
+  c3.drawImage(img, sx, sy, sw, sh, 0, 0, w3, h3);
+  // Read against each main colour (the ground, a card, a panel) and each loud colour as an ink.
+  const px3 = c3.getImageData(0, 0, w3, h3).data;
+  const readType = ${readType.toString()};
+  const differ = (a, b) => Math.max(...a.map((v, j) => Math.abs(v - b[j]))) > 40;
+  const grounds = [];
+  // A card or a panel is flat: its pixels' neighbours are its colour too. A colour common in a
+  // photograph (a sweater, a sky) is not, and is never read as a ground.
+  const flatGround = (g) => {
+    const near = (i) => Math.max(Math.abs(d[i] - g[0]), Math.abs(d[i + 1] - g[1]), Math.abs(d[i + 2] - g[2])) <= 12;
+    let on = 0, same = 0;
+    for (let y = 0; y + 1 < h; y++) for (let x = 0; x + 1 < w; x++) {
+      const i = (y * w + x) * 4;
+      if (!near(i)) continue;
+      on++;
+      same += near(i + 4) && near(i + 4 * w);
+    }
+    return on && same / on >= 0.85;
+  };
+  for (const b of all) if (b[0] / n >= 0.06 && grounds.length < 3 && grounds.every((g) => differ(g, avg(b))) && (!grounds.length || flatGround(avg(b)))) grounds.push(avg(b).map(Math.round));
+  // A loud ground can be an ink too: lime panels and lime letters over a photograph.
+  const inks = [];
+  for (const b of all) if (sat(b) > 0.4 && b[0] / n > 0.004 && inks.length < 2 && inks.every((k) => differ(k, avg(b)))) inks.push(avg(b).map(Math.round));
+  const onGrounds = grounds.map((g) => readType(px3, w3, h3, g));
+  const type = typeOf([...onGrounds, ...inks.map((k) => readType(px3, w3, h3, null, k))], w3, h3);
+  if (type.ink) traits.ink = type.ink;
+  if (onGrounds[0]) traits.pictures = onGrounds[0].photo;
+  return { width: img.naturalWidth, height: img.naturalHeight, firstScreen: !frame && sh < img.naturalHeight, ...(frame ? { frame } : {}), traits, type, figure, common: all.slice(0, 6).map(row), loud: all.filter((b) => sat(b) > 0.5 && b[0] / n > 0.004).slice(0, 4).map(row) };
+  ${typeOf.toString()}
+  ${summary.toString()}
 })()`;
 
 // Swatches: the whole picture at 240 px on its long side, its pixels handed back as base64 RGBA.

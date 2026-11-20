@@ -9,7 +9,6 @@ import { deflateSync } from "node:zlib";
 import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const deal = join(root, "skills/design-direction/scripts/deal.mjs");
 const sheet = join(root, "skills/design-direction/scripts/sheet.mjs");
 const measure = join(root, "skills/design-families/scripts/measure.mjs");
 
@@ -49,222 +48,6 @@ function project(lib = library()) {
   return dir;
 }
 const run = (script, dir, args) => spawnSync(process.execPath, [script, ...args], { cwd: dir, encoding: "utf8" });
-const rounds = (dir) => JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")).rounds;
-const sources = (lib, list, id) => lib[list].find((x) => x.id === id).from;
-
-test("deal: arrangement, type and ground of every recipe come from three different references", () => {
-  const lib = library();
-  for (const seed of ["1", "2", "3", "4"]) {
-    const dir = project(lib);
-    const result = run(deal, dir, ["library.json", "--seed", seed]);
-    assert.equal(result.status, 0, result.stderr);
-    const [round] = rounds(dir);
-    assert.equal(round.recipes.length, 8);
-    for (const r of round.recipes) {
-      const a = sources(lib, "arrangements", r.arrangement);
-      const t = sources(lib, "type", r.type);
-      const g = sources(lib, "grounds", r.ground);
-      assert.ok(!a.some((ref) => t.includes(ref)), `recipe ${r.n}: arrangement and type share a reference`);
-      assert.ok(!a.some((ref) => g.includes(ref)), `recipe ${r.n}: arrangement and ground share a reference`);
-      assert.ok(!t.some((ref) => g.includes(ref)), `recipe ${r.n}: type and ground share a reference`);
-    }
-  }
-});
-
-test("deal --brief: screens plainly against the personality are noted, never cut", () => {
-  const lib = library();
-  lib.grounds.push({ id: "teal", ground: "#1f8a8a", ink: "#ffffff", from: ["h"] });
-  lib.type.push({ id: "type-script", kind: "script", from: ["b"] });
-  const dir = project(lib);
-  mkdirSync(join(dir, "docs/design"), { recursive: true });
-  writeFileSync(join(dir, "docs/design/design-brief.md"), "# Design brief: x\n\n- personality: loud 1 · picture-led 3 · rich 2 · cool 1 · playful 1 · new 3 · dense 2\n");
-  const result = run(deal, dir, ["library.json", "--seed", "3", "--count", "10"]);
-  assert.equal(result.status, 0, result.stderr);
-  const [round] = rounds(dir);
-  assert.equal(round.recipes.length, 9, "every screen is still dealt: eight arrangements, the anchor's twice");
-  assert.ok(round.recipes.some((r) => r.ground === "teal") && round.recipes.some((r) => r.type === "type-script"), "the noted entries are dealt, not passed over");
-  for (const r of round.recipes) {
-    const notes = r.against || [];
-    assert.equal(notes.some((n) => /cool ground for a warm brief/.test(n)), r.ground === "teal", `recipe ${r.n}`);
-    assert.equal(notes.some((n) => /saturated ground for a quiet brief/.test(n)), r.ground === "teal", `recipe ${r.n}`);
-    assert.equal(notes.some((n) => /script face for a serious brief/.test(n)), r.type === "type-script", `recipe ${r.n}`);
-  }
-  assert.match(result.stdout, /^brief: /m);
-  // No brief, no notes.
-  const plain = project(lib);
-  const bare = run(deal, plain, ["library.json", "--seed", "3"]);
-  assert.ok(rounds(plain)[0].recipes.every((r) => !r.against));
-  assert.doesNotMatch(bare.stdout, /^brief: /m);
-  const missing = run(deal, plain, ["library.json", "--brief", "nope.md"]);
-  assert.equal(missing.status, 1);
-});
-
-test("deal: the anchor's arrangement is dealt twice and no other repeats", () => {
-  const dir = project();
-  run(deal, dir, ["library.json", "--seed", "11"]);
-  const seen = {};
-  for (const r of rounds(dir)[0].recipes) seen[r.arrangement] = (seen[r.arrangement] || 0) + 1;
-  assert.equal(seen["arr-a"], 2);
-  for (const [id, n] of Object.entries(seen)) if (id !== "arr-a") assert.equal(n, 1, id);
-});
-
-test("deal: without an anchor every arrangement is dealt once", () => {
-  const dir = project(library({ anchor: undefined }));
-  run(deal, dir, ["library.json", "--seed", "3"]);
-  const ids = rounds(dir)[0].recipes.map((r) => r.arrangement);
-  assert.equal(new Set(ids).size, 8);
-});
-
-test("deal: an accent too close to its surface is passed over", () => {
-  const lib = library();
-  for (const seed of ["1", "2", "3", "4", "5", "6"]) {
-    const dir = project(lib);
-    run(deal, dir, ["library.json", "--seed", seed]);
-    for (const r of rounds(dir)[0].recipes) {
-      // The pale accent cannot sit on white, on cream, or on the framed ground's white panel.
-      if (r.accent === "pale") assert.equal(r.ground, "dark", `recipe ${r.n} puts pale on ${r.ground}`);
-    }
-  }
-});
-
-test("deal: a seed gives the same round, and a second round repeats no recipe", () => {
-  const one = project();
-  const two = project();
-  run(deal, one, ["library.json", "--seed", "42"]);
-  run(deal, two, ["library.json", "--seed", "42"]);
-  assert.deepEqual(rounds(one)[0].recipes, rounds(two)[0].recipes);
-  run(deal, one, ["library.json", "--seed", "43"]);
-  const all = rounds(one).flatMap((round) => round.recipes.map((r) => [r.arrangement, r.navigation, r.type, r.ground, r.accent].join("|")));
-  assert.equal(rounds(one).length, 2);
-  assert.equal(new Set(all).size, all.length);
-});
-
-test("deal --vary: each variation changes one list and keeps the three sources", () => {
-  const lib = library();
-  const dir = project(lib);
-  run(deal, dir, ["library.json", "--seed", "8"]);
-  const result = run(deal, dir, ["library.json", "--vary", "2,5", "--seed", "9"]);
-  assert.equal(result.status, 0, result.stderr);
-  const [dealt, varied] = rounds(dir);
-  assert.equal(varied.kind, "vary");
-  for (const n of [2, 5]) {
-    const base = dealt.recipes.find((r) => r.n === n);
-    const row = varied.recipes.filter((r) => r.of === n);
-    assert.equal(row[0].change, "the pick");
-    assert.ok(row.length > 2);
-    for (const r of row.slice(1)) {
-      const changed = ["arrangement", "navigation", "type", "ground", "accent"].filter((name) => r[name] !== base[name]);
-      assert.deepEqual(changed, [r.change]);
-      const a = sources(lib, "arrangements", r.arrangement);
-      const t = sources(lib, "type", r.type);
-      const g = sources(lib, "grounds", r.ground);
-      assert.ok(!a.some((ref) => t.includes(ref)) && !a.some((ref) => g.includes(ref)) && !t.some((ref) => g.includes(ref)));
-    }
-  }
-});
-
-test("deal: the anchor's two screens never touch on the sheet, beside or above each other", () => {
-  for (const cols of [2, 4]) {
-    for (let seed = 1; seed <= 40; seed++) {
-      const dir = project();
-      run(deal, dir, ["library.json", "--seed", String(seed), "--cols", String(cols)]);
-      const at = rounds(dir)[0].recipes.filter((r) => r.arrangement === "arr-a").map((r) => r.n - 1);
-      assert.equal(at.length, 2);
-      const [p, q] = at;
-      const besides = Math.floor(p / cols) === Math.floor(q / cols) && Math.abs(p - q) === 1;
-      assert.ok(!besides && Math.abs(p - q) !== cols, `cols ${cols}, seed ${seed}: ${at}`);
-    }
-  }
-});
-
-test("deal --vary after a vary round varies that round's recipe, not the first deal's", () => {
-  const dir = project();
-  run(deal, dir, ["library.json", "--seed", "1"]);
-  run(deal, dir, ["library.json", "--vary", "2", "--seed", "2"]);
-  const picked = rounds(dir)[1].recipes.at(-1);
-  const result = run(deal, dir, ["library.json", "--vary", String(picked.n), "--seed", "3"]);
-  assert.equal(result.status, 0, result.stderr);
-  const pick = rounds(dir)[2].recipes[0];
-  for (const name of ["arrangement", "navigation", "type", "ground", "accent"]) assert.equal(pick[name], picked[name]);
-});
-
-test("deal --more gives the pick every entry of one list it has not had, keeping the three sources", () => {
-  const lib = library();
-  const dir = project(lib);
-  run(deal, dir, ["library.json", "--seed", "8"]);
-  const result = run(deal, dir, ["library.json", "--more", "2:accent", "--seed", "9"]);
-  assert.equal(result.status, 0, result.stderr);
-  const [dealt, more] = rounds(dir);
-  const base = dealt.recipes.find((r) => r.n === 2);
-  assert.equal(more.kind, "more");
-  const accents = more.recipes.slice(1).map((r) => r.accent);
-  assert.ok(accents.length > 0 && !accents.includes(base.accent) && new Set(accents).size === accents.length);
-  for (const r of more.recipes.slice(1)) assert.deepEqual(["arrangement", "navigation", "type", "ground"].map((n) => r[n]), ["arrangement", "navigation", "type", "ground"].map((n) => base[n]));
-});
-
-test("deal --mix records a hand mix as its own round, and warns when it breaks the three sources", () => {
-  const dir = project();
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [
-    { n: 1, arrangement: "arr-b", navigation: "nav-2", type: "type-2", ground: "dark", accent: "red" },
-    { n: 2, arrangement: "arr-c", navigation: "nav-1", type: "type-4", ground: "cream", accent: "none" },
-  ] }] }));
-  const ok = run(deal, dir, ["library.json", "--mix", "1,ground=framed,accent=2"]);
-  assert.equal(ok.status, 0, ok.stderr);
-  assert.equal(ok.stderr, "");
-  const mixed = rounds(dir)[1].recipes[0];
-  assert.deepEqual([mixed.arrangement, mixed.type, mixed.ground, mixed.accent], ["arr-b", "type-2", "framed", "none"]);
-  const broken = run(deal, dir, ["library.json", "--mix", "1,type=type-1"]);
-  assert.equal(broken.status, 0, broken.stderr);
-  assert.match(broken.stderr, /fewer than three references/);
-});
-
-test("deal --mix zone: a zone from another arrangement is a dealt move, its references counted, none drops a zone", () => {
-  const lib = library();
-  lib.arrangements[1].zones = { hero: "name on the picture", side: "a caption column" };
-  lib.arrangements[2].zones = { hero: "name behind the picture", side: "a thin index on the left" };
-  const dir = project(lib);
-  writeFileSync(join(dir, "deal.json"), JSON.stringify({ rounds: [{ round: 1, kind: "deal", seed: 1, recipes: [
-    { n: 1, arrangement: "arr-b", navigation: "nav-2", type: "type-3", ground: "dark", accent: "red" },
-    { n: 2, arrangement: "arr-c", navigation: "nav-1", type: "type-4", ground: "cream", accent: "none" },
-  ] }] }));
-  const ok = run(deal, dir, ["library.json", "--mix", "1,zone.side=2"]);
-  assert.equal(ok.status, 0, ok.stderr);
-  assert.deepEqual(rounds(dir)[1].recipes[0].zones, { side: "arr-c" });
-  assert.match(ok.stdout, /zones side=arr-c/);
-  // arr-c is from c; type-3 from e and f, dark from d and g: still three sources. With a ground from c it is not.
-  assert.equal(ok.stderr, "");
-  const broken = run(deal, dir, ["library.json", "--mix", "1,zone.side=arr-c,ground=light"]);
-  assert.match(broken.stderr, /fewer than three references/);
-  // Numbers read from the last round, so a mix of a mix keeps the zone it already took.
-  const none = run(deal, dir, ["library.json", "--mix", "1,zone.hero=none"]);
-  assert.equal(none.status, 0, none.stderr);
-  assert.deepEqual(rounds(dir).at(-1).recipes[0].zones, { side: "arr-c", hero: "none" });
-  const missing = run(deal, dir, ["library.json", "--mix", "1,zone.footer=arr-c"]);
-  assert.equal(missing.status, 1);
-  assert.match(missing.stderr, /no zone called footer: its zones are hero, side/);
-  run(deal, dir, ["library.json", "--choose", "1"]);
-  assert.deepEqual(JSON.parse(readFileSync(join(dir, "deal.json"), "utf8")).chosen.zones, { side: "arr-c", hero: "none" });
-});
-
-test("deal: a library with no family still deals, and says what is missing", () => {
-  const lib = library();
-  delete lib.family;
-  const result = run(deal, project(lib), ["library.json", "--seed", "1"]);
-  assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stderr, /no family/);
-});
-
-test("deal: a library with a missing list, or too thin to deal from, fails with the reason", () => {
-  const { navigation, ...rest } = library();
-  const missing = run(deal, project(rest), ["library.json"]);
-  assert.equal(missing.status, 1);
-  assert.match(missing.stderr, /no navigation/);
-  const thin = library();
-  for (const list of ["arrangements", "type", "grounds"]) thin[list] = [{ ...thin[list][0], from: ["a"] }];
-  const result = run(deal, project(thin), ["library.json"]);
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /too thin/);
-});
 
 test("sheet: one numbered tile per shot, in the order given", () => {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-sheet-"));
@@ -395,17 +178,6 @@ test("measure: a folder in one browser, as one TSV row per image", async (t) => 
   assert.deepEqual(rows.map((r) => [r[0].split("/").pop(), r[1]]), [["a.png", "light"], ["b.png", "dark"]]);
 });
 
-test("deal: a type and ground pair repeats at most once in a round, even in a tight library", () => {
-  for (let seed = 1; seed <= 30; seed++) {
-    const dir = project();
-    run(deal, dir, ["library.json", "--seed", String(seed)]);
-    const recipes = rounds(dir)[0].recipes;
-    const pairs = recipes.map((r) => `${r.type}|${r.ground}`);
-    assert.ok(pairs.length - new Set(pairs).size <= 1, `seed ${seed}: ${pairs}`);
-  }
-});
-
-
 test("measure --profiles: a picture and its page in one profile, and the tags already there kept", async (t) => {
   const icon = `<svg width="24" height="24"><circle cx="12" cy="12" r="10"/></svg>`;
   const page = `<!doctype html><body style="margin:0;background:rgb(20,20,20)"><main style="background:rgb(20,20,20);min-height:900px"><h1 style="font:700 120px Georgia;color:#fff;margin:40px">Kiln</h1><video style="display:block;width:720px;height:300px"></video><div style="background:rgb(255,80,0);width:1440px;height:180px"></div>${icon.repeat(5)}</main></body>`;
@@ -440,91 +212,16 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
   }
 });
 
-test("grid template: its script parses, and it marks what a run writes", () => {
-  const html = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
+test("screen template: its script parses, marks what a run writes, and takes the look from the URL", () => {
+  const html = readFileSync(join(root, "skills/design-direction/references/screen-template.html"), "utf8");
   const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
   assert.equal(check.status, 0, check.stderr);
-  for (const part of ["content", "navigation", "arrangements"]) assert.match(html, new RegExp(`WRITE: ${part}`));
-  assert.doesNotMatch(html, /CONCEPTS|PARTS|\?concept=|--part/);
-  for (const hook of ["../deal.js", "document.title = \"ready\"", "function fit(", "function clearOf(", "createRange"]) assert.ok(html.includes(hook), hook);
+  for (const part of ["the look", "provenance", "the screen's CSS", "the screen's HTML"]) assert.match(html, new RegExp(`WRITE: ${part}`));
+  for (const hook of ["const LOOK", "const PROVENANCE", 'document.title = "ready"', '["face", "body", "ground", "ink"]', 'q.get("weight")', 'q.get("accent")', 'q.get("size")']) assert.ok(html.includes(hook), hook);
 });
-
-test("grid template: must-carry and zones are wired", () => {
-  const grid = readFileSync(join(root, "skills/design-direction/references/grid-template.html"), "utf8");
-  for (const hook of ["function mustCarry(", "const zone = "]) assert.ok(grid.includes(hook), hook);
-});
-
-test("deal: their own entries are not one shared reference", () => {
-  const lib = library();
-  lib.type = [{ id: "their-face", from: ["theirs"] }];
-  lib.grounds = [{ id: "their-ground", ground: "#ffffff", ink: "#000000", from: ["theirs"] }];
-  const dir = project(lib);
-  const result = run(deal, dir, ["library.json", "--seed", "1"]);
-  assert.equal(result.status, 0, result.stderr);
-  assert.ok(rounds(dir)[0].recipes.every((r) => r.type === "their-face" && r.ground === "their-ground"));
-  const mix = run(deal, dir, ["library.json", "--mix", "1,accent=red"]);
-  assert.doesNotMatch(mix.stderr, /fewer than three references/);
-});
-
-test("deal: an empty flag or a seed that is not a number is a usage error, not a fresh round", () => {
-  const dir = project();
-  run(deal, dir, ["library.json", "--seed", "1"]);
-  assert.equal(run(deal, dir, ["library.json", "--vary"]).status, 2);
-  assert.equal(run(deal, dir, ["library.json", "--seed", "abc"]).status, 2);
-  assert.equal(rounds(dir).length, 1);
-});
-
-test("deal: an anchor that cannot be dealt fails with the reason; a later round deals it once", () => {
-  const lib = library();
-  lib.type = lib.type.map((t) => ({ ...t, from: [...t.from, "a"] }));
-  const result = run(deal, project(lib), ["library.json", "--seed", "1"]);
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /the anchor's arrangement \(arr-a\) cannot be dealt/);
-  const dir = project();
-  run(deal, dir, ["library.json", "--seed", "1"]);
-  run(deal, dir, ["library.json", "--seed", "2"]);
-  assert.ok(rounds(dir)[1].recipes.filter((r) => r.arrangement === "arr-a").length <= 1);
-});
-
-test("deal: a tight library says when a type and ground pair comes round again", () => {
-  const lib = library();
-  lib.type = [{ id: "t1", from: ["x"] }, { id: "t2", from: ["y"] }];
-  lib.grounds = [{ id: "g1", ground: "#ffffff", ink: "#000000", from: ["z"] }, { id: "g2", ground: "#000000", ink: "#ffffff", from: ["w"] }];
-  const result = run(deal, project(lib), ["library.json", "--seed", "3"]);
-  assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stderr, /the library has few types or grounds, so .* comes \d times/);
-});
-
-test("deal: an accent that does not stand off is never dealt, short hex included", () => {
-  const lib = library();
-  lib.grounds = [{ id: "white", ground: "#ffffff", ink: "#000000", from: ["z"] }];
-  lib.type = [{ id: "t", from: ["y"] }];
-  lib.accents = [{ id: "ghost", colour: "#ececec", from: ["q"] }, { id: "short", colour: "#fff", from: ["r"] }, { id: "none", colour: null, from: ["s"] }];
-  const dir = project(lib);
-  run(deal, dir, ["library.json", "--seed", "1"]);
-  assert.deepEqual([...new Set(rounds(dir)[0].recipes.map((r) => r.accent))], ["none"]);
-});
-
-test("deal --more stops at one round, and --mix chosen works after any round", () => {
-  const lib = library();
-  for (let i = 0; i < 30; i++) lib.type.push({ id: `extra${i}`, from: [`z${i}`] });
-  const dir = project(lib);
-  run(deal, dir, ["library.json", "--seed", "1"]);
-  const more = run(deal, dir, ["library.json", "--more", "1:type"]);
-  assert.equal(rounds(dir).at(-1).recipes.length, 8);
-  assert.match(more.stderr, /8 screens is a round/);
-  run(deal, dir, ["library.json", "--choose", "2"]);
-  const { chosen } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
-  run(deal, dir, ["library.json", "--vary", "1"]);
-  const mix = run(deal, dir, ["library.json", "--mix", "chosen,accent=none"]);
-  assert.equal(mix.status, 0, mix.stderr);
-  const mixed = rounds(dir).at(-1).recipes[0];
-  assert.deepEqual([mixed.arrangement, mixed.type, mixed.accent], [chosen.arrangement, chosen.type, "none"]);
-});
-
 
 test("measure: ordinary pages read right (alignment, ground, gradients, patterns, lettering, icons, scale)", async (t) => {
   const svgIcon = "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 10 10%22%3E%3Ccircle cx=%225%22 cy=%225%22 r=%224%22/%3E%3C/svg%3E";
@@ -680,62 +377,6 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
 });
 
-test("deal --identity: type, grounds and accents come from the identity, composition from the references", () => {
-  const { type: _t, grounds: _g, accents: _a, ...composition } = library();
-  const dir = project(composition);
-  writeFileSync(join(dir, "identity.md"), `# Identity\n\n\`\`\`json identity\n${JSON.stringify({
-    display: { face: "Unbounded", weight: 500, case: "uppercase" },
-    body: { face: "Inter", size: "16px", leading: "1.5" },
-    colours: [
-      { name: "lime", hex: "#C0FF00", role: ["accent", "ground"] },
-      { name: "paper", hex: "#EEE", role: "ground" },
-      { name: "mid", hex: "#737373", role: "ground" },
-      { name: "ink", hex: "#000000", role: ["ink", "ground"] },
-    ],
-  })}\n\`\`\`\n`);
-  const result = run(deal, dir, ["library.json", "--identity", "identity.md", "--seed", "1"]);
-  assert.equal(result.status, 0, result.stderr);
-  // Grey #737373 has no identity colour at 4.5:1 on it, so it is not a ground, and it is said.
-  assert.match(result.stderr, /mid is left out as a ground/);
-  const lib = JSON.parse(readFileSync(join(dir, "library.json"), "utf8"));
-  assert.deepEqual(lib.grounds.map((g) => g.id), ["lime", "paper", "ink"]);
-  // Each ground takes the identity colour that reads best on it: dark ink on the light ones, a light one on black.
-  assert.equal(lib.grounds.find((g) => g.id === "paper").ink, "#000000");
-  assert.notEqual(lib.grounds.find((g) => g.id === "ink").ink, "#000000");
-  assert.deepEqual(lib.accents.map((a) => a.id), ["lime", "none"]);
-  const { rounds } = JSON.parse(readFileSync(join(dir, "deal.json"), "utf8"));
-  assert.equal(rounds[0].recipes.length, 8);
-  for (const r of rounds[0].recipes) assert.equal(r.type, "identity");
-  // Later rounds read the lists written back, with no --identity.
-  const again = run(deal, dir, ["library.json", "--vary", "1"]);
-  assert.equal(again.status, 0, again.stderr);
-});
-
-test("deal: a round spreads across light, dark and mid grounds and kinds of face, and says how wide it is", () => {
-  const lib = library();
-  lib.type = lib.type.map((t, i) => ({ ...t, kind: ["serif", "sans", "condensed", "serif"][i] }));
-  const dir = project(lib);
-  const result = run(deal, dir, ["library.json", "--seed", "2"]);
-  assert.equal(result.status, 0, result.stderr);
-  const line = result.stdout.split("\n").find((l) => l.startsWith("spread:"));
-  assert.ok(line, result.stdout);
-  for (const word of ["light", "dark", "serif", "sans", "condensed"]) assert.match(line, new RegExp(word));
-  // Three of the four grounds are light; dealt by evenness alone, dark would get 2 of 8. Spread gives it more.
-  const dark = Number((line.match(/dark (\d+)/) || [0, 0])[1]);
-  assert.ok(dark >= 3, line);
-});
-
-test("deal: a library too narrow for a spread says so", () => {
-  const lib = library();
-  lib.arrangements = lib.arrangements.slice(0, 4);
-  lib.grounds = lib.grounds.map((g) => ({ ...g, ground: "#ffffff", panel: null, ink: "#111111" }));
-  const dir = project(lib);
-  const result = run(deal, dir, ["library.json", "--seed", "1"]);
-  assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stderr, /every ground in the library is light/);
-  assert.match(result.stderr, /4 references give 4 arrangements/);
-});
-
 test("links: walks a prototype and says what breaks a flow", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-links-"));
   writeFileSync(join(dir, "home.html"), `<a href="menu.html">Menu</a> <a href="#">Order</a> <a href="gone.html">Gone</a> <a href="https://example.com">out</a>
@@ -756,4 +397,83 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
   assert.deepEqual(out.deadEnds, ["basket"]);
   assert.deepEqual(out.unreached, ["checkout"]);
   assert.equal(out.outside.length, 1);
+});
+
+// A picture with type in it, drawn by rule: hollow letters (an "o" a block) on a light ground, a
+// headline of five tall ones, a body line of small ones, and a patch of noise standing for a photo.
+function typePicture() {
+  const W = 400, H = 300, rgb = new Array(W * H * 3).fill(244);
+  const dot = (x, y, v) => { const i = (y * W + x) * 3; rgb[i] = v[0]; rgb[i + 1] = v[1]; rgb[i + 2] = v[2]; };
+  const letter = (x0, y0, w, h, s, ink) => {
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if (x < x0 + s || x >= x0 + w - s || y < y0 + s || y >= y0 + h - s) dot(x, y, ink);
+  };
+  for (let i = 0; i < 5; i++) letter(30 + i * 52, 40, 40, 60, 8, [20, 20, 20]);
+  for (let i = 0; i < 12; i++) letter(30 + i * 12, 200, 8, 12, 2, [20, 20, 20]);
+  let seed = 7;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
+  for (let y = 150; y < 260; y++) for (let x = 260; x < 380; x++) dot(x, y, [rand() * 255, rand() * 255, rand() * 255].map(Math.round));
+  return png(W, H, rgb);
+}
+
+test("measure: a picture's type is read: the display's size and weight, the body, the scale, the headline and the blocks", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-measure-type-"));
+  writeFileSync(join(dir, "type.png"), typePicture());
+  const result = await measured([join(dir, "type.png"), "--lines"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const { type, traits } = JSON.parse(result.stdout);
+  // A 60 px letter is a cap of 60, an em of about 86: at 1440 wide, 86 × 1440 / 400.
+  assert.ok(Math.abs(type.display.px1440 - 309) < 20, JSON.stringify(type.display));
+  assert.equal(type.display.weight, 400, JSON.stringify(type.display));
+  assert.equal(type.display.case, "uppercase");
+  assert.equal(type.display.ink, "#141414");
+  assert.ok(Math.abs(type.scale - 5) < 0.6, String(type.scale));
+  assert.equal(type.body.weight, null, "a body line too small to weigh is given no weight");
+  assert.deepEqual(type.headline, { words: 1, lines: 1 });
+  assert.equal(type.blocks, 2);
+  assert.equal(type.lines.length, 2, "the noise is not read as type");
+  assert.equal(traits.ink, "#141414");
+  assert.ok(traits.pictures > 3 && traits.pictures < 20, String(traits.pictures));
+});
+
+test("fonts --shape: a picture's measured shape stands in for a face; its kind must be said", () => {
+  const fonts = join(root, "skills/design-identity/scripts/fonts.mjs");
+  const run = (args) => spawnSync(process.execPath, [fonts, ...args], { encoding: "utf8" });
+  assert.equal(run(["--shape", "width=0.5,xheight=0.5"]).status, 2, "no --kind");
+  assert.equal(run(["--shape", "width=0.5,height=2", "--kind", "serif"]).status, 2, "an unknown measure");
+  assert.equal(run(["--shape", "width=0.5", "--kind", "serif", "Georgia"]).status, 2, "a face and a shape at once");
+  assert.match(run(["--shape", "width=-1", "--kind", "serif"]).stderr, /--shape width=/);
+  // design-direction ships the same copy, for the library step.
+  assert.equal(readFileSync(join(root, "skills/design-direction/scripts/fonts.mjs"), "utf8"), readFileSync(fonts, "utf8"));
+});
+
+test("picture-cast: a grey wall reads neutral, a pink-tinted one is a cast, a white-out is blown, and the subject's own colour is no cast", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-cast-"));
+  // Left half a saturated red object (the subject), right half the wall.
+  const picture = (wall) => {
+    const px = [];
+    for (let y = 0; y < 40; y++) for (let x = 0; x < 80; x++) px.push(...(x < 40 ? [180, 40, 30] : wall));
+    return png(80, 40, px);
+  };
+  writeFileSync(join(dir, "a-neutral.png"), picture([150, 150, 150]));
+  writeFileSync(join(dir, "b-pink.png"), picture([170, 140, 150]));
+  writeFileSync(join(dir, "c-blown.png"), picture([255, 255, 255]));
+  const result = spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/picture-cast.mjs"), dir], { encoding: "utf8" });
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const [neutral, pink, blown] = JSON.parse(result.stdout);
+  assert.equal(neutral.cast, "none", JSON.stringify(neutral));
+  assert.equal(neutral.fault, false);
+  assert.match(pink.cast, /red|magenta/, JSON.stringify(pink));
+  assert.equal(pink.fault, true);
+  assert.ok(blown.blown > 40 && blown.fault, JSON.stringify(blown));
+  assert.equal(spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/picture-cast.mjs")], { encoding: "utf8" }).status, 2);
+});
+
+test("layout-diff: a reference and a screen are both required, and --out", () => {
+  const script = join(root, "skills/design-direction/scripts/layout-diff.mjs");
+  const r = spawnSync(process.execPath, [script, "a.png"], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: node layout-diff\.mjs <reference picture> <screen capture> --out <folder>/);
+  assert.equal(spawnSync(process.execPath, [script, "a.png", "b.png"], { encoding: "utf8" }).status, 2, "no --out");
 });

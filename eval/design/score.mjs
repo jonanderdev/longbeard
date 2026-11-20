@@ -14,9 +14,6 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-// The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
-const sources = JSON.parse(readFileSync(join(here, "fixture/sources.json"), "utf8"));
-const boardNames = readdirSync(join(here, "fixture/board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 const repo = resolve(here, "../..");
 const args = process.argv.slice(2);
 const has = (name) => {
@@ -36,6 +33,12 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 const at = (...p) => join(dir, ...p);
+// The fixture the project was built from (run.mjs --fixture records it), else the default one.
+const fixtureFile = at(".longbeard/eval/fixture.txt");
+const fixture = existsSync(fixtureFile) ? readFileSync(fixtureFile, "utf8").trim() : join(here, "fixture");
+// The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
+const sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
+const boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 const read = (...p) => (existsSync(at(...p)) ? readFileSync(at(...p), "utf8") : null);
 // The scripts as installed in the project, so the run is judged with what it shipped; the repo's otherwise.
 const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), at(".agents/skills", skill, "scripts", name), join(repo, "skills", skill, "scripts", name)].find(existsSync);
@@ -98,7 +101,26 @@ const deal = (() => {
     return null;
   }
 })();
-if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
+// Screens built from references: each names its base and its moves, all of them on the board.
+const built = (() => {
+  try {
+    const j = JSON.parse(read(".longbeard/design/direction/screens.json") || "null");
+    return j ? { list: Array.isArray(j) ? j : j.screens || [], chosen: Array.isArray(j) ? null : j.chosen ?? null } : null;
+  } catch {
+    return null;
+  }
+})();
+if (built) {
+  const board = new Set([...(lib?.references || []).map((r) => r.name), ...boardNames]);
+  // A source may carry a note after its name ("04-still-life (turned)", "subject (the brief: light only)").
+  const known = (from) => [...board, "subject", "theirs"].some((name) => String(from || "").trim().startsWith(name));
+  const bad = built.list.filter((sc) => !known(sc.base) || !(sc.moves || []).length || (sc.moves || []).some((m) => !known(m.from))).map((sc) => sc.n);
+  check("screens: a base and moves from the board", true, built.list.length ? !bad.length : false, bad.length ? `screens ${bad.join(", ")} name no base, no move, or a source not on the board` : `${built.list.length} screens`);
+  const bases = new Set(built.list.map((sc) => sc.base));
+  const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
+  check("screens: every reference a base", false, !missed.length, missed.join(", "));
+  check("deal: a screen chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
+} else if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
 else {
   const lists = { arrangement: "arrangements", type: "type", ground: "grounds" };
   const notRefs = new Set(["theirs", "identity", "subject"]);
@@ -177,9 +199,10 @@ if (design) {
 const min = level === "AAA" ? ["--min", "7", "--large", "4.5"] : [];
 const sc = script("design-direction", "screen-contrast.mjs") || script("design-prototype", "screen-contrast.mjs");
 const browser = (id, hard, run) => {
-  if (noBrowser) return check(id, hard, null, "--no-browser");
+  // A skipped render returns nothing, so the caller writes no check of its own.
+  if (noBrowser) return void check(id, hard, null, "--no-browser");
   const r = run();
-  if (/No Chrome/.test(r.stderr)) return check(id, hard, null, "no Chrome");
+  if (/No Chrome/.test(r.stderr)) return void check(id, hard, null, "no Chrome");
   return r;
 };
 const first = at(".longbeard/design/direction/prototype/first.html");
@@ -216,6 +239,41 @@ else {
     if (r.status !== 0) failing.push(`${p}: ${r.stdout.trim().split("\n")[0] || r.stderr.trim()}`);
   }
   if (ran) check("prototype: contrast where text sits", true, !failing.length, failing.slice(0, 4).join("; ") || `${ran} pages at ${level}`);
+}
+
+// ------------------------------------------------------------------ rendered: the dealt screens (screens.mjs)
+// Each screen of the first dealt round: no tiny or clipped text, contrast where text sits, no more
+// text than its reference carries and one more, a ground of a tone the references use; and measured
+// against its references, with the odd-one-out rate when the judges have run (odd-one-out.mjs).
+// A run of this flow, or one from before it (design-exploration/<slug>/), which screens.mjs reads too.
+const gridPage = [at(".longbeard/design/direction/screens.json"), at(".longbeard/design/direction/prototype/grid.html"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d, "prototype/grid.html")) : [])].find(existsSync);
+const gridIds = ["grid: no text under 12px", "grid: no clipped text", "grid: contrast on every screen", "grid: text within the reference's slots", "grid: grounds in the board's tones", "grid: measured against the references", "grid: odd one out"];
+if (!gridPage) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
+else {
+  const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
+  if (!r) for (const id of gridIds.slice(1)) check(id, false, null, results.at(-1).detail);
+  if (r) {
+    let out = null;
+    try {
+      out = JSON.parse(r.stdout);
+    } catch {}
+    if (!out) for (const id of gridIds) check(id, false, false, (r.stderr || "screens.mjs gave no result").trim().slice(0, 200));
+    else {
+      const g = out.summary;
+      const list = (xs) => xs.slice(0, 4).join("; ") + (xs.length > 4 ? ` … ${xs.length} in all` : "");
+      check(gridIds[0], true, !g.tiny.length, g.tiny.length ? list(g.tiny) : `smallest ${g.minText}px`);
+      check(gridIds[1], true, !g.clipped.length, list(g.clipped));
+      check(gridIds[2], true, !g.contrast.length, g.contrast.length ? list(g.contrast) : `${g.screens} screens`);
+      check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
+      check(gridIds[4], false, !g.offBoard.length, list(g.offBoard));
+      const rates = ["arrangement", "type", "role", "colour"].filter((k) => g[k]);
+      const say = rates.map((k) => `${k} ${g[k].within}/${g[k].of}`).join(" · ");
+      check(gridIds[5], false, rates.length ? rates.every((k) => g[k].within * 2 >= g[k].of) : null, say || "nothing measured");
+      // Picked as least finished at chance (1 in 6) or less: the screens hold up beside the references.
+      const odd = g.oddOneOut;
+      check(gridIds[6], false, odd ? odd.rate <= 1 / 6 + 1e-9 : null, odd ? `${odd.picked}/${odd.judged} picks were a dealt screen (chance ${(odd.judged / 6).toFixed(1)})` : "not judged: run odd-one-out.mjs");
+    }
+  }
 }
 
 // ------------------------------------------------------------------ the run's own log

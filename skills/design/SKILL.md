@@ -25,7 +25,7 @@ Each skill says at its top what it **Needs**, what it **Uses if there**, and wha
 | `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed |
 | `design-moodboard` | Find references, or read their board and fill its gaps |
 | `design-families` | Optional. Sort a big board or search into looks; they take one or two |
-| `design-direction` | Three or four pictures of the subject, then eight first screens dealt from their references (arrangement, type and colours from different ones); they pick, vary, mix; a light touch-up pass |
+| `design-direction` | Three or four pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two borrowed from the others; nothing that is not on the board. They choose; a light touch-up pass |
 | `design-identity` | The type pairing and colours of the chosen screen, refined on it from close, rendered options; ends in the identity board |
 | `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
@@ -36,7 +36,7 @@ Each skill says at its top what it **Needs**, what it **Uses if there**, and wha
 ## Where things go
 
 - **`docs/design/`** is committed and kept up to date: the design docs above. They describe the style ("a condensed grotesk at a fifth of the width, cropped at the right edge"), never a source: no brand, site, studio, designer or person, no link, and no path into `.longbeard/`. A doc that needs a reference to make sense is written again until it does not.
-- **`.longbeard/design/`** is the agents' working folder, gitignored: captured references, Figma crops, pickers, contact sheets, profiles, dealt grids, sketches, prototypes. Nobody needs to open it; when there is something to look at, the skill gives the path. It may not survive (a cloud session, a clean checkout): the docs carry the meaning, and a skill that needs a reference again captures it again or says it cannot.
+- **`.longbeard/design/`** is the agents' working folder, gitignored: captured references, Figma crops, pickers, contact sheets, profiles, direction screens, sketches, prototypes. Nobody needs to open it; when there is something to look at, the skill gives the path. It may not survive (a cloud session, a clean checkout): the docs carry the meaning, and a skill that needs a reference again captures it again or says it cannot.
 
 On the first write of either, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line. A project with an older `design-exploration/` folder keeps it: nothing writes there any more.
 
@@ -46,7 +46,7 @@ Look at the repo. Do not ask what is there. Read the design brief's `pace` first
 
 1. No `docs/brief.md` → `idea` first. The brief says no UI → there is nothing to design; say so.
 2. No `docs/design/design-brief.md` → `design-brief`. Every other skill needs it.
-3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is dealt from it, so it is not skipped.
+3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is built from it, so it is not skipped.
 4. **The board's size decides families.**
    - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?" (Not at `pace: quick`.)
    - About 8 to 60 → no sorting. A board this size is already chosen.
@@ -63,7 +63,7 @@ Look at the repo. Do not ask what is there. Read the design brief's `pace` first
 
 Example:
 
-> You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens dealt from them. Your board is small enough to skip sorting.
+> You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens built from them. Your board is small enough to skip sorting.
 
 Then stop. They type the skill, or say yes and you load it.
 

@@ -1,27 +1,64 @@
-# The library
+# Reading the references
 
-Read by `design-direction`, step 2. The library is what the lead and the likes use, written down so `deal.mjs` can deal from it. Reading it is measuring, not judging: nothing here is a choice.
+Read by `design-direction`, step 2. Each reference the screens are built from is a finished design: its sizes, spacing, type and colours were chosen together and work together. Reading it is understanding that system well enough to rebuild it at screen size, and measuring it so the rebuild can be checked. Nothing here is a choice.
 
-Open the lead and every like at full size. Write `.longbeard/design/direction/library.json`: what each one uses, measured where a live page exists (`measure.mjs <link>` lists its fonts, sizes, colours, gradients), never judged by eye when it can be measured. Nothing here is a choice.
+Write `.longbeard/design/direction/library.json`, one reading per reference (the lead and every like):
 
 ```
 {
-  "anchor": "<lead's card name>",
-  "family":       { "empty": "55–70%", "scale": "4–7", "pictures": "30–50%", "margin": "2–4%", "radius": "0px", "images": "<how pictures are treated>", "edges": "<rules, borders, or none>", "density": "<how much sits on the first screen>", "from": ["…"] },
-  "arrangements": [{ "id": "<a plain word>", "what": "<one sentence>", "zones": { "hero": "…", "side": "…", "band": "…" }, "from": ["<card name>"] }],
-  "navigation":   [{ "id": "…", "what": "<one sentence>", "from": ["…"] }],
-  "type":         [{ "id": "…", "what": "<the kind of face, in plain words>", "kind": "serif | sans | condensed | display | mono | script", "face": "<a face the product can use>", "by": "page | eye", "weight": 400, "case": "none | uppercase", "tracking": "-0.02em", "size": null, "body": { "face": "…", "size": "16px", "leading": "1.5" }, "css": null, "from": ["…"] }],
-  "grounds":      [{ "id": "…", "ground": "#…", "panel": null, "ink": "#…", "gradient": null, "pattern": null, "from": ["…"] }],
-  "accents":      [{ "id": "…", "colour": "#… or null", "device": "<what carries it>", "from": ["…"] }],
-  "controls":     { "button": { "fill": "accent | ink", "radius": "0px", "case": "none", "weight": 600 }, "from": ["…"] }
+  "lead": "<card name>",
+  "references": [{
+    "name": "<card name>",
+    "likes": [{ "what": "<what they like in it, in their words>", "why": "<what it does for them: the rule for using it>" }],
+    "concept": "<what makes it, in one or two sentences: the idea a designer would defend>",
+    "move": "<the one move a person would point at: the disc cutting into the title, one word filling the width>",
+    "layout": "<where everything sits, as a share of the screen: margins, columns, the picture's box, the headline's box, the small text's places, what overlaps or runs off an edge, how much is empty>",
+    "type": { "display": { "face": "…", "by": "page | measured | eye", "kind": "serif | sans | condensed | display | mono | script", "size": 96, "weight": 300, "case": "none", "tracking": "-0.02em", "leading": 0.95, "lines": 2 },
+              "small": { "face": "…", "size": 13, "weight": 400, "case": "uppercase", "tracking": "0.12em" }, "scale": 7.4 },
+    "spacing": "<the margin, the gaps, how close small text sits to what it belongs to, at 1440>",
+    "palette": { "ground": "#…", "ink": "#…", "accent": "#… or null", "more": { "<role>": "#…" } },
+    "pictures": "<how pictures are treated: crop, tone (black and white, a duotone, as shot), frame (an arch, a rounded window, full bleed), how many, how big>",
+    "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
+    "devices": ["<each element that is not content: a disc, a ruled line, a word band, a ring of text>"],
+    "measured": { "empty": 62, "pictures": 28 }
+  }]
 }
 ```
 
-- **Arrangements:** one per reference. Where the title, pictures and small text sit, how they relate (what overlaps, what runs off an edge, how much is empty). One sentence, complete enough to build with the picture closed. No content, colour or face.
-- **Zones:** name the parts a person could point to (hero, side, band) with the same names across arrangements, so "the left side of 4" is a dealt move.
-- **Family:** what the lead and likes share, as ranges, measured where a page exists (`measure.mjs <link>`), never averaged. It is not dealt: every screen gets it, so eight screens stay one look.
-- **Type:** one per reference: the face it uses (`by: page`, read from the page), or from a picture only the nearest free face (`by: eye`, a stand-in). Its `kind`, so the deal can spread kinds. The body face it is paired with.
-- **Grounds and accents:** one per reference, measured: the ground, the ink on it, a panel, a gradient or pattern as written. An accent is a colour and what carries it; none is an entry too.
-- **The subject's colours:** one or two grounds from the subject pictures (and an accent only when the subject has a second hue; otherwise accents come from the references), chosen and tuned by rule, never sampled raw, and each named as part of the subject after a look: [subject.md](subject.md).
-- **What is fixed:** a face or colour they own is an entry with `"from": ["theirs"]`; a refused one is left out; light or dark only drops the other grounds.
-- **Record, never judge.** A gradient, a glow, a typeface the rules call a tell: if a reference uses it, it is an entry. Ids are plain words, never a reference's name. Merge only twins.
+## Measure first, then look
+
+**A live page:** `measure.mjs <link>` lists its fonts, sizes, weights, colours and gradients (`by: page`).
+
+**A reference that is only a picture** (a shot, a poster, a presentation frame):
+
+```
+node <skill>/scripts/measure.mjs .longbeard/design/moodboard/refs/<name>.jpg --lines
+```
+
+It reads inside a presentation frame, and gives the ground, the `ink`, the palette (`common`, `loud`), how much is `empty` and how much is `pictures`, and the type: the display line's `px1440`, `weight`, `case`, `box`, the body size, the `scale`, the headline's words and lines, the text `blocks`. `--lines` lists every line it read, with its box: that is the layout's measurements. Sizes are given as px at 1440 wide, which is the size to build at.
+
+What it cannot read (text on a photograph, rotated text, script faces, letters that touch) is read by eye with the picture at full size, and says `by: eye`. A number that disagrees with what you plainly see is a misread: use your reading and say so.
+
+**The face, from a picture:** the nearest free face by its measured shape, of the kind you see:
+
+```
+node <skill>/scripts/fonts.mjs --shape width=<w>,xheight=<x>,contrast=<c> --kind serif --weight <weight>
+```
+
+Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` from `type.display`). Then set the top three in the reference's own words, at its size, beside the reference, and take the one that is plainly its kind (a hairline didone for a hairline didone, never a heavy slab). When it says nothing is close, the face is a stand-in: say so in the reading (`"stand-in": true`), and try `--kind display` too. Never one face for every reference because it came out on top before: each reference's face is matched on its own.
+
+## What each part is for
+
+- **`likes`:** their words from the board's note: what they like, and why. What they like is what the designs borrow; why is how it is used, and where it would be wrong.
+- **`concept` and `move`:** what must survive every change. The fidelity check and the distance check judge a screen on them.
+- **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. The type's sizes are the reference's sizes against its screen: a 96 px headline on a 1440 screen stays 96 px.
+- **`palette`:** the colours as they work together. A palette is borrowed whole, never one colour from it.
+- **`pictures`:** the treatment the product's pictures get on a screen built from this reference.
+- **`slots`:** how much text it carries; a screen built on it carries the same, and at most one more small element.
+- **`devices`:** every element that is not content, so every element on a screen can be traced to one.
+
+## The subject's colours
+
+`subject-colours.mjs` proposes a palette from the product's own pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent" }`. It is one more palette a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages.
+
+**Record, never judge.** A gradient, a glow, a face the rules call a tell: if a reference uses it, it is in its reading. What they own goes in `"theirs"`; a refused face or colour is left out; light only or dark only leaves out the readings' palettes of the other kind as borrowable palettes, never the references.
