@@ -5,7 +5,7 @@ A repeatable end-to-end run of the design skills, judged by the files it leaves.
 ## What is fixed
 
 - `fixture/docs/brief.md`: the product brief of a fictional bakery (Hearth Bakehouse), with key screens, flows, real content and an empty case.
-- `fixture/refs.mjs`: ten reference pages in clearly different looks, rendered to images as their moodboard folder. Six take their composition from starred cards on a real art-direction board, redrawn here: the move only (an arch window on a pale poster, one orange dot on a black-and-white page, giant letters cut across a portrait), with fictional names, our own words and drawn shapes for pictures, so no one's design or photo is kept in the repo. No network, and no real name that could leak into a doc. It also lists the names a committed doc must never carry.
+- `fixture/refs.mjs`: ten reference pages in clearly different looks, rendered to images as their moodboard folder. Eight take their composition from starred cards on a real art-direction board, redrawn here: the move only (an arch window on a pale poster, one orange dot on a black-and-white page, giant letters cut across a portrait, a red circle cutting into a still-life split screen, products standing in an arch on deep green), with fictional names, our own words and drawn shapes for pictures, so no one's design or photo is kept in the repo. No network, and no real name that could leak into a doc. It also lists the names a committed doc must never carry.
 - `fixture/answers.md`: the person's answer at every stop, from the design brief's ten questions to "write DESIGN.md: yes". A stop it does not cover is taken as "yes" and logged as **uncovered**.
 
 ## Run

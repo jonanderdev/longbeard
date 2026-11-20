@@ -89,7 +89,7 @@ test("eval score: a good run passes every hard check", () => {
 test("eval score: a leaked source, a gap in the brief, a failing pair, a one-source screen and a dead link each fail", () => {
   const bad = {
     ...good,
-    "docs/design/design-moodboard.md": "# Moodboard\n\nLike Marlow Quarterly's headlines; see .longbeard/design/moodboard/refs/08-editorial.png\n",
+    "docs/design/design-moodboard.md": "# Moodboard\n\nLike Halden Design Week's poster; see .longbeard/design/moodboard/refs/01-arch-poster.png\n",
     "docs/design/design-brief.md": good["docs/design/design-brief.md"].replace("- accessibility: AA\n", "").replace("playful 2 · ", ""),
     "DESIGN.md": good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | #b8b2a8 |"),
     ".longbeard/design/direction/library.json": good[".longbeard/design/direction/library.json"].replace('{"id":"serif","from":["b"]}', '{"id":"serif","from":["a"]}'),
@@ -99,7 +99,7 @@ test("eval score: a leaked source, a gap in the brief, a failing pair, a one-sou
   assert.equal(result.status, 1);
   const results = byId(result.stdout);
   assert.equal(results["no source in the docs"].status, "FAIL");
-  assert.match(results["no source in the docs"].detail, /Marlow Quarterly.*\.longbeard\/.*08-editorial|Marlow Quarterly/);
+  assert.match(results["no source in the docs"].detail, /Halden Design Week.*\.longbeard\/.*01-arch-poster|Halden Design Week/);
   assert.equal(results["design brief complete"].status, "FAIL");
   assert.match(results["design brief complete"].detail, /no accessibility.*personality lacks playful/);
   assert.equal(results["DESIGN.md: contrast pairs pass"].status, "FAIL");

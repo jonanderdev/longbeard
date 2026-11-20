@@ -60,18 +60,31 @@ export const refs = {
      .p3{left:900px;top:150px;width:170px;height:200px}.p4{left:440px;top:120px;width:150px;height:140px;background:repeating-linear-gradient(60deg,#222 0 6px,#ddd 6px 30px)}
      nav{position:absolute;left:100px;top:470px;font-size:14px;line-height:1.4}footer{position:absolute;right:44px;bottom:30px;display:flex;gap:40px;font:11px Arial,sans-serif}`,
   ),
-  // A printed page on blue cloth: one big blue serif sentence set on a slant, small notes around it.
-  "04-blue-serif": page(
-    `<div class="cloth"></div><div class="paper"><div class="notes"><span>Since<br>2001</span><span>Studio<br>notes</span></div>
-     <h1>There's a voice in the room, waiting to be heard.</h1>
-     <p class="spec">AaBbCc<br>DdEeFf<br>0123?!&amp;</p><p class="side">${"Small notes run down the edge of the page in a plain sans, for the ones who read everything. ".repeat(3)}</p></div>`,
-    `body{background:#16357a;font-family:Georgia,"Times New Roman",serif;overflow:hidden}
-     .cloth{position:absolute;inset:0;background:repeating-linear-gradient(115deg,#1b3f8f 0 10px,#122c66 10px 22px);opacity:.9}
-     .paper{position:absolute;left:230px;top:-120px;width:1100px;height:1200px;background:#f4f2ec;transform:rotate(-14deg);box-shadow:-30px 30px 80px rgba(0,0,0,.4)}
-     .notes{position:absolute;left:120px;top:260px;display:flex;gap:50px;font:13px/1.3 Arial,sans-serif;color:#1d3fbf}
-     h1{position:absolute;left:110px;top:330px;width:800px;color:#1d3fbf;font-weight:400;font-size:128px;line-height:.95;letter-spacing:-.02em}
-     .spec{position:absolute;left:120px;top:820px;font-size:40px;line-height:1;color:#333}
-     .side{position:absolute;right:120px;top:300px;width:170px;font:12px/1.4 Arial,sans-serif;color:#1d3fbf}`,
+  // A split screen: a still life of pears stacked on a dark stage at left; at right, a pale page where one red circle cuts into a big serif title.
+  "04-still-life": page(
+    `<div class="stage"><svg viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e1f1c"/><stop offset="1" stop-color="#2a2a26"/></linearGradient>
+      <linearGradient id="tb" x1="0" x2="1"><stop offset="0" stop-color="#e2c7a6"/><stop offset="1" stop-color="#c9a985"/></linearGradient>
+      <radialGradient id="pg" cx=".35" cy=".35"><stop offset="0" stop-color="#9aa25a"/><stop offset="1" stop-color="#4f5a2a"/></radialGradient>
+      <radialGradient id="pc" cx=".4" cy=".4"><stop offset="0" stop-color="#f4ead2"/><stop offset="1" stop-color="#d9c9a0"/></radialGradient></defs>
+      <rect width="720" height="900" fill="url(#fl)"/><path d="M0 600 L720 520 L720 900 L0 900Z" fill="url(#tb)"/>
+      <path d="M420 640 L700 600 L720 900 L380 900Z" fill="#000" opacity=".18"/>
+      <path d="M250 760 C250 640 270 560 300 540 C330 560 350 640 350 760Z" fill="#ece6d6"/>
+      <rect x="350" y="560" width="110" height="200" fill="#4a2f22"/>
+      <path d="M240 420 C190 380 200 300 250 290 C300 280 330 330 380 380 C430 430 470 480 420 530 C380 570 300 500 240 420Z" fill="url(#pg)"/>
+      <path d="M330 300 C300 230 320 150 380 130 C440 150 460 230 430 300 C410 350 350 350 330 300Z" fill="url(#pc)"/>
+      <path d="M380 130 C390 100 410 90 425 80" stroke="#4a3a22" stroke-width="5" fill="none"/>
+      <path d="M380 800 C380 740 440 710 500 730 C560 750 560 810 520 830 C480 850 390 850 380 800Z" fill="url(#pc)"/>
+    </svg></div>
+    <div class="page"><nav>Journal · Recipes · Shop · ☰</nav><h1 class="t1">The quiet</h1><span class="bars">∥</span><div class="sun"></div>
+      <p class="note n1">Table · Fruit<br>and stone</p><p class="note n2">The idea was to set<br>objects from two<br>worlds on one table</p><p class="note n3">Shapes · textures<br>it is all about light</p><p class="note n4">Composition<br>weight · space</p><h1 class="t2"><span>Shape</span><br>of the Fruit</h1></div>
+    <b class="logo">v.</b>`,
+    `body{display:grid;grid-template-columns:720px 720px;background:#1e1f1c;font-family:Georgia,"Times New Roman",serif}
+     .stage svg{width:720px;height:900px;display:block}.logo{position:absolute;left:28px;top:24px;color:#eee;font-size:20px}
+     .page{position:relative;background:#d9d6cf;color:#111;overflow:hidden}nav{position:absolute;right:30px;top:26px;font:10px Arial,sans-serif;letter-spacing:.1em}
+     h1{position:absolute;font-weight:400;letter-spacing:-.04em;line-height:.88;z-index:2}.t1{left:22px;top:50px;font-size:150px;white-space:nowrap}.t2{left:40px;bottom:30px;font-size:150px;line-height:.86}.t2 span{padding-left:210px}
+     .bars{position:absolute;left:300px;top:180px;font-size:130px;z-index:2}.sun{position:absolute;left:40px;top:210px;width:400px;height:400px;border-radius:50%;background:#ff4a14}
+     .note{position:absolute;font:9px/1.4 Arial,sans-serif;text-transform:uppercase;z-index:2}.n1{left:300px;top:400px}.n2{left:470px;top:600px}.n3{right:30px;top:170px}.n4{right:30px;top:470px}`,
   ),
   // A wide grey frame; inside, a white page with a small name, then a block of orange holding a dark portrait, a red strip at the edge.
   "05-orange-block": page(
@@ -110,13 +123,29 @@ export const refs = {
      .ph{position:absolute;overflow:hidden}.a{left:550px;top:110px;width:400px;height:680px}.b{left:950px;top:110px;width:370px;height:520px}
      .contact{position:absolute;left:950px;top:630px;width:370px;height:160px;background:#fff;display:grid;place-items:center;font-size:72px;font-weight:700;transform:scaleX(.85)}`,
   ),
-  "08-editorial": page(
-    `<header><b>Marlow Quarterly</b><nav>Issues · Essays · About</nav></header>
-     <main><h1>The long way round to a good loaf</h1><div class="cols"><p>${"Words set slowly, for reading on a Sunday. ".repeat(9)}</p><p>${"A margin you can rest a thumb in. ".repeat(9)}</p></div></main>`,
-    `body{background:#f4ede1;color:#2a2620;font-family:Georgia,"Times New Roman",serif;padding:56px 120px}
-     header{display:flex;justify-content:space-between;font-size:15px;border-bottom:1px solid #2a2620;padding-bottom:14px}
-     h1{font-size:88px;line-height:1;font-weight:400;margin:90px 0 48px;max-width:1000px}
-     .cols{display:grid;grid-template-columns:1fr 1fr;gap:56px;font-size:19px;line-height:1.6}`,
+  // A deep green page: a big light serif title, products standing in an arched niche, a second arch cut off at the edge, a line of words running along the foot.
+  "08-dark-arches": page(
+    `<header><span class="mark">VERDA<br><i>oils</i></span><nav><span>Shop</span><span>Body</span><span class="on">Gifts</span><span>About</span></nav><span class="cart">Bag ◦</span></header>
+     <h1>Calm<br>Ritual</h1><p class="lede">A starter set of our three oils, for a whole evening in half the time.</p><span class="disc">• Discover</span>
+     <div class="arch"><div class="shelf"></div><i class="j a"></i><i class="j b"></i><i class="j c"></i></div>
+     <div class="play"><i>▶</i><span>Watch</span></div><div class="next"><small>NEXT</small><b>Night<br>balm</b><span>→</span></div><div class="arch2"><i class="j d"></i></div>
+     <p class="cap">Body &amp; home<br>small-batch oils<br>that keep up with you</p><div class="card2"><span>❦</span></div><p class="offers"><b>4 new</b> carefully<br>chosen sets</p><i class="rule"></i><p class="foot">${"BE SLOW ◆ BE WARM ◆ BE STILL ◆ ".repeat(5)}</p>`,
+    `body{background:#1f3a33;color:#f3ede2;font-family:Georgia,"Times New Roman",serif;position:relative}
+     header{position:absolute;top:40px;left:80px;right:80px;display:flex;justify-content:space-between;align-items:center;font:13px Arial,sans-serif}
+     .mark{border:1px solid #c9915a;border-radius:50%;width:76px;height:76px;display:grid;place-items:center;text-align:center;font-size:12px;line-height:1}
+     nav{display:flex;gap:56px}.on{color:#d9a066}.cart{border:1px solid #f3ede2;border-radius:30px;padding:10px 22px}
+     h1{position:absolute;left:150px;top:230px;font-weight:300;font-size:132px;line-height:1.02;letter-spacing:.05em;z-index:2;white-space:nowrap}
+     .lede{position:absolute;left:180px;top:500px;width:280px;font:15px/1.6 Arial,sans-serif}.disc{position:absolute;left:180px;top:610px;width:110px;height:110px;border:1px solid #c9915a;border-radius:50%;display:grid;place-items:center;font:12px Arial,sans-serif;letter-spacing:.15em}
+     .arch{position:absolute;left:520px;top:230px;width:420px;height:500px;border-radius:210px 210px 0 0;background:#7a6a3e;overflow:hidden}
+     .shelf{position:absolute;left:0;right:0;bottom:0;height:150px;background:#2f4a46}
+     .j{position:absolute;display:block;bottom:150px;border-radius:6px 6px 2px 2px;background:linear-gradient(90deg,#c27a3a,#8d4f24)}
+     .a{left:70px;width:90px;height:220px}.b{left:180px;width:110px;height:100px;background:linear-gradient(90deg,#3b5450,#22322f)}.c{left:310px;width:50px;height:180px}
+     .play{position:absolute;left:1020px;top:330px;display:flex;align-items:center;gap:20px;color:#d9a066;font-size:40px}.play i{width:90px;height:90px;border-radius:50%;background:#3d5651;display:grid;place-items:center;font-size:20px;font-style:normal;color:#fff}
+     .next{position:absolute;left:1020px;top:520px}.next small{font:11px Arial,sans-serif;color:#d9a066;letter-spacing:.2em}.next b{display:block;font-weight:300;font-size:44px;line-height:1.05;margin:10px 0}.next span{color:#d9a066;font-size:44px}
+     .arch2{position:absolute;left:1240px;top:430px;width:260px;height:360px;border-radius:130px 130px 0 0;background:#d9c7bd;overflow:hidden}.d{left:60px;width:120px;height:110px;bottom:60px;background:linear-gradient(90deg,#5a2a20,#2a120c)}
+     .foot{position:absolute;left:0;top:846px;width:1440px;overflow:hidden;white-space:nowrap;color:#c9915a;font-size:22px;letter-spacing:.08em;z-index:3}
+     .cap{position:absolute;left:520px;width:420px;top:760px;text-align:center;color:#c9915a;font:13px/1.6 Arial,sans-serif}.card2{position:absolute;left:520px;top:840px;width:420px;height:200px;background:#c9c4b2;border:1px solid #c9915a;outline:6px solid #c9c4b2;outline-offset:-14px;display:grid;place-items:start center;padding-top:10px;color:#5b6b3a;font-size:60px}
+     .offers{position:absolute;left:180px;top:800px;font:15px/1.5 Arial,sans-serif}.offers b{color:#c9915a;font-weight:400}.rule{position:absolute;left:400px;top:815px;width:110px;height:1px;background:#c9915a}`,
   ),
   "09-split": page(
     `<div class="l"><h1>Field<br>Kitchen</h1></div><div class="r"><p>Seasonal lunches, cooked over fire, three days a week.</p><a>Book a table</a></div>`,
@@ -125,12 +154,30 @@ export const refs = {
      .r{background:#f1ead8;color:#2f4a3a;padding:72px;display:flex;flex-direction:column;justify-content:center;gap:32px;font-size:28px}
      a{font-family:Arial,sans-serif;font-size:16px;border:1.5px solid;padding:14px 22px;align-self:flex-start}`,
   ),
-  "10-index": page(
-    `<header>Works — 2019–2026</header>${["Harbour signage", "Type for a ferry line", "Mill museum", "Night market identity", "Seed library", "Weather station"].map((t, i) => `<div class="row"><span>${String(i + 1).padStart(3, "0")}</span><b>${t}</b><em>${2019 + i}</em></div>`).join("")}`,
-    `body{background:#fff;color:#111;font-family:"Courier New",monospace;padding:64px}
-     header{font-size:14px;margin-bottom:48px}.row{display:grid;grid-template-columns:120px 1fr 120px;border-top:1px solid #111;padding:22px 0;font-size:34px}
-     .row b{font-family:Arial,sans-serif;font-weight:400}.row em{font-style:normal;text-align:right;font-size:16px}`,
+  // Cream: a tall arch holding a figure on a shore, a big light display serif title beside it, two cropped pictures bleeding off the edges, a ruled foot.
+  "10-arch-portrait": page(
+    `<div class="badge">ATELIER · SOLÈNE · ATELIER ·<b>S</b></div><div class="issue"><b>04/26</b><span>Solène Atelier<br>Spring collection</span></div>
+     <div class="crop left"></div><div class="arch"><div class="sky"></div><div class="sea"></div><div class="rock"></div>
+       <svg class="fig" viewBox="0 0 120 300"><circle cx="60" cy="40" r="18" fill="#c99a78"/><path d="M40 60 L80 60 L100 230 C80 250 30 250 15 230Z" fill="#b8b49a"/><path d="M45 230 L50 290 M75 230 L72 290" stroke="#c99a78" stroke-width="7"/></svg>
+       <span class="moon">☾</span><span class="spk s1">✦</span><span class="spk s2">✦</span><span class="spk s3">✦</span><span class="spk s4">✦</span></div><span class="leaf">❧</span>
+     <span class="vert">Linen · Salt · Collection</span><h1>Linen Season<br><em>Le Retour</em></h1>
+     <p class="copy">${"Every morning I keep an hour of quiet for myself. The work is about giving, and that hour is what I give back. ".repeat(3)}</p>
+     <div class="crop right"></div><footer><span>About</span><span>· Atelier<br>&nbsp; Typeface</span><span>· Salt<br>&nbsp; Typeface</span></footer>`,
+    `body{background:#f1e6d4;color:#1d1a16;font-family:Georgia,"Times New Roman",serif;position:relative}
+     .badge{position:absolute;left:60px;top:40px;width:110px;height:110px;border:1px dashed #1d1a16;border-radius:50%;font:8px Arial,sans-serif;letter-spacing:.2em;display:grid;place-items:center;text-align:center;padding:14px}.badge b{display:block;font:28px Georgia,serif}
+     .issue{position:absolute;right:0;top:0;width:250px;border-left:1px solid #b8aa90;border-bottom:1px solid #b8aa90;padding:24px}.issue b{font:400 28px Arial,sans-serif}.issue span{display:block;margin-top:24px;font-size:13px;font-style:italic}
+     .arch{position:absolute;left:330px;top:120px;width:330px;height:600px;border-radius:165px 165px 0 0;overflow:hidden}
+     .sky{position:absolute;inset:0;background:linear-gradient(#6f8fb0,#a9bccb)}.sea{position:absolute;left:0;right:0;top:330px;bottom:0;background:linear-gradient(#5c7d97,#3e5c73)}
+     .rock{position:absolute;left:-30px;right:-30px;bottom:-40px;height:200px;border-radius:50% 50% 0 0;background:#e6dcc8}.fig{position:absolute;left:110px;top:160px;width:120px;height:300px}
+     .moon{position:absolute;left:120px;top:250px;font-size:90px;color:#fbf7ec}.spk{position:absolute;color:#fff;font-size:22px}.s1{left:200px;top:180px}.s2{left:250px;top:260px;font-size:16px}.s3{left:190px;top:420px}.s4{left:100px;top:190px;font-size:12px}
+     .leaf{position:absolute;left:870px;top:170px;font-size:44px;color:#3a2e22;transform:rotate(-20deg)}
+     .vert{position:absolute;left:290px;top:300px;writing-mode:vertical-rl;transform:rotate(180deg);font:11px Arial,sans-serif;letter-spacing:.15em}
+     h1{position:absolute;left:560px;top:250px;font-weight:300;font-size:124px;line-height:1.02;letter-spacing:-.01em;z-index:2;white-space:nowrap}h1 em{font-style:normal;padding-left:20px}
+     .copy{position:absolute;left:740px;top:540px;width:430px;font-size:13px;line-height:1.5;text-align:justify}
+     .crop{position:absolute;top:250px;height:330px}.crop.left{left:0;width:120px;background:linear-gradient(135deg,#c78a4c,#8a5a30)}.crop.right{right:0;width:170px;background:radial-gradient(circle at 30% 50%,#e4b08a,#a8673e 60%,#6f8fb0 61%)}
+     footer{position:absolute;left:0;right:0;bottom:0;height:70px;border-top:1px solid #b8aa90;display:grid;grid-template-columns:260px 1fr 260px 260px;align-items:center;padding:0 60px;font:10px Arial,sans-serif;letter-spacing:.25em;text-transform:uppercase}
+     footer span:first-child{border-right:1px solid #b8aa90;height:100%;display:flex;align-items:center}`,
   ),
 };
 // The names a committed doc must never carry: the fictional studios and people above, and the ones the person loves.
-export const sources = ["Halden Design Week", "Ines Halvorsen", "Mira Ostend", "Nord Magasin", "Elin Marsh", "Marlow Quarterly", "Field Kitchen", "Field Notes Press", "Tidewater Journal"];
+export const sources = ["Halden Design Week", "Ines Halvorsen", "Mira Ostend", "Nord Magasin", "Elin Marsh", "Field Kitchen", "Verda", "Solène Atelier", "Field Notes Press", "Tidewater Journal"];
