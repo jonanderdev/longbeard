@@ -28,13 +28,13 @@ You are running the design flow for someone who is away. When a skill asks them 
 - Headline: take the first you offer.
 - Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-still-life`, `05-orange-block`, `08-dark-arches`, `09-teal-window`, `10-arch-portrait`.
 - What I like in each (the board's notes):
-  - `01-arch-poster`: the photo in a tall arch with the text set around it, the warm terracotta on stone, how calm it is.
-  - `03-dot-editorial`: the orange disc as the only button; the black-and-white photos scattered at different heights.
-  - `04-still-life`: the big orange disc the tall condensed title crosses, the title broken top and bottom.
-  - `05-orange-block`: the photo straddling the seam between the light panel and the dark band, with the red strip.
-  - `08-dark-arches`: the thin elegant serif, gold on deep green.
-  - `09-teal-window`: the rounded photo window with small mono text in its four corners.
-  - `10-arch-portrait`: the headline running over the arch's edge, and the airy, thin, high-contrast serif.
+  - `01-arch-poster`: the photo in a tall arch with the text set around it: it frames one thing and makes the page feel like a calm room. The terracotta on stone: warm without shouting.
+  - `03-dot-editorial`: the orange disc as the only button: the one spot of contrast on a quiet page, so the eye goes straight to it. The black-and-white photos at different heights: they feel like a contact sheet, unposed.
+  - `04-still-life`: the big orange disc the tall condensed title crosses: the title and the shape fight a little, which makes it alive. The title broken top and bottom: it frames the page.
+  - `05-orange-block`: the photo straddling the seam between the light panel and the dark band: it ties two halves together. The red strip: a hard edge of colour at the side, not in the middle of things.
+  - `08-dark-arches`: the thin elegant serif in gold on deep green: it feels slow and crafted, like a shop sign.
+  - `09-teal-window`: the rounded photo window with small mono text in its four corners: the picture is the page, and the text only labels it.
+  - `10-arch-portrait`: the headline running over the arch's edge: words and picture belong together. The airy, thin, high-contrast serif: light and confident.
 - The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No vary, no mix.
 - Touch-up: keep all.
 - Five-second check with people: no thanks.

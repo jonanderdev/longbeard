@@ -57,7 +57,7 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 (When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
 
 > Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
-> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it** (the disc, the colours, how the photo sits in the arch, the huge thin type). What you like is what the designs borrow. Paste the copy-out.
+> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it, and what it does for you** ("the orange dot: the only contrast on a quiet page", "the thin serif: it makes the page feel slow and expensive"). What you like is what the designs borrow, and why you like it is how they use it. A like without a why: I'll ask once. Paste the copy-out.
 
 The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 
