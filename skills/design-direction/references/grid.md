@@ -20,7 +20,7 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
   - **the picture treatment:** another reference's crop, tone or frame;
   - **the layout turned:** the base mirrored, or its headline and picture traded, or one zone moved, the proportions kept;
   - **the scale:** the headline larger or smaller, as far as another reference sets its own.
-- Choosing which move suits which base is design judgement, and it is yours: say why in one line (`why`). Choose moves that the base's system can take: a condensed face where the base's headline is one wide word, a palette whose contrast its type can carry.
+- **The moves are theirs.** What they said they like in each reference (its note on the board) is what is borrowed: "the disc" of one is an element move, "the colours" of another a palette move. Pair each with a base that can take it (a condensed face where the base's headline is one wide word, a palette whose contrast its type can carry), and say in one line which like it carries (`why`). Where they named nothing for a reference, propose its move from its reading (its `move`, its palette), mark it `"proposed": true` in `screens.json` and as proposed in the table, so they see which choices were theirs and which were offered. Never a move from outside the board.
 
 ## Build each screen
 

@@ -18,7 +18,7 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references (a palette, an element, a face, a picture treatment, the layout turned), and is checked until what made the reference work still works. The agent's design judgement is in choosing which borrowed move a base can take and making it fit. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a reference on their board, and a fresh agent checks that. They choose on rendered screens; the agent never ranks them. After the choice, a light touch-up repairs what is broken and never redesigns.
+The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references (a palette, an element, a face, a picture treatment, the layout turned), and is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like in each reference is what the screens borrow. The agent's craft is making a borrowed move fit its base so it still works. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a reference on their board, and a fresh agent checks that. They choose on rendered screens; the agent never ranks them. After the choice, a light touch-up repairs what is broken and never redesigns.
 
 Comes out:
 
@@ -57,7 +57,7 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 (When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
 
 > Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
-> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and paste the copy-out.
+> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it** (the disc, the colours, how the photo sits in the arch, the huge thin type). What you like is what the designs borrow. Paste the copy-out.
 
 The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 

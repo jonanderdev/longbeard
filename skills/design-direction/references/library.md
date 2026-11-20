@@ -9,6 +9,7 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
   "lead": "<card name>",
   "references": [{
     "name": "<card name>",
+    "likes": "<what they said they like in it, in their words; empty when they said nothing>",
     "concept": "<what makes it, in one or two sentences: the idea a designer would defend>",
     "move": "<the one move a person would point at: the disc cutting into the title, one word filling the width>",
     "layout": "<where everything sits, as a share of the screen: margins, columns, the picture's box, the headline's box, the small text's places, what overlaps or runs off an edge, how much is empty>",
@@ -48,6 +49,7 @@ Take the top row unless it is plainly another kind (a slab for a didone): then t
 
 ## What each part is for
 
+- **`likes`:** their words from the board's note. What they like in a reference is what the designs borrow from it.
 - **`concept` and `move`:** what must survive every change. The fidelity check and the distance check judge a screen on them.
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. The type's sizes are the reference's sizes against its screen: a 96 px headline on a 1440 screen stays 96 px.
 - **`palette`:** the colours as they work together. A palette is borrowed whole, never one colour from it.

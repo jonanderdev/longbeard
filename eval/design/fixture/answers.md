@@ -27,6 +27,14 @@ You are running the design flow for someone who is away. When a skill asks them 
 - Pictures: none of ours; stand-ins of our own subject are fine.
 - Headline: take the first you offer.
 - Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-still-life`, `05-orange-block`, `08-dark-arches`, `09-teal-window`, `10-arch-portrait`.
+- What I like in each (the board's notes):
+  - `01-arch-poster`: the photo in a tall arch with the text set around it, the warm terracotta on stone, how calm it is.
+  - `03-dot-editorial`: the orange disc as the only button; the black-and-white photos scattered at different heights.
+  - `04-still-life`: the big orange disc the tall condensed title crosses, the title broken top and bottom.
+  - `05-orange-block`: the photo straddling the seam between the light panel and the dark band, with the red strip.
+  - `08-dark-arches`: the thin elegant serif, gold on deep green.
+  - `09-teal-window`: the rounded photo window with small mono text in its four corners.
+  - `10-arch-portrait`: the headline running over the arch's edge, and the airy, thin, high-contrast serif.
 - The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No vary, no mix.
 - Touch-up: keep all.
 - Five-second check with people: no thanks.
