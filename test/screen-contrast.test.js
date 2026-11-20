@@ -42,6 +42,18 @@ test("screen-contrast: reads text where it sits, and fails a pale name that runs
   assert.equal(json.texts[0].text, "grey");
 });
 
+test("screen-contrast: outlined text is read by its stroke, not its clear fill", async (t) => {
+  const outline = (stroke) => page(`<div style="background:#250b04;width:800px;height:400px"><h1 style="margin:0;padding:120px 40px;font:700 96px serif;color:transparent;-webkit-text-stroke:2px ${stroke}">Outline</h1></div>`);
+  const good = await run([outline("#f1e9dc"), "--size", "800x400", "--json"]);
+  if (/No Chrome/.test(good.stderr)) return t.skip("no Chrome installed");
+  const g = JSON.parse(good.stdout).texts[0];
+  assert.match(g.colour, /#f1e9dc \(outline\)/);
+  assert.ok(g.p5 > 10, JSON.stringify(g));
+  // A dark stroke on the dark ground fails.
+  const bad = JSON.parse((await run([outline("#3a1a10"), "--size", "800x400", "--json"])).stdout);
+  assert.equal(bad.failing, 1);
+});
+
 test("screen-contrast: a missing url is a usage error", async () => {
   assert.equal((await run([])).status, 2);
   assert.equal((await run(["not-a-url"])).status, 2);

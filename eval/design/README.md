@@ -8,6 +8,7 @@ A repeatable end-to-end run of the design skills, judged by the files it leaves.
 - `fixture/board/`: ten JPEGs, the person's moodboard folder. Each takes its composition, type, spacing and colour from a starred card on a real art-direction board, rebuilt with our own words, fictional names and CC0 photographs (credited in `CREDITS.md`). No original design or image is included, and the code that drew them is not kept: the pictures are the fixture.
 - `fixture/sources.json`: the fictional names on the board and the sites the person loves, which a committed doc must never carry.
 - `fixture/answers.md`: the person's answer at every stop, from the design brief's ten questions to "write DESIGN.md: yes". A stop it does not cover is taken as "yes" and logged as **uncovered**.
+- `fixture-2/`: a second board of seven references (`board/`, `sources.json`, `frames.json`, `answers.md` with its own lead and likes), made the same way. It shares the first fixture's brief, so a run on it differs only in its references: the test of whether the direction's rules hold beyond the board they were tuned on. `run.mjs --fixture eval/design/fixture-2` builds from it, and the project records which board it came from, for `score.mjs` and `odd-one-out.mjs`.
 
 ## Run
 
@@ -29,7 +30,7 @@ To change only how the direction's screens are built, start from a finished run:
 - every design doc and `DESIGN.md` is there; at quick pace, no optional skill ran (soft);
 - the design brief has every line, all seven scales, a distance and AA or AAA; it records the pace they gave (soft);
 - no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`;
-- every library entry has its references; every dealt screen takes arrangement, type and ground from three; a screen was chosen;
+- every screen has a base and moves from references on the board, every reference is a base, and a screen was chosen (older dealt runs: every dealt screen takes arrangement, type and ground from three);
 - the five-second check ran (soft); the identity's json block parses;
 - `DESIGN.md` records the brief's accessibility level and motion (soft), and every contrast pair on its colour tokens passes at that level;
 - rendered (skipped with `--no-browser` or without Chrome): the chosen screen and every prototype page pass `screen-contrast.mjs` at the level; `links.mjs` finds nothing broken, nowhere or a dead end from the first page; every key screen is reached (soft);

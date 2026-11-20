@@ -75,9 +75,9 @@ Open the lead and every like at full size and write `.longbeard/design/direction
 
 Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base and its moves:
 
-1. **Translate the base** faithfully with the product's content and pictures, and check it beside the reference until the layout, the type's sizes, the spacing and the concept match.
-2. **Make one or two moves** borrowed from other references, spread across the round, each chosen because the base can take it, and check that what made the base work still works.
-3. **Check all eight:** contrast where text sits; a fresh agent lists anything on a screen that no reference has (and it comes out); a fresh agent says whether a screen is its base with new words (and it gets another move); no clipped or tiny text.
+1. **Translate the base** faithfully with the product's content and pictures, keep that translation, and check it beside the reference until its layout, sizes and gaps match as measured.
+2. **Make one or two moves** borrowed from other references, spread across the round. Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board.
+3. **Check all eight,** each by a fresh agent: what changed beyond the moves (against the kept translation, put back), whether the screen still feels like its reference, each borrowed thing beside its source, close-ups of devices, gaps and pictures, not a copy, nothing off the board; then contrast and faults.
 
 How, with the list of moves and the checks: [grid.md](references/grid.md).
 
@@ -93,7 +93,7 @@ Show the sheet, the sheet of each screen beside its base, and a table: each numb
 - **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built the same way.
 - **More, or none:** a fresh round of eight, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
-Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
+**Before showing a screen again** (more of it, a mix, a fix), put it beside the version they last saw and list what got worse; a change that breaks something they liked is undone. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
 
 **The other width, before the yes, without a stop.** When the screens are at desktop size, render the one they settled on at 390 yourself (`screens/<n>.html?size=390x844`) and look. Say nothing when it carries over. Say one line only when the composition's core depends on the width ("the headline only works across the full desktop width; on a phone it breaks into five lines"), so they choose knowingly; the phone is designed properly in `design-prototype`. When the screens are at phone size, the same with the desktop. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
 

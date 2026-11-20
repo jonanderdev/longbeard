@@ -163,16 +163,19 @@ const inspect = `(() => {
     const inside = rects.some((r) => r.right > 0 && r.left < W && r.bottom > 0 && r.top < H);
     if (!inside) continue;
     if (size < min) (min = size), (minText = text.slice(0, 40));
-    // Clipped: out of the screen, or out of a box that hides its overflow. Big display type cropped on purpose is a device.
+    // Clipped: off the screen's top or bottom, or out of a box that hides its overflow. Big display type cropped on purpose is a device.
     // Text set on a curve or turned (a seal's ring, rotated labels) has boxes that run past its own: not clipped.
     const turned = (() => { for (let up = el; up && up !== screen; up = up.parentElement) if (/matrix|rotate/.test(getComputedStyle(up).transform) || up.closest("svg")) return true; return false; })();
     if (size < 48 && !turned) {
-      let out = rects.some((r) => r.left < -1 || r.top < -1 || r.right > W + 1 || r.bottom > H + 1);
+      // Text that runs off the screen's left or right edge (a band of words looping past both sides) is a device, not clipped:
+      // only a cut inside the screen counts, by a box whose edge lies within it, or off its top or bottom.
+      let out = rects.some((r) => r.top < -1 || r.bottom > H + 1);
       for (let up = el; up && up !== document.body && !out; up = up.parentElement) {
         const s = getComputedStyle(up);
         if (s.overflow === "visible" && s.overflowX === "visible" && s.overflowY === "visible") continue;
         const b = up.getBoundingClientRect();
-        out = rects.some((r) => r.left < b.left - 1 || r.right > b.right + 1 || r.top < b.top - 1 || r.bottom > b.bottom + 1);
+        const left = b.left > 1, right = b.right < W - 1;
+        out = rects.some((r) => (left && r.left < b.left - 1) || (right && r.right > b.right + 1) || r.top < b.top - 1 || r.bottom > b.bottom + 1);
       }
       if (out) clipped.push(text.slice(0, 40));
     }

@@ -2,60 +2,88 @@
 
 Read by `design-direction`, step 3.
 
-Eight first screens, each built the way a designer works from a board: take one reference whose design works, rebuild it faithfully with the product's own content, then change it with one or two things borrowed from other references, and make sure it still works. The references are finished designs; what made each one work (its sizes, spacing, type and colour, chosen together) must still work on the screen. The agent's own taste adds nothing: every face, colour, element and effect comes from a reference on the board.
+Eight first screens, each built the way a designer works from a board: take one reference whose design works, rebuild it faithfully with the product's own content, then change it with one or two things borrowed from other references, and make sure it still works. The references are finished designs: their sizes, spacing, type and colour were chosen together, and that is why they work. The agent's own taste adds nothing.
 
-Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. And one file for all eight, `.longbeard/design/direction/screens.json`:
+Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. Keep each screen's translation too, before its moves, as `screens/<n>-base.html`. One file for all eight, `.longbeard/design/direction/screens.json`:
 
 ```
-[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>" }], "why": "<one line>" }]
+[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>", "like": "<their words, or null>" }], "why": "<one line>", "proposed": false }]
 ```
+
+## Five principles
+
+Everything below is one of these. When a case is not listed, decide it by them.
+
+### 1. The base stands unless a move names it
+
+A screen is its base reference, measured, until a move changes one named thing. What no move names stays as the base has it: its layout (zones, proportions, margins, where the headline, pictures and small text sit), its anchors (a picture centred on the page, a full-bleed panel, a headline on the axis), its balance (symmetrical stays symmetrical; an asymmetric base keeps its counterweight), its alignments (every element on an edge or an axis of its zone), its devices, and its pictures' treatment.
+
+- The layout always comes from a reference, even when no like mentions layout. A move may turn it or take another reference's layout, never invent one.
+- What they said they like in the base is kept exactly ("this red" stays this red) and no move changes it. What they never named is kept by its role: a big red they never named is "a punchy accent over a quarter of the page", and a move may make it a punchy orange from another reference, at the same strength and share.
+- A borrowed thing fits around the base's anchors (placed, sized or set smaller to fit), or goes to a base with room for it.
+- A device that held content in its source (a box with a product, a band of words, a thumbnail with a label) holds the product's content, or is left out; never empty.
+
+### 2. Every measure is a share of the screen, and is kept
+
+Sizes, gaps and fills are measured in the source as a share of its width and height, and kept at 1440 within 15%. That covers type sizes, the gaps between pictures, the room between a headline and the menu, text to the margin or a panel's edge, a label to its picture, the parts of a small device (arrows, a ring, a seal: each part's size, its stroke, the spacing between them), and how much of its zone a text block fills.
+
+- An element that grew (longer copy, a bigger face) is set smaller within its role until its room is kept; it never eats its neighbour's gap unless the source collides on purpose.
+- A rule or a border ends where it ends in the source (the screen's edge, the box's, the column's). Whatever runs off the screen runs off as in the source: a band looping off both sides starts and ends mid-word.
+- Marks that become words (a device's dashes or dots made into links or labels) keep the marks' colour and take the base's small-text size, never smaller than its other small text.
+- **When a layout turns,** every gap and alignment turns with its zone, mirrored, never closed up. Each text block keeps the edge it hangs from (the outer margin, the seam, the axis), the side its ragged edge faces, and its room; left or right follows from that. Running text of several lines stays aligned to the reading direction, in the column beside its edge. What is grouped with a text block (its button, its arrows, its small print) moves with it, its inside spacing unchanged.
+
+### 3. A borrowed thing keeps its geometry and its why
+
+Before placing a borrowed thing, measure how it sits in its source: its size against the screen, where it crosses what it overlaps and how far, the room around it. Place it on the base with the same relations. "The headline over the picture's edge" in a source where it crosses at mid-height with room all round never sits on the picture's foot.
+
+**The why they gave is the rule for using it.** "The orange dot, the only contrast on a quiet page" goes only on a quiet base, alone. A why that describes an arrangement goes only where the arrangement is: "black-and-white photos at different heights, like a contact sheet" is about several photos together, so it never goes onto one framed picture. Before each move, read its why against the base; if it would not be true there, the move goes to another base. A like belongs to its reference: it goes where that reference goes, never a house style across the round.
+
+### 4. A move changes only what it names
+
+One or two moves per screen, each borrowed from another reference, spread across the round. A move is one of:
+- **a palette:** another reference's whole palette, as it works together, or the subject's;
+- **a colour by its role:** one colour they did not name, for another of the same role and strength;
+- **an element:** one device from another reference, on the base's grid;
+- **the face:** another reference's display face, of a kind that can carry the base's headline, at the base's size;
+- **the picture treatment:** another reference's crop, tone or frame;
+- **the layout turned:** mirrored, the headline and picture traded, or one zone moved, proportions kept;
+- **the scale:** the headline larger or smaller, as far as another reference sets its own.
+
+A move brings only that one thing. A face move brings the face, never its source's colour, case or weight beyond the role; a palette move brings colours, never a face. Everything else on that element stays the base's: a liked terracotta headline stays terracotta whatever face it takes.
+
+The moves are theirs: what they said they like in each reference is what is borrowed. Where they named nothing for a reference, propose its move from its reading, and mark it `"proposed": true` in `screens.json` and in the table. A move the base cannot take is dropped for another, never forced.
+
+### 5. Nothing from outside the board
+
+Every face, colour, element and effect names its reference in `PROVENANCE`. The design brief rules out only what it names; a like it rules out is carried by its role, as said to them before building.
 
 ## Which screens
 
-- **Bases:** every reference they liked is the base of at least one screen, the lead of two. Fewer than eight references: the lead, then the likes, take a second screen, with other moves.
-- **The layout always comes from a reference.** Whatever they liked, and even when no like mentions layout, every design stands on its base's layout as measured: its zones, proportions, margins and where the headline, pictures and small text sit. A move may turn it (mirrored, a zone moved) or take another reference's layout, never invent one. A like about a colour or a face says what to carry; it never frees the layout.
-- **What the layout quietly relies on is part of it,** and a move never breaks it:
-  - **Balance.** A symmetrical base stays symmetrical; an asymmetric one keeps its counterweight. A move that adds weight on one side (a headline pushed off the axis, a borrowed element) is balanced by the base's own elements, or placed on the axis.
-  - **Anchors stay.** What the base's layout is built on (a picture centred on the page, a full-bleed panel, a column's edge, a headline on the axis) never moves to make room for a borrowed thing. The borrowed thing fits around it: placed, sized or set smaller to fit, or given to a base with room for it.
-  - **Alignment.** Every element sits on an edge or an axis of its zone in the base's grid (the panel's margin, the column's edge, the picture's side), never at a distance from the screen's edge. When the layout turns, the alignments turn with their zones: a title on the panel's left margin stays on the panel's left margin, wherever the panel goes, and the corners' elements move to the matching corners.
-  - **Edges.** Whatever runs off the screen's edge runs off as in its source: a band that loops off both sides starts and ends mid-word, never flush on one side and chopped on the other.
-  - **Text keeps its relations, not its direction.** When a layout turns, each text block keeps the edge it hangs from (the outer margin, the seam with the picture, the axis), the side its ragged edge faces, and the room around it; its alignment follows from that, left or right. A title hanging from the outer margin with its ragged side toward the picture turns into one hanging from the other outer margin, right-aligned, ragged side still toward the picture. Headlines, labels and short lines may turn; running text of several lines (a paragraph, a list) stays aligned to the reading direction and keeps its anchor by sitting in the column beside that edge. What is grouped with a text block (its button, its arrows, its small print) moves with it as one group, its spacing inside unchanged.
-  - **Text fills its zone as in its source.** Measure how much of its zone's width and height the text takes in the source, and the room left on each side, the ragged side above all. Copy longer than the reference's is set smaller, within the role, until it keeps those proportions; it never runs to the zone's far edge.
-  - **Details as measured, never approximated.** A small device (arrows, a ring, an icon, a divider, a seal) is rebuilt as one unit from its source: each part's size, its stroke, the spacing between the parts and how they line up. **Every gap is measured in the source and kept,** as a share of the screen's width: between pictures, between a headline and the menu, a label and its picture, text and the margin or the panel's edge. A turned layout keeps each gap mirrored, never closed up. An element that grew (a longer word, a bigger face) never eats its neighbour's room unless the source collides on purpose. A rule or a border ends where it ends in the source: at the screen's edge, at the box's edge, at the column. **Marks that become words** (a device's small dashes or dots made into real links or labels) keep the marks' colour on their ground and take the base's small-text size, never smaller than its other small text: the source's marks were drawn to be seen, not read.
-  - **Devices hold what they held.** A device that carries content in its source (a box with a product in it, a band of words, a thumbnail with a label) carries the product's content here, or is left out; never shown empty.
-- **A like belongs to its reference.** It goes where that reference goes: on screens built on it, or borrowed from it as a move. It is never a house style for the round. Every other screen keeps its own base's treatment of pictures, type and colour; the product's pictures stay as shot unless its base treats them.
-- **Kept exactly, or kept by role.** What they said they like in the base is kept exactly: "this red" stays this red. Everything else in it, apart from its layout, is kept by its role, not its value. A big red they never named is "a punchy accent over a quarter of the page": it may become a punchy orange from the subject or a punchy yellow from another reference, at the same strength and the same share. A face they never named is "a light, wide serif headline": another face of that role may take its place. The role is what made the base work; the value is free to change.
-- **Moves:** one or two per screen, each borrowed from another reference on the board, and spread: across the eight screens, the moves come from as many references as there are. A move is one of:
-  - **a palette:** another reference's whole palette (ground, ink and accent as they work together), or the subject's;
-  - **a colour by its role:** one colour of the base they did not name, swapped for another of the same role and strength (a punchy accent for a punchy accent, a quiet ground for a quiet ground), from another reference or the subject;
-  - **an element:** one device from another reference (its disc, its arch window, its word band, its ring of text), placed by the base's own grid;
-  - **the face:** another reference's display face, of a kind that can carry the base's headline (a heavy word stays heavy, a hairline line stays light), at the base's size;
-  - **the picture treatment:** another reference's crop, tone or frame;
-  - **the layout turned:** the base mirrored, or its headline and picture traded, or one zone moved, the proportions kept;
-  - **the scale:** the headline larger or smaller, as far as another reference sets its own.
-- **The moves are theirs.** What they said they like in each reference (its note on the board) is what is borrowed: "the disc" of one is an element move, "the colours" of another a palette move. **The why they gave is the rule for using it:** "the orange dot, the only contrast on a quiet page" goes only on a quiet base, alone, as its one loud thing, never onto a busy one. A move whose why the base would break is given to another base. **A why that describes an arrangement goes only where the arrangement is:** "the black-and-white photos at different heights feel like a contact sheet" is about several photos side by side, so its black and white goes to a base with several photos, never onto one framed picture. Before each move, read its why against the base: if it would not be true there, the move goes elsewhere. Pair each with a base that can take it (a condensed face where the base's headline is one wide word, a palette whose contrast its type can carry), and say in one line which like it carries (`why`). Where they named nothing for a reference, propose its move from its reading (its `move`, its palette), mark it `"proposed": true` in `screens.json` and as proposed in the table, so they see which choices were theirs and which were offered. Never a move from outside the board.
+Every reference they liked is the base of at least one screen, the lead of two. With fewer than eight references, the lead, then the likes, take a second screen with other moves. Across the eight, the faces, picture treatments, palettes and pictures spread as widely as the board's: each face mostly on its own reference's screens, a borrowed thing on two screens at most, different photos and crops from screen to screen. Only a like that says it is the point ("always black and white") repeats more.
 
 ## Build each screen
 
-1. **Translate the base.** Rebuild its reading (library.md) at 1440: its layout as measured, its type at its measured sizes, weights, tracking and leading, its spacing, its palette, its picture treatment applied to the product's own pictures (`filter: grayscale(1)`, a duotone, the frame's shape: only what the reference does). The content is the product's, in the base's slots, filled in order: the headline, then the primary action, the status, what the product shows; as many small blocks as the base has, each as long as the base's own (a three-word label stays three words), and at most one more where the base's system has a place for it. Everything else waits for the prototype.
-2. **Check the translation against the base,** before any move: capture it and put it beside the reference on one sheet. The layout's boxes in the same places, the type at the same size against the screen (within 15%), the same amount of empty space, the gaps between pictures and from text to its edges the same share of the width (within 15%), the concept and the move plainly there. Fix until they are. This is the one step where a screen should look like its reference.
-3. **Make the moves.** Change only what the move changes. **A move carries only what it names:** a face move brings the face, never its source's colour, case or weight beyond its role; a palette move brings colours, never the source's face. Everything else on that element stays the base's, and what they said they like in the base (its colour, its face) no move ever changes: "the terracotta on stone" stays terracotta whatever face the headline takes. **A borrowed thing comes with its geometry, not only its idea.** Before placing it, measure how it sits in the reference it comes from: how far it crosses what it overlaps and where along that edge, its size against the screen, the room around it on each side. Place it on the base with the same relations. "The headline over the picture's edge" in a reference where it crosses at mid-height with room all round never sits on the picture's foot. Then **check that it still works:** the headline's size and weight still fit the layout they were made for, the spacing is the base's, a borrowed element sits on the base's grid and at a size the base would give it, the text reads on its ground (`screen-contrast.mjs`). A move the base cannot take is dropped for another, never forced.
+1. **Translate the base.** Rebuild its reading (library.md) at 1440, with the product's content in the base's slots, filled in order (the headline, the primary action, the status, what the product shows), each as long as the base's own, at most one more where the base has a place for it. Pictures treated only as the reference treats its own. Save it as `screens/<n>-base.html`.
+2. **Check the translation** beside the reference, on one sheet: the boxes in the same places, and principle 2's measures within 15%. Fix until they are. This is the one step where a screen should look like its reference.
+3. **Make the moves,** by principles 3 and 4, into `screens/<n>.html`.
 
 ## Then check all eight
 
-- **Balance, alignment and edges.** A fresh agent, given each screen and its base, says where the balance shifted, where a text block lost the edge it hangs from or the side its ragged edge faces, where a group came apart, where text fills its zone more than in the source, where something is cut at the edge differently from its source, and where a device is empty. Each is fixed by the principle above, never by tidying the composition.
-- **Close up.** For each screen, crops at three times size of every small device, every rule and border, and every tight gap (the headline near the menu, text near a margin), each beside the same crop of its source. A fresh agent says where a part, a stroke, a spacing or a line's end differs; fix it to the source. Also at this size: each end of anything that runs off the screen (a band starts and ends mid-word on both sides), and each picture's colour (a cast, a blown highlight, a muddy shadow is a picture to replace or correct, never to keep).
-- **Each borrowed thing beside its source.** Put each screen beside the references its moves came from, and look at one thing: does each borrowed thing sit as it does there (where it crosses, how big, how much room around it)? Fix the placement until it does.
-- **The round is as varied as the board.** Across the eight: the faces, the picture treatments, the palettes and the pictures spread as widely as the board's do. A board with six display faces shows most of them, each mostly on its own reference's screens; a borrowed thing (a treatment, a face, a device) is on two screens at most; the pictures differ from screen to screen, other photos and other crops, never one picture everywhere. Only a like that says it is the point ("this face", "always black and white") repeats more.
+Each check is done by a fresh agent that sees only the pictures named, so it judges what is there, not what was meant. Each finding is fixed by the principle it breaks, never by tidying the composition.
 
-- **Contrast,** every screen; a failure blocks the sheet until it is fixed:
+- **What else changed.** Given the translation (`<n>-base.html`), the final screen and its moves in words: everything that differs that no move names (a colour, a gap, a size, a weight, an alignment, a picture's tone, balance). Each is put back as the translation had it. This is how a move stops carrying more than it names.
+- **Still feels like it.** Given the base reference and the final screen: in one line, what made the reference work (its colour mood, its rhythm of space, its type's colour and weight, its calm or its punch), then whether the screen keeps it. Where it does not, find what took it away and put it back.
+- **Each borrowed thing beside its source.** Given the screen and the references its moves came from: does each borrowed thing sit as it does there (where it crosses, how big, the room around it)?
+- **Close up.** Crops at three times size of every small device, every rule and border, every tight gap and both ends of whatever runs off the screen, each beside the same crop of its source: where a part, a stroke, a spacing or a line's end differs. And each picture: `node <skill>/scripts/picture-cast.mjs <pictures>` on every picture the screen uses; a strong cast, blown highlights or crushed shadows the reference does not have is a picture to replace or correct.
+- **Not a copy.** Given the screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, add or strengthen a move.
+- **Nothing that is not on the board.** Given the screen, the reference pictures and its `PROVENANCE`: anything no reference has (a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect). Each comes out or is replaced by what its reference uses.
+- **Contrast,** every screen; a failure blocks the sheet until it is fixed, with colours the screen already has, never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
-  Fixed with the colours the screen already has (the palette's ink, the panel's ink), never by moving the text.
-- **Nothing that is not on the board.** A fresh agent, given only the screen, the reference pictures and the screen's `PROVENANCE`, lists anything on the screen that no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect. Each is taken out or replaced by what its reference uses. This is how taste stays out.
-- **Not a copy.** A fresh agent, given the screen and its base reference only, says whether it reads as the same design with new words and pictures. Every screen changes at least one thing in the base they did not name, beyond the content: a colour or the palette by its role, the face by its role, the picture treatment, or the layout turned. Where it still reads as the base, add or strengthen a move until it reads as its own design in that manner, what they liked and the concept kept.
 - **Faults:** a clipped word, text over a picture that cannot be read, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice. Overlaps, crops and collisions the references use are not faults.
+
+**After a round they did not take, or a fix:** before showing a rebuilt screen again, put it beside the version they last saw and list what got worse, not only what changed. A fix that breaks something they liked is undone.
 
 ## Capture and sheet
 
