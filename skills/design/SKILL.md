@@ -69,6 +69,8 @@ Example:
 
 Then stop. They type the skill, or say yes and you load it.
 
+**A `DESIGN.md` they bring** has no token tables of ours (rows like `color/ink`), and may carry its tokens at the top in the published DESIGN.md format. Until `design-prototype` writes ours, steps 7 to 9 treat it as no `DESIGN.md`: say so once, and offer it as the identity's starting point, every value in it their choice, kept unless they change it.
+
 ## Do not
 
 - Run a skill for them without their yes, or run two at once.

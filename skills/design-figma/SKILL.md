@@ -29,7 +29,7 @@ Open the approved prototype (`.longbeard/design/prototype/`) beside every screen
 ## Rules
 
 - **One file per product.** A new one if the project has none. Its URL goes in `DESIGN.md`.
-- **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files can come with community kits attached; their steps say to reuse them. Do not: search the file only, and build what is missing from `DESIGN.md`.
+- **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files can come with community kits attached; their steps say to reuse them. Do not: search the file only, and build what is missing from `DESIGN.md`. Read its tables or the token block at the top (the same tokens, written from the tables); if they differ, the tables win and `design-check` docs mode reports it.
 - **Build, do not capture.** Compose screens from tokens and components. Never run `generate_figma_design` on the prototype. For pictures, create the image frames, then `upload_assets` the prototype's own files.
 - **Themes are modes.** One colour collection, a mode per theme; each screen built once. If Figma refuses the modes, stop and ask.
 - **Pages:** Cover, Foundations, Components, one `Screens — <flow>` per flow in the brief, `Explorations` for anything kept for later.

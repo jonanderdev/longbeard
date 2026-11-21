@@ -114,6 +114,24 @@ test("eval score: a leaked source, a gap in the brief, a failing pair and a scre
   assert.equal(results["prototype: links"].status, "SKIP");
 });
 
+// DESIGN.md with the token block at the top (tokens.mjs writes it): the score reads the same tables and pairs as before.
+test("eval score: a DESIGN.md with front matter is read as before, and a failing pair in it still fails", () => {
+  const withBlock = (design) => {
+    const dir = project({ ...good, "DESIGN.md": design });
+    const made = spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/tokens.mjs"), join(dir, "DESIGN.md"), "--name", "Hearth"], { encoding: "utf8" });
+    assert.equal(made.status, 0, made.stderr);
+    assert.match(readFileSync(join(dir, "DESIGN.md"), "utf8"), /^---\nversion: alpha\nname: Hearth\ncolors:\n/);
+    return dir;
+  };
+  const passing = byId(run(withBlock(good["DESIGN.md"]), "--no-browser").stdout);
+  assert.equal(passing["DESIGN.md: accessibility level"].status, "PASS");
+  assert.equal(passing["DESIGN.md: motion"].status, "PASS");
+  assert.equal(passing["DESIGN.md: contrast pairs pass"].status, "PASS");
+  assert.match(passing["DESIGN.md: contrast pairs pass"].detail, /^2 pairs/);
+  const failing = byId(run(withBlock(bad["DESIGN.md"]), "--no-browser").stdout);
+  assert.equal(failing["DESIGN.md: contrast pairs pass"].status, "FAIL");
+});
+
 test("eval score: a dead link fails the prototype", (t) => {
   if (!hasChrome) return t.skip("no Chrome installed");
   const results = byId(run(project(bad)).stdout);

@@ -2,6 +2,8 @@
 
 Write the whole file once, from the approved prototype. A builder follows it without the prototype or the references open. Short lines. Our words, never a reference's name.
 
+The tables are the source. Write them, then run `tokens.mjs` (see the notes below): it puts the same tokens at the top of the file as a front-matter block, so a tool that reads the published DESIGN.md format can take the design without Long Beard. Never write the block by hand.
+
 ```markdown
 # Design
 
@@ -27,24 +29,31 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - <every text, control and focus pair>
 
 ## Type
-| Token | Face, weight | Size / line height | Use |
-|---|---|---|---|
-| type/heading | … | …/… | screen titles |
-| type/body | … | …/… | body, lists |
+| Token | Face, weight | Size / line height | Tracking | Use |
+|---|---|---|---|---|
+| type/heading | <face>, <weight> | <size> / <line height> | <tracking, or blank> | screen titles |
+| type/body | … | …/… | | body, lists |
 
 - Licence: <covers how this ships: web, app bundle>
 
 ## Spacing
 - Density: <airy | balanced | dense, from the design brief, and what it means here: rows per screen, how much before "more">
-- Scale: <space/sm 8, space/md 16, …>
 - <how the scale is used: inside components, between items, between groups, between sections>
-- Corner radius: <value, and where>
+
+| Token | Value | Use |
+|---|---|---|
+| space/<step> | <px> | <where it is used> |
+| radius/<step> | <px> | <where, and where not> |
 
 ## Components
 - <component>: <what it is for, its variants, its states>
 
 ## Motion
-- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; durations, what moves and when; reduced motion turns it off>
+- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; what moves and when; reduced motion turns it off>
+
+| Token | Duration | Easing | Use |
+|---|---|---|---|
+| motion/<purpose> | <ms> | <easing> | <what moves> |
 
 ## Accessibility
 - Level: <AA | AAA, from the design brief>. Every contrast pair above meets it; design-check checks against it.
@@ -63,7 +72,9 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - <what we leave, as ideas: "a bright brand accent", never whose>
 ```
 
-- Every token name is its code name, and the same name in Figma.
+- Every token name is its code name, and the same name in Figma. A token is `group/name`: `color/`, `type/`, `space/`, `radius/`, `motion/`.
+- Values are plain: a hex or a css colour for colour, a number (px) or a unit for sizes, a weight as a number or its name, a line height under 4 as a multiplier, durations in ms. A table with no tokens of a kind (a design with no motion) leaves that kind out.
+- `tokens.mjs` reads every table row whose Token starts with one of those groups, and writes the block: `colors`, `typography`, `rounded`, `spacing` and `motion`, with `version` and `name`. It adds `primary`, the one name the format expects, pointing at `color/primary` if the table has it, else `color/accent`, else `color/ink`. Our names stay as they are. `--check` exits 1 when the block and the tables disagree.
 - Every colour pair in the table has been through `scripts/contrast.mjs`. No FAIL is written.
-- More than one theme: one row per token, with a value column per theme. Every pair is checked in each theme.
+- More than one theme: one row per token, with a value column per theme, headed by its name (Light, Dark). Every pair is checked in each theme. The block groups them under `colors.light` and `colors.dark`.
 - A section with nothing to say is left out, not filled with a guess. Still to supply is the one that stays: its "nothing" says it was checked.
