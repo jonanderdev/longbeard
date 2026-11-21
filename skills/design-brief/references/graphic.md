@@ -25,13 +25,14 @@ Before any design, a few questions. Each has my suggestion in brackets: "yes" ta
 4. How should it feel, and never feel? Anything you tried before and didn't like, and why?
 5. Posters, covers, books, brands or places you love for this? (They steer the moodboard; their names stay out of the docs.)
 6. Who should it stand apart from? And how far from what pieces of its kind usually look like: 1 familiar · · · 5 nothing like it? [<the kind it is, and a number>]
-7. What is fixed? Print or screen. One colour or full colour. Colours, typefaces or a logo you own or refuse. Your own pictures, or none yet. [<what the brief or the repo shows>]
+7. What is fixed? One colour or full colour. Colours, typefaces or a logo you own or refuse. Your own pictures, or none yet. [<what the brief or the repo shows>]
 8. A moodboard already? A Figma link, a folder, screenshots or links.
 9. One piece, or a set (a poster, a story, a square)? Are the facts in the brief complete? [<what the brief says>]
 
 Anyone else who has to say yes?
 ```
 
+- **Print or screen is in the brief's format.** It is not asked again: the read-back states it as an assumption they can correct.
 - **Question 6 is left out for a personal piece** (a birthday card): it has no category.
 - **Never asked:** motion (a graphic has none, so `motion: none`), light or dark, languages, the accessibility level (written as AA unless they say otherwise), and full or quick (a single piece is `pace: quick`; a set is asked once, with question 9).
 - **The other sizes of a set** are `design-prototype`'s. They are named here and built there.
@@ -51,7 +52,7 @@ The template holds, with these changes:
 - **`dense`:** 1 is one line, 5 is every detail. The key stays `dense`.
 - **`motion: none`.**
 - **`accessibility`:** AA unless they said otherwise.
-- **`fixed`:** adds print or screen, and one colour or full colour.
+- **`fixed`:** adds print or screen (from the brief's format) and one colour or full colour.
 - **`apart from`:** `none: a personal piece`, with no distance, when there is no category.
 - **Adds `pieces:`** one piece, or the list for a set, and **`facts:`** complete, or what is missing.
 

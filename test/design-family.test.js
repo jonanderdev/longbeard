@@ -57,7 +57,7 @@ test("the catalog installs every skill in the family, each reached through desig
 // references/graphic.md, and the skill's main text grows by one line: the pointer in its Gate.
 const withGraphic = readdirSync(join(root, "skills")).filter((name) => existsSync(join(root, "skills", name, "references/graphic.md")));
 
-test("the skills a graphic changes are the ones the ticket names", () => {
+test("the skills that keep a graphic reference are the seven this pass names", () => {
   assert.deepEqual([...withGraphic].sort(), ["design-brief", "design-direction", "design-figma", "design-identity", "design-moodboard", "design-prototype", "idea"]);
 });
 

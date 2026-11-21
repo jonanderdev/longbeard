@@ -43,7 +43,7 @@ About 250 words. The headings the design skills read by name stay; flows, key sc
 graphic. <One line why: a piece to look at, not a tool to use.>
 
 ## Constraints
-- <What is fixed: a deadline, print or screen, one colour or full colour, a logo or colours they own. Not tech choices.>
+- <What is fixed: a deadline, a budget, a logo or colours they own. Not tech choices and not a look.>
 
 ## Position
 - against: <what pieces of its kind usually look like, or "none: a personal piece">
