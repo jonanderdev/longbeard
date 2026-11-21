@@ -28,6 +28,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const fail = (text, code = 1) => {
   console.error(`picture-cast: ${text}`);

@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");

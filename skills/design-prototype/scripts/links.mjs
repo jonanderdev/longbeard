@@ -26,6 +26,7 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const args = process.argv.slice(2);
 const flag = (name, def = "") => {
