@@ -24,7 +24,7 @@ const good = {
 - apart from: supermarket bakery counters · distance 4
 - fixed: new brand; light only; no pictures yet; English
 - accessibility: AA
-- motion: subtle
+- motion: quiet · driven by time · character smooth on everything
 - voice: plain and warm, "Back on Thursday."
 - decides: only them
 `,
@@ -47,7 +47,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - color/accent on color/bg: 4.4:1 (control)
 
 ## Motion
-- subtle: fades under 300 ms
+- quiet, driven by time: fades under 300 ms
 
 ## Accessibility
 - Level: AA. Every contrast pair above meets it.
@@ -192,6 +192,14 @@ test("eval score: a project with nothing in it fails, and says what is missing",
   const result = run(project({ "docs/brief.md": "# x\n" }));
   assert.equal(result.status, 1);
   assert.match(byId(result.stdout).docs.detail, /missing: docs\/design\/design-brief\.md/);
+});
+
+test("eval score: a motion line must be none or a how-much pick, not the old one word", () => {
+  for (const [motion, status] of [["none", "PASS"], ["leading · driven by scroll, cursor · character physics on scroll", "PASS"], ["subtle", "FAIL"], ["driven by time", "FAIL"]]) {
+    const brief = good["docs/design/design-brief.md"].replace(/- motion: .*\n/, `- motion: ${motion}\n`);
+    const results = byId(run(project({ ...good, "docs/design/design-brief.md": brief })).stdout);
+    assert.equal(results["design brief complete"].status, status, motion);
+  }
 });
 
 // A round of two built screens, and a baseline of two, each with a capture.

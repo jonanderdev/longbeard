@@ -20,10 +20,16 @@
 //   dead end   a page with no way on to another page of the prototype (a link, a form, a button)
 //   unreached  a page named in --expect that no click reaches
 // then each page reached, with its clicks from the start.
-// Exit 1 when anything is broken, nowhere, a dead end or unreached; 0 when the walk is clean.
+// Exit 1 when anything is broken, nowhere, a dead end, unreached or unmarked; 0 when the walk is clean.
+//
+// It also lists what the page does not really have yet: every element marked data-standin="picture"
+// or data-standin="fact" (a stand-in picture; a price, an hour, a number or a name the brief does not
+// give), with data-standin-note for what is assumed. One line each, "stand-in", then a count, or "none
+// marked". The list never fails the walk. A picture whose file sits in a credits.tsv beside it (a
+// stand-in from pictures.mjs) with no mark is "unmarked", and does.
 //   --expect a,b (page names, without .html), --width 1440, --wait 300 (ms per page), --json
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -185,6 +191,48 @@ async function clickThrough(url, i) {
   return (await evaluate("location.href").catch(() => "")) || "";
 }
 
+// ---- Stand-ins: what a page shows that the product does not really have yet. ----
+// Read on every page the walk reaches. Marked in the markup: data-standin="picture" or "fact",
+// optional data-standin-note. Not part of the link checks above or below.
+const standins = [], unmarked = [];
+const readStandins = `(() => {
+  const text = (el) => (el.innerText || "").trim().replace(/\\s+/g, " ").slice(0, 40);
+  const marked = [...document.querySelectorAll("[data-standin]")].map((el) => {
+    const img = el.matches("img") ? el : el.querySelector("img");
+    return { kind: (el.getAttribute("data-standin") || "").trim() || "unspecified", note: (el.getAttribute("data-standin-note") || "").trim(), words: img ? "" : text(el), alt: img ? (img.getAttribute("alt") || "").trim() : "", src: img ? img.src : "" };
+  });
+  const imgs = [...document.querySelectorAll("img")].map((i) => ({ src: i.src, alt: (i.getAttribute("alt") || "").trim(), marked: !!i.closest("[data-standin]") }));
+  return { marked, imgs };
+})()`;
+const creditsOf = new Map();
+const credited = (file) => {
+  const dir = dirname(file);
+  if (!creditsOf.has(dir)) {
+    const list = join(dir, "credits.tsv");
+    const rows = existsSync(list) ? readFileSync(list, "utf8").split("\n").filter((l) => l && !l.startsWith("#")) : [];
+    creditsOf.set(dir, new Set(rows.map((l) => basename(l.split("\t")[1] || ""))));
+  }
+  return creditsOf.get(dir).has(basename(file));
+};
+const fileOf = (url) => (/^file:/.test(url || "") ? fileURLToPath(url.split(/[?#]/)[0]) : "");
+async function collectStandins(page) {
+  const { marked, imgs } = await evaluate(readStandins).catch(() => ({ marked: [], imgs: [] }));
+  const seen = new Set();
+  for (const m of marked) {
+    const file = fileOf(m.src);
+    const what = [m.alt || (file && basename(file)) || m.words || "(nothing to show)"].concat(m.alt && file ? [`(${basename(file)})`] : []).join(" ");
+    const key = `${m.kind}|${what}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    standins.push({ page, kind: m.kind, what, note: m.note });
+  }
+  for (const i of imgs) {
+    const file = fileOf(i.src);
+    if (file && !i.marked && credited(file) && !unmarked.some((u) => u.page === page && u.file === basename(file))) unmarked.push({ page, file: basename(file) });
+  }
+}
+// ---- end of stand-ins ----
+
 const depth = new Map([[startPath, 0]]);
 const firstUrl = new Map([[startPath, start.split("#")[0]]]);
 const queue = [startPath];
@@ -198,6 +246,7 @@ while (queue.length) {
   }
   const { links, forms, buttons } = await evaluate(readPage).catch(() => ({ links: [], forms: [], buttons: [] }));
   const name = pageName(path);
+  await collectStandins(name);
   let out = 0;
   // A way on to url: out of the prototype, to a page that is not there, to this page, or to another to walk.
   const take = (href, url, words) => {
@@ -244,12 +293,15 @@ const reached = new Set([...depth.keys()].map(pageName));
 const unreached = expect.filter((e) => !reached.has(e));
 const pages = [...depth.entries()].sort((a, b) => a[1] - b[1]).map(([p, d]) => ({ page: pageName(p), clicks: d }));
 
-if (json) console.log(JSON.stringify({ pages, broken, nowhere, deadEnds, unreached, outside: [...outside] }, null, 1));
+if (json) console.log(JSON.stringify({ pages, broken, nowhere, deadEnds, unreached, standins, unmarked, outside: [...outside] }, null, 1));
 else {
   for (const b of broken) console.log(`broken     ${b.from} → ${b.to}${b.words ? ` ("${b.words}")` : ""}`);
   for (const n of nowhere) console.log(`nowhere    ${n.page}: ${n.what} (${n.href})`);
   for (const d of deadEnds) console.log(`dead end   ${d}: no link to another page`);
   for (const u of unreached) console.log(`unreached  ${u}: no click from ${pageName(startPath)} reaches it`);
+  for (const u of unmarked) console.log(`unmarked   ${u.page}: picture ${u.file} is a stand-in (credits.tsv) and has no data-standin`);
+  for (const s of standins) console.log(`stand-in   ${s.page}: ${s.kind} ${s.kind === "fact" ? `"${s.what}"` : s.what}${s.note ? ` (${s.note})` : ""}`);
+  console.log(standins.length ? `stand-ins: ${standins.length} (${[...new Set(standins.map((s) => s.kind))].map((k) => `${standins.filter((s) => s.kind === k).length} ${k}`).join(", ")}), what they still need to supply` : "stand-ins: none marked");
   console.log(`pages: ${pages.map((p) => `${p.page} ${p.clicks}`).join(", ")}${outside.size ? ` · ${outside.size} link${outside.size > 1 ? "s" : ""} out of the prototype, not followed` : ""}`);
 }
-process.exit(broken.length || nowhere.length || deadEnds.length || unreached.length ? 1 : 0);
+process.exit(broken.length || nowhere.length || deadEnds.length || unreached.length || unmarked.length ? 1 : 0);
