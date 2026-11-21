@@ -420,7 +420,10 @@ test("measure: motion a script makes is listed, a sticky or fixed thing is not, 
     // element.animate: a Web Animation, with the timing the page set.
     "/animate": `<div id="a" style="width:40px;height:40px;background:red"></div><script>a.animate([{ transform: "translateX(0)" }, { transform: "translateX(120px)" }], { duration: 900, iterations: Infinity, easing: "ease-in-out" })</script>`,
     // A loop writing a transform on every frame: no time and no easing can be seen.
-    "/frames": `<div id="b" style="width:40px;height:40px;background:blue"></div><script>const tick = (now) => { b.style.transform = "translateX(" + ((now / 8) % 200) + "px)"; requestAnimationFrame(tick) }; tick(0)</script>`,
+    // A drawing too: a transform attribute, a path's d, and a drawing's own animateTransform.
+    "/frames": `<div id="b" style="width:40px;height:40px;background:blue"></div>
+      <svg width="300" height="60"><g id="g"><rect width="20" height="20" fill="red"/></g><path id="p" d="M0 40 L10 40" stroke="red"/><rect y="45" width="10" height="10"><animateTransform attributeName="transform" type="translate" from="0 0" to="100 0" dur="1s" repeatCount="indefinite"/></rect></svg>
+      <script>const tick = (now) => { b.style.transform = "translateX(" + ((now / 8) % 200) + "px)"; g.setAttribute("transform", "translate(" + ((now / 8) % 100) + ",0)"); p.setAttribute("d", "M0 40 L" + (10 + ((now / 8) % 100)) + " 40"); requestAnimationFrame(tick) }; tick(0)</script>`,
     // A scroll listener changing opacity, and a fixed bar that slides away with a transform.
     "/scroll": `<div id="f" style="width:100px;height:40px;background:green">Fade</div><div id="bar" style="position:fixed;right:0;top:0;width:60px;height:30px;background:#333"></div>${tall}<script>addEventListener("scroll", () => { f.style.opacity = 1 - Math.min(1, scrollY / innerHeight); bar.style.transform = "translateY(" + -Math.min(30, scrollY / 10) + "px)" })</script>`,
     // Sticky and fixed by design: their place changes on scroll, which is not motion.
@@ -457,8 +460,11 @@ test("measure: motion a script makes is listed, a sticky or fixed thing is not, 
     assert.deepEqual([animate[0].property, animate[0].ms, animate[0].delay, animate[0].easing, animate[0].iteration, animate[0].trigger], ["transform", 900, 0, "ease-in-out", "loop", "load"]);
     // Values written frame by frame: seen to change, still changing at the end, no time and no easing.
     const frames = scripts("/frames");
-    assert.equal(frames.length, 1, JSON.stringify(page("/frames").motion));
-    assert.deepEqual([frames[0].property, frames[0].ms, frames[0].easing, frames[0].iteration, frames[0].trigger], ["transform", null, null, "loop", "load"]);
+    const moved = frames.find((m) => m.property === "transform");
+    assert.deepEqual([moved.ms, moved.easing, moved.iteration, moved.trigger], [null, null, "loop", "load"], JSON.stringify(frames));
+    // The div, the group's attribute and the drawing's own animateTransform are three of one line; a path's d is its box.
+    assert.equal(moved.uses, 3, JSON.stringify(frames));
+    assert.ok(frames.some((m) => m.property === "box" && m.on === "a drawing"), JSON.stringify(frames));
     // Changes with the scroll: an opacity, and a fixed thing's transform; neither its place nor the page's moving.
     const scroll = scripts("/scroll");
     assert.deepEqual(scroll.map((m) => [m.property, m.trigger, m.iteration]).sort(), [["opacity", "scroll", "once"], ["transform", "scroll", "once"]], JSON.stringify(page("/scroll").motion));

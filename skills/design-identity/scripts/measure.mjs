@@ -1319,13 +1319,23 @@ async function readMotion() {
         return "";
       }
     };
-    const KEYS = ["transform", "opacity", "translate", "rotate", "scale", "clip-path", "filter", "top", "left", "box"];
+    // A drawing's transform as it is animated, which also shows what an animateTransform does (it is no style).
+    const svgMatrix = (el) => {
+      if (typeof SVGGraphicsElement === "undefined" || !(el instanceof SVGGraphicsElement) || !el.transform) return "";
+      try {
+        const m = el.transform.animVal.consolidate()?.matrix;
+        return m ? " " + [m.a, m.b, m.c, m.d, m.e, m.f].join() : "";
+      } catch {
+        return "";
+      }
+    };
+    const KEYS = ["transform","opacity", "translate", "rotate", "scale", "clip-path", "filter", "top", "left", "box"];
     const take = () => {
       for (const a of document.getAnimations()) addAnimation(a);
       return tracked.map((el) => {
         if (!el.isConnected) return null;
         const cs = getComputedStyle(el), placed = cs.position !== "static";
-        return [cs.transform, cs.opacity, cs.translate, cs.rotate, cs.scale, cs.clipPath, cs.filter, placed ? cs.top : "", placed ? cs.left : "", boxOf(el)];
+        return [cs.transform + svgMatrix(el),cs.opacity, cs.translate, cs.rotate, cs.scale, cs.clipPath, cs.filter, placed ? cs.top : "", placed ? cs.left : "", boxOf(el)];
       });
     };
     const isCovered = (el, key) => {
