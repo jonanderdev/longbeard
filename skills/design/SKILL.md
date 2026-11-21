@@ -55,7 +55,7 @@ Look at the repo. Do not ask what is there. Read the design brief's `pace` first
 6. No `design-identity.md` → `design-identity`.
 7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
-9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
+9. `DESIGN.md` exists (one the design skills wrote) → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
 
 A graphic (the brief's surface) takes the same steps and ends at its exported Figma frame, so never offer Architecture; its other pieces are `design-prototype`.
 
@@ -68,6 +68,8 @@ Example:
 > You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens built from them. Your board is small enough to skip sorting.
 
 Then stop. They type the skill, or say yes and you load it.
+
+**A `DESIGN.md` they bring** (one with no `docs/design/` beside it) in the published DESIGN.md format, with its token block at the top, is said once and offered as the identity's starting point. Every value in it is their choice: kept unless they change it, and never replaced by ours. It does not count as step 9, and it is not rewritten.
 
 ## Do not
 

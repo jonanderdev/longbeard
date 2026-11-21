@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **`DESIGN.md` carries its tokens in the published DESIGN.md format** (new): `tokens.mjs`, in `design-prototype`, writes the colours, type, radius, spacing and motion from the tables as front matter, so another tool can take the design without Long Beard. The tables stay the source a person reads, our token names stay as they are (`color/ink` is `colors.ink`), themes become `light` and `dark` groups, and `primary`, the one name the format expects, points at the accent. `--check` exits 1 when the two disagree, `design-check` docs mode reports it, and a `DESIGN.md` brought from outside is offered as the identity's starting point. The format's own linter is optional.
+
 - **`design-direction`: the critic loop can end, and the text is about 400 words shorter.** The loop stops when only small spots are left or after three passes, and the rest goes on the sheet as known faults. The critic also asks what on the screen exists only because of this product (an empty answer is a fault), "not a copy" is a yes or no, and pictures, tones and moves are spread when the round is planned. The subject is a card on the board, liked with a why, and what they like in it may return in another form. `design-moodboard` asks for one far reference when the board is only screens.
 
 - **Live controls on the chosen screen** (new, in `design-direction`): the screen's page can show type scale, line spacing, accent strength and corner radius as sliders, each limited to the range the references on your board measure (a control the board gives no range is not shown), and Copy gives back the values for the agent to record in the screen. Open it with `?controls`; a capture never shows it.

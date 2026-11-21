@@ -84,6 +84,7 @@ On request, or when a design-* skill has written a doc. The design docs are comm
 - Read `DESIGN.md` and every file in `docs/design/`.
 - **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; the site the stand-in pictures came from (their credits stay in `.longbeard/design/pictures/credits.tsv`, except a credit a licence requires, which appears in the product itself); a path into `.longbeard/` or `design-exploration/`, comments in a copied template included. The fix is the idea in plain words ("a quiet reading page", not whose).
 - **Hard:** `design-identity.md`'s colours or faces differ from its `json identity` block, or `DESIGN.md`'s tokens differ from an identity that was not changed on purpose (a change is under Decisions with its date).
+- **Hard:** `DESIGN.md`'s token block (the front matter) differs from its tables, or is missing: `node <skill>/scripts/tokens.mjs DESIGN.md --check` exits 1 and lists each key. The tables are the source, so the fix is to run it again without `--check`; a table that cannot be read (exit 2) is a finding too. The published format's own linter is not run here.
 - The product's own name, the faces and colours it uses, and anything the brief or design brief records as theirs are not findings.
 
 ## Do not

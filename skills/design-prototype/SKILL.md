@@ -116,13 +116,18 @@ Only on their yes to the rendered prototype, and, when the design brief's `decid
   node <skill>/scripts/contrast.mjs "#1b1b1f on #fafaf7" "#c2410c on #fafaf7:mark"
   ```
 - **Themes:** each colour token once, a value per theme, every pair checked in each.
-- **Tokens are code names** (`color/ink`, `space/md`); Figma uses the same.
+- **Tokens are code names** (`color/ink`, `type/body`, `space/md`, `radius/md`, `motion/enter`); Figma uses the same. Colour, type, spacing and radius are tables, and motion is a table when the design has motion, in the template's columns.
+- **The token block.** The tables are the source. Once they are written, run `tokens.mjs`: it writes the same tokens as front matter at the top of `DESIGN.md`, in the published DESIGN.md format, so another tool can take the design without Long Beard. Never write the block by hand. The script changes nothing below it.
+  ```
+  node <skill>/scripts/tokens.mjs DESIGN.md --name "<product name>"
+  ```
+  It exits 2 and names the row when a table cannot be read (a value that is not a colour, a token twice). `--check` exits 1 when the block and the tables disagree. The format has its own linter that anyone who wants to can run on the file (its command is in the script's header); it is not a gate here.
 - **What makes it this design** goes under Components, with values, not adjectives.
 - **Soft rules overridden on purpose** go under Decisions, with the reason. A device the chosen look relies on that the rules call a tell is on purpose: write the idea it serves.
 - **Still to supply.** Run `links.mjs` again, show the current list once more, then write it as the template's section: what each stand-in picture shows and what each assumed fact says, by screen, never a file name or where a picture came from; "nothing" when `links.mjs` listed none. Figma and the build read it.
 - **Ideas, not sources.** Nothing names a reference, site, studio, designer, link or `.longbeard/` path.
 
-Then run `design-check` in docs mode on `DESIGN.md` and `docs/design/`: a picture site, a reference, a link or a `.longbeard/` path left in a committed doc (a copied template's comment counts) is fixed before you say it is done.
+Then run `design-check` in docs mode on `DESIGN.md` and `docs/design/` (it runs `tokens.mjs --check` too): a picture site, a reference, a link or a `.longbeard/` path left in a committed doc (a copied template's comment counts) is fixed before you say it is done.
 
 Then the next step: `design-figma`.
 
@@ -132,7 +137,7 @@ A feature with screens, once `DESIGN.md` exists.
 
 - **Only existing parts:** compose the screens in Figma (`design-figma`) with their states; no prototype.
 - **New parts:** prototype only them, on the real screens around them, in `.longbeard/design/<feature>/`, with 2–3 options where a real choice is open, then the self-check.
-- `DESIGN.md` gets entries (a token, a component, a decision with date and reason, an item under Still to supply). It is never rewritten in a feature.
+- `DESIGN.md` gets entries (a token, a component, a decision with date and reason, an item under Still to supply). It is never rewritten in a feature. A new or changed token goes in its table, then `tokens.mjs` refreshes the block.
 - **Identity changes need their own yes:** a new colour role, a face, a change to the idea or voice, each shown rendered and approved one at a time. A rebrand is `design-identity` again.
 
 ## Do not
