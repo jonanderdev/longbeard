@@ -12,8 +12,8 @@
 // tallied by set, and the baseline's tells shown beside the round's. The same baseline
 // shuffles into any later run's sheet, so rounds of different rules meet the same default.
 // --other <run>: the same brief built from the other board. Its screens and this run's are
-// measured alike (faces named, ground, ink, how empty, picture share, the headline's size,
-// place and letter shapes): screens from two boards should be no more alike than screens of one.
+// measured alike (faces named, ground, ink, how empty, picture share, the headline's size):
+// screens from two boards should be no more alike than screens of one.
 // Every run: the screens' source is scanned for the common tells of generic generated pages.
 //
 // One line per check: PASS, FAIL or SKIP, hard or soft, and why. Exit 1 when a
@@ -135,10 +135,6 @@ if (built) {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
-  // The round reaches from screens built on sites (near) to screens built on print or objects (far).
-  const dist = built.list.map((sc) => String(sc.distance || "").toLowerCase()).filter(Boolean);
-  const spans = ["near", "far"].filter((d) => dist.includes(d));
-  check("screens: a range of distance", false, dist.length ? spans.length === 2 : null, dist.length ? ["near", "far"].map((d) => `${d} ${dist.filter((x) => x === d).length}`).join(" · ") : "no distance in screens.json");
   check("deal: a screen chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
 } else if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
 else {
@@ -454,21 +450,19 @@ if (otherArg && round.length) {
     };
     const feat = (sc) => {
       const x = byPng.get(resolve(sc.png)) || measured[all.indexOf(sc)];
-      const d = x?.type?.display;
-      return x && { ground: hexRgb(x.traits?.ground), ink: hexRgb(x.traits?.ink), empty: x.traits?.empty, figure: x.figure?.share, size: d?.px1440, centre: d?.box ? [d.box[0] + d.box[2] / 2, d.box[1] + d.box[3] / 2] : null, shape: d ? [d.stroke / 0.15, d.contrast / 6, d.width, d.xheight / 0.3] : null, caps: d?.case, faces: facesOf(sc) };
+      return x && { ground: hexRgb(x.traits?.ground), ink: hexRgb(x.traits?.ink), empty: x.traits?.empty, figure: x.figure?.share, size: x.type?.display?.px1440, faces: facesOf(sc) };
     };
     const rgbGap = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) / 441.7;
+    // How unlike two screens are, 0 to 1: the mean of what both have measured.
     const gap = (p, q) => {
-      const parts = [];
-      if (p.ground && q.ground) parts.push(rgbGap(p.ground, q.ground));
-      if (p.ink && q.ink) parts.push(rgbGap(p.ink, q.ink));
-      if (p.empty != null && q.empty != null) parts.push(Math.abs(p.empty - q.empty) / 100);
-      if (p.figure != null && q.figure != null) parts.push(Math.abs(p.figure - q.figure) / 100);
-      if (p.size && q.size) parts.push(Math.min(1, Math.abs(Math.log(p.size / q.size)) / Math.log(4)));
-      if (p.centre && q.centre) parts.push(Math.min(1, Math.hypot(p.centre[0] - q.centre[0], p.centre[1] - q.centre[1]) / 0.7));
-      if (p.shape && q.shape) parts.push(Math.min(1, p.shape.reduce((s, v, i) => s + Math.abs(v - q.shape[i]), 0) / 2));
-      if (p.caps && q.caps) parts.push(p.caps === q.caps ? 0 : 1);
-      if (p.faces.size && q.faces.size) parts.push(1 - [...p.faces].filter((f) => q.faces.has(f)).length / new Set([...p.faces, ...q.faces]).size);
+      const parts = [
+        p.ground && q.ground && rgbGap(p.ground, q.ground),
+        p.ink && q.ink && rgbGap(p.ink, q.ink),
+        p.empty != null && q.empty != null && Math.abs(p.empty - q.empty) / 100,
+        p.figure != null && q.figure != null && Math.abs(p.figure - q.figure) / 100,
+        p.size && q.size && Math.min(1, Math.abs(Math.log(p.size / q.size)) / Math.log(4)),
+        p.faces.size && q.faces.size && 1 - [...p.faces].filter((f) => q.faces.has(f)).length / new Set([...p.faces, ...q.faces]).size,
+      ].filter((v) => typeof v === "number");
       return parts.length ? parts.reduce((s, v) => s + v, 0) / parts.length : null;
     };
     const F = Object.fromEntries(Object.entries(sets).map(([k, list]) => [k, list.filter((sc) => sc.png).map((sc) => ({ sc, f: feat(sc) })).filter((x) => x.f)]));

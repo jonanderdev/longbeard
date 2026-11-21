@@ -30,7 +30,7 @@ To change only how the direction's screens are built, start from a finished run:
 - every design doc and `DESIGN.md` is there; at quick pace, no optional skill ran (soft);
 - the design brief has every line, all seven scales, a distance and AA or AAA; it records the pace they gave (soft);
 - no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`;
-- every screen has a base and moves from cards on the board (the subject is one), every reference is a base, the round has near and far screens (soft), and a screen was chosen (older dealt runs: every dealt screen takes arrangement, type and ground from three);
+- every screen has a base and moves from cards on the board (the subject is one), every reference is a base, and a screen was chosen (older dealt runs: every dealt screen takes arrangement, type and ground from three);
 - the five-second check ran (soft); the identity's json block parses;
 - `DESIGN.md` records the brief's accessibility level and motion (soft), and every contrast pair on its colour tokens passes at that level;
 - rendered (skipped with `--no-browser` or without Chrome): the chosen screen and every prototype page pass `screen-contrast.mjs` at the level; `links.mjs` finds nothing broken, nowhere or a dead end from the first page; every key screen is reached (soft);
@@ -53,7 +53,7 @@ node eval/design/score.mjs ../longbeard-eval --plain ../lb-plain --other ../long
 - **The baseline** (`run.mjs --plain`): the same product brief, design brief, pictures and content (`fixture/plain.md`), built by an agent with no board and no skills, in a folder of its own so it sees no other run: eight first screens, captured.
 - **The blind sheet** (`score.mjs --plain`): the round and the baseline shuffled into one sheet, numbered only, in `.longbeard/eval/blind/` (`sheet.png`; `key.json` apart). The owner writes good, OK or bad beside each number in `marks.md`; the next score tallies the marks by set. Keep one baseline for a series of runs, so each round meets the same default.
 - **Tells of a generic page,** every run: gradient text, a gradient of two hues, frosted glass, soft drop shadows, pills, rounded cards with shadows, a default face, a violet accent, tracked caps labels, emoji, stock marketing words, read from each screen's source. Facts, not verdicts: a reference may use one on purpose. The baseline's are shown only once the marks are in, so nothing hints which tiles are which.
-- **Sameness** (`--other`): a run on the other board, built by the same rules. Every screen is measured alike (the faces it names, ground, ink, how empty, picture share, the headline's size, place and letter shapes), and the mean likeness across the two boards is set against the likeness within each; `.longbeard/eval/sameness/closest.html` shows the three closest pairs across, for the eye.
+- **Sameness** (`--other`): a run on the other board, built by the same rules. Every screen is measured alike (faces, ground, ink, how empty, picture share, headline size), and the likeness across the two boards is set against the likeness within each; `.longbeard/eval/sameness/closest.html` shows the three closest pairs, for the eye.
 
 ## Odd one out
 

@@ -59,6 +59,6 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` f
 
 ## The subject's colours
 
-`subject-colours.mjs` proposes a palette from the product's own pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent", "likes", "forms" }`, its forms and likes as in [subject.md](subject.md). It is one more palette a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages.
+`subject-colours.mjs` proposes a palette from the product's own pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent" }`. It is one more palette a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages.
 
 **Record, never judge.** A gradient, a glow, a face the rules call a tell: if a reference uses it, it is in its reading. What they own goes in `"theirs"`; a refused face or colour is left out; light only or dark only leaves out the readings' palettes of the other kind as borrowable palettes, never the references.

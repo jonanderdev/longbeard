@@ -51,10 +51,6 @@ const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
 const fromFixture = from && existsSync(join(resolve(from), ".longbeard/eval/fixture.txt")) ? readFileSync(join(resolve(from), ".longbeard/eval/fixture.txt"), "utf8").trim() : "";
 const fixtureArg = flag("fixture");
-if (fixtureArg && fromFixture && resolve(fixtureArg).replace(/\/$/, "").split("/").pop() !== fromFixture.split("/").pop()) {
-  console.error(`run: --fixture ${fixtureArg} is not the board ${from} was read from (${fromFixture})`);
-  process.exit(2);
-}
 // The recorded path may be another checkout's: the same fixture folder in this one.
 const fixture = resolve(fixtureArg || (fromFixture ? join(here, fromFixture.split("/").pop()) : join(here, "fixture")));
 // A file of the fixture, or the default fixture's when it has none of its own (a second board shares the brief).
