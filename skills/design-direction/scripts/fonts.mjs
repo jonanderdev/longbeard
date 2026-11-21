@@ -26,6 +26,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const args = process.argv.slice(2);
 const flag = (name, def = "") => {

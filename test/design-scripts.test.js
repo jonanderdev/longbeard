@@ -338,6 +338,8 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   });
   const result = await run(["DejaVu Serif", "--json"]);
   if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  // --local reads the installed faces, so the test needs DejaVu Serif on the machine.
+  if (/--local: it must be installed/.test(result.stderr)) return t.skip("DejaVu Serif is not installed");
   assert.equal(result.status, 0, result.stderr);
   const out = JSON.parse(result.stdout);
   assert.equal(out.chosen.face, "DejaVu Serif");

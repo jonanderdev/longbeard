@@ -92,7 +92,8 @@ A skill for one stack belongs in the project that uses that stack. The list `ini
 
 ## You need
 
-- Node 22 or newer, and Chrome, for the screenshots the design skills and `design-check` take.
+- Node 18 or newer, to run the installer.
+- Node 22 or newer, and Chrome, for the screenshots the design skills and `design-check` take. Their scripts say so and stop on an older Node.
 - The Figma connection in your agent, for a project with a UI.
 
 ## Install

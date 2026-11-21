@@ -25,6 +25,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const args = process.argv.slice(2);
 const flag = (name) => {

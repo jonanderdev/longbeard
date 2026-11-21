@@ -10,6 +10,7 @@ import {
   readdirSync,
   readFileSync,
   readSync,
+  realpathSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -142,6 +143,20 @@ function writeJson(file, value) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+// A skill name becomes a folder name and, on Windows, part of a shell line. Only
+// lowercase letters, digits and hyphens get that far, and never a leading hyphen.
+function isSkillName(name) {
+  return typeof name === "string" && /^[a-z0-9][a-z0-9-]*$/.test(name);
+}
+
+function checkNames(names, where) {
+  for (const name of names) {
+    if (!isSkillName(name)) {
+      fail(`${where} has "${name}", which is not a skill name. Use lowercase letters, digits and hyphens.`);
+    }
+  }
+}
+
 function parseArgs(argv) {
   const flags = {
     global: false,
@@ -217,7 +232,9 @@ function lockFile(flags, forWrite = false) {
 }
 
 function curated() {
-  return readJson(curatedFile);
+  const manifest = readJson(curatedFile);
+  checkNames(catalog(manifest).map((item) => item.name), "beard.json");
+  return manifest;
 }
 
 function catalog(manifest) {
@@ -233,7 +250,9 @@ function extraState(flags) {
   const file = extraFile(flags);
   if (!existsSync(file)) return { items: [], omit: [] };
   const data = readJson(file);
-  return { items: data.items ?? data.skills ?? [], omit: data.omit ?? [] };
+  const state = { items: data.items ?? data.skills ?? [], omit: data.omit ?? [] };
+  checkNames([...state.items.map((item) => item.name), ...state.omit], file);
+  return state;
 }
 
 function writeExtra(flags, state) {
@@ -282,6 +301,7 @@ async function fetchKit(item) {
         .map((entry) => entry.path.match(/^skills\/([^/]+)\/SKILL\.md$/)?.[1])
         .filter(Boolean);
   if (names.length === 0) fail(`${cannot}: ${repo} lists no skills.`);
+  checkNames(names, `The ${item.name} kit's list`);
   return names;
 }
 
@@ -589,12 +609,15 @@ function agentHas(name, agent, global) {
 function readLock(flags) {
   const file = lockFile(flags);
   if (!existsSync(file)) return { version: 1, shape: "full", skills: {} };
+  let data;
   try {
-    const data = readJson(file);
-    return { version: 1, shape: data.shape ?? "full", skills: data.skills ?? {} };
+    data = readJson(file);
   } catch {
     return { version: 1, shape: "full", skills: {} };
   }
+  const skills = data.skills ?? {};
+  checkNames(Object.keys(skills), file);
+  return { version: 1, shape: data.shape ?? "full", skills };
 }
 
 // The shape is written only when it is not the whole pipeline, so an older lock reads the same.
@@ -643,23 +666,28 @@ function folderHash(dir) {
 
 // The skills CLI can only update what it can fetch. A kit skill lives in this
 // package, so update copies it here instead of reporting "up to date" over a
-// stale file.
+// stale file. Returns the folders it copied and the links it left alone. A link
+// into this package is current by itself; any other link is the owner's, and
+// that skill is not current until what it points at is refreshed.
 function copyLocalSkill(name, agents, global) {
   const from = join(root, "skills", name);
-  if (!existsSync(join(from, "SKILL.md"))) return false;
-  let copied = false;
+  const done = { copied: [], linked: [], held: [], missing: false };
+  if (!existsSync(join(from, "SKILL.md"))) return { ...done, missing: true };
   for (const dir of new Set(agents.map((agent) => agentDir(agent, global)))) {
     const to = join(dir, name);
     if (existsSync(to)) {
-      // A link already points at this package. Replacing it would pin a copy.
-      if (lstatSync(to).isSymbolicLink()) continue;
+      // A link already points somewhere. Replacing it would pin a copy.
+      if (lstatSync(to).isSymbolicLink()) {
+        (realpathSync(to) === realpathSync(from) ? done.linked : done.held).push(to);
+        continue;
+      }
       rmSync(to, { recursive: true, force: true });
     }
     mkdirSync(dirname(to), { recursive: true });
     cpSync(from, to, { recursive: true });
-    copied = true;
+    done.copied.push(to);
   }
-  return copied;
+  return done;
 }
 
 function skillFolders(name, agents, global) {
@@ -926,10 +954,19 @@ async function update(flags) {
     ? local
     : local.filter((skill) => (classified.lock.skills[skill.name]?.version ?? "") !== here);
   let copied = 0;
+  // A stale skill that was not copied is not current, so the lock keeps what it had.
+  const notCurrent = new Set();
   if (stale.length > 0 || theirs.length > 0) say(dim("Refreshing…"));
   for (const skill of stale) {
     const was = classified.lock.skills[skill.name]?.version || "unknown";
-    if (!copyLocalSkill(skill.name, skill.agentsNeed ?? agents, flags.global)) continue;
+    const done = copyLocalSkill(skill.name, skill.agentsNeed ?? agents, flags.global);
+    if (done.missing || done.held.length > 0) notCurrent.add(skill);
+    if (done.missing) continue;
+    for (const folder of done.held) say(yellow(`  ${skill.name} left as it is: ${folder} is a link to ${realpathSync(folder)}. Refresh what it points at.`));
+    if (done.copied.length === 0) {
+      if (done.held.length === 0) say(dim(`  ${skill.name} ${here}, linked to this package`));
+      continue;
+    }
     copied += 1;
     say(was === here ? `  ${skill.name} ${here}, replaced` : `  ${skill.name} ${was} → ${here}`);
   }
@@ -943,9 +980,10 @@ async function update(flags) {
     else args.push("--project");
     runSkills(args);
   }
-  if (refresh.length > 0) remember(readLock(flags), flags, refresh, agents);
+  const current = refresh.filter((skill) => !notCurrent.has(skill));
+  if (current.length > 0) remember(readLock(flags), flags, current, agents);
   writePointers(flags, items);
-  const held = flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length;
+  const held = (flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length) + notCurrent.size;
   finish([
     green("Done."),
     `${classified.missing.length} installed, ${copied + theirs.length} refreshed, ${drop.length} retired, ${held} left as they are.`,
@@ -959,6 +997,7 @@ function add(flags, rest) {
   if (!source || flags.skill.length === 0 || !flags.author || !flags.why) {
     fail(`add needs a source, --skill, --author, and --why.\n\n${help}`);
   }
+  checkNames(flags.skill, "--skill");
   if (inRepository() && !flags.global) {
     const manifest = curated();
     const items = catalog(manifest);
