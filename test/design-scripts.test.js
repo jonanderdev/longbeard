@@ -284,6 +284,14 @@ test("colours: design-identity's colour options are made by rule, every option p
   const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
   assert.match(pale.stderr, /left out the built accent/);
   assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
+  // --level AAA: text grounds, inks and accents are left out unless they read at 7:1, 7:1 and 4.5:1.
+  const aaa = spawnSync(process.execPath, [colours, "--ground", "#f1ede4", "--ink", "#111111", "--accent", "#fe2601", "--family", "#ebe4e0,#fec704", "--theirs", "#2b4c7e", "--level", "AAA", "--json"], { encoding: "utf8" });
+  assert.equal(aaa.status, 0, aaa.stderr);
+  const strict = JSON.parse(aaa.stdout).rows;
+  assert.ok(strict.filter((r) => r.row !== "accent").every((r) => r.contrast >= 7), "ground and ink rows read at 7:1");
+  assert.ok(strict.filter((r) => r.row === "accent" && r.colour !== "none").every((r) => r.contrast >= 4.5));
+  assert.ok(accents.some((r) => r.colour === "#fe2601") && !strict.some((r) => r.colour === "#fe2601"), "a red that holds 3:1 on cream is left out at AAA");
+  assert.equal(spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--level", "AAAA"], { encoding: "utf8" }).status, 2);
   // The built ink is part of the look: tan on brown stays tan wherever it reads, not white.
   const tan = JSON.parse(spawnSync(process.execPath, [colours, "--ground", "#3b2416", "--ink", "#d8b98c", "--json"], { encoding: "utf8" }).stdout);
   assert.equal(tan.rows.find((r) => r.label === "as built").ink, "#d8b98c");

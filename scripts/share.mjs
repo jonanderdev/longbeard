@@ -13,7 +13,7 @@ export const shared = [
   ["skills/design-direction/scripts/sheet.mjs", ["design-identity/scripts", "design-prototype/scripts", "design-wordmark/scripts"]],
   ["skills/design-direction/scripts/screen-contrast.mjs", ["design-prototype/scripts", "design-check/scripts"]],
   ["skills/design-prototype/scripts/contrast.mjs", ["design-identity/scripts", "design-check/scripts"]],
-  ["skills/design-direction/scripts/pictures.mjs", ["design-content/scripts", "design-prototype/scripts"]],
+  ["skills/design-direction/scripts/pictures.mjs", ["design-content/scripts", "design-prototype/scripts", "design-moodboard/scripts"]],
   ["skills/design-direction/references/five-second.md", ["design-prototype/references"]],
   ["skills/design-direction/scripts/subject-colours.mjs", ["design-identity/scripts"]],
   ["skills/design-identity/scripts/fonts.mjs", ["design-direction/scripts"]],

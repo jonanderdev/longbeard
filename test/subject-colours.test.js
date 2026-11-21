@@ -178,6 +178,22 @@ test("subject-colours: --sheet writes a page with every proposal and the picture
   assert.deepEqual(data.proposals.map((p) => p.name).slice(0, 2), ["light", "dark"]);
 });
 
+test("subject-colours: --level AAA offers inks at 7:1 and accents at 4.5:1, and a level it does not know is refused", () => {
+  const result = run("--json", "--level", "AAA");
+  assert.equal(result.status, 0, result.stderr);
+  const out = JSON.parse(result.stdout);
+  assert.equal(out.level, "AAA");
+  assert.ok(out.proposals.length > 0);
+  for (const p of out.proposals) {
+    assert.ok(contrast(p.ink, p.ground) >= 7, `${p.name} ink ${contrast(p.ink, p.ground)}`);
+    if (p.accent) assert.ok(contrast(p.accent, p.ground) >= 4.5, `${p.name} accent ${contrast(p.accent, p.ground)}`);
+  }
+  assert.equal(JSON.parse(run("--json").stdout).level, "AA");
+  const bad = run("--level", "AAAA");
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /AA or AAA/);
+});
+
 test("subject-colours: the table names each proposal, and bad input is refused", () => {
   const result = run();
   assert.equal(result.status, 0, result.stderr);
