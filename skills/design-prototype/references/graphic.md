@@ -11,7 +11,7 @@ For a single piece the prototype finishes the chosen piece and nothing else. For
 3. **The self-check.** Capture each piece whole: `--width <w> --clip 0,0,<w>,<h>` at its working size. Then:
    - **Contrast:** `screen-contrast.mjs` as usual.
    - **Rules script:** run `rules.mjs` with `--widths <the piece's width>`. Read only its copy findings (rule 11) and its cut text (rule 5). Its sideways scroll is reported "not checked" above 480 px. Its targets, focus and labels do not apply to a graphic: report any it prints as "not applicable to a graphic" in the self-check. Never fix or waive them, and ignore its exit code and its round count for them.
-   - **Walks:** `links.mjs` and the flow walks are not run. The five-second check is, on each piece, at the size it reaches the eye (see the direction's graphic reference).
+   - **Walks:** The link scan and the flow walks are not run. The five-second check is, on each piece, at the size it reaches the eye (see the direction's graphic reference).
    - **Facts:** every fact in the brief is on the piece, spelt as the brief gives it.
    - **Trim:** nothing important sits in the trim or the safe margin.
 

@@ -260,10 +260,9 @@ const protoPages = existsSync(protoDir) ? readdirSync(protoDir).filter((f) => f.
 if (!protoPages.length) check("prototype: pages", true, false, "no pages in .longbeard/design/prototype/");
 else {
   const start = ["home.html", "index.html"].find((f) => protoPages.includes(f)) || protoPages[0];
-  const keys = [...(read("docs/brief.md") || "").replace(/^[\s\S]*?## Key screens\s*\n/, "").split(/\n## /)[0].matchAll(/^- ([a-z][\w-]*):/gm)].map((m) => m[1]);
   const linksScript = script("design-prototype", "links.mjs");
   walked = { skip: true };
-  const r = browser("prototype: links", true, () => (linksScript ? node(linksScript, [pathToFileURL(join(protoDir, start)).href, "--json", ...(keys.length ? ["--expect", keys.join(",")] : [])]) : { error: new Error("no links.mjs to run") }));
+  const r = browser("prototype: links", true, () => (linksScript ? node(linksScript, [pathToFileURL(join(protoDir, start)).href, "--json"]) : { error: new Error("no links.mjs to run") }));
   if (r) {
     // links.mjs exits 0 or 1 with a walk on stdout; anything else, or no walk, did not run.
     let walk = null;
@@ -276,8 +275,7 @@ else {
     } else {
       walked = { walk };
       const faults = [...walk.broken.map((b) => `broken ${b.from}→${b.to}`), ...walk.nowhere.map((n) => `nowhere ${n.page}: ${n.what}`), ...walk.deadEnds.map((d) => `dead end ${d}`)];
-      check("prototype: links", true, !faults.length, faults.slice(0, 5).join("; ") || `${walk.pages.length} pages from ${start}`);
-      check("prototype: every key screen reached", false, !walk.unreached.length, walk.unreached.length ? `unreached: ${walk.unreached.join(", ")}` : `${keys.length} key screens`);
+      check("prototype: links", true, !faults.length, faults.slice(0, 5).join("; ") || `${walk.pages.length} pages scanned`);
     }
   }
   const failing = [], didNot = [];

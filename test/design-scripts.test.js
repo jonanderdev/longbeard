@@ -629,7 +629,7 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   assert.ok(sans.rows.length && sans.rows.every((r) => ["DejaVu Sans", "FreeSans"].includes(r.face)), JSON.stringify(sans.rows.map((r) => r.face)));
 });
 
-test("links: walks a prototype and says what breaks a flow", (t) => {
+test("links: scans every page of a prototype and says what breaks", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-links-"));
   writeFileSync(join(dir, "home.html"), `<a href="menu.html">Menu</a> <a href="#">Order</a> <a href="gone.html">Gone</a> <a href="https://example.com">out</a>
 <button>Dead</button><button id="b">Wired</button><div id="p"><button>Delegated</button></div>
@@ -639,15 +639,16 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
   writeFileSync(join(dir, "cart.html"), `<script>if (location.search.includes("item")) document.write('<a href="home.html">Pay</a>')</script>`);
   writeFileSync(join(dir, "basket.html"), "Your basket");
   writeFileSync(join(dir, "checkout.html"), `<a href="home.html">home</a>`);
-  const result = spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "home.html")}`, "--expect", "menu,basket,checkout", "--json"], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "home.html")}`, "--json"], { encoding: "utf8" });
   if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
   assert.equal(result.status, 1, result.stderr);
   const out = JSON.parse(result.stdout);
-  assert.deepEqual(out.pages, [{ page: "home", clicks: 0 }, { page: "menu", clicks: 1 }, { page: "basket", clicks: 2 }, { page: "cart", clicks: 2 }]);
+  // Followed from home first; checkout, which no link reaches, is still scanned on its own.
+  assert.deepEqual(out.pages.map((p) => p.page), ["home", "menu", "basket", "cart", "checkout"]);
   assert.deepEqual(out.broken.map((b) => b.to), ["gone.html"]);
   assert.deepEqual(out.nowhere.map((n) => n.what), ['link "Order"', 'button "Dead"']);
   assert.deepEqual(out.deadEnds, ["basket"]);
-  assert.deepEqual(out.unreached, ["checkout"]);
+  assert.equal(out.unreached, undefined);
   assert.equal(out.outside.length, 1);
 });
 
@@ -667,16 +668,17 @@ document.getElementById("t").addEventListener("click", () => { document.title = 
   writeFileSync(join(dir, "order.html"), `<a href="home.html">Home</a>`);
   writeFileSync(join(dir, "thanks.html"), `<a href="home.html">Home</a>`);
   writeFileSync(join(dir, "signed.html"), `<a href="home.html">Home</a>`);
-  // A page whose only way on is a form to a page that is not there still fails.
-  writeFileSync(join(dir, "stuck.html"), `<form action="gone.html"><button>Go</button></form>`);
+  // A page whose only way on is a form to a page that is not there still fails (in a folder of its own, since every page of a folder is scanned).
+  const stuckDir = mkdtempSync(join(tmpdir(), "longbeard-links-stuck-"));
+  writeFileSync(join(stuckDir, "stuck.html"), `<form action="gone.html"><button>Go</button></form>`);
   const links = join(root, "skills/design-prototype/scripts/links.mjs");
-  const result = spawnSync(process.execPath, [links, `file://${join(dir, "home.html")}`, "--expect", "order,thanks,signed", "--json"], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [links, `file://${join(dir, "home.html")}`, "--json"], { encoding: "utf8" });
   if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
   assert.equal(result.status, 0, result.stdout + result.stderr);
   const out = JSON.parse(result.stdout);
-  assert.deepEqual(out.pages, [{ page: "home", clicks: 0 }, { page: "order", clicks: 1 }, { page: "thanks", clicks: 1 }, { page: "signed", clicks: 1 }]);
-  assert.deepEqual([out.broken, out.nowhere, out.deadEnds, out.unreached], [[], [], [], []]);
-  const stuck = spawnSync(process.execPath, [links, `file://${join(dir, "stuck.html")}`, "--json"], { encoding: "utf8" });
+  assert.deepEqual(out.pages.map((p) => p.page), ["home", "order", "thanks", "signed"]);
+  assert.deepEqual([out.broken, out.nowhere, out.deadEnds], [[], [], []]);
+  const stuck = spawnSync(process.execPath, [links, `file://${join(stuckDir, "stuck.html")}`, "--json"], { encoding: "utf8" });
   assert.equal(stuck.status, 1);
   const bad = JSON.parse(stuck.stdout);
   assert.deepEqual(bad.broken.map((b) => b.to), ["gone.html"]);
@@ -689,7 +691,8 @@ test("links: lists what is marked data-standin, says when nothing is, and finds 
   mkdirSync(join(dir, "pictures"));
   for (const f of ["loaf.jpg", "bench.jpg", "own.jpg"]) writeFileSync(join(dir, "pictures", f), "x");
   writeFileSync(join(dir, "pictures", "credits.tsv"), "# name\tfile\tsource\tauthor\tlicence\nloaf\tpictures/loaf.jpg\t\ta\tCC0\nbench\tpictures/bench.jpg\t\ta\tCC0\n");
-  const walk = (page, extra = []) => spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "proto", page)}`, ...extra], { encoding: "utf8" });
+  // Every page in a prototype's folder is scanned, so each case below is a prototype in a folder of its own.
+  const walk = (page, extra = [], folder = "proto") => spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, folder, page)}`, ...extra], { encoding: "utf8" });
   // Two stand-in pictures (one inside a marked wrapper), one assumed price, one picture of theirs: exactly three listed.
   writeFileSync(join(dir, "proto", "home.html"), `<a href="menu.html">Menu</a>
 <img src="../pictures/loaf.jpg" alt="a rye loaf" data-standin="picture">
@@ -710,15 +713,18 @@ test("links: lists what is marked data-standin, says when nothing is, and finds 
   assert.deepEqual(out.unmarked, []);
   assert.match(walk("home.html").stdout, /^stand-ins: 3 \(2 picture, 1 fact\)/m);
   // Everything theirs: nothing listed, and the text says so.
-  writeFileSync(join(dir, "proto", "theirs.html"), `<a href="back.html">on</a><img src="../pictures/own.jpg" alt="the baker"><p>£4.20</p>`);
-  writeFileSync(join(dir, "proto", "back.html"), `<a href="theirs.html">back</a>`);
-  const none = walk("theirs.html");
+  mkdirSync(join(dir, "theirs"));
+  writeFileSync(join(dir, "theirs", "theirs.html"), `<a href="back.html">on</a><img src="../pictures/own.jpg" alt="the baker"><p>£4.20</p>`);
+  writeFileSync(join(dir, "theirs", "back.html"), `<a href="theirs.html">back</a>`);
+  const none = walk("theirs.html", [], "theirs");
   assert.equal(none.status, 0, none.stdout);
   assert.match(none.stdout, /^stand-ins: none marked$/m);
   assert.doesNotMatch(none.stdout, /^stand-in /m);
   // A picture from credits.tsv with no mark is a finding; a marked one beside it is not.
-  writeFileSync(join(dir, "proto", "loose.html"), `<a href="back.html">on</a><img src="../pictures/loaf.jpg" alt="a rye loaf"><div data-standin="picture"><img src="../pictures/bench.jpg" alt=""></div>`);
-  const loose = walk("loose.html");
+  mkdirSync(join(dir, "loose"));
+  writeFileSync(join(dir, "loose", "back.html"), `<a href="loose.html">back</a>`);
+  writeFileSync(join(dir, "loose", "loose.html"), `<a href="back.html">on</a><img src="../pictures/loaf.jpg" alt="a rye loaf"><div data-standin="picture"><img src="../pictures/bench.jpg" alt=""></div>`);
+  const loose = walk("loose.html", [], "loose");
   assert.equal(loose.status, 1, loose.stdout);
   assert.match(loose.stdout, /^unmarked   loose: picture loaf\.jpg is a stand-in/m);
   assert.doesNotMatch(loose.stdout, /unmarked.*bench/);
