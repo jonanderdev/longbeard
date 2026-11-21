@@ -57,6 +57,8 @@ Then build them all, linked so they click through, in the identity and the direc
 - **Real content, complete.** Copy in the voice, the longest real names, every section a person needs to act, and everything under `for the prototype` that belongs on this screen. With `design-content.md`, follow it. Without it, draft the copy and the sections yourself from the brief and the design brief, and say they are drafts. Pictures: theirs, or the stand-ins of the product's own subject in `.longbeard/design/pictures/` (more with `pictures.mjs`, or a full set planned with `design-content`); never grey boxes, never the references' subject.
 - **States,** once a screen is settled: empty, loading and error where reachable (`?state=empty`), every width, each theme.
 
+- **Marked, not hidden.** Anything a screen shows that the product does not really have yet carries a mark in the markup: `data-standin="picture"` on a stand-in picture, `data-standin="fact"` on a price, hour, number or name the brief and `design-content.md` do not give, with `data-standin-note` for what is assumed. A picture and a fact of theirs carry nothing.
+
 A pattern that brings a feature the brief does not have is named when shown: kept, it is a product change (`idea`, Change) before `DESIGN.md`.
 
 ### 3. Show it, and name the forks
@@ -85,11 +87,13 @@ Check them against the rules: Idea first, then hard (structure, contrast, target
 node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.html" --expect menu,product,basket,checkout
 ```
 
-It says each broken link, each link or button that goes nowhere, each page with no way on, each key screen no click reaches, and how many clicks each page is from the start. Fix every one before they see it. A key screen deeper than its flow needs is said.
+It says each broken link, each link or button that goes nowhere, each page with no way on, each key screen no click reaches, and how many clicks each page is from the start. Fix every one before they see it. A key screen deeper than its flow needs is said. It also lists every stand-in and assumed fact on the pages it walks (`stand-in` lines, or "stand-ins: none marked"), and says `unmarked` for a stand-in picture that carries no mark: mark it.
 
 **Walk the flows.** For each flow in the brief, one fresh agent that knows nothing of the product: a new agent or a clean session, given the first page's path and the flow's goal in the person's words, never the steps ("you want a sourdough for Saturday pickup"). It uses the browser it already has (a browser tool, or Playwright from a script: never a browser tool written for the job) to click, fill and choose through the prototype like a person, and says where it went, where it hesitated, and whether it got there. A flow it cannot finish, a wrong turn two of them take, or a step it calls unclear is fixed inside the identity and the direction: a label, a missing link or action, an order of sections. No agent can be started clean: walk it yourself, say so, and say it is weaker.
 
-**The five-second check** on the first screen and each key screen, with what each screen is for as its takeaway: [five-second.md](references/five-second.md). Then show the screens with what the walks and the five-second check found and fixed, ask whether this is the product, and iterate until it is. Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
+**The five-second check** on the first screen and each key screen, with what each screen is for as its takeaway: [five-second.md](references/five-second.md). Then show the screens with what the walks and the five-second check found and fixed, ask whether this is the product, and iterate until it is. Show the list with them, as what they still need to supply (below). Check it against the design brief too, as facts said with the screens: its three words and never word, its never, and apart from (could it be mistaken for the kind of product named there?).
+
+**What they still need to supply.** The stand-ins and assumed facts from `links.mjs`, shown with the prototype in plain words, one line each, by screen: what it shows or says, and that it stands in. They give the real one, say it is right (it loses its mark), or leave it on the list. Nothing is dropped from it unasked.
 
 ### 5. Approve: write `DESIGN.md` in one go
 
@@ -103,6 +107,7 @@ Only on their yes to the rendered prototype, and, when the design brief's `decid
 - **Tokens are code names** (`color/ink`, `space/md`); Figma uses the same.
 - **What makes it this design** goes under Components, with values, not adjectives.
 - **Soft rules overridden on purpose** go under Decisions, with the reason. A device the chosen look relies on that the rules call a tell is on purpose: write the idea it serves.
+- **Still to supply.** Run `links.mjs` again, show the current list once more, then write it as the template's section: what each stand-in picture shows and what each assumed fact says, by screen, never a file name or where a picture came from; "nothing" when `links.mjs` listed none. Figma and the build read it.
 - **Ideas, not sources.** Nothing names a reference, site, studio, designer, link or `.longbeard/` path.
 
 Then run `design-check` in docs mode on `DESIGN.md` and `docs/design/`: a picture site, a reference, a link or a `.longbeard/` path left in a committed doc (a copied template's comment counts) is fixed before you say it is done.
@@ -115,7 +120,7 @@ A feature with screens, once `DESIGN.md` exists.
 
 - **Only existing parts:** compose the screens in Figma (`design-figma`) with their states; no prototype.
 - **New parts:** prototype only them, on the real screens around them, in `.longbeard/design/<feature>/`, with 2–3 options where a real choice is open, then the self-check.
-- `DESIGN.md` gets entries (a token, a component, a decision with date and reason). It is never rewritten in a feature.
+- `DESIGN.md` gets entries (a token, a component, a decision with date and reason, an item under Still to supply). It is never rewritten in a feature.
 - **Identity changes need their own yes:** a new colour role, a face, a change to the idea or voice, each shown rendered and approved one at a time. A rebrand is `design-identity` again.
 
 ## Do not
