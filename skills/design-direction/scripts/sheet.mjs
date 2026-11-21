@@ -28,8 +28,10 @@ for (const shot of shots) {
   }
 }
 const escape = (text) => text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+// A local path in a src: each part encoded, so # ? % and spaces stay in the name.
+const urlPath = (path) => path.split("/").map(encodeURIComponent).join("/");
 const tiles = shots
-  .map((shot, i) => `<figure><img src="${escape(relative(dirname(out), resolve(shot)).split("\\").join("/"))}" alt="Screen ${i + 1}"><figcaption>${i + 1}</figcaption></figure>`)
+  .map((shot, i) => `<figure><img src="${escape(urlPath(relative(dirname(out), resolve(shot)).split("\\").join("/")))}" alt="Screen ${i + 1}"><figcaption>${i + 1}</figcaption></figure>`)
   .join("\n");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(

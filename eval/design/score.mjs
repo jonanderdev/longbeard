@@ -83,6 +83,7 @@ if (brief) {
   const problems = [...empty.map((f) => `no ${f}`), ...(scales.length && !empty.includes("personality") ? [`personality lacks ${scales.join(", ")}`] : [])];
   if (field("apart from") && !/distance\s+[1-5]/.test(field("apart from"))) problems.push("apart from has no distance");
   if (field("accessibility") && !/^AAA?\b/.test(field("accessibility"))) problems.push(`accessibility is "${field("accessibility")}"`);
+  if (field("motion") && !/^(none|quiet|present|leading)\b/i.test(field("motion"))) problems.push(`motion is "${field("motion")}"`);
   check("design brief complete", true, !problems.length, problems.join("; "));
   const asked = read("answers.md")?.match(/^- 10\. Pace: (\w+)/m)?.[1];
   if (asked) check("design brief: their pace", false, asked === pace, `asked ${asked}, wrote ${pace}`);

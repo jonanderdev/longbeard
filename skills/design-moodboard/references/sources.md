@@ -1,8 +1,12 @@
 # Sources: what to keep, and how to get the shot
 
+## What is saved
+
+Nothing from a listing is saved. A picker thumbnail is hotlinked from the listing and never written to disk. The one case of saving is a keep: once they like it, it is captured at full size into the gitignored working folder (`.longbeard/design/moodboard/refs/`), and nothing else is. A contact sheet of thumbnails is a view in scratch, outside the project, and never a reference.
+
 ## Thumbnails for the picker
 
-Each picker row takes its title, thumbnail and link from the same card on the listing page, so a pick always opens the thing that was picked. Hotlink the thumbnail and never save it. Use the smallest size that still reads at about 400 px wide. The link is the item's own page, never the listing. These were checked by reading the plain listing HTML, without a login (2026-11-14):
+Each picker row takes its title, thumbnail and link from the same card on the listing page, so a pick always opens the thing that was picked. Use the smallest size that still reads at about 400 px wide. The link is the item's own page, never the listing. These were checked by reading the plain listing HTML, without a login (2026-11-14):
 
 - **Dribbble:** `dribbble-cards.mjs --picker` prints the rows.
 - **Awwwards:** use `/websites/sites_of_the_day/`, which already meets the award floor. For older winners, `?page=N` goes back through the years (around page 120 is 2016), and `/websites/sites_of_the_year/` holds each year's best in two pages (from 2014, checked 2026-11-16). Each card's `figure-rollover__link` has the title (`aria-label`) and the site page (`/sites/<slug>`), and its image's `data-srcset` has the `thumb_440_330` size.
@@ -10,7 +14,7 @@ Each picker row takes its title, thumbnail and link from the same card on the li
 - **Dark Mode Design:** each card is a link to the live site around an image whose `alt` is the title.
 - **Wikimedia Commons:** `thumburl`, with `descriptionurl` as the link.
 
-**siteinspire** refuses scripted requests to its listing (429), so it is not in the picker. Do not work around a site that refuses scripts. If they tick it anyway, say so, and take any siteinspire page they paste as a seed.
+**siteinspire** refuses scripted requests to its listing (429), so it is not in the picker. A site that refuses scripts is not worked around, here or anywhere: no other client, no pacing around the limit, no archive. If they tick it anyway, say so, and take any siteinspire page they paste as a seed.
 
 A source whose cards you cannot read is not in the picker. Say so under `Sources:`. Never screenshot a listing to fake one.
 
@@ -27,19 +31,21 @@ A nominee is not a reference. Open it full size and drop anything weak before it
 
 ## Dribbble
 
-Listing pages render in the browser, and shot pages hit human verification. Use the script on a popular listing for this year:
+The script reads the listing a browser renders, and only that: shot pages ask for human verification, so it never opens one. When the site answers with a verification page or a limit, stop, say so under `Sources:`, and go on without Dribbble. Never retry around it. Use the script on a popular listing for this year:
 
 ```
 node <skill>/scripts/dribbble-cards.mjs "https://dribbble.com/search/shots/popular/product-design?q=text+editor+screen&timeframe=year" --scrolls 4
 ```
 
-It prints `id-slug`, likes, views, designer, image URL, and title, sorted by likes. With `--picker` it prints picker rows instead (title, thumbnail, shot page, `dribbble`, designer and likes), ready to append to `candidates.tsv`. It drops shots under 100 likes (`--min-likes` changes that), and merch, CVs, worksheets, posters, logos, and tool ads by slug and title. Extend that list with `--drop "a,b"` and relax it with `--keep "a,b"`. Save the image from `cdn.dribbble.com` (`<url>?resize=1600x1200`).
+It prints `id-slug`, likes, views, designer, image URL, and title, sorted by likes. With `--picker` it prints picker rows instead (title, thumbnail, shot page, `dribbble`, designer and likes), ready to append to `candidates.tsv`. It drops shots under 100 likes (`--min-likes` changes that), and what is never a screen for any product by slug and title: merch, CVs, worksheets, seasonal cards, stickers and mockups. It says on stderr how many it dropped and for which words. `--scrolls 0` reads the first screen only.
+
+That list is short on purpose. A kind of product (a dashboard, a CRM, a chatbot, an editor) or a look (a poster, an illustration, a logo) is a candidate for some brief, so it is never in the default. When the brief rules one out, you pass it: `--drop "a,b"`. `--keep "a,b"` brings a default word back. A keep's full-size image is saved from `cdn.dribbble.com` (`<url>?resize=1600x1200`), as the one case of saving above.
 
 - Use a category path and the form, not the word: `/product-design?q=…`, `/mobile?q=…`, `/web-design?q=…`.
 - If most of what gets through is off-form, the query is wrong. Fix the query rather than scrolling further.
 - A product's category can be swamped by stores. Query the thing people do with it, and `--drop` what the brief rules out.
 - A thin query ignores `timeframe=year`: the shot ids show it.
-- Run one query at a time. If a query returns 0 cards, retry after 8 s, then 30 s. If it is still 0, note it under `Sources:` as a possible rate limit.
+- Run one query at a time. If a query returns 0 cards, do not retry it: note it under `Sources:` (a verification page or a limit, when the script says so).
 - **Popular is not good.** Dribbble's popular order mixes likes with recency, so the top of a listing is often just new. Rank by likes, never by position on the page.
 - **Likes grow with age.** Shot ids rise over time, so compare likes between shots of similar id. A shot whose id is far below the rest is years old: keep it only if nothing about it looks dated.
 - **Judge the designer, not only the shot.** One designer with several near-identical shots in a listing is a concept studio: keep at most one of theirs.
@@ -60,7 +66,7 @@ node <skill>/scripts/capture.mjs "file://<abs path to image>" --out .longbeard/d
 
 Search the subject, not a stock category. One real place or material beats a pile of similar ones. Zero imagery is a complete answer.
 
-- **Wikimedia Commons.** `pictures.mjs` (in `design-identity`) searches it, keeps only clear licences and large enough files, and writes the credits. For a picker row by hand: the API with `prop=imageinfo&iiprop=url&iiurlwidth=1920`; `thumburl` is the thumbnail, `descriptionurl` the `link`.
+- **Wikimedia Commons.** `pictures.mjs` (in `design-direction`, `design-content` and `design-prototype`) searches it, keeps only clear licences and large enough files, and writes the credits. For a picker row by hand: the API with `prop=imageinfo&iiprop=url&iiurlwidth=1920`; `thumburl` is the thumbnail, `descriptionurl` the `link`.
 
 ## Contact sheets
 

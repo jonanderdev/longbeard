@@ -1,7 +1,8 @@
 // Files more than one skill needs. Each skill folder installs on its own, so
 // each gets a copy. Edit the source, then run npm run share.
-import { cpSync, mkdirSync } from "node:fs";
+import { cpSync, mkdirSync, realpathSync } from "node:fs";
 import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const shared = [
   ["rules/design-rules.md", ["design-direction/references", "design-prototype/references", "design-check/references"]],
@@ -18,7 +19,7 @@ export const shared = [
   ["skills/design-identity/scripts/fonts.mjs", ["design-direction/scripts"]],
 ];
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
   for (const [source, targets] of shared) {
     const name = source.split("/").pop();
     for (const target of targets) {

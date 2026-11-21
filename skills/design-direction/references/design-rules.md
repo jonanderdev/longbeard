@@ -117,13 +117,18 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 ## 11. Copy
 
-**Principle:** words do the job of the screen in the product's own voice.
+**Principle:** words do the job of the screen in the product's own voice, made from facts it has.
+
+**Dated 2026-11-21. Reviewed each release.**
 
 - [hard] No placeholder copy: no lorem ipsum, no "Title", no "Button", no "User Name".
 - [soft] Buttons say what happens: "Send invoice", not "Submit", "OK", "Get started" or "Learn more".
 - [soft] Headings are short. A heading that runs over two lines at its size is a sentence that belongs in the body.
 - [soft] The voice matches `DESIGN.md`. Read three strings aloud: they sound like one product.
-- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y".
+- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y". Sincerity is shown, not claimed ("honest", "simply").
+- [soft] A rhetorical device (a heading in two fragments, "X, not Y", a row of three figures) appears once on a screen, where it lands hardest.
+- [soft] No detail is invented. Every number, name and quote traces to the brief, or is marked as assumed (see the prototype's stand-in marks). A section with nothing true to say is shorter or gone.
+- [soft] Voice test: would this voice suit a product in another trade? If yes, it is not this product's yet.
 
 ## 12. Imagery
 
