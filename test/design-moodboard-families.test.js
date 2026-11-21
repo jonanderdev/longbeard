@@ -111,6 +111,17 @@ test("moodboard: a missing shot is named and skipped", () => {
   assert.equal(readFileSync(join(dir, "m.html"), "utf8").match(/<figure class="tile"/g)?.length, 1);
 });
 
+test("moodboard: a shot given as a URL is shown from that URL", () => {
+  const files = board([card("Kept")]);
+  files["design-exploration/identity/board.md"] += `\n${card("Pin").replace(/shot: .*/, "shot: https://i.example.com/originals/a b.jpg?x=1&y=2")}`;
+  const dir = project(files);
+  const result = run("moodboard.mjs", dir, ["design-exploration/identity/board.md", "--out", "m.html"]);
+  assert.doesNotMatch(result.stderr, /missing shot/);
+  const html = readFileSync(join(dir, "m.html"), "utf8");
+  assert.equal(html.match(/<figure class="tile"/g)?.length, 2);
+  assert.match(html, /<img src="https:\/\/i\.example\.com\/originals\/a b\.jpg\?x=1&amp;y=2" alt="Pin"/);
+});
+
 const candidates = (rows) => ({ "design-exploration/identity/candidates.tsv": rows.join("\n") });
 const pick = (dir, extra = []) =>
   run("picker.mjs", dir, ["design-exploration/identity/candidates.tsv", "--out", "design-exploration/identity/picker.html", ...extra]);
@@ -585,4 +596,15 @@ test("families: motion counts in the distance", () => {
   const at = Object.fromEntries([...out.assigned, ...out.strays].map((x) => [x.name, x.distance]));
   assert.equal(at.same, 0);
   assert.ok(at.moved > at.same, JSON.stringify(out));
+});
+
+test("families: a shot given as a URL is written to the board as that URL", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) refs[`quiet${i}`] = profile(`quiet${i}`, { lum: 0.9, empty: 90 + i, loud: 0, picture: "none", layout: "centred", colours: 3 });
+  for (let i = 0; i < 4; i++) refs[`pin${i}`] = { ...profile(`pin${i}`, { lum: 0.1, empty: 10 + i, loud: 80, picture: "none", layout: "centred", colours: 400 }), shot: `https://i.example.com/originals/pin${i}.jpg` };
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  run("families.mjs", dir, ["profiles.json", "--board", "board.md"]);
+  const md = readFileSync(join(dir, "board.md"), "utf8");
+  for (let i = 0; i < 4; i++) assert.match(md, new RegExp(`### pin${i}\\n[\\s\\S]*?- shot: https://i\\.example\\.com/originals/pin${i}\\.jpg\\n`));
+  assert.doesNotMatch(md, /https:\/[^/]/);
 });
