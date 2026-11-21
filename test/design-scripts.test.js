@@ -61,6 +61,18 @@ test("sheet: one numbered tile per shot, in the order given", () => {
   assert.equal(run(sheet, dir, ["out/sheet.html", "missing.png"]).status, 1);
 });
 
+test("sheet: --rough labels the quick tiles and the rest full, --note prints a line", () => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-sheet-"));
+  for (const name of ["1.png", "2.png", "3.png"]) writeFileSync(join(dir, name), "png");
+  assert.equal(run(sheet, dir, ["out/sheet.html", "--rough", "1,3", "--note", "weaker: <one agent>", "1.png", "2.png", "3.png"]).status, 0);
+  const html = readFileSync(join(dir, "out/sheet.html"), "utf8");
+  assert.match(html, /<figcaption>1 · rough<\/figcaption>/);
+  assert.match(html, /<figcaption>2 · full<\/figcaption>/);
+  assert.match(html, /<p>weaker: &lt;one agent&gt;<\/p>/);
+  assert.equal(run(sheet, dir, ["out/sheet.html", "--rough", "x", "1.png"]).status, 2);
+  assert.equal(run(sheet, dir, ["out/sheet.html", "--rough", "none", "1.png"]).status, 0);
+});
+
 // A tiny RGB PNG from raw pixel bytes, one row after another.
 function png(width, height, rgb) {
   const crc = (buf) => {

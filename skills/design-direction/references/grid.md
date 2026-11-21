@@ -1,14 +1,19 @@
 # Building the screens
 
-Read by `design-direction`, step 3.
+Read by `design-direction`, steps 3 and 4.
 
 Eight first screens, each built the way a designer works from a board: take one reference whose design works, rebuild it faithfully with the product's own content, then change it with one or two things borrowed from other references, and make sure it still works. The references are finished designs: their sizes, spacing, type and colour were chosen together, and that is why they work. The agent's own taste adds nothing.
 
 Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. Keep each screen's translation too, before its moves, as `screens/<n>-base.html`. One file for all eight, `.longbeard/design/direction/screens.json`:
 
 ```
-[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>", "like": "<their words, or null>" }], "why": "<one line>", "proposed": false }]
+[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>", "like": "<their words, or null>" }], "why": "<one line>", "proposed": false, "build": "quick", "state": "built" }]
 ```
+
+`build` is `quick` or `full`. `state` is the last job done on the screen: `built`, `critiqued`, `fixed`, or `failed`, with `"failure": "<why>"`. It is written when a job ends, by whoever ran it, so the file shows where each screen is.
+
+- **Final:** a quick screen at `built`. A full screen at `critiqued` with nothing listed, or at `fixed` after the third pass. Or `failed`.
+- **The round is done** when every screen is final. A screen with no state is not. The sheet is drawn only then.
 
 ## Five principles
 
@@ -63,19 +68,35 @@ Every face, colour, element and effect names its reference in `PROVENANCE`. The 
 
 Every reference they liked is the base of at least one screen, the lead of two. With fewer than eight references, the lead, then the likes, take a second screen with other moves. Across the eight, the faces, picture treatments, palettes and pictures spread as widely as the board's: each face mostly on its own reference's screens, a borrowed thing on two screens at most, different photos and crops from screen to screen. Only a like that says it is the point ("always black and white") repeats more.
 
-## Build each screen: plan, build, critique, fix
+## The quick round
 
-One agent that builds eight screens and judges them thins its attention and defends its own choices. So each screen is made by fresh agents, each with one job and only what that job needs; screens may be built side by side.
+Fidelity costs time. The first round spends little of it, so they see many directions before they choose one. Each screen is built once and not judged: no critic, no fixer, no device close-ups.
 
-**1. Plan (you).** Pair bases and moves for the eight (Which screens, principles 3 and 4), write `screens.json`, and for each screen a brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path; each move in words with its source picture's path, the like it carries and its why; the content in the base's slots, in the fill order; the product's pictures to use (chosen for this base, principle 1); the five principles above, as written. Nothing else from this file or the session.
+**1. Plan (you).** Pair bases and moves for the eight (Which screens, principles 3 and 4), write `screens.json` (`build: quick`), and for each screen a brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path; each move in words with its source picture's path, the like it carries and its why; the content in the base's slots, in the fill order; the product's pictures to use (chosen for this base, principle 1); the five principles above, as written. Nothing else from this file or the session.
 
-**2. Build (a fresh agent per screen, from its brief only).**
+**2. Build (a fresh agent per screen, from its brief only; side by side).**
 - Translate the base into `screens/<n>-base.html` from [screen-template.html](screen-template.html), with the product's content and pictures, treated only as the reference treats its own. Capture it, then measure it against the reference:
   ```
   node <skill>/scripts/layout-diff.mjs <reference picture> .longbeard/design/direction/grid/<n>-base.png --out .longbeard/design/direction/checks/<n>-base
   ```
-  Fix the translation until nothing it lists is off, or each that is has a reason (longer copy set smaller). This is the one step where a screen should look like its reference.
-- Make the moves into `screens/<n>.html`, by principles 3 and 4, and capture it.
+  Fix the translation until nothing it lists is off, or each that is has a reason (longer copy set smaller). This is the one step where a screen should look like its reference, and it is what keeps the proportions right.
+- Make the moves into `screens/<n>.html`, by principles 3 and 4, and capture it. State `built`.
+
+**Then the round (you).**
+- **Not a copy.** A fresh agent, given each screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, its plan gets another move, and it is built again from step 2.
+- **As varied as the board** (Which screens).
+- **Contrast,** every screen, rough or not; a failure blocks the sheet. Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
+  ```
+  node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
+  ```
+- **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
+- **Each picture:** `picture-cast.mjs <pictures>`; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
+
+A helper that has not finished is waited for. One that fails twice is recorded as `failed` with why, and the screen shows on the sheet as failed. The sheet is drawn once every screen is final.
+
+## The full build
+
+Only on what they pick: "more of 3" (the pick, if rough, and the new screens), a mix, or the screen they lean to before the yes. A screen made on a picked base is full from its plan. One agent that builds and judges thins its attention and defends its own choices, so each job below has a fresh agent with only what it needs. Screens may run side by side. The plan and the build are the quick round's; then:
 
 **3. Critique (a fresh agent per screen, pictures only).** It gets: the base reference (cropped to its screen), the final screen, `layout-diff.mjs`'s `side.png` and `overlay.png` for it (`--mirror` when the layout turned) and the lines its `diff.json` marks off, the translation's capture, 3× crops of every small device, rule, tight gap and edge beside the same crops of the source (make them for it; it may not run scripts), each move's source picture, the moves in words, and the contrast report. No rules, no brief, no session. It answers:
 - **Where is this screen less finished than its reference?** Every spot, small ones included (a gap, an edge, a size, a weight, a colour, a picture, text that cannot be read), each with the place in the reference that shows how it should be. The reference is the standard: what it does on purpose (overlaps, crops, collisions, tiny type) is never a fault.
@@ -83,30 +104,26 @@ One agent that builds eight screens and judges them thins its attention and defe
 - **In one line, what made the reference work, and does the screen keep it?**
 - **Anything on the screen that no reference has?**
 
-It lists; it never redesigns. "Nothing" is a fine answer.
+It lists; it never redesigns. "Nothing" is a fine answer. State `critiqued`.
 
-**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept: a later fix is not always better. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden; they may take any version.
+**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept: a later fix is not always better. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. State `fixed`. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden; they may take any version.
 
-**Then the round (you),** once every builder, critic and fixer has finished.
-- **Not a copy.** A fresh agent, given each screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, its plan gets another move, and it is built again from step 2.
-- **As varied as the board** (Which screens).
-- **Contrast,** every screen; a failure blocks the sheet. Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
-  ```
-  node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
-  ```
-- **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
-- **Each picture:** `picture-cast.mjs <pictures>`; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
+Then the round's checks again on every new or changed screen.
 
 **A screen shown again** (more of it, a mix, a fix they asked for) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone.
+
+## Without fresh agents
+
+When no agent can be started clean (no subagents, no second session), do the jobs yourself, in sequence, one screen at a time, each from its brief alone. As critic, look only at the prepared pictures and write the list before you fix anything, and never from memory of the build. The round is weaker, and says so: the sheet carries the note (`--note`), and the table's first line says why ("built and judged by one agent: no clean agent could be started"). Never call such a screen checked as if a critic had seen it.
 
 ## Capture and sheet
 
 ```
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
-node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
+node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html --rough 1,2,4 .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
 ```
 
-And a second sheet of each screen beside its base (`grid/bases.html`, `--cols 2`), so they can see what each one keeps and what it changes.
+`--rough` lists the numbers of the quick screens (`none` when all are full), which the sheet labels; the others are full. `--note "<text>"` prints a line under the sheet, for the weaker round. And a second sheet of each screen beside its base (`grid/bases.html`, `--cols 2`), so they can see what each one keeps and what it changes.
 
 For an app, or a site whose design brief says `first seen on: phone`, build and capture at the device size (`?size=390x844`, `--width 390`, a clip of that size); the desktop comes in `design-prototype`.

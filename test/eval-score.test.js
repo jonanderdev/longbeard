@@ -53,7 +53,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - Level: AA. Every contrast pair above meets it.
 `,
   ".longbeard/design/direction/library.json": JSON.stringify({ references: [{ name: "a", slots: { small: 1 } }, { name: "b", slots: { small: 2 } }] }),
-  ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }] }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }] }], chosen: 1 }),
+  ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }], build: "full", state: "fixed" }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }], build: "quick", state: "built" }], chosen: 1 }),
   ".longbeard/design/direction/screens/1.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Bread, still warm</h1><p>Order a loaf</p><script>document.title="ready"</script></body>',
   ".longbeard/design/direction/screens/2.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Today\'s bread</h1><script>document.title="ready"</script></body>',
   ".longbeard/design/direction/prototype/first.html": '<body style="background:#f6f1e7;color:#2c2824"><h1>Bread, still warm</h1><script>document.title="ready"</script></body>',

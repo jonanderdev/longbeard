@@ -19,7 +19,7 @@
 // One line per check: PASS, FAIL or SKIP, hard or soft, and why. Exit 1 when a
 // hard check fails. --no-browser skips the checks that render pages (Chrome).
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -129,7 +129,16 @@ else {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
+  const unstated = built.list.filter((sc) => !/^(built|critiqued|fixed|failed)$/.test(sc.state || "") || !/^(quick|full)$/.test(sc.build || "") || (sc.state === "failed" && !sc.failure)).map((sc) => sc.n);
+  check("screens: every screen has a recorded state", false, built.list.length ? !unstated.length : false, unstated.length ? `screens ${unstated.join(", ")} have no state, no build, or a failure with no why` : "");
   check("screens: one chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
+}
+
+// The time to the first sheet: from run.mjs --agent's start to the sheet it drew. Told, not scored.
+{
+  const started = Number(read(".longbeard/eval/started.txt"));
+  const sheet = at(".longbeard/design/direction/grid/sheet.png");
+  if (started && existsSync(sheet)) check("time to the first sheet", false, null, `${((statSync(sheet).mtimeMs - started) / 60000).toFixed(1)} min`);
 }
 
 // ------------------------------------------------------------------ the direction and identity docs

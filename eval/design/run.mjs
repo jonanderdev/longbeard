@@ -163,6 +163,8 @@ if (!agent) {
   console.log(`run the agent there with the prompt in PROMPT.txt, e.g.\n  cd ${dir} && claude -p "$(cat PROMPT.txt)"\nthen: node ${join(here, "score.mjs")} ${dir}`);
   process.exit(0);
 }
+// The clock for score.mjs's time to the first sheet. A run by hand: `date +%s000 > .longbeard/eval/started.txt` before the agent starts.
+writeFileSync(join(dir, ".longbeard/eval/started.txt"), `${Date.now()}\n`);
 console.log(`running: ${agent} <prompt>`);
 const run = runAgent(dir, prompt);
 console.log(`agent exited ${run.status}. Score it: node ${join(here, "score.mjs")} ${dir}`);
