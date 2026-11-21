@@ -38,7 +38,7 @@ To change only how the direction's screens are built, `--from <finished run>` ta
 - the tells of a generic page in each screen's source (soft): gradient text, gradients of two hues, frosted glass, soft drop shadows, pills, a default face, a violet accent, tracked caps labels, emoji, stock marketing words. Facts, not verdicts: a reference may use one on purpose;
 - `eval-log.md` reports nothing the agent could not follow (soft).
 
-It also tells, outside the score, the time to the first sheet: from `run.mjs --agent`'s start (`.longbeard/eval/started.txt`; for a run by hand, `date +%s000 > .longbeard/eval/started.txt` before the agent starts) to `grid/sheet.png`. The first round is quick and should arrive in minutes.
+It also tells, outside the score, the time to the first sheet: from `run.mjs --agent`'s start (`.longbeard/eval/started.txt`; for a run by hand, `date +%s000 > .longbeard/eval/started.txt` before the agent starts) to `grid/sheet.png`. Read it on `--from` runs, which stop at the first sheet; an end-to-end run may draw later sheets over it. The first round is quick and should arrive in minutes.
 
 It prints `score: passed/checked` and exits 1 on any hard fail. What it cannot judge: whether the screens are good. That is the owner's, below.
 
@@ -53,7 +53,6 @@ node eval/design/score.mjs ../lb-eval --plain ../lb-plain
 
 - **The baseline:** the same product brief, design brief, pictures and content, built by an agent with no board and no skills, in a folder of its own: eight first screens. Keep one for a series of runs, so each round meets the same default.
 - **The blind sheet:** the round and the baseline shuffled into one sheet, numbered only (`.longbeard/eval/blind/sheet.png`, the key apart in `key.json`). The owner writes good, OK or bad beside each number in `marks.md`; the next score tallies the marks by set, and only then shows the baseline's tells.
-- **Quick against full:** whether a pick from the quick round holds up once fully built. Take a screen from the blind marks, build it in full (`--from` again, with "more of N" in `answers.md`), and set the two side by side. The owner scores both, as above.
 - **Sameness** (`--other <run on the other board>`, soft): faces, ground, ink, how empty, picture share and headline size, measured alike on both runs; screens from two boards should be no more alike than screens of one. `.longbeard/eval/sameness/closest.html` shows the closest pairs.
 
 `test/eval-score.test.js` keeps the scorer honest: a hand-made good run passes every check; a leaked name, a gap in the brief, a failing pair, a screen with no move and a dead link each fail; the tells are found; the blind sheet is shuffled once and tallied by set.

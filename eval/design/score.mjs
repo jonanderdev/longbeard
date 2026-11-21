@@ -129,8 +129,8 @@ else {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
-  const unstated = built.list.filter((sc) => !/^(built|critiqued|fixed|failed)$/.test(sc.state || "") || !/^(quick|full)$/.test(sc.build || "") || (sc.state === "failed" && !sc.failure)).map((sc) => sc.n);
-  check("screens: every screen has a recorded state", false, built.list.length ? !unstated.length : false, unstated.length ? `screens ${unstated.join(", ")} have no state, no build, or a failure with no why` : "");
+  const unstated = built.list.filter((sc) => !/^(built|critiqued|fixed|failed)$/.test(sc.state || "") || !/^(quick|full)$/.test(sc.build || "") || (sc.state === "failed" && !sc.failure) || (sc.build === "full" && sc.state === "built")).map((sc) => sc.n);
+  check("screens: every screen has a recorded state", false, built.list.length ? !unstated.length : false, unstated.length ? `screens ${unstated.join(", ")} have no state, no build, a failure with no why, or a full build that never ended` : "");
   check("screens: one chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
 }
 

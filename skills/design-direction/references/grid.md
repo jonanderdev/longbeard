@@ -10,10 +10,12 @@ Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, fro
 [{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>", "like": "<their words, or null>" }], "why": "<one line>", "proposed": false, "build": "quick", "state": "built" }]
 ```
 
-`build` is `quick` or `full`. `state` is the last job done on the screen: `built`, `critiqued`, `fixed`, or `failed`, with `"failure": "<why>"`. It is written when a job ends, by whoever ran it, so the file shows where each screen is.
+`build` is `quick` or `full`. `state` is where the screen ended: `built`, `critiqued`, `fixed`, or `failed`, with `"failure": "<why>"`. It is written by whoever finishes the screen, and nothing else is final:
 
-- **Final:** a quick screen at `built`. A full screen at `critiqued` with nothing listed, or at `fixed` after the third pass. Or `failed`.
-- **The round is done** when every screen is final. A screen with no state is not. The sheet is drawn only then.
+- **A quick screen:** `built`.
+- **A full screen:** it stays `built` while its loop runs. `critiqued` when a critic finds nothing, `fixed` when the third pass ends with spots still listed (they go on the sheet as known faults).
+- **Failed:** from any job, with why.
+- **The round is done** when every screen is in one of these ends: a full screen still at `built` is not done. The sheet is drawn only then.
 
 ## Five principles
 
@@ -104,8 +106,7 @@ Only on what they pick: "more of 3" (the pick, if rough, and the new screens), a
 - **In one line, what made the reference work, and does the screen keep it?**
 - **Anything on the screen that no reference has?**
 
-It lists; it never redesigns. "Nothing" is a fine answer. State `critiqued`.
-
+It lists; it never redesigns. "Nothing" is a fine answer. 
 **4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept: a later fix is not always better. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. State `fixed`. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden; they may take any version.
 
 Then the round's checks again on every new or changed screen.

@@ -79,7 +79,7 @@ Five principles decide every case: the base stands unless a move names it; every
 
 **The first round is quick.** Fidelity costs time, so it is spent where they look. Each screen is its base and its moves, built once by a fresh agent at the right proportions, faces, colours and pictures: no critic loop, no device close-ups. It reaches them in minutes, so they see many directions before choosing. **The full build** (plan, build, critique, fix, every version kept) runs only on what they pick (step 4).
 
-Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen has a final `state`** (`built`, `critiqued`, `fixed`, or `failed` with why). Wait for each helper. Draw the sheet only then; a screen that failed is shown as failed, never left out. With no fresh agents, do each job yourself in turn and say the round is weaker.
+Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`** (`built`, `critiqued`, `fixed`, or `failed` with why). Wait for each helper. Draw the sheet only then; a screen that failed is shown as failed, never left out. With no fresh agents, do each job yourself in turn and say the round is weaker.
 
 How, with the list of moves, the states and the checks: [grid.md](references/grid.md).
 
