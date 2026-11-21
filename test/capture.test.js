@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdtempSync, readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const capture = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-direction/scripts/capture.mjs");
+const capture = join(dirname(fileURLToPath(import.meta.url)), "../skills/design-moodboard/scripts/capture.mjs");
 
 // A dev app with a login: /app needs the session cookie, /spa sends you to
 // /login from the page itself, faster than the old navigated-away check.
@@ -99,5 +99,109 @@ test("capture refuses motion options that do not fit together", async () => {
   for (const extra of [["--every", "200"], ["--scroll"], ["--frames", "1"], ["--frames", "4", "--clip", "0,0,10,10"], ["--frames", "4", "--scroll", "--click", "a"]]) {
     const result = await run("https://example.com/", extra);
     assert.equal(result.status, 2, `${extra.join(" ")}: ${result.stderr}`);
+  }
+});
+
+test("capture fails on a page it cannot reach, and keeps a long local page in parts", async (t) => {
+  const gone = await run("http://127.0.0.1:1/");
+  if (/No Chrome/.test(gone.stderr)) return t.skip("no Chrome installed");
+  assert.equal(gone.status, 1);
+  assert.match(gone.stderr, /could not reach .*ERR_/);
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-tall-"));
+  const page = join(dir, "tall.html");
+  writeFileSync(page, '<!doctype html><body style="margin:0"><div style="height:45000px;background:linear-gradient(red,blue)"></div>');
+  const tall = await run(`file://${page}`, [], "tall.jpg");
+  assert.equal(tall.status, 0, tall.stderr);
+  assert.deepEqual(readdirSync(dirname(tall.out)).sort(), ["tall-2.jpg", "tall.jpg"]);
+});
+
+function exec(args, cwd = process.cwd()) {
+  return new Promise((done) => {
+    const child = spawn(process.execPath, [capture, ...args], { cwd });
+    let stderr = "";
+    let stdout = "";
+    child.stderr.on("data", (d) => (stderr += d));
+    child.stdout.on("data", (d) => (stdout += d));
+    child.on("exit", (status) => done({ status, stderr, stdout }));
+  });
+}
+
+test("capture fails on a local file that is not there, and names it", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-missing-"));
+  const missing = join(dir, "nothing.png");
+  const result = await exec([`file://${missing}`, "--out", join(dir, "shot.png")]);
+  assert.equal(result.status, 1);
+  assert.ok(result.stderr.includes(missing), result.stderr);
+});
+
+test("capture is a usage error when a flag that needs a value has none", async () => {
+  for (const extra of [["--frames"], ["--click"], ["--clip"], ["--wait"], ["--cookie"], ["--frames", "--scroll"]]) {
+    const result = await exec(["https://example.com/", "--out", "/tmp/never.png", ...extra]);
+    assert.equal(result.status, 2, `${extra.join(" ")}: ${result.stderr}`);
+    assert.match(result.stderr, /needs a value/);
+  }
+});
+
+test("capture writes a relative --out in the folder it runs from, not the git root", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-cwd-"));
+  const page = join(dir, "page.html");
+  writeFileSync(page, "<!doctype html><h1>Hello</h1>");
+  const result = await exec([`file://${page}`, "--out", "sub/shot.png"], dir);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(readdirSync(join(dir, "sub")), ["shot.png"]);
+});
+
+test("capture answers a dialog the page opens, and says when a page is cut at the height limit", async (t) => {
+  const server = createServer((req, res) =>
+    res.end(
+      req.url === "/tall"
+        ? '<!doctype html><body style="margin:0"><div style="height:16000px;background:linear-gradient(red,blue)"></div>'
+        : "<!doctype html><h1>Hi</h1><script>alert('hold on')</script>",
+    ),
+  );
+  await new Promise((done) => server.listen(0, done));
+  const base = `http://localhost:${server.address().port}`;
+  try {
+    const dialog = await run(`${base}/`);
+    if (/No Chrome/.test(dialog.stderr)) return t.skip("no Chrome installed");
+    assert.equal(dialog.status, 0, dialog.stderr);
+    const tall = await run(`${base}/tall`);
+    assert.equal(tall.status, 0, tall.stderr);
+    assert.match(tall.stderr, /the page is 16000 px, over the 14000 px limit/);
+  } finally {
+    server.close();
+  }
+});
+
+// A page on a name that is not local, so the consent step runs. Its buttons say
+// where they were clicked by asking the server for /clicked-<name>.
+test("capture clicks a consent button only inside a notice, and never in a --frames record", async (t) => {
+  const clicked = [];
+  const button = (name) => `<button onclick="fetch('/clicked-${name}')">OK</button>`;
+  const server = createServer((req, res) => {
+    if (req.url.startsWith("/clicked-")) {
+      clicked.push(req.url.slice(9));
+      return res.end("");
+    }
+    if (req.url === "/plain") return res.end(`<!doctype html><body><h1>Privacy</h1><p>We care about your privacy.</p>${button("plain")}`);
+    res.end(`<!doctype html><body><h1>Home</h1><div style="position:fixed;bottom:0;left:0;background:#eee">We use cookies. ${button("notice")}</div>`);
+  });
+  await new Promise((done) => server.listen(0, done));
+  const base = `http://consent.localhost:${server.address().port}`;
+  try {
+    const plain = await run(`${base}/plain`);
+    if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
+    assert.equal(plain.status, 0, plain.stderr);
+    assert.deepEqual(clicked, []);
+    const notice = await run(`${base}/notice`);
+    assert.equal(notice.status, 0, notice.stderr);
+    assert.deepEqual(clicked, ["notice"]);
+    clicked.length = 0;
+    const motion = await run(`${base}/notice`, ["--frames", "2", "--scroll"], "motion");
+    assert.equal(motion.status, 0, motion.stderr);
+    assert.deepEqual(clicked, []);
+  } finally {
+    server.close();
   }
 });

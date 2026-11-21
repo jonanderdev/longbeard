@@ -10,6 +10,7 @@ import {
   readdirSync,
   readFileSync,
   readSync,
+  realpathSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -37,8 +38,8 @@ The catalog is beard.json. The command is longbeard, via npx in the project.
   npx longbeard list
   npx longbeard --version
 
-  npx longbeard init [--global] [--all] [--skill add-on] [--no-addons] [--yes] [--agent cursor]
-  npx longbeard update [--global] [--all] [--skill add-on] [--force] [--yes]
+  npx longbeard init [--design | --full] [--global] [--all] [--skill add-on] [--no-addons] [--yes] [--agent cursor]
+  npx longbeard update [--full] [--global] [--all] [--skill add-on] [--force] [--yes]
   npx longbeard add <source> --skill <name> --author <name> --why <text> [--when text]
   npx longbeard remove <name>
 
@@ -51,6 +52,10 @@ add in a project writes beard.local.json (an extra, not a second kit). remove om
 init lists the add-ons in a terminal, some already ticked. --all takes every add-on; --skill takes one; --no-addons takes none.
 Each of those skips the list. An add-on you took stays and refreshes on update.
 --agent skips the agent list and installs for that tool. Repeat it.
+init asks, in a terminal, whether you want the whole pipeline or design only. --design is the answer for design only: the
+brief, the design skills, design-check and the Figma skills, with a router of just those stages. --full is the whole pipeline.
+Without either, a first init in a terminal asks, and one that cannot ask installs the whole pipeline.
+beard-lock.json records a design-only install, and update keeps to it. init --full or update --full adds the rest.
 --force replaces local edits of skills this command installed, and removes edited ones the catalog dropped.
 --yes skips prompts and uses the catalog agents (cursor, claude-code) and, on a first init, the ticked add-ons.
 This does not install marketplace plugins or replace Cursor or Claude commands.
@@ -77,9 +82,10 @@ function say(text = "") {
 
 function heading(title, flags, agents) {
   const where = flags.global ? "this machine" : "this project";
+  const shape = flags.shape && flags.shape !== "full" ? ` · ${curated().shapes?.[flags.shape]?.label ?? flags.shape}` : "";
   say();
   say(bold("Long Beard"));
-  say(dim(`${title} · ${where} · ${agents.join(", ")}`));
+  say(dim(`${title} · ${where}${shape} · ${agents.join(", ")}`));
   say();
 }
 
@@ -137,6 +143,20 @@ function writeJson(file, value) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+// A skill name becomes a folder name and, on Windows, part of a shell line. Only
+// lowercase letters, digits and hyphens get that far, and never a leading hyphen.
+function isSkillName(name) {
+  return typeof name === "string" && /^[a-z0-9][a-z0-9-]*$/.test(name);
+}
+
+function checkNames(names, where) {
+  for (const name of names) {
+    if (!isSkillName(name)) {
+      fail(`${where} has "${name}", which is not a skill name. Use lowercase letters, digits and hyphens.`);
+    }
+  }
+}
+
 function parseArgs(argv) {
   const flags = {
     global: false,
@@ -145,6 +165,8 @@ function parseArgs(argv) {
     yes: false,
     optional: false,
     noAddons: false,
+    design: false,
+    full: false,
     agents: [],
     skill: [],
     why: "",
@@ -161,6 +183,8 @@ function parseArgs(argv) {
     else if (arg === "--yes" || arg === "-y") flags.yes = true;
     else if (arg === "--optional") flags.optional = true;
     else if (arg === "--no-addons") flags.noAddons = true;
+    else if (arg === "--design") flags.design = true;
+    else if (arg === "--full") flags.full = true;
     else if (arg === "--help" || arg === "-h") flags.help = true;
     else if (arg === "--version" || arg === "-V") flags.version = true;
     else if (arg === "--agent" || arg === "-a") flags.agents.push(take(argv, ++i, arg));
@@ -208,7 +232,9 @@ function lockFile(flags, forWrite = false) {
 }
 
 function curated() {
-  return readJson(curatedFile);
+  const manifest = readJson(curatedFile);
+  checkNames(catalog(manifest).map((item) => item.name), "beard.json");
+  return manifest;
 }
 
 function catalog(manifest) {
@@ -224,7 +250,9 @@ function extraState(flags) {
   const file = extraFile(flags);
   if (!existsSync(file)) return { items: [], omit: [] };
   const data = readJson(file);
-  return { items: data.items ?? data.skills ?? [], omit: data.omit ?? [] };
+  const state = { items: data.items ?? data.skills ?? [], omit: data.omit ?? [] };
+  checkNames([...state.items.map((item) => item.name), ...state.omit], file);
+  return state;
 }
 
 function writeExtra(flags, state) {
@@ -273,6 +301,7 @@ async function fetchKit(item) {
         .map((entry) => entry.path.match(/^skills\/([^/]+)\/SKILL\.md$/)?.[1])
         .filter(Boolean);
   if (names.length === 0) fail(`${cannot}: ${repo} lists no skills.`);
+  checkNames(names, `The ${item.name} kit's list`);
   return names;
 }
 
@@ -298,13 +327,79 @@ function knownAddons(flags) {
   }
 }
 
+// An install is the whole pipeline, or a shape beard.json names: the items it
+// lists (and what they suggest, through `via`), the add-ons it offers, and its
+// own stages. A lock with no shape is the whole pipeline.
+function shapeOf(flags) {
+  return flags.shape ?? readLock(flags).shape;
+}
+
+function shapeDef(manifest, name) {
+  if (name === "full") return null;
+  const def = manifest.shapes?.[name];
+  if (!def) fail(`${name} is not an install shape in beard.json.`);
+  return def;
+}
+
+// The shape's add-ons are the only ones it offers. Naming one with --skill still takes it.
+function shapeKeeps(manifest, name) {
+  const def = shapeDef(manifest, name);
+  if (!def) return () => true;
+  const listed = new Set(def.items);
+  return (item) => (item.optional ? (def.addons ?? []).includes(item.name) : listed.has(item.name) || listed.has(item.via));
+}
+
+function shapeStages(manifest, name) {
+  const def = shapeDef(manifest, name);
+  const stages = manifest.stages ?? [];
+  if (!def) return stages;
+  return Object.entries(def.stages).map(([stage, skills]) => ({ ...stages.find((one) => one.name === stage), skills }));
+}
+
+// --design and --full say which; without either, an install keeps the shape its lock records.
+function resolveShape(flags) {
+  if (flags.design && flags.full) fail("--design and --full are opposites. Pass one.");
+  const lock = readLock(flags);
+  if (flags.design) {
+    if (Object.keys(lock.skills).length > 0 && lock.shape === "full") {
+      fail("This has the whole pipeline already. --design is for a project that has not run init, and --full is how a design-only install grows.");
+    }
+    return "design";
+  }
+  return flags.full ? "full" : lock.shape;
+}
+
+// One question, asked on a first init in a terminal, when neither flag answered it.
+function askShape(manifest, flags) {
+  if (flags.design || flags.full || flags.yes || !process.stdin.isTTY || existsSync(lockFile(flags))) return;
+  const names = Object.keys(manifest.shapes ?? {});
+  if (names.length === 0) return;
+  const shape = manifest.shapes[names[0]];
+  say(bold(`${shape.label}, or the whole pipeline?`));
+  say("  1  The whole pipeline: idea, design, architecture, plan and build");
+  say(`  2  ${shape.label}: ${shape.hint}`);
+  for (;;) {
+    say(dim("Choose 1 or 2. Enter is 1."));
+    const buf = Buffer.alloc(80);
+    const answer = buf.toString("utf8", 0, readStdin(buf)).trim().toLowerCase();
+    if (answer === "" || answer === "1") return;
+    if (answer === "2") {
+      flags.design = true;
+      return;
+    }
+  }
+}
+
 function chosen(flags) {
   const manifest = curated();
   const extra = extraState(flags);
   const omitted = new Set(extra.omit);
-  // An add-on comes with --all, with --skill <name>, or because you took it before.
+  const shape = shapeOf(flags);
+  const keeps = shapeKeeps(manifest, shape);
+  // An add-on comes with --all (the ones this shape offers), with --skill <name>, or because you took it before.
   const installed = readLock(flags).skills;
-  const wanted = (item) => !item.optional || flags.all || flags.skill.includes(item.name) || Boolean(installed[item.name]);
+  const wanted = (item) =>
+    item.optional ? (flags.all && keeps(item)) || flags.skill.includes(item.name) || Boolean(installed[item.name]) : keeps(item);
   const shared = catalog(manifest).filter((item) => wanted(item) && !omitted.has(item.name));
   const seen = new Set(shared.map((item) => item.name));
   const extras = extra.items.filter((item) => !seen.has(item.name) && !omitted.has(item.name));
@@ -416,9 +511,11 @@ function chooseAddons(flags) {
   if (flags.all || flags.noAddons || flags.skill.length) return [];
   const taken = readLock(flags).skills;
   const omitted = new Set(extraState(flags).omit);
-  const open = catalog(curated()).filter((item) => item.optional && !taken[item.name] && !omitted.has(item.name));
+  const keeps = shapeKeeps(curated(), shapeOf(flags));
+  const open = catalog(curated()).filter((item) => item.optional && keeps(item) && !taken[item.name] && !omitted.has(item.name));
   if (open.length === 0) return [];
-  const first = !existsSync(lockFile(flags));
+  // A design-only install never decided the add-ons the whole pipeline ticks, so growing it is a first answer.
+  const first = !existsSync(lockFile(flags)) || flags.widening;
   const ticked = first ? open.filter((item) => item.preselected).map((item) => item.name) : [];
   if (flags.yes || !process.stdin.isTTY) return ticked;
   const rows = open.map((item) => ({ name: item.name, label: item.name, detail: item.hint ?? item.when ?? "" }));
@@ -511,17 +608,22 @@ function agentHas(name, agent, global) {
 
 function readLock(flags) {
   const file = lockFile(flags);
-  if (!existsSync(file)) return { version: 1, skills: {} };
+  if (!existsSync(file)) return { version: 1, shape: "full", skills: {} };
+  let data;
   try {
-    const data = readJson(file);
-    return { version: 1, skills: data.skills ?? {} };
+    data = readJson(file);
   } catch {
-    return { version: 1, skills: {} };
+    return { version: 1, shape: "full", skills: {} };
   }
+  const skills = data.skills ?? {};
+  checkNames(Object.keys(skills), file);
+  return { version: 1, shape: data.shape ?? "full", skills };
 }
 
+// The shape is written only when it is not the whole pipeline, so an older lock reads the same.
 function writeLock(flags, lock) {
-  writeJson(lockFile(flags, true), { version: 1, skills: lock.skills });
+  const shape = lock.shape && lock.shape !== "full" ? { shape: lock.shape } : {};
+  writeJson(lockFile(flags, true), { version: 1, ...shape, skills: lock.skills });
 }
 
 function packageVersion() {
@@ -564,23 +666,28 @@ function folderHash(dir) {
 
 // The skills CLI can only update what it can fetch. A kit skill lives in this
 // package, so update copies it here instead of reporting "up to date" over a
-// stale file.
+// stale file. Returns the folders it copied and the links it left alone. A link
+// into this package is current by itself; any other link is the owner's, and
+// that skill is not current until what it points at is refreshed.
 function copyLocalSkill(name, agents, global) {
   const from = join(root, "skills", name);
-  if (!existsSync(join(from, "SKILL.md"))) return false;
-  let copied = false;
+  const done = { copied: [], linked: [], held: [], missing: false };
+  if (!existsSync(join(from, "SKILL.md"))) return { ...done, missing: true };
   for (const dir of new Set(agents.map((agent) => agentDir(agent, global)))) {
     const to = join(dir, name);
     if (existsSync(to)) {
-      // A link already points at this package. Replacing it would pin a copy.
-      if (lstatSync(to).isSymbolicLink()) continue;
+      // A link already points somewhere. Replacing it would pin a copy.
+      if (lstatSync(to).isSymbolicLink()) {
+        (realpathSync(to) === realpathSync(from) ? done.linked : done.held).push(to);
+        continue;
+      }
       rmSync(to, { recursive: true, force: true });
     }
     mkdirSync(dirname(to), { recursive: true });
     cpSync(from, to, { recursive: true });
-    copied = true;
+    done.copied.push(to);
   }
-  return copied;
+  return done;
 }
 
 function skillFolders(name, agents, global) {
@@ -604,22 +711,30 @@ function locallyEdited(name, entry, agents, global) {
   return folders.some((folder) => statSync(join(folder, "SKILL.md")).mtimeMs > installed + 2000);
 }
 
-function generateRouter(items, manifest = curated()) {
-  const stages = manifest.stages ?? [];
+function generateRouter(items, manifest = curated(), shape = "full") {
+  const stages = shapeStages(manifest, shape);
+  const keeps = shapeKeeps(manifest, shape);
   const staged = new Set(stages.flatMap((stage) => stage.skills));
   const line = (when, name, why) => (why?.trim() ? `- ${when}: ${name}. ${why.trim()}` : `- ${when}: ${name}`);
   const helpers = items.filter((item) => kind(item) === "skill").flatMap((item) => {
     if (item.kit) return (item.routes ?? []).map((route) => line(route.when, route.skill, route.why));
-    if (staged.has(item.name)) return [];
+    // A skill the stage's own skill suggests (the design-* family, through design) needs no line of its own.
+    if (staged.has(item.name) || item.via) return [];
     return [line(item.when?.trim() || item.name, item.name, item.why)];
   });
   const have = new Set(items.map((item) => item.name));
   // A preselected add-on was decided at init, so it is never offered again.
-  const addons = catalog(manifest).filter((item) => item.optional && !item.preselected && !have.has(item.name));
+  const addons = catalog(manifest).filter((item) => item.optional && keeps(item) && !item.preselected && !have.has(item.name));
   const rows = stages.map((stage) => `| ${stage.name} | ${stage.when} | ${stage.skills.join(" → ")} | ${stage.writes} |`);
+  const framework = stages.some((stage) => stage.name === "Architecture") ? " At Architecture, a framework skill." : "";
   const offer = addons.length
-    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}. At Architecture, a framework skill.\n`
+    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}.${framework}\n`
     : "";
+  // A shape says its own two paragraphs: the whole pipeline's name stages and skills it may not have.
+  const notes = shapeDef(manifest, shape)?.notes ?? [
+    "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A graphic ends at Figma. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.",
+    "UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.",
+  ];
   return `# Long Beard
 
 The project's own code, conventions, and DESIGN.md win. Load only what the task needs.
@@ -628,9 +743,7 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 |---|---|---|---|
 ${rows.join("\n")}
 
-Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Direction and Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
-
-UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.
+${notes.join("\n\n")}
 
 ${helpers.join("\n")}
 ${offer}
@@ -640,8 +753,10 @@ Write so a person can use the reply in one read. End with what you did not check
 
 // AGENTS.md in this repository is this output, without the optional skills.
 // `npm run router` rewrites it; `npm test` fails when the two drift.
-function kitRouter() {
-  return generateRouter(catalog(curated()).filter((item) => !item.optional));
+function kitRouter(shape = "full") {
+  const manifest = curated();
+  const keeps = shapeKeeps(manifest, shape);
+  return generateRouter(catalog(manifest).filter((item) => !item.optional && keeps(item)), manifest, shape);
 }
 
 function pointerWrites(flags, agents) {
@@ -730,7 +845,7 @@ function upsertBlock(file, block) {
 }
 
 function writePointers(flags, skills) {
-  const text = generateRouter(skills);
+  const text = generateRouter(skills, curated(), shapeOf(flags));
   if (flags.global) {
     const dir = join(homedir(), ".longbeard");
     mkdirSync(dir, { recursive: true });
@@ -771,11 +886,16 @@ async function init(flags) {
   requireProject(flags);
   knownAddons(flags);
   const agents = chooseAgents(curated(), flags, { pick: true, lock: readLock(flags) });
+  askShape(curated(), flags);
+  const was = readLock(flags).shape;
+  flags.shape = resolveShape(flags);
+  flags.widening = was !== "full" && flags.shape === "full";
   flags.skill.push(...chooseAddons(flags));
   const { extra, items, later, ...picked } = chosen(flags);
   const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
+  classified.lock.shape = flags.shape;
   plan("init", flags, agents, classified);
   confirmWrite(flags, classified.writes);
   if (classified.missing.length > 0) say(dim("Installing…"));
@@ -786,17 +906,22 @@ async function init(flags) {
     green("Done."),
     `${classified.missing.length} installed, ${classified.theirs.length + classified.ours.length + classified.edited.length} already there.`,
     flags.global ? "Skills are available in every project on this machine. A copy of the note is in ~/.longbeard/AGENTS.md." : "Wrote the AGENTS.md block and beard-lock.json.",
+    ...(flags.shape === "full" ? [] : [`${curated().shapes[flags.shape].label}. The design skills end in Figma, so connect Figma in your agent. npx longbeard init --full adds the rest.`]),
   ]);
 }
 
 async function update(flags) {
   requireProject(flags);
   knownAddons(flags);
+  // update keeps to the shape its lock records. --full is how a design-only install grows.
+  if (flags.design) fail("update keeps the shape init chose. init --design is for a project that has not run init.");
+  flags.shape = resolveShape(flags);
   const { manifest, extra, items, later, ...picked } = chosen(flags);
   const agents = chooseAgents(manifest, flags, { pick: false, lock: readLock(flags) });
   const skills = await expandKits(picked.skills, extra.omit);
   const classified = classify(skills, agents, flags);
   classified.later = later;
+  classified.lock.shape = flags.shape;
   // A skill nothing lists any more leaves, unless you edited it: the catalog
   // dropped it, or its kit's author stopped publishing it. Listed means the
   // whole catalog, so an add-on installed with --all stays without it.
@@ -829,10 +954,19 @@ async function update(flags) {
     ? local
     : local.filter((skill) => (classified.lock.skills[skill.name]?.version ?? "") !== here);
   let copied = 0;
+  // A stale skill that was not copied is not current, so the lock keeps what it had.
+  const notCurrent = new Set();
   if (stale.length > 0 || theirs.length > 0) say(dim("Refreshing…"));
   for (const skill of stale) {
     const was = classified.lock.skills[skill.name]?.version || "unknown";
-    if (!copyLocalSkill(skill.name, skill.agentsNeed ?? agents, flags.global)) continue;
+    const done = copyLocalSkill(skill.name, skill.agentsNeed ?? agents, flags.global);
+    if (done.missing || done.held.length > 0) notCurrent.add(skill);
+    if (done.missing) continue;
+    for (const folder of done.held) say(yellow(`  ${skill.name} left as it is: ${folder} is a link to ${realpathSync(folder)}. Refresh what it points at.`));
+    if (done.copied.length === 0) {
+      if (done.held.length === 0) say(dim(`  ${skill.name} ${here}, linked to this package`));
+      continue;
+    }
     copied += 1;
     say(was === here ? `  ${skill.name} ${here}, replaced` : `  ${skill.name} ${was} → ${here}`);
   }
@@ -846,9 +980,10 @@ async function update(flags) {
     else args.push("--project");
     runSkills(args);
   }
-  if (refresh.length > 0) remember(readLock(flags), flags, refresh, agents);
+  const current = refresh.filter((skill) => !notCurrent.has(skill));
+  if (current.length > 0) remember(readLock(flags), flags, current, agents);
   writePointers(flags, items);
-  const held = flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length;
+  const held = (flags.force ? classified.theirs.length : classified.theirs.length + classified.edited.length) + notCurrent.size;
   finish([
     green("Done."),
     `${classified.missing.length} installed, ${copied + theirs.length} refreshed, ${drop.length} retired, ${held} left as they are.`,
@@ -862,6 +997,7 @@ function add(flags, rest) {
   if (!source || flags.skill.length === 0 || !flags.author || !flags.why) {
     fail(`add needs a source, --skill, --author, and --why.\n\n${help}`);
   }
+  checkNames(flags.skill, "--skill");
   if (inRepository() && !flags.global) {
     const manifest = curated();
     const items = catalog(manifest);
@@ -994,5 +1130,5 @@ else if (command === "add") add(flags, rest);
 else if (command === "remove") remove(flags, rest);
 else if (command === "update") await update(flags);
 else if (command === "list") list(flags);
-else if (command === "router") process.stdout.write(kitRouter());
+else if (command === "router") process.stdout.write(kitRouter(flags.design ? "design" : "full"));
 else fail(`Unknown command: ${command}\n\n${help}`);

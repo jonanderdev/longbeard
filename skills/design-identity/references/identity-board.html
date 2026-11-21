@@ -1,0 +1,140 @@
+<!doctype html>
+<!--
+  The identity board. Copy it to .longbeard/design/identity/board.html for the
+  options, and to docs/design/design-identity.html once they say "this is us".
+  Write only the IDENTITY block below: the product's name, the two faces and
+  the colours. Everything else is built from it, so the board is never laid
+  out by hand.
+
+  Options are copies of this page, one per option (option-1.html …), each with
+  its own block, captured and set on one sheet with sheet.mjs.
+  The page sets document.title to "ready" once the faces have loaded.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identity</title>
+<script id="identity" type="application/json">
+{
+  "name": "Product",
+  "line": "One line in the product's voice, set in its faces.",
+  "display": { "face": "Unbounded", "weight": 500, "case": "uppercase", "tracking": "-0.01em", "css": null, "note": "Display" },
+  "body": { "face": "Inter", "weight": 400, "css": null, "note": "Text" },
+  "colours": [
+    { "name": "Signal", "hex": "#C0FF00", "role": ["accent", "ground"] },
+    { "name": "Paper", "hex": "#EEEEEE", "role": "ground" },
+    { "name": "Stone", "hex": "#C0C0C0", "role": "ground" },
+    { "name": "Ink", "hex": "#0B0B0B", "role": ["ink", "ground"] }
+  ]
+}
+</script>
+<style>
+  :root {
+    --board: #f4f2ee;
+    --board-ink: #17171a;
+    --board-soft: #6d6a64;
+    --rule: rgba(23, 23, 26, 0.1);
+    --r: 36px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--board);
+    color: var(--board-ink);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .board { width: 1280px; margin: 0 auto; padding: 72px 80px 88px; display: grid; gap: 72px; }
+  .label { display: flex; justify-content: space-between; color: var(--board-soft); font-size: 13px; letter-spacing: 0.01em; margin-bottom: 28px; }
+  .label b { color: var(--board-ink); font-weight: 500; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); padding-bottom: 20px; }
+  header .name { font-size: 15px; font-weight: 600; }
+  header .what { color: var(--board-soft); }
+
+  .display .specimen {
+    font-family: var(--display); font-weight: var(--display-weight); text-transform: var(--display-case);
+    letter-spacing: var(--display-tracking); font-size: 168px; line-height: 0.9; overflow-wrap: anywhere;
+  }
+  .text { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; }
+  .text .specimen { font-family: var(--body); font-weight: var(--body-weight); font-size: 132px; line-height: 0.95; letter-spacing: -0.02em; }
+  .text .glyphs { font-family: var(--body); font-size: 30px; line-height: 1.3; overflow-wrap: anywhere; }
+  .text .glyphs span { display: block; color: var(--board-soft); font-size: 15px; margin-top: 16px; line-height: 1.5; }
+
+  .swatches { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 16px; }
+  .swatch {
+    aspect-ratio: 1; border-radius: var(--r); corner-shape: squircle;
+    padding: 24px; display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+  @supports (corner-shape: squircle) { .swatch { --r: 72px; } }
+  .swatch .n { font-size: 15px; font-weight: 600; }
+  .swatch .meta { display: flex; justify-content: space-between; align-items: end; font-size: 13px; }
+  .swatch .meta i { font-style: normal; opacity: 0.7; }
+
+</style>
+</head>
+<body>
+<main class="board" id="board"></main>
+<script>
+  const data = JSON.parse(document.getElementById("identity").textContent);
+  const q = new URLSearchParams(location.search);
+  const roles = (c) => [].concat(c.role || []);
+  const hex = (h) => (/^#[0-9a-f]{3}$/i.test(h) ? "#" + [...h.slice(1)].map((c) => c + c).join("") : h).toUpperCase();
+  const lum = (h) => {
+    const v = [1, 3, 5].map((i) => parseInt(hex(h).slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  const colours = data.colours.map((c) => ({ ...c, hex: hex(c.hex) }));
+
+  const root = document.documentElement.style;
+  root.setProperty("--display", `"${data.display.face}", ${data.display.fallback || "sans-serif"}`);
+  root.setProperty("--display-weight", data.display.weight || 400);
+  root.setProperty("--display-case", data.display.case && data.display.case !== "none" ? data.display.case : "none");
+  root.setProperty("--display-tracking", data.display.tracking || "0");
+  root.setProperty("--body", `"${data.body.face}", ${data.body.fallback || "sans-serif"}`);
+  root.setProperty("--body-weight", data.body.weight || 400);
+  root.setProperty("--n", colours.length);
+
+  const swatches = colours.map((c) => {
+    // The label ink that reads best on the swatch: whichever of the two has the higher contrast.
+    const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    const ink = ratio(c.hex, "#0B0B0B") >= ratio(c.hex, "#F5F5F5") ? "#0B0B0B" : "#F5F5F5";
+    return `<div class="swatch" style="background:${c.hex};color:${ink}">
+      <span class="n">${esc(c.name)}</span>
+      <span class="meta"><span>${c.hex}</span><i>${esc(roles(c).join(" · "))}</i></span></div>`;
+  }).join("");
+
+  const alphabet = "Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz 0123456789 &?!@";
+  document.getElementById("board").innerHTML = `
+    <header><span class="name">${esc(data.name)}</span><span class="what">Identity</span></header>
+    <section class="display"><div class="label"><span><b>Primary type</b> · ${esc(data.display.face)}</span><span>${esc(data.display.note || "Display")} · ${data.display.weight || 400}</span></div>
+      <div class="specimen">${esc(data.display.sample || data.name)}</div></section>
+    <section><div class="label"><span><b>Secondary type</b> · ${esc(data.body.face)}</span><span>${esc(data.body.note || "Text")} · ${data.body.weight || 400}</span></div>
+      <div class="text"><div class="specimen">${esc(data.body.face)}</div>
+      <div class="glyphs">${alphabet}<span>${esc(data.line)}</span></div></div></section>
+    <section><div class="label"><span><b>Colour</b></span><span>${colours.length} colours</span></div>
+      <div class="swatches">${swatches}</div></section>`;
+
+  // Faces: Google Fonts by name unless the identity gives a stylesheet. "ready" waits for each
+  // stylesheet, then for each face at each weight, so a capture never shows a fallback.
+  const sheets = [], wanted = [];
+  const sheet = (face, weights, css) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = css || `https://fonts.googleapis.com/css2?family=${encodeURIComponent(face).replace(/%20/g, "+")}:wght@${weights.join(";")}&display=block`;
+    sheets.push(new Promise((done) => ((link.onload = done), (link.onerror = done))));
+    document.head.appendChild(link);
+    for (const w of weights) wanted.push(`${w} 100px "${face}"`);
+  };
+  sheet(data.display.face, [data.display.weight || 400], data.display.css);
+  if (data.body.face !== data.display.face) sheet(data.body.face, [...new Set([data.body.weight || 400, 600])].sort(), data.body.css);
+  const loaded = Promise.all(sheets)
+    .then(() => Promise.all(wanted.map((f) => document.fonts.load(f).catch(() => []))))
+    .then(() => document.fonts.ready);
+  Promise.race([loaded, new Promise((r) => setTimeout(r, 6000))])
+    .then(() => { document.title = "ready"; });
+</script>
+</body>
+</html>

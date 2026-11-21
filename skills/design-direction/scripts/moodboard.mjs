@@ -1,14 +1,25 @@
 #!/usr/bin/env node
 // A moodboard of the references, built to be marked: every card with a shot
-// or recorded frames, grouped by its topic (the part of the product it shows),
-// with Lead, Like and No, a note per tile, and a copy-out for the chat. The
+// or recorded frames, grouped by its topic (the family it looks like, or the
+// one piece it is for), with Lead, Like and No, a note per tile, and a
+// copy-out for the chat. The
 // layout is this file. It shows what we saw. It does not paint a brand.
 //
 // A card's fields in board.md: link, shot, frames (a folder that
-// capture.mjs --frames wrote, played on hover), topic, pattern, why.
+// capture.mjs --frames wrote, played on hover), topic (or part), pattern (or move), measured
+// (its traits from measure.mjs, shown small under the pattern), why, like (the
+// person's own words from the picker: what they like in it, and why; shown on
+// the card and put in its note until they change it).
 //
-//   node moodboard.mjs design-exploration/identity/board.md --out design-exploration/identity/moodboard.html
-//   node moodboard.mjs design-exploration/pricing/board.md --out design-exploration/pricing/moodboard.html
+//   node moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/moodboard/moodboard.html
+//   node moodboard.mjs .longbeard/design/pricing/board.md --out .longbeard/design/pricing/moodboard.html
+//
+// A big pool is chosen in two steps. --overview 6 shows each family as its
+// first six tiles (families.mjs writes the most typical first), how many more
+// it has, and its measured ranges from a "Families:" header line, with one
+// Take button and a note per family. The copy-out lists the families taken.
+// Then a board of only those families is marked as usual.
+//   node moodboard.mjs .longbeard/design/moodboard/board.md --overview 6 --out .longbeard/design/families/families.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
@@ -16,9 +27,15 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 const args = process.argv.slice(2);
 const outAt = args.indexOf("--out");
 const outArg = outAt === -1 ? "" : (args.splice(outAt, 2)[1] ?? "");
+const overAt = args.indexOf("--overview");
+const overview = overAt === -1 ? 0 : Number(args.splice(overAt, 2)[1]);
+if (overAt !== -1 && !(Number.isInteger(overview) && overview >= 1 && overview <= 24)) {
+  console.error("moodboard: --overview takes how many tiles to show per family, 1 to 24");
+  process.exit(2);
+}
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
-  console.error("usage: node moodboard.mjs design-exploration/<slug>/board.md --out design-exploration/<slug>/moodboard.html");
+  console.error("usage: node moodboard.mjs .longbeard/design/<step>/board.md --out .longbeard/design/<step>/moodboard.html");
   process.exit(2);
 }
 
@@ -46,8 +63,14 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+// A local path in a src or href: each part encoded, so # ? % and spaces stay in the name.
 const href = (abs) => {
-  const src = relative(dirname(outPath), abs).split("\\").join("/");
+  const src = relative(dirname(outPath), abs)
+    .split("\\")
+    .join("/")
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
   return src.startsWith(".") ? src : `./${src}`;
 };
 
@@ -64,7 +87,8 @@ function fieldsOf(text) {
 // (an app's key screen, say) keeps the order it first appears in on the board.
 const TOPICS = [
   ["Home", /^(home|homepage|landing|hero)$/],
-  ["Navigation", /^(nav|navigation|menu|header)$/],
+  // "menu" is left out: for a restaurant or a bakery it is the list of dishes, not the navigation.
+  ["Navigation", /^(nav|navigation|nav menu|header)$/],
   ["Index", /^(index|listing|list|work|archive|grid|catalogue|catalog)$/],
   ["Case study", /^(case[ -]?stud(y|ies)|project|work detail)$/],
   ["Article", /^(article|editorial|reading|long[ -]?read|story)$/],
@@ -74,10 +98,10 @@ const TOPICS = [
 ];
 function topicOf(raw) {
   const t = String(raw || "").trim().toLowerCase();
-  if (!t) return { label: "Other", rank: 1e6 };
+  if (!t) return { key: "", label: "Other", rank: 1e6 };
   const at = TOPICS.findIndex(([, re]) => re.test(t));
-  if (at !== -1) return { label: TOPICS[at][0], rank: at };
-  return { label: t.charAt(0).toUpperCase() + t.slice(1), rank: 1000 };
+  if (at !== -1) return { key: t, label: TOPICS[at][0], rank: at };
+  return { key: t, label: t.charAt(0).toUpperCase() + t.slice(1), rank: 1000 };
 }
 
 // Frames from capture.mjs --frames: 01-00000ms.jpg, 02-00500ms.jpg…
@@ -92,6 +116,13 @@ function framesOf(folder) {
 }
 
 const md = readFileSync(boardPath, "utf8");
+// Ranges per family, from board.md's header: "Families: f1 (light · empty 55–70%) — 42; f2 (…) — 18".
+const ranges = new Map();
+const familiesLine = md.match(/^Families:\s*(.*)$/m)?.[1] || "";
+for (const part of familiesLine.split(";")) {
+  const m = part.trim().match(/^(.+?)\s*\((.+)\)/);
+  if (m) ranges.set(m[1].trim().toLowerCase(), m[2].trim());
+}
 const cards = md
   .split(/^### /m)
   .slice(1)
@@ -103,6 +134,9 @@ const cards = md
 
 const sections = new Map();
 let n = 0;
+// A mark is saved under the card's name, so adding or dropping a card never
+// moves a mark onto another. Two cards with one name tell apart by order.
+const names = new Map();
 for (const card of cards) {
   const frames = card.frames ? framesOf(card.frames) : null;
   if (card.frames && !frames) console.error(`moodboard: no frames in ${card.frames.trim()}`);
@@ -115,17 +149,21 @@ for (const card of cards) {
   if (!poster && frames) poster = frames[frames.length - 1].src;
   if (!poster) continue;
   const id = `m${++n}`;
-  const topic = topicOf(card.topic);
+  const seenName = (names.get(card.name) ?? 0) + 1;
+  names.set(card.name, seenName);
+  const markKey = seenName > 1 ? `${card.name} #${seenName}` : card.name;
+  const topic = topicOf(card.topic || card.part);
   // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
   const name = /^https?:\/\//i.test(url)
     ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
     : `<span class="name">${esc(card.name)}</span>`;
-  const line = card.pattern ? `<p class="line">${esc(card.pattern)}</p>` : "";
+  const like = (card.like || "").trim();
+  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "") + (like ? `<p class="liked">You liked: ${esc(like)}</p>` : "");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
-  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}"${
+  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${like ? ` data-like="${esc(like)}"` : ""}${
     frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
   }>
         <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
@@ -139,8 +177,11 @@ for (const card of cards) {
           <input class="why" type="text" placeholder="Note (optional)" aria-label="Note on ${esc(card.name)}">
         </figcaption>
       </figure>`;
-  if (!sections.has(topic.label)) sections.set(topic.label, { rank: topic.rank, order: sections.size, tiles: [] });
-  sections.get(topic.label).tiles.push(tile);
+  // In the overview each family is its own section, named by its id as written (f1, not F1), so the
+  // copy-out names the list on disk (families/f1.tsv) and the board's Families: line finds its ranges.
+  const at = overview ? topic.key : topic.label;
+  if (!sections.has(at)) sections.set(at, { label: topic.label, key: topic.key, rank: topic.rank, order: sections.size, tiles: [] });
+  sections.get(at).tiles.push(tile);
 }
 
 if (!n) {
@@ -151,17 +192,25 @@ if (!n) {
 const ordered = [...sections.entries()].sort(([, a], [, b]) => a.rank - b.rank || a.order - b.order);
 const slug = (s) => `t-${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 const jump = ordered
-  .map(([label, s]) => `<a href="#${slug(label)}">${esc(label)} <span>${s.tiles.length}</span></a>`)
+  .map(([at, s]) => `<a href="#${slug(at)}">${esc(s.label)} <span>${s.tiles.length}</span></a>`)
   .join("");
 const body = ordered
-  .map(
-    ([label, s]) => `<section id="${slug(label)}">
-    <h2>${esc(label)} <span>${s.tiles.length}</span></h2>
+  .map(([at, s]) => {
+    const { label, key } = s;
+    const shown = overview ? s.tiles.slice(0, overview) : s.tiles;
+    const more = s.tiles.length - shown.length;
+    const head = overview
+      ? `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>
+    ${ranges.has(key) ? `<p class="ranges">${esc(ranges.get(key))}</p>` : ""}
+    <div class="take"><button type="button" class="fam" data-family="${esc(key || label)}" aria-pressed="false">Take this family</button><input class="fam-note" type="text" data-family="${esc(key || label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
+      : `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>`;
+    return `<section id="${slug(at)}">
+    ${head}
     <div class="grid">
-      ${s.tiles.join("\n      ")}
+      ${shown.join("\n      ")}
     </div>
-  </section>`,
-  )
+  </section>`;
+  })
   .join("\n  ");
 
 const html = `<!DOCTYPE html>
@@ -206,6 +255,9 @@ const html = `<!DOCTYPE html>
   .name { font-size: 15px; line-height: 1.3; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
   a.name:hover { text-decoration: underline; }
   .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .measured { margin: -6px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .liked { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--like); }
+  [data-overview] .liked { display: none; }
   .marks { display: flex; gap: 6px; margin-top: auto; }
   .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
@@ -221,15 +273,23 @@ const html = `<!DOCTYPE html>
   #out { background: #f6f6f4; }
   .side { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; min-width: 150px; }
   #count { font-size: 13px; color: var(--muted); }
+  [data-overview] .marks, [data-overview] .why, [data-overview] .filters { display: none; }
+  .ranges { margin: -6px 0 10px 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .take { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px 2px; }
+  .fam { font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .fam[aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
+  .fam-note { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  .more { font-size: 13px; color: var(--muted); }
   #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
   @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } header { position: static; } }
 </style>
 </head>
-<body>
+<body${overview ? " data-overview" : ""}>
 <main>
   <header>
-    <h1>Moodboard</h1>
-    <p class="how">Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <h1>${overview ? "Families" : "Moodboard"}</h1>
+    ${overview ? `<p class="how">Each family shows its most typical ${overview}. Take the ones you want to see in full, any number. Note a family that looks like two, or that belongs with another.</p>` : ""}
+    <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>
@@ -255,20 +315,51 @@ const html = `<!DOCTYPE html>
   const count = document.getElementById("count");
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { saved = {}; }
-  // Saved by id and title, so a card dropped and the board rebuilt never moves a mark.
-  const tag = (t) => t.dataset.id + "|" + t.dataset.title;
+  // Saved under the card's name, so a card added or dropped and the board
+  // rebuilt never moves a mark. A mark an earlier board saved under a running
+  // number and the name is still read.
+  const tag = (t) => t.dataset.key;
+  const old = (t) => t.dataset.id + "|" + t.dataset.title;
   const marks = saved.marks || {};
   const notes = saved.notes || {};
+  const read = (from, t) => (tag(t) in from ? from[tag(t)] : from[old(t)]) || "";
   note.value = saved.note || "";
   for (const t of tiles) {
-    if (marks[tag(t)]) t.dataset.state = marks[tag(t)];
-    t.querySelector(".why").value = notes[tag(t)] || "";
+    const mark = read(marks, t);
+    if (mark) t.dataset.state = mark;
+    // Their words from the picker fill the note until they change it; a note they cleared stays cleared.
+    t.querySelector(".why").value = tag(t) in notes || old(t) in notes ? read(notes, t) : t.dataset.like || "";
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
   const label = (t) => t.dataset.id + " " + short(t.dataset.title) + " (" + t.dataset.topic + ")";
   const list = (state) => tiles.filter((t) => t.dataset.state === state).map(label);
+  const fams = [...document.querySelectorAll(".fam")];
+  const famNotes = [...document.querySelectorAll(".fam-note")];
+  if (fams.length) {
+    const taken = new Set(saved.taken || []);
+    for (const b of fams) if (taken.has(b.dataset.family)) b.setAttribute("aria-pressed", "true");
+    for (const i of famNotes) i.value = (saved.famNotes || {})[i.dataset.family] || "";
+  }
+  function renderFamilies() {
+    const taken = fams.filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.family);
+    const lines = ["Family picks", "take: " + (taken.join("; ") || "none")];
+    const written = famNotes.filter((i) => i.value.trim());
+    if (written.length) {
+      lines.push("notes:");
+      for (const i of written) lines.push("- " + i.dataset.family + ": " + i.value.trim().replace(/\\s+/g, " "));
+    }
+    if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
+    out.value = lines.join("\\n");
+    count.textContent = taken.length + " of " + fams.length + " families taken";
+    const keep = {};
+    for (const i of written) keep[i.dataset.family] = i.value;
+    try { localStorage.setItem(key, JSON.stringify({ taken, famNotes: keep, note: note.value })); } catch (e) {}
+  }
+  for (const b of fams) b.addEventListener("click", () => { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); render(); });
+  for (const i of famNotes) i.addEventListener("input", () => render());
   function render() {
+    if (fams.length) return renderFamilies();
     const lines = ["Moodboard picks", "lead: " + (list("lead").join("; ") || "none"), "like: " + (list("like").join("; ") || "none"), "no: " + (list("no").join("; ") || "none")];
     const written = tiles.filter((t) => t.querySelector(".why").value.trim());
     if (written.length) {
@@ -287,7 +378,7 @@ const html = `<!DOCTYPE html>
       t.hidden = !(show === "all" || (show === "open" ? !s : !!s));
       if (s) keepMarks[tag(t)] = s;
       const w = t.querySelector(".why").value;
-      if (w.trim()) keepNotes[tag(t)] = w;
+      if (w.trim() || t.dataset.like) keepNotes[tag(t)] = w;
     }
     for (const sec of document.querySelectorAll("section")) sec.hidden = ![...sec.querySelectorAll(".tile")].some((t) => !t.hidden);
     try { localStorage.setItem(key, JSON.stringify({ marks: keepMarks, notes: keepNotes, note: note.value })); } catch (e) {}
@@ -298,7 +389,7 @@ const html = `<!DOCTYPE html>
         const mark = b.dataset.mark;
         if (t.dataset.state === mark) delete t.dataset.state;
         else {
-          // One lead per group (a part, or a direction): a new lead turns the old one into a like.
+          // One lead per group (a family, or a piece): a new lead turns the old one into a like.
           if (mark === "lead") for (const o of tiles) if (o !== t && o.dataset.topic === t.dataset.topic && o.dataset.state === "lead") o.dataset.state = "like";
           t.dataset.state = mark;
         }
