@@ -77,7 +77,7 @@ const run = (dir, ...more) => {
 };
 const byId = (out) => Object.fromEntries(JSON.parse(out).results.map((r) => [r.id, r]));
 // Whether this machine can render pages: the checks that need Chrome are tested only where it can.
-const hasChrome = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].some((p) => p && existsSync(p));
+const hasChrome = process.env.CHROME_PATH !== "none" && [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].some((p) => p && existsSync(p));
 const withBrowser = (dir) => (hasChrome ? run(dir) : run(dir, "--no-browser"));
 
 test("eval score: a good run passes every hard check", () => {

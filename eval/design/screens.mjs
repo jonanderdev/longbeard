@@ -61,6 +61,8 @@ const contrastScript = join(repo, "skills/design-direction/scripts/screen-contra
 // ------------------------------------------------------------------ Chrome
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   return ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 }

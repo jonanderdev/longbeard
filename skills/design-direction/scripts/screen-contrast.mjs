@@ -72,6 +72,8 @@ const fail = (text, code = COULD_NOT_RUN) => {
 };
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   const home = process.env.HOME || process.env.USERPROFILE || "";
   const pf = process.env.PROGRAMFILES || "C:\\Program Files";
