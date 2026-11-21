@@ -69,7 +69,11 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
    - states: each frame state exists and says the same thing
    - stand-ins: nothing under Still to supply in `DESIGN.md` reaches the build as it stands (its picture, or its assumed price, hour, number or name). One that does is a hard finding under rule 0, with the screen and the item; it clears when they supply the real one or take the item off the list.
    A difference from the frame is a finding, hard when it breaks a hard rule or changes structure or copy. The rules' glue line holds: a mismatch with the frame is a bug.
-4. **Check the rules** on the build shots, in the order above.
+4. **Check the rules** on the build shots, in the order above. Run the rules script on each screen and state at both widths, with `--app` when the surface is an app (the list's touch sizes), and `--cookie` as in step 1:
+   ```
+   node <skill>/scripts/rules.mjs <url> --screen <screen>
+   ```
+   It measures sideways scroll, target size, visible labels, a visible focus, placeholder copy and clipped text, and its rows go into the findings as they are. Its "not checked" lines stay "not checked". What only an eye can judge (idea, hierarchy, grouping, the tells) is still yours. Frame mode cannot use it: a Figma frame is not a page.
 5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check.
 6. **PR evidence.** Matt's `pr` writes the body. Put the shots in its Before/After: the Ready frame beside the build at each width. Then the findings table, with what remains open after the re-check.
 

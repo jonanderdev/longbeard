@@ -52,7 +52,7 @@ List them once, navigation's details first (the menu open, on scroll, on a phone
 Then build them all, linked so they click through, in the identity and the direction. Build once and reuse: one menu, one card, one row, one heading style everywhere.
 
 - **Layout:** where a moodboard reference shows that kind of screen, take its layout (never its content), from any family; the look is already fixed. Where none does, it follows from the first screen.
-- **The direction's devices carry over.** Overlaps, collisions, crops, giant type, wide empty space: the chosen screen's moves appear on the other screens too, never tidied away. Each screen gets the same light touch-up as the first: contrast where text sits, every item the screen needs and its primary action present, nothing plainly broken. A screen is not done until it reads right *and* still looks like the chosen one.
+- **The direction's devices carry over.** Overlaps, collisions, crops, giant type, wide empty space: the chosen screen's moves appear on the other screens too, never tidied away. Text cropped on purpose is marked `data-crop`. Each screen gets the same light touch-up as the first: contrast where text sits, every item the screen needs and its primary action present, nothing plainly broken. A screen is not done until it reads right *and* still looks like the chosen one.
 - **Density** as the design brief's `dense` asks, on every screen: how much sits on a screen, row heights, how much is shown before "more". An airy 1–2 shows less and lets it breathe; a dense 4–5 shows more per screen and keeps spacing tight.
 - **Real content, complete.** Copy in the voice, the longest real names, every section a person needs to act, and everything under `for the prototype` that belongs on this screen. With `design-content.md`, follow it. Without it, fill `design-content`'s fact sheet from the brief and the design brief first, and draft only from the fields that have something in them: an empty field shrinks or drops its section, and you say what they must supply. Each rhetorical device appears once on a screen. A detail you assumed is marked as assumed (see the prototype's stand-in marks). Say the copy is a draft. Pictures: theirs, or the stand-ins of the product's own subject in `.longbeard/design/pictures/` (more with `pictures.mjs`, or a full set planned with `design-content`); never grey boxes, never the references' subject.
 - **States,** once a screen is settled: empty, loading and error where reachable (`?state=empty`), every width, each theme.
@@ -80,6 +80,14 @@ node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/prototyp
 ```
 
 Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it.
+
+**Run the rules script** on every screen and state, in each theme. It measures what a browser can: sideways scroll at phone width, small targets, inputs without a visible label, a focus that shows nothing, placeholder copy and clipped text.
+
+```
+node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/prototype/home.html" --screen home
+```
+
+It prints findings in `design-check`'s table, each with its rule. Fix every hard one. Words cut off on purpose, the look's own crop, carry `data-crop` in the markup and are skipped; any other cut word is a finding. A check it could not run is "not checked", never passed. It does not look at overlap, collision, alignment, empty space or section height: those are the look, and only your eye judges them.
 
 **Walk the links.** Every page the key screens list, reached by clicking from the first:
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `design-check` gains `rules.mjs`, shared with `design-prototype`: it opens a page headless at desktop and phone width and prints the hard rules a browser can measure in the findings table, each tied to its rule (sideways scroll, small targets, inputs without a visible label, a focus that shows nothing, placeholder copy, clipped text). Text cut on purpose carries `data-crop` and is skipped; it never checks overlap, collision, alignment or empty space. A check that could not run is "not checked".
 - Copy is made from facts the product has: `design-content` fills a fact sheet from the brief and the design brief before any sentence (an empty field shrinks or drops its section, and the doc lists what you must supply), `design-prototype` does the same when it drafts without that doc, and rule 11 gains checks for one use of each device per screen, no invented numbers, names or quotes, claimed sincerity, and a voice that would not suit another trade.
 
 Design is now a family of small skills, each with one job and one doc, instead of two long ones. You run only what you need, each step asks little, and a long run no longer drifts. [How it flows](assets/design-flow.png).
