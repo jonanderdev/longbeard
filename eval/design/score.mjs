@@ -272,8 +272,9 @@ const gridHard = [true, true, true, false];
 if (!built?.list.length) for (const [i, id] of gridIds.entries()) check(id, gridHard[i], null, "no screens");
 else {
   const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
-  if (!r) for (const [i, id] of gridIds.entries()) if (i) check(id, gridHard[i], null, "--no-browser");
-  else {
+  if (!r) {
+    for (const [i, id] of gridIds.entries()) if (i) check(id, gridHard[i], null, "--no-browser");
+  } else {
     // screens.mjs exits 0 with its result; anything else, or output that is not a result, did not run.
     let out = null;
     try {
