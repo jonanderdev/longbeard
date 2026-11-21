@@ -406,3 +406,20 @@ test("families --assign: new references join the families there are, the rest ar
   assert.equal(empty.status, 1);
   assert.match(empty.stderr, /no family whose members are in profiles.json/);
 });
+
+test("families: a profile with no picture read is named and left out, and an off-white ground is not strongly warm", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) {
+    refs[`paper${i}`] = profile(`paper${i}`, { lum: 0.9, empty: 95, picture: "none", layout: "centred", colours: 3 });
+    refs[`paper${i}`].image.traits.ground = "#f1ede4";
+  }
+  refs.noimage = { shot: "refs/noimage.jpg", link: null, page: null };
+  refs.notraits = { shot: "refs/notraits.jpg", image: { figure: null } };
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json", "--sliders", "cool=3"]);
+  assert.match(result.stderr, /left out, no picture read in profiles\.json.*: noimage, notraits/);
+  assert.match(result.stdout, /^4 references/);
+  // Warm or cool is read from chroma: a ground a little off white leans warm, but only a little.
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  assert.ok(families[0].sliders.cool > 2.4 && families[0].sliders.cool < 3, JSON.stringify(families[0].sliders));
+});
