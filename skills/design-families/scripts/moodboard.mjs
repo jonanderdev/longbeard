@@ -142,9 +142,11 @@ for (const card of cards) {
   if (card.frames && !frames) console.error(`moodboard: no frames in ${card.frames.trim()}`);
   let poster = "";
   if (card.shot) {
-    const abs = resolvePath(card.shot.trim());
-    if (existsSync(abs)) poster = href(abs);
-    else console.error(`moodboard: missing shot ${card.shot.trim()}`);
+    const shot = card.shot.trim();
+    // A shot may be a picture's URL (an exported library's pins): the page loads it as it is.
+    if (/^https?:\/\//i.test(shot)) poster = shot;
+    else if (existsSync(resolvePath(shot))) poster = href(resolvePath(shot));
+    else console.error(`moodboard: missing shot ${shot}`);
   }
   if (!poster && frames) poster = frames[frames.length - 1].src;
   if (!poster) continue;
