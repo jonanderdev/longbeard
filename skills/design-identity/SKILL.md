@@ -34,7 +34,7 @@ Three stops, no more: options, one refinement, the board.
 
 Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
-**At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`), and go to **3. The board**. They can ask for options at the board; that is full pace from there.
+**At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`, with `--level AAA` when the brief asks for it), and go to **3. The board**. They can ask for options at the board; that is full pace from there.
 
 ## 1. Options, on the chosen screen, in one message
 
@@ -56,13 +56,13 @@ Read the design brief (words, personality, feel, never, what is fixed, accessibi
 - **Even steps** around it: `colours.mjs` gives lighter, darker, warmer, cooler in OKLCH, and the derived roles, and leaves out what fails contrast.
 
   ```
-  node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the references' colours>" --theirs "<theirs>"
+  node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the references' colours>" --theirs "<theirs>" --level <AA|AAA, the design brief's accessibility>
   ```
 
 - **From their other references,** the palettes in the direction's readings (`library.json`), each whole.
-- **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
+- **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures --level <AA|AAA>` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
 - **Theirs,** what the design brief records as owned.
-- Every palette has an ink that reads on each ground at 4.5:1 (7:1 when the design brief's accessibility is AAA: `contrast.mjs --level AAA`), and an accent that holds 3:1 on at least one ground.
+- Every palette has an ink that reads on each ground at 4.5:1 (7:1 when the design brief's accessibility is AAA: `contrast.mjs --level AAA`), and an accent that holds 3:1 on at least one ground (4.5:1 at AAA). `colours.mjs` and `subject-colours.mjs` offer only what meets the level they are given, so pass it every time.
 
 **Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 

@@ -77,6 +77,8 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/prototype/home.h
 node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/prototype/home.html" --wait-title ready
 ```
 
+`screen-contrast.mjs` reads the whole page down to `--max-height` (10000 px), and takes `--level AAA` at that brief. Say in the self-check where it stopped if it did not reach the bottom, and list every text it printed as "not read" (a colour it could not resolve, a fill clipped to the letters): those are unchecked, not passed. Exit 1 is a failing text, 3 is a run that did not finish.
+
 Check them against the rules: Idea first, then hard (structure, contrast, targets, focus, states, labels), then soft. Fix what fails before they see it.
 
 **Walk the links.** Every page the key screens list, reached by clicking from the first:

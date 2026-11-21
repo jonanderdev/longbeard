@@ -10,6 +10,7 @@
 //   node subject-colours.mjs a.jpg b.jpg c.jpg --json
 //   node subject-colours.mjs .longbeard/design/subject --sheet subject.html
 //   node subject-colours.mjs --from swatches.json --exclude "#806c71"
+//   node subject-colours.mjs .longbeard/design/subject --level AAA
 //
 // measure.mjs --swatches gives each picture's ten colours. They are pooled
 // across pictures, near-twins merged, and noise dropped: under 2%, specular
@@ -25,6 +26,10 @@
 // - Signature: the heaviest colour with some chroma (the crust).
 // - Light ground: the heaviest light colour, else the signature's hue, made an
 //   off-white that keeps its hue. Dark ground: the same, made a near-black.
+// --level AA|AAA is the design brief's accessibility. AA asks 4.5:1 for text
+// and 3:1 for an accent; AAA asks 7:1 and 4.5:1 (an accent may carry large
+// text). Below, "4.5:1" and "3:1" are those two, at AA.
+//
 // - Ink: the other ground's hue, dark on light and light on dark, 4.5:1 or
 //   darker (lighter) until it is.
 // - Accent: the most colourful heavy colour whose hue stands off the ground,
@@ -59,7 +64,7 @@ const fail = (text) => {
   console.error(`subject-colours: ${text}`);
   process.exit(2);
 };
-const usage = 'usage: node subject-colours.mjs <folder | image …> | --from swatches.json  [--json] [--exclude "#hex,#hex"] [--sheet out.html]';
+const usage = 'usage: node subject-colours.mjs <folder | image …> | --from swatches.json  [--json] [--level AA|AAA] [--exclude "#hex,#hex"] [--sheet out.html]';
 const args = process.argv.slice(2);
 const option = (name) => {
   const i = args.indexOf(`--${name}`);
@@ -74,6 +79,10 @@ if (json) args.splice(args.indexOf("--json"), 1);
 const fromArg = option("from");
 const excludeArg = option("exclude");
 const sheetArg = option("sheet");
+const level = (option("level") || "AA").toUpperCase();
+if (level !== "AA" && level !== "AAA") fail(`--level is AA or AAA, not ${level}`);
+const textNeed = level === "AAA" ? 7 : 4.5;
+const accentNeed = level === "AAA" ? 4.5 : 3;
 if (args.some((a) => a.startsWith("--")) || (fromArg ? args.length : !args.length)) fail(usage);
 const hex6 = (v) => {
   const s = String(v || "").trim().toLowerCase();
@@ -151,6 +160,8 @@ const distance = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
 const hueGap = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 const r2 = (v) => Math.round(v * 100) / 100;
 const r3 = (v) => Math.round(v * 1000) / 1000;
+// A contrast is cut, not rounded, so one just under its need never prints as the need.
+const cut2 = (v) => Math.floor(v * 100) / 100;
 
 // Pool every picture's swatches, each share counted as a share of all the pictures.
 const pooled = [];
@@ -215,18 +226,18 @@ function ground(test, list, L, maxC, word) {
 const light = ground((c) => c.L >= 0.82, kept, 0.96, 0.02, "made an off-white");
 const dark = ground((c) => c.L <= 0.35, counted, 0.17, 0.03, "made a near-black");
 
-// Ink in the other ground's hue, moved darker (on light) or lighter (on dark) until it reads 4.5:1.
+// Ink in the other ground's hue, moved darker (on light) or lighter (on dark) until it reads at the text level.
 function ink(on, hueOf, startL, step) {
   const C = Math.min(hueOf.C, step < 0 ? 0.03 : 0.02);
   let L = startL;
-  while (contrast(hexOf({ L, C, h: hueOf.h }), on.hex) < 4.5 && L > 0 && L < 1) L = Math.min(1, Math.max(0, L + step));
+  while (contrast(hexOf({ L, C, h: hueOf.h }), on.hex) < textNeed && L > 0 && L < 1) L = Math.min(1, Math.max(0, L + step));
   const moved = Math.abs(L - startL) > 0.001;
-  return colour("ink", { L, C, h: hueOf.h }, null, `the ${step < 0 ? "dark" : "light"} ground's hue at L ${r2(L)}${moved ? `, ${step < 0 ? "darkened" : "lightened"} to read 4.5:1` : ""}`);
+  return colour("ink", { L, C, h: hueOf.h }, null, `the ${step < 0 ? "dark" : "light"} ground's hue at L ${r2(L)}${moved ? `, ${step < 0 ? "darkened" : "lightened"} to read ${textNeed}:1` : ""}`);
 }
 const darkInk = (on) => ink(on, dark, 0.2, -0.01);
 const lightInk = (on) => ink(on, light, 0.95, 0.01);
 
-// The accent: colourful, heavy, a hue apart from the ground, never background; chroma raised, 3:1 on the ground.
+// The accent: colourful, heavy, a hue apart from the ground, never background; chroma raised, at the accent level on the ground.
 function accent(on, label) {
   const score = (c) => c.C * Math.sqrt(c.share);
   const fits = subject.filter((c) => c.C >= 0.08 && hueGap(c.h, on.h) >= 25);
@@ -234,17 +245,17 @@ function accent(on, label) {
   const source = pick || signature;
   const C = Math.max(source.C, 0.13);
   const start = Math.min(0.72, Math.max(0.55, source.L));
-  const ok = (L) => contrast(hexOf({ L, C, h: source.h }), on.hex) >= 3;
+  const ok = (L) => contrast(hexOf({ L, C, h: source.h }), on.hex) >= accentNeed;
   let L = null;
   for (let d = 0; d <= 0.17 + 1e-9 && L === null; d += 0.005) for (const x of [start - d, start + d]) if (L === null && x >= 0.55 - 1e-9 && x <= 0.72 + 1e-9 && ok(x)) L = x;
   if (L === null) {
-    notes.push(`${label}: no accent reaches 3:1 on this ground at lightness 0.55 to 0.72, so it has none`);
+    notes.push(`${label}: no accent reaches ${accentNeed}:1 on this ground at lightness 0.55 to 0.72, so it has none`);
     return null;
   }
   const how = [];
   if (!pick) how.push("the signature (no subject colour stands off the ground's hue)");
   if (C > source.C + 0.001) how.push("chroma raised to read as an accent");
-  if (Math.abs(L - start) > 0.001) how.push(`${L > start ? "lightened" : "darkened"} to reach 3:1 on the ground`);
+  if (Math.abs(L - start) > 0.001) how.push(`${L > start ? "lightened" : "darkened"} to reach ${accentNeed}:1 on the ground`);
   else if (Math.abs(L - source.L) > 0.01) how.push(`${L > source.L ? "lightened" : "darkened"} into the accent range`);
   const made = colour("accent", { L, C, h: source.h }, source, how.join(", ") || "as found");
   // An accent of the ground's own hue makes a one-hue palette: fine to offer, but not a second colour.
@@ -255,7 +266,7 @@ function accent(on, label) {
 const proposal = (name, g, i) => {
   const a = accent(g, name);
   const rows = [g, i, ...(a ? [a] : [])];
-  for (const r of rows) if (r.role !== "ground") r.contrast = r2(contrast(r.hex, g.hex));
+  for (const r of rows) if (r.role !== "ground") r.contrast = cut2(contrast(r.hex, g.hex));
   return { name, ground: g.hex, ink: i.hex, accent: a?.hex || null, ownHue: a ? a.ownHue : null, colours: rows };
 };
 const proposals = [proposal("light", light, darkInk(light)), proposal("dark", dark, lightInk(dark))];
@@ -268,11 +279,11 @@ const proposals = [proposal("light", light, darkInk(light)), proposal("dark", da
     for (const L of [own - d, own + d]) {
       if (best || L < 0.5 - 1e-9 || L > 0.62 + 1e-9) continue;
       const g = colour("ground", { L, C: signature.C, h: signature.h }, signature, "");
-      const inks = [darkInk(light), lightInk(dark)].filter((i) => contrast(i.hex, g.hex) >= 4.5);
+      const inks = [darkInk(light), lightInk(dark)].filter((i) => contrast(i.hex, g.hex) >= textNeed);
       if (inks.length) best = { g, i: inks.sort((x, y) => contrast(y.hex, g.hex) - contrast(x.hex, g.hex))[0], L };
     }
   }
-  if (!best) notes.push("signature: neither ink reaches 4.5:1 on the signature at lightness 0.5 to 0.62, so there is no signature ground");
+  if (!best) notes.push("signature: neither ink reaches ${textNeed}:1 on the signature at lightness 0.5 to 0.62, so there is no signature ground");
   else {
     const { g, i, L } = best;
     g.tuned = Math.abs(L - signature.L) <= 0.01 ? "as found" : `${L > signature.L ? "lightened" : "darkened"} to carry ${i.L > 0.5 ? "light" : "dark"} text`;
@@ -295,7 +306,7 @@ if (sheetArg) writeSheet(sheetArg);
 if (json) {
   const clean = (c) => ({ role: c.role, hex: c.hex, L: r3(c.L), C: r3(c.C), h: Math.round(c.h), from: c.from, tuned: c.tuned, ...(c.contrast ? { contrast: c.contrast } : {}) });
   const listed = kept.map((c) => ({ ...from(c), L: r3(c.L), C: r3(c.C), h: Math.round(c.h), background: c.background }));
-  console.log(JSON.stringify({ signature: from(signature), colours: listed, proposals: proposals.map((p) => ({ ...p, colours: p.colours.map(clean) })), library, notes }, null, 1));
+  console.log(JSON.stringify({ level, signature: from(signature), colours: listed, proposals: proposals.map((p) => ({ ...p, colours: p.colours.map(clean) })), library, notes }, null, 1));
 } else {
   const source = (f) => (f ? `${f.hex} ${f.share}%, ${f.pictures} of ${pictures.length}${f.background ? ", background" : ""}` : "");
   const rows = [["proposal", "role", "colour", "from (share, pictures)", "how", "contrast"]];

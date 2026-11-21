@@ -10,7 +10,7 @@ export const shared = [
   ["skills/design-moodboard/scripts/moodboard.mjs", ["design-families/scripts", "design-direction/scripts"]],
   ["skills/design-families/scripts/measure.mjs", ["design-identity/scripts", "design-direction/scripts"]],
   ["skills/design-direction/scripts/sheet.mjs", ["design-identity/scripts", "design-prototype/scripts", "design-wordmark/scripts"]],
-  ["skills/design-direction/scripts/screen-contrast.mjs", ["design-prototype/scripts"]],
+  ["skills/design-direction/scripts/screen-contrast.mjs", ["design-prototype/scripts", "design-check/scripts"]],
   ["skills/design-prototype/scripts/contrast.mjs", ["design-identity/scripts", "design-check/scripts"]],
   ["skills/design-direction/scripts/pictures.mjs", ["design-content/scripts", "design-prototype/scripts"]],
   ["skills/design-direction/references/five-second.md", ["design-prototype/references"]],
