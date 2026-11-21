@@ -64,7 +64,7 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast`).
 
 What a reference cannot show is "not seen", never guessed.
 
-- **`motion`:** only for the lead and the references a pick is built on, never every like. `what` opens with the kind in the `motion` tag, where there is one; `character` is in the design brief's words. A live page: the page's motion as `measure.mjs` lists it (`by: page`). Recorded frames: by eye (`by: frames`), an easing they cannot show left "not seen". A still: `{ "by": "not seen" }`. A design brief whose motion is none ignores the field; its pick is never overridden.
+- **`motion`:** only for the lead and the references a pick is built on, never every like. `what` opens with the kind in the `motion` tag, where there is one; `character` is in the design brief's words. A live page: the page's motion as `measure.mjs` lists it (`by: page`); motion made by script is listed too, with its time and easing "not seen". Recorded frames: by eye (`by: frames`), an easing they cannot show left "not seen". A still: `{ "by": "not seen" }`. A design brief whose motion is none ignores the field; its pick is never overridden.
 - **`finish`:** a grain, shadow, blend or filter as a recipe that can be pasted: from a live page its own CSS, from a picture by eye. No recipe is "not seen".
 - **`picture_kind`:** recorded only, never borrowed: the product's own pictures decide it, and when it has none of that kind the sheet says so.
 

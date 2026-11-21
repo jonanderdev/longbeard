@@ -185,6 +185,7 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
     assert.ok(p.page.traits.blocks > 15 && p.page.traits.blocks < 25, `blocks ${p.page.traits.blocks}`);
     assert.equal(p.page.texts[0].text, "Kiln");
     assert.ok(Array.isArray(p.page.motion) && p.page.finish && p.page.unread === 0, "the profile's page carries motion, finish and unread");
+    assert.deepEqual([p.page.motionMore, p.page.finishMore], [0, 0], "and how many each left out");
     assert.deepEqual([p.tags.picture, p.note], [["lettering"], "kept"]);
   } finally {
     server.close();
@@ -389,6 +390,9 @@ test("measure: motion and finish are read from the page before anything is ended
     assert.deepEqual([spin.property, spin.ms, spin.iteration, spin.trigger], ["transform", 2000, "loop", "load"]);
     assert.deepEqual([out.motion.find((m) => m.name === "grow").trigger, out.motion.find((m) => m.name === "grow").iteration], ["scroll", "once"]);
     assert.ok(out.motion.length <= 12);
+    // What a rule or a Web Animation moves is not listed a second time as a script's.
+    assert.ok(!out.motion.some((m) => m.kind === "script"), JSON.stringify(out.motion));
+    assert.deepEqual([out.motionMore, out.finishMore], [0, 0]);
     // Finish: each value with the share of the screen it covers.
     const card = out.finish.shadow.find((s) => /24px/.test(s.css));
     assert.equal(card.uses, 3);
@@ -407,6 +411,93 @@ test("measure: motion and finish are read from the page before anything is ended
   } finally {
     server.close();
     other.close();
+  }
+});
+
+test("measure: motion a script makes is listed, a sticky or fixed thing is not, and a playing canvas is", async (t) => {
+  const tall = `<div style="height:4000px"></div>`;
+  const pages = {
+    // element.animate: a Web Animation, with the timing the page set.
+    "/animate": `<div id="a" style="width:40px;height:40px;background:red"></div><script>a.animate([{ transform: "translateX(0)" }, { transform: "translateX(120px)" }], { duration: 900, iterations: Infinity, easing: "ease-in-out" })</script>`,
+    // A loop writing a transform on every frame: no time and no easing can be seen.
+    "/frames": `<div id="b" style="width:40px;height:40px;background:blue"></div><script>const tick = (now) => { b.style.transform = "translateX(" + ((now / 8) % 200) + "px)"; requestAnimationFrame(tick) }; tick(0)</script>`,
+    // A scroll listener changing opacity, and a fixed bar that slides away with a transform.
+    "/scroll": `<div id="f" style="width:100px;height:40px;background:green">Fade</div><div id="bar" style="position:fixed;right:0;top:0;width:60px;height:30px;background:#333"></div>${tall}<script>addEventListener("scroll", () => { f.style.opacity = 1 - Math.min(1, scrollY / innerHeight); bar.style.transform = "translateY(" + -Math.min(30, scrollY / 10) + "px)" })</script>`,
+    // Sticky and fixed by design: their place changes on scroll, which is not motion.
+    "/sticky": `<header style="position:sticky;top:0;height:50px;background:#eee"><a href="#">Home</a></header><div style="position:fixed;right:0;bottom:0;width:40px;height:40px;background:#c00"></div><p>Text</p>${tall}`,
+    // Pixels that change on a canvas, and one the page does not allow reading.
+    "/canvas": `<canvas id="c" width="300" height="150" style="display:block"></canvas><canvas id="d" width="50" height="50"></canvas><img id="i" src="CROSS/p.gif" style="display:none"><script>
+      const x = c.getContext("2d"); setInterval(() => { x.fillStyle = "#000"; x.fillRect(0, 0, 300, 150); x.fillStyle = "#fff"; x.fillRect(Math.random() * 250, 40, 40, 40) }, 30);
+      i.onload = () => d.getContext("2d").drawImage(i, 0, 0)</script>`,
+    "/still": `<h1>Nothing moves</h1><p>Plain words.</p>`,
+    // Fourteen transitions that differ in time, and eight shadows that differ in blur.
+    "/many": `<style>.t { width: 40px; height: 20px; background: #ccc }.s { width: 40px; height: 20px; margin: 8px }</style>` +
+      Array.from({ length: 14 }, (_, i) => `<div class="t" style="transition: opacity ${(i + 1) * 100}ms"></div>`).join("") +
+      Array.from({ length: 8 }, (_, i) => `<div class="s" style="box-shadow: 0 ${i + 2}px ${i + 6}px #000"></div>`).join(""),
+  };
+  const other = await new Promise((done) => {
+    const s = createServer((req, res) => (res.setHeader("content-type", "image/gif"), res.end(Buffer.from("R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==", "base64"))));
+    s.listen(0, "127.0.0.1", () => done(s));
+  });
+  const server = await new Promise((done) => {
+    const s = createServer((req, res) => (res.setHeader("content-type", "text/html"), res.end(`<!doctype html><meta charset="utf-8"><body style="margin:0"><p>Some words, so the page is not read as empty.</p>${(pages[req.url] || "").replace("CROSS", `http://127.0.0.1:${other.address().port}`)}`)));
+    s.listen(0, () => done(s));
+  });
+  try {
+    const at = (path) => `http://localhost:${server.address().port}${path}`;
+    const result = await measured([...Object.keys(pages).map(at), "--wait", "0", "--jobs", "4"]);
+    if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+    assert.equal(result.status, 0, result.stderr);
+    const read = JSON.parse(result.stdout);
+    const page = (path) => read.find((r) => r.target === at(path));
+    const scripts = (path) => page(path).motion.filter((m) => m.kind === "script");
+    // element.animate: the keyframed property and the timing the page set.
+    const animate = scripts("/animate");
+    assert.equal(animate.length, 1, JSON.stringify(page("/animate").motion));
+    assert.deepEqual([animate[0].property, animate[0].ms, animate[0].delay, animate[0].easing, animate[0].iteration, animate[0].trigger], ["transform", 900, 0, "ease-in-out", "loop", "load"]);
+    // Values written frame by frame: seen to change, still changing at the end, no time and no easing.
+    const frames = scripts("/frames");
+    assert.equal(frames.length, 1, JSON.stringify(page("/frames").motion));
+    assert.deepEqual([frames[0].property, frames[0].ms, frames[0].easing, frames[0].iteration, frames[0].trigger], ["transform", null, null, "loop", "load"]);
+    // Changes with the scroll: an opacity, and a fixed thing's transform; neither its place nor the page's moving.
+    const scroll = scripts("/scroll");
+    assert.deepEqual(scroll.map((m) => [m.property, m.trigger, m.iteration]).sort(), [["opacity", "scroll", "once"], ["transform", "scroll", "once"]], JSON.stringify(page("/scroll").motion));
+    // A sticky header and a fixed badge change their place on scroll by design: nothing is listed.
+    assert.deepEqual(page("/sticky").motion, []);
+    // A canvas whose pixels change is listed with its cover of the first screen and nothing else; a tainted one is counted unread.
+    const canvases = page("/canvas").motion;
+    assert.equal(canvases.length, 1, JSON.stringify(canvases));
+    assert.deepEqual(Object.keys(canvases[0]).sort(), ["cover", "kind", "on", "uses"]);
+    assert.ok(canvases[0].kind === "canvas" && canvases[0].cover > 3 && canvases[0].cover < 4, JSON.stringify(canvases[0]));
+    assert.equal(page("/canvas").unread, 1);
+    // A page with no motion lists none.
+    assert.deepEqual([page("/still").motion, page("/still").motionMore, page("/still").finishMore], [[], 0, 0]);
+    // More than twelve: twelve are kept, and the rest are counted.
+    assert.deepEqual([page("/many").motion.length, page("/many").motionMore], [12, 2]);
+    assert.deepEqual([page("/many").finish.shadow.length, page("/many").finishMore], [6, 2]);
+  } finally {
+    server.close();
+    other.close();
+  }
+});
+
+test("measure: a page with no motion is read quickly", async (t) => {
+  const page = `<!doctype html><meta charset="utf-8"><body style="margin:0"><h1>Quiet</h1><p>Words.</p><div style="height:3000px"></div>`;
+  const server = await new Promise((done) => {
+    const s = createServer((req, res) => (res.setHeader("content-type", "text/html"), res.end(page)));
+    s.listen(0, () => done(s));
+  });
+  try {
+    const started = Date.now();
+    const result = await measured([`http://localhost:${server.address().port}/`, "--wait", "0"]);
+    if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+    assert.equal(result.status, 0, result.stderr);
+    const out = JSON.parse(result.stdout);
+    assert.deepEqual([out.motion, out.motionMore], [[], 0]);
+    // Chrome starting counts too: the watch itself costs about a second and a half on a page that scrolls.
+    assert.ok(Date.now() - started < 9000, `took ${Date.now() - started} ms`);
+  } finally {
+    server.close();
   }
 });
 
