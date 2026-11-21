@@ -49,7 +49,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - <component>: <what it is for, its variants, its states>
 
 ## Motion
-- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; what moves and when; reduced motion turns it off>
+- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; what moves and when, as the direction's `motion:` line has it; reduced motion turns it off>
 
 | Token | Duration | Easing | Use |
 |---|---|---|---|
@@ -60,6 +60,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 
 ## Imagery
 - <what the pictures are and how they are treated, or "none">
+- Finish: <the surface finish (a grain, a shadow, a blend) as a recipe that can be pasted, or "none">
 
 ## Still to supply
 - <screen>: <what the stand-in picture shows, or the assumed fact as shown> — <stand-in | assumed>. <What replaces it>

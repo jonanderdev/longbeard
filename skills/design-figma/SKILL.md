@@ -40,6 +40,7 @@ Open the approved prototype (`.longbeard/design/prototype/`) beside every screen
 - **One text style per weight used.** A weight `DESIGN.md` lacks is a new style and a new row there.
 - **Trust the file, not the picture.** Screenshot only after an edit returns, and read text back from the nodes. Re-wire a cloned variant's text properties; replace a swapped instance that keeps old overrides.
 - **Stand-ins are said on the frame.** Each item under Still to supply in `DESIGN.md` gets a short note beside the frame that shows it (what is a stand-in or assumed, and what replaces it), and a stand-in picture's layer is named `… (stand-in)`. The note is not part of the design. It stays until the real one is in.
+- **Finish and motion.** A static finish (a grain, a shadow, a blend) is built as fills and effects from the Finish line. Motion Figma cannot carry (scroll, physics) is a note beside the frame, from the Motion section, and not built.
 - **Faithful.** Match the approved prototype. Anything that cannot be built the same way: say so and ask. Never simplify silently.
 - **Check each screen** with `design-check` frame mode, passing the prototype shot. Fix its hard findings.
 - **Ready:** on their yes to a frame, add `— Ready` to its name. Tickets link Ready frames.

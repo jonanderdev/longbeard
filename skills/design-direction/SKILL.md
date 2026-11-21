@@ -32,11 +32,11 @@ Comes out:
 
 A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 
-**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The rest is as usual: what they pick is still built in full.
+**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. What they pick is still built in full.
 
 ## 0. Pictures of the subject
 
-Before the grid: three or four pictures of what the product is about, not other designs. Every screen uses them, treated as its reference treats its pictures, and their colours are one more palette it may borrow. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with the message in step 1, as stand-ins theirs replace.
+Before the grid: three or four pictures of what the product is about, not other designs. Every screen uses them, treated as its reference treats its pictures, and their colours are one more palette it may borrow. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with step 1's message, as stand-ins theirs replace.
 
 ## 1. The content and the references, in one message
 
@@ -54,7 +54,7 @@ Before the grid: three or four pictures of what the product is about, not other 
 node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --out .longbeard/design/direction/board.html
 ```
 
-A card with a `like:` line already holds their like and why: the board shows it in its note to correct, so do not ask again.
+A card with a `like:` line already holds their like and why: the board shows it to correct, so do not ask again.
 
 Then one message:
 
@@ -67,7 +67,7 @@ The lead is the base of two screens, every like of at least one, and all of them
 
 > Your like for <reference> names <what>, and the brief says <what it fixes>. I'll keep the brief and carry <what> by its role (the gold on a light ground). Or change the brief?
 
-Their answer either stands, or goes under **Changes** in the design brief, with why.
+Their answer stands, or goes under **Changes** in the design brief, with why.
 
 ## 2. Read the references
 
@@ -81,11 +81,11 @@ Five principles decide every case: the base stands unless a move names it; every
 
 **The first round is quick.** Each screen is its base and its moves, built once by a fresh agent, with no critic loop and no device close-ups. **The full build** (plan, build, critique, fix, every version kept) runs only on what they pick (step 4). Before any screen is built, the plan is checked for spread: pictures, tones and moves across the eight.
 
-Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`.** Wait for each helper, and draw the sheet only then; a failed screen is shown as failed. With no fresh agents, do each job yourself in turn and say the round is weaker.
+Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`.** Wait for each helper before drawing the sheet; a failed screen is shown as failed. With no fresh agents, do each job yourself in turn and say the round is weaker.
 
 How, with the moves, the states and the checks: [grid.md](references/grid.md).
 
-Show the sheet, each screen marked rough or full and beside its base, and a table: each number, rough or full, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
+Show the sheet, each screen marked rough or full and beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
 
 **Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It informs; it does not steer. Taken, it goes under **Changes** in the design brief, with why.
 
@@ -97,11 +97,11 @@ Show the sheet, each screen marked rough or full and beside its base, and a tabl
 - **A mix:** "4 with the colours of 7": the base of one with the move of another, built in full.
 - **More, or none:** a fresh round of eight, quick like the first, as often as they ask: other pairings of bases and moves from what they liked, none shown before. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
-**A screen shown again** (more of it, a mix, a fix) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone. Any earlier version stays theirs to take.
+**A screen shown again** (more of it, a mix, a fix) goes beside the version they last saw to a fresh critic: what got worse? A change that breaks something they liked is undone. Any earlier version stays theirs to take.
 
 **The pick decides, the why guides.** When they pick a screen that breaks a why they gave, record it and ask once whether the why still holds; the screen is never blocked by it.
 
-**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
+**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it. Iterate until one screen is theirs, read it back in one line, read its base's motion unless the design brief's is none ([library.md](references/library.md)), and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
 
 **A few controls, bounded by their board.** Offer them a few live controls on that screen (type scale, line spacing, accent strength, corner radius), each limited to what their references use, so they judge a value by seeing it. They paste the copy-out back and you record it in the screen, never as a query string. How: [controls.md](references/controls.md).
 
@@ -123,7 +123,7 @@ On the chosen screen only, after their yes. This pass repairs; it never redesign
 
 **When unsure, leave it** and ask in one line.
 
-Make the fixes on `first.html`, keep the screen before them, capture both side by side, and list each change in one line. Nothing to fix is a fine result: say so. Then:
+Make the fixes on `first.html`, keep the screen before them, capture both side by side, and list each change in one line. Nothing to fix is a fine result. Then:
 
 > Keep all, or turn any off?
 
@@ -152,6 +152,8 @@ Record the result in `first.html` itself, its `LOOK` and its CSS, never as a que
 - zones: <hero, side, band: one line each>
 - holds across screens: <what the other screens keep from this one: how empty, type scale, picture share, margin, radius, edges, density>
 - pictures: <how they are treated>
+- motion: <what moves, its trigger, ms and easing, from its base's reading and within the design brief's pick; or "none">
+- finish: <the surface finish as a pasteable recipe, from its base or a borrowed move; or "none">
 
 ## Hierarchy
 1. <first read> 2. <second> 3. <the rest>. Primary action: <what, where>.
