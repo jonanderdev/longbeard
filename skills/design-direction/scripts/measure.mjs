@@ -26,10 +26,19 @@
 // when no readable rule says. "finish" is what shows on the first screen, each value with the
 // share of the screen its elements cover: shadow, textShadow, filter, backdrop, blend and
 // texture (an feTurbulence filter, or a small picture tiled over a quarter of the screen or
-// more), six of each at most. "unread" counts the stylesheets the page does not allow reading
-// (another origin): nothing is guessed from them, so a hover rule in one reads as "state". Not
-// read: animations a script drives, a hover that is set up in script, and texture inside a
-// picture file. Neither is in --tsv; both are in the profile's page.
+// more), six of each at most, with "finishMore" saying how many it left out. "motionMore" does the
+// same for the motion. Motion a script makes is listed too, as kind "script": a Web Animation (its
+// keyframed properties, time and easing as the page set them), and a value a script writes frame
+// by frame, seen by watching for about 1.2 s: it has no time and no easing ("not seen", frames
+// give no curve). The watch has two parts, at load and while the page is scrolled one screen in
+// three steps (the scroll position is put back); a sticky or fixed thing is listed only when it
+// changes its transform, opacity, clip-path or filter. A canvas or a video that is playing is
+// listed with its cover of the first screen and nothing else. "unread" counts the stylesheets the
+// page does not allow reading (another origin) and the canvases whose pixels it does not allow
+// reading: nothing is guessed from them, so a hover rule in one reads as "state". Not read: a
+// hover that is set up in script, a script that moves things only after a click, motion that has
+// ended before the page was read, and texture inside a picture file. Neither is in --tsv; both
+// are in the profile's page.
 //
 // Traits are what families are sorted by and what a family shares, so every
 // keep is measured the same way before anyone judges it by eye.
@@ -295,6 +304,9 @@ async function openTab() {
   };
   await call("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 768 });
   await call("Page.enable");
+  // A tab behind another is hidden and draws no frames, so a page's own frame loop would stand
+  // still while it is watched: every tab is made to count as shown and focused.
+  await call("Emulation.setFocusEmulationEnabled", { enabled: true });
   return { call, evaluate };
 }
 
@@ -1022,10 +1034,11 @@ const readPage = `(() => {
 
 // Motion: each transition and animation a page declares on an element that has a box, read from
 // computed style, so one that has already ended (a fill-mode fade) is still seen. It is read before
-// animations are ended, so a running one gives its keyframes' properties. Runs in the page (it is
-// sent as text, so it holds nothing from this file). Stylesheets the page does not allow reading
-// are counted in "unread" and never guessed at: a hover is named only from rules that were read.
-function readMotion() {
+// animations are ended, so a running one gives its keyframes' properties. Then what a script does
+// (watchFrames, below). Runs in the page (it is sent as text, so it holds nothing from this file).
+// Stylesheets the page does not allow reading are counted in "unread" and never guessed at: a hover
+// is named only from rules that were read.
+async function readMotion() {
   const W = innerWidth, LIMIT = 6000, CAP = 12;
   // A list of CSS values, split at the commas that are not inside brackets or quotes.
   const split = (v) => {
@@ -1092,20 +1105,29 @@ function readMotion() {
   for (const sheet of [...document.styleSheets, ...(document.adoptedStyleSheets || [])]) readSheet(sheet);
   // What is running now: a keyframes' properties are read from the animation itself, which works
   // even when its stylesheet could not be read.
-  const running = new Map();
+  const running = new Map(), scripted = [];
+  const keysOf = (a) => {
+    const props = new Set();
+    try {
+      for (const k of a.effect.getKeyframes()) for (const p of Object.keys(k)) if (!["offset", "computedOffset", "easing", "composite"].includes(p)) props.add(p);
+    } catch {}
+    return props;
+  };
+  const isTransition = (a) => typeof CSSTransition !== "undefined" && a instanceof CSSTransition;
+  const isCss = (a) => isTransition(a) || (typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation);
   for (const a of document.getAnimations()) {
     const target = a.effect?.target;
-    if (!target || a.effect.pseudoElement) continue;
+    if (!target) continue;
+    // One a script made (element.animate) is in no style sheet: it is listed from its own timing, below.
+    if (!isCss(a)) {
+      if (a.playState !== "idle") scripted.push(a);
+      continue;
+    }
+    if (a.effect.pseudoElement) continue;
     const here = running.get(target) || { names: new Map(), moves: new Set() };
     running.set(target, here);
-    if (typeof CSSTransition !== "undefined" && a instanceof CSSTransition) here.moves.add(a.transitionProperty);
-    else if (typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation) {
-      try {
-        const props = new Set();
-        for (const k of a.effect.getKeyframes()) for (const p of Object.keys(k)) if (!["offset", "computedOffset", "easing", "composite"].includes(p)) props.add(p);
-        here.names.set(a.animationName, props);
-      } catch {}
-    }
+    if (isTransition(a)) here.moves.add(a.transitionProperty);
+    else here.names.set(a.animationName, keysOf(a));
   }
   const dash = (p) => p.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase());
   const words = (t) => {
@@ -1204,8 +1226,234 @@ function readMotion() {
     read(el, "::before");
     read(el, "::after");
   }
-  const items = [...found.values()].sort((a, b) => b.uses - a.uses).slice(0, CAP);
-  return { items, unread };
+  // Animations a script made with element.animate: the properties its keyframes set, and its timing as set.
+  for (const a of scripted.slice(0, LIMIT)) {
+    const el = a.effect.target, pseudo = a.effect.pseudoElement || "";
+    if (!el.checkVisibility || !el.checkVisibility({ visibilityProperty: true })) continue;
+    let t;
+    try {
+      t = a.effect.getTiming();
+    } catch {
+      continue;
+    }
+    const line = typeof ScrollTimeline !== "undefined" && a.timeline instanceof ScrollTimeline;
+    const props = keysOf(a);
+    note(
+      {
+        kind: "script",
+        property: props.size ? [...props].map(dash).join(", ") : null,
+        ms: !line && typeof t.duration === "number" ? Math.round(t.duration) : null,
+        delay: Math.round(t.delay) || 0,
+        easing: t.easing,
+        iteration: t.iterations === Infinity ? "loop" : t.iterations === 1 ? "once" : t.iterations + " times",
+        trigger: line ? "scroll" : "load",
+      },
+      describe(el) + (pseudo ? " (" + pseudo + ")" : ""),
+    );
+  }
+
+  // Motion a script makes by writing values frame by frame (a loop on the page's own frames, a
+  // library, a scroll listener) leaves nothing to read, so it is watched: a bounded set of the
+  // visible elements is sampled four times over 600 ms, then again as the page is scrolled one
+  // screen in three steps, and an element whose value changes between samples with no transition
+  // or animation running on that property is listed. Frames give no curve, so its time and easing
+  // are null ("not seen"). Reduced motion is not emulated: the page behaves as it does for anyone.
+  // The watch is held to about two seconds, and the scroll position is put back.
+  const watchFrames = async () => {
+    const T0 = performance.now(), BUDGET = 1900, H = innerHeight;
+    const late = () => performance.now() - T0 > BUDGET;
+    // The next frame, or 120 ms on, whichever comes first, so a tab that draws no frames still moves on.
+    const frame = () =>
+      new Promise((done) => {
+        const timer = setTimeout(done, 120);
+        requestAnimationFrame(() => (clearTimeout(timer), done()));
+      });
+    const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+    const until = async (at) => {
+      const left = T0 + at - performance.now();
+      if (left > 0) await pause(left);
+      await frame();
+    };
+    const tracked = [], pinned = [];
+    let scanned = 0;
+    for (const el of [document.body, ...document.body.querySelectorAll("*")]) {
+      if (++scanned > LIMIT) break;
+      if (!el.checkVisibility || !el.checkVisibility({ visibilityProperty: true })) continue;
+      const b = el.getBoundingClientRect();
+      if (b.width < 2 && b.height < 2) continue;
+      tracked.push(el);
+      pinned.push(/^(fixed|sticky)$/.test(getComputedStyle(el).position));
+    }
+    // What a rule or a Web Animation already moves is not the script's: its properties, per element.
+    const LAYOUT = /^(width|height|inline-size|block-size|top|left|right|bottom|inset|margin|padding|border|font|flex|grid|gap|line-height|letter-spacing|min-|max-)/;
+    const covered = new Map();
+    let layoutMoves = false;
+    const coverOf = (el) => covered.get(el) || covered.set(el, new Set()).get(el);
+    const addProp = (el, p) => {
+      coverOf(el).add(p);
+      if (LAYOUT.test(p)) layoutMoves = true;
+    };
+    const addAnimation = (a) => {
+      const el = a.effect?.target;
+      if (!el || a.effect.pseudoElement) return;
+      for (const p of isTransition(a) ? [a.transitionProperty] : [...keysOf(a)].map(dash)) addProp(el, p);
+    };
+    // A transition or animation that starts and ends between two samples is still seen as it starts.
+    const onRun = (e) => {
+      try {
+        if (e.pseudoElement) return;
+        for (const a of e.target.getAnimations()) addAnimation(a);
+        if (e.propertyName) addProp(e.target, e.propertyName);
+      } catch {}
+    };
+    document.addEventListener("transitionrun", onRun, true);
+    document.addEventListener("animationstart", onRun, true);
+    // A picture loads into its box, which is not motion: the box of one is left out.
+    const boxOf = (el) => {
+      if (/^(IMG|VIDEO|IFRAME|CANVAS|PICTURE|OBJECT|EMBED)$/.test(el.tagName)) return "";
+      if (el instanceof HTMLElement) return el.offsetWidth + "," + el.offsetHeight + "," + el.offsetLeft + "," + el.offsetTop;
+      try {
+        const b = el.getBBox();
+        return [b.width, b.height, b.x, b.y].map(Math.round).join(",");
+      } catch {
+        return "";
+      }
+    };
+    // A drawing's transform as it is animated, which also shows what an animateTransform does (it is no style).
+    const svgMatrix = (el) => {
+      if (typeof SVGGraphicsElement === "undefined" || !(el instanceof SVGGraphicsElement) || !el.transform) return "";
+      try {
+        const m = el.transform.animVal.consolidate()?.matrix;
+        return m ? " " + [m.a, m.b, m.c, m.d, m.e, m.f].join() : "";
+      } catch {
+        return "";
+      }
+    };
+    const KEYS = ["transform","opacity", "translate", "rotate", "scale", "clip-path", "filter", "top", "left", "box"];
+    const take = () => {
+      for (const a of document.getAnimations()) addAnimation(a);
+      return tracked.map((el) => {
+        if (!el.isConnected) return null;
+        const cs = getComputedStyle(el), placed = cs.position !== "static";
+        return [cs.transform + svgMatrix(el),cs.opacity, cs.translate, cs.rotate, cs.scale, cs.clipPath, cs.filter, placed ? cs.top : "", placed ? cs.left : "", boxOf(el)];
+      });
+    };
+    const isCovered = (el, key) => {
+      const set = covered.get(el);
+      if (!set) return false;
+      return key === "box" ? [...set].some((p) => LAYOUT.test(p)) : set.has(key);
+    };
+    // How much of the first screen a box covers, in tenths of a percent.
+    const coverOfScreen = (el) => {
+      const b = el.getBoundingClientRect();
+      const share = (Math.max(0, Math.min(b.right, W) - Math.max(b.left, 0)) * Math.max(0, Math.min(b.bottom, H) - Math.max(b.top, 0))) / (W * H);
+      return Math.round(1000 * share) / 10;
+    };
+    // A canvas is read small: its pixels, drawn into a 32 px square.
+    const canvases = [...document.querySelectorAll("canvas")].filter((c) => c.width > 0 && c.height > 0 && c.checkVisibility?.({ visibilityProperty: true })).slice(0, 8);
+    const grab = (c) => {
+      try {
+        // A fresh square each time: one that has drawn an unreadable canvas stays unreadable.
+        const scratch = document.createElement("canvas");
+        scratch.width = scratch.height = 32;
+        const sctx = scratch.getContext("2d", { willReadFrequently: true });
+        sctx.drawImage(c, 0, 0, 32, 32);
+        return sctx.getImageData(0, 0, 32, 32).data.join();
+      } catch {
+        return null;
+      }
+    };
+    // What is found is grouped by what it is, so a hundred things one loop moves are one line.
+    const groups = new Map();
+    const emit = (item, el) => {
+      const sig = JSON.stringify(item);
+      const old = groups.get(sig);
+      if (old) old.uses++;
+      else groups.set(sig, { item, el, uses: 1 });
+    };
+    const script = (property, iteration, trigger) => ({ kind: "script", property, ms: null, delay: null, easing: null, iteration, trigger });
+    const startX = scrollX, startY = scrollY;
+    try {
+      const load = [], pixels = [];
+      const covers = canvases.map(coverOfScreen);
+      for (const at of [0, 200, 400, 600]) {
+        await until(at);
+        load.push(take());
+        pixels.push(canvases.map(grab));
+      }
+      // Something that moved and then held for the last step has either ended or the tab drew no frame
+      // in that step (a slow machine). One more look, a little later, tells the two apart.
+      const held = tracked.some((el, i) => {
+        const rows = load.map((s) => s[i]);
+        return !rows.some((r) => !r) && KEYS.some((key, k) => !rows.every((r) => r[k] === rows[0][k]) && rows[3][k] === rows[2][k]);
+      });
+      if (held && !late()) {
+        await pause(250);
+        await frame();
+        load.push(take());
+      }
+      const looping = new Set();
+      tracked.forEach((el, i) => {
+        const rows = load.map((s) => s[i]);
+        if (rows.some((r) => !r)) return;
+        KEYS.forEach((key, k) => {
+          if (rows.every((r) => r[k] === rows[0][k]) || isCovered(el, key)) return;
+          if (key === "box" && layoutMoves) return;
+          const loop = rows[3][k] !== rows[2][k] || (rows[4] !== undefined && rows[4][k] !== rows[3][k]);
+          if (loop) looping.add(i + ":" + k);
+          emit(script(key, loop ? "loop" : "once", "load"), el);
+        });
+      });
+      // A canvas whose pixels differ between samples is playing; one the page does not let be read is counted, not guessed.
+      canvases.forEach((c, j) => {
+        const seen = pixels.map((p) => p[j]);
+        if (seen.some((p) => p === null)) return void unread++;
+        if (seen.some((p) => p !== seen[0])) emit({ kind: "canvas", cover: covers[j] }, c);
+      });
+      for (const v of document.querySelectorAll("video")) {
+        if (v.paused || v.ended || v.readyState < 2 || !v.checkVisibility?.({ visibilityProperty: true })) continue;
+        const b = v.getBoundingClientRect();
+        if (b.width >= 2 && b.height >= 2) emit({ kind: "video", cover: coverOfScreen(v) }, v);
+      }
+      // Scrolled one screen in three steps. A sample taken before the first step, apart from the last
+      // one of the load, shows what changes with time alone, which is not the scroll's.
+      const run = Math.min(H, document.documentElement.scrollHeight - H - startY);
+      if (!late() && run >= 40) {
+        await pause(150);
+        await frame();
+        const still = take(), steps = [];
+        for (const part of [1 / 3, 2 / 3, 1]) {
+          if (late()) break;
+          scrollTo({ left: startX, top: startY + run * part, behavior: "instant" });
+          await pause(100);
+          await frame();
+          steps.push(take());
+        }
+        // A thing fixed or sticky changes its place by design: only what it does besides counts.
+        const OWN = ["transform", "opacity", "translate", "rotate", "scale", "clip-path", "filter"];
+        tracked.forEach((el, i) => {
+          const was = load[load.length - 1][i], base = still[i];
+          if (!was || !base) return;
+          KEYS.forEach((key, k) => {
+            if (was[k] !== base[k] || looping.has(i + ":" + k) || isCovered(el, key)) return;
+            if ((pinned[i] && !OWN.includes(key)) || (key === "box" && layoutMoves)) return;
+            if (steps.some((s) => s[i] && s[i][k] !== base[k])) emit(script(key, "once", "scroll"), el);
+          });
+        });
+      }
+    } finally {
+      scrollTo({ left: startX, top: startY, behavior: "instant" });
+      document.removeEventListener("transitionrun", onRun, true);
+      document.removeEventListener("animationstart", onRun, true);
+    }
+    for (const { item, el, uses } of groups.values()) found.set("w|" + JSON.stringify(item), { ...item, on: describe(el), uses });
+  };
+  // A watch that fails leaves what was read from the style sheets as it is.
+  try {
+    await watchFrames();
+  } catch {}
+  const all = [...found.values()].sort((a, b) => b.uses - a.uses);
+  return { items: all.slice(0, CAP), more: Math.max(0, all.length - CAP), unread };
 }
 
 // Finish: shadows, filters, blend modes and textures of what shows on the first screen, each with
@@ -1346,13 +1594,15 @@ async function readFinish() {
     mark("texture", t.css, t.box, { kind: "tile", size: px.length ? t.size : nw + "x" + nh });
   }
   const out = {};
+  let more = 0;
   for (const [kind, map] of Object.entries(kinds)) {
+    more += Math.max(0, map.size - CAP);
     out[kind] = [...map.values()]
       .map(({ css, kind: how, size, cells, uses }) => ({ css, ...(how ? { kind: how } : {}), ...(size ? { size } : {}), cover: Math.round((1000 * cells.size) / (CW * CH)) / 10, uses }))
       .sort((a, b) => b.cover - a.cover || b.uses - a.uses)
       .slice(0, CAP);
   }
-  return out;
+  return { kinds: out, more };
 }
 // A reading that fails (a page that blocks it) leaves its key null, never fails the page's other numbers.
 async function readOr(tab, fn) {
@@ -1399,8 +1649,11 @@ async function measurePage(tab, url) {
     motion = (await readOr(tab, readMotion)) || motion;
   }
   out.motion = motion ? motion.items : null;
+  out.motionMore = motion ? motion.more : null;
   out.unread = motion ? motion.unread : null;
-  out.finish = await readOr(tab, readFinish);
+  const finish = await readOr(tab, readFinish);
+  out.finish = finish ? finish.kinds : null;
+  out.finishMore = finish ? finish.more : null;
   out.flag = notTheSite({ status: out.status, words: out.words, said: out.said, pictures: out.traits.pictures });
   delete out.said;
   return out;
@@ -1443,7 +1696,7 @@ if (swatches) {
   const byTarget = new Map(results.filter((r) => !r.error).map((r) => [r.target, r]));
   const pageOf = (r) => {
     const texts = [...r.text].sort((a, b) => parseFloat(b.size) - parseFloat(a.size)).slice(0, 8);
-    return { url: r.target, flag: r.flag || "", status: r.status, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts, motion: r.motion, finish: r.finish, unread: r.unread };
+    return { url: r.target, flag: r.flag || "", status: r.status, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts, motion: r.motion, motionMore: r.motionMore, finish: r.finish, finishMore: r.finishMore, unread: r.unread };
   };
   for (const t of targets.filter((x) => !isUrl(x))) {
     const r = byTarget.get(t);

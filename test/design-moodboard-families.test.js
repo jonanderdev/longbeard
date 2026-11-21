@@ -317,10 +317,24 @@ test("tag: an old row of name and the eight look fields still merges, with no he
   assert.equal(a.about, undefined);
 });
 
+test("tag: a header or a stored profile that still says subject is read as shows", () => {
+  const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }), b: profile("b", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
+  delete refs.a.tags;
+  refs.b.about = { subject: ["cutout"], mood: ["calm"] };
+  const head = "name\tpicture\tphoto\ttype\tweight\tlayout\tcolour\tsurface\tscale";
+  const row = "photo\tduotone\tdisplay\tweight:bold\tsplit\tmuted\tgrain\tlarge".replace("weight:bold", "bold");
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "old.tsv": `${head}\tsubject\na\t${row}\tportrait\n`, "more.tsv": `${head}\thue\nb\t${row}\tred\n` });
+  assert.match(run("tag.mjs", dir, ["profiles.json", "old.tsv"]).stdout, /tagged 1/);
+  assert.match(run("tag.mjs", dir, ["profiles.json", "more.tsv"]).stdout, /tagged 1/);
+  const { a, b } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
+  assert.deepEqual(a.about, { shows: ["portrait"] });
+  assert.deepEqual(b.about, { mood: ["calm"], shows: ["cutout"], hue: ["red"] });
+});
+
 test("tag line: format then parse is the same, none left out and read back", async () => {
   const { parseTagLine, formatTagLine } = await import(pathToFileURL(script("tag.mjs")));
   const tags = { picture: ["photo", "lettering"], photo: ["mono"], type: ["serif", "mono"], weight: ["bold"], layout: ["collage"], colour: ["duotone"], surface: ["grain"], scale: ["large"], motion: ["ui"] };
-  const about = { format: ["editorial"], domain: ["fashion"], mood: ["editorial", "bold"], hue: ["red"], density: ["airy"], subject: ["portrait", "close-crop"] };
+  const about = { format: ["editorial"], domain: ["fashion"], mood: ["editorial", "bold"], hue: ["red"], density: ["airy"], shows: ["portrait", "close-crop"] };
   const line = formatTagLine({ tags, about });
   assert.equal(line, "photo lettering photo:mono serif type:mono weight:bold layout:collage colour:duotone grain large motion:ui · format:editorial fashion mood:editorial mood:bold red airy portrait close-crop");
   assert.deepEqual(parseTagLine(line), { tags, about, unknown: [], ambiguous: [] });
@@ -328,6 +342,8 @@ test("tag line: format then parse is the same, none left out and read back", asy
   const still = { picture: ["none"], photo: ["none"], type: ["sans"], weight: ["regular"], layout: ["left"], colour: ["neutral"], surface: ["flat"], scale: ["huge"], motion: ["none"] };
   assert.equal(formatTagLine({ tags: still, about: {} }), "sans regular left neutral flat huge");
   assert.deepEqual(parseTagLine("sans regular left neutral flat huge").tags, still);
+  assert.equal(formatTagLine({ tags: {}, about: { shows: ["type-only"] } }), "type-only");
+  // A profile stored under the field's first name still writes its words.
   assert.equal(formatTagLine({ tags: {}, about: { subject: ["type-only"] } }), "type-only");
   assert.throws(() => formatTagLine({ tags: { surface: ["shiny"] } }), /surface "shiny"/);
 });
@@ -377,10 +393,10 @@ test("tag: a line column fills the cells left empty, and refuses an unknown or b
   assert.match(good.stdout, /tagged 2, 0 left untagged/);
   const { a, b } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
   assert.deepEqual(a.tags, { picture: ["photo"], photo: ["colour"], type: ["serif"], weight: ["bold"], layout: ["split"], colour: ["muted"], surface: ["grain"], scale: ["huge"], motion: ["kinetic"] });
-  assert.deepEqual(a.about, { format: ["web-hero"], domain: ["fashion"], mood: ["calm"], hue: ["red"], density: ["airy"], subject: ["portrait"] });
+  assert.deepEqual(a.about, { format: ["web-hero"], domain: ["fashion"], mood: ["calm"], hue: ["red"], density: ["airy"], shows: ["portrait"] });
   assert.equal(a.note, "hero");
   assert.deepEqual(b.tags, { picture: ["none"], photo: ["none"], type: ["sans"], weight: ["regular"], layout: ["left"], colour: ["neutral"], surface: ["flat"], scale: ["quiet"], motion: ["none"] });
-  assert.deepEqual(b.about, { subject: ["type-only"] });
+  assert.deepEqual(b.about, { shows: ["type-only"] });
 });
 
 test("families: from profiles, what the picture is separates references the numbers alone would join", () => {
