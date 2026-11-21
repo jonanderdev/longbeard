@@ -272,6 +272,51 @@ test("tag: checks every word against the vocabulary, then merges the rows and th
   assert.equal(a.note, "chrome 3D wordmark");
 });
 
+test("tag: a header row names its columns, merges the about fields into about and motion into tags, and refuses a bad about word by its field", () => {
+  const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }), b: profile("b", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
+  delete refs.a.tags;
+  delete refs.b.tags;
+  refs.b.about = { hue: ["red"] };
+  const head = "name\tformat\tscale\tpicture\tphoto\ttype\tweight\tlayout\tcolour\tsurface\tmotion\tdomain\tmood\tdensity\thue\tnote\n";
+  const dir = project({
+    "profiles.json": JSON.stringify({ refs }),
+    "bad.tsv": `${head}a\tweb-hero\thuge\tlettering\tnone\tcondensed\tblack\tedge-type\tpastel\tflat\tkinetic\tfintech\tbold\tairy\t\t\n`,
+    "good.tsv": `${head}a\tweb-hero+poster\thuge\tlettering\tnone\tcondensed+outline\tblack\tedge-type\tpastel\tflat\tkinetic\ttech-saas\tbold\tairy\t\tmoving outline type\nb\t\theading\tnone\tnone\tsans\tregular\tleft\tdark\tflat\t\t\tcalm\t\t\t\n`,
+  });
+  const bad = spawnSync(process.execPath, [script("tag.mjs"), "profiles.json", "bad.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /a domain "fintech": use portfolio/);
+  assert.equal(JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.a.tags, undefined);
+  const good = run("tag.mjs", dir, ["profiles.json", "good.tsv"]);
+  assert.match(good.stdout, /tagged 2, 0 left untagged/);
+  const { a, b } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
+  assert.deepEqual(a.about, { format: ["web-hero", "poster"], domain: ["tech-saas"], mood: ["bold"], density: ["airy"] });
+  assert.deepEqual(a.tags.type, ["condensed", "outline"]);
+  assert.deepEqual(a.tags.motion, ["kinetic"]);
+  assert.equal(a.tags.format, undefined);
+  assert.equal(a.note, "moving outline type");
+  // Empty cells are not given: b keeps its hue, and has no motion.
+  assert.deepEqual(b.about, { hue: ["red"], mood: ["calm"] });
+  assert.equal(b.tags.motion, undefined);
+  assert.deepEqual(b.tags.colour, ["dark"]);
+  // The look fields stay required under a header.
+  writeFileSync(join(dir, "short.tsv"), "name\tpicture\tformat\na\tphoto\tposter\n");
+  const short = spawnSync(process.execPath, [script("tag.mjs"), "profiles.json", "short.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(short.status, 1);
+  assert.match(short.stderr, /header has no photo, type, weight, layout, colour, surface, scale/);
+});
+
+test("tag: an old row of name and the eight look fields still merges, with no header", () => {
+  const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
+  delete refs.a.tags;
+  const dir = project({ "profiles.json": JSON.stringify({ refs }), "old.tsv": "a\tphoto\tduotone\tdisplay\tbold\tsplit\tmuted\tgrain\tlarge\n" });
+  const result = run("tag.mjs", dir, ["profiles.json", "old.tsv"]);
+  assert.match(result.stdout, /tagged 1, 0 left untagged/);
+  const { a } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
+  assert.deepEqual(a.tags, { picture: ["photo"], photo: ["duotone"], type: ["display"], weight: ["bold"], layout: ["split"], colour: ["muted"], surface: ["grain"], scale: ["large"] });
+  assert.equal(a.about, undefined);
+});
+
 test("families: from profiles, what the picture is separates references the numbers alone would join", () => {
   const refs = {};
   // Three looks with the same tone and emptiness: photographs, 3D renders, and type alone on the ground.
@@ -405,4 +450,40 @@ test("families --assign: new references join the families there are, the rest ar
   const empty = spawnSync(process.execPath, [script("families.mjs"), "profiles.json", "--assign", "other.json"], { cwd: dir, encoding: "utf8" });
   assert.equal(empty.status, 1);
   assert.match(empty.stderr, /no family whose members are in profiles.json/);
+});
+
+test("families: an about layer on every profile changes nothing", () => {
+  const refs = {};
+  for (let i = 0; i < 5; i++) refs[`photo${i}`] = profile(`photo${i}`, { lum: 0.02, empty: 60 + i, picture: "photo", layout: "full-bleed", colours: 150, soft: 30, sharp: 35, grid: 70 });
+  for (let i = 0; i < 4; i++) refs[`type${i}`] = profile(`type${i}`, { lum: 0.02, empty: 62 + i, picture: "none", layout: "left", colours: 6, soft: 2, sharp: 60, grid: 10 });
+  refs.pairA = profile("pairA", { lum: 0.95, empty: 30, loud: 60, picture: "collage", layout: "collage", colours: 200 });
+  refs.pairB = profile("pairB", { lum: 0.95, empty: 31, loud: 61, picture: "collage", layout: "collage", colours: 200 });
+  const plain = project({ "profiles.json": JSON.stringify({ refs }) });
+  const moods = ["calm", "bold", "raw"];
+  for (const [i, p] of Object.values(refs).entries()) p.about = { format: [i % 2 ? "poster" : "web-hero"], mood: [moods[i % 3]], hue: ["red", "blue"], density: ["dense"] };
+  const about = project({ "profiles.json": JSON.stringify({ refs }) });
+  const a = run("families.mjs", plain, ["profiles.json"]);
+  const b = run("families.mjs", about, ["profiles.json"]);
+  assert.equal(b.stdout, a.stdout);
+  assert.deepEqual(JSON.parse(readFileSync(join(about, "families.json"), "utf8")), JSON.parse(readFileSync(join(plain, "families.json"), "utf8")));
+});
+
+test("families: motion counts in the distance", () => {
+  const look = (name, motion) => {
+    const p = profile(name, { lum: 0.5, empty: 50, picture: "lettering", layout: "edge-type" });
+    p.tags.motion = [motion];
+    return p;
+  };
+  const refs = {};
+  for (let i = 0; i < 4; i++) refs[`k${i}`] = look(`k${i}`, "kinetic");
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  run("families.mjs", dir, ["profiles.json"]);
+  refs.same = look("same", "kinetic");
+  refs.moved = look("moved", "ui");
+  writeFileSync(join(dir, "profiles.json"), JSON.stringify({ refs }));
+  run("families.mjs", dir, ["profiles.json", "--assign", "families.json"]);
+  const out = JSON.parse(readFileSync(join(dir, "assign.json"), "utf8"));
+  const at = Object.fromEntries([...out.assigned, ...out.strays].map((x) => [x.name, x.distance]));
+  assert.equal(at.same, 0);
+  assert.ok(at.moved > at.same, JSON.stringify(out));
 });

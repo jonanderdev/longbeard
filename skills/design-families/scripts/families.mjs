@@ -7,7 +7,9 @@
 //   node families.mjs traits.tsv [--links links.tsv --pages traits-pages.tsv]
 //
 // profiles.json (measure.mjs --profiles, tags from tag.mjs) is the full read of
-// each reference. A TSV from measure.mjs --tsv, with its live pages joined by
+// each reference. Only the look layer of tag.mjs (profile.tags) is sorted on;
+// the about layer (profile.about: format, domain, mood, hue, density) is what a
+// reference is for, kept for picking references for a brief, and never read here. A TSV from measure.mjs --tsv, with its live pages joined by
 // --links and --pages, is read the same way with what it has.
 //
 // How two references are compared. Each kind of trait gives a distance from 0
@@ -279,6 +281,8 @@ const WEIGHTS = {
   surface: tagField("surface", 0.5),
   photo: tagField("photo", 0.3),
   weight: tagField("weight", 0.2),
+  // Optional in a row: compared only between references that both have it.
+  motion: tagField("motion", 0.4),
 };
 for (const field of Object.keys(VOCAB)) if (!WEIGHTS[field]) WEIGHTS[field] = tagField(field, 0.3);
 const kinds = Object.entries(WEIGHTS).filter(([, k]) => refs.some((r) => k.read(r) !== null));

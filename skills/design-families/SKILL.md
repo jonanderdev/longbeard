@@ -49,7 +49,12 @@ node <skill>/scripts/tag.mjs .longbeard/design/families/profiles.json --sheets <
 node <skill>/scripts/tag.mjs .longbeard/design/families/profiles.json .longbeard/design/families/tags.tsv
 ```
 
-The first makes sheets of 16 untagged keeps and prints the vocabulary (picture, photo, type, weight, layout, colour, surface, scale). Write one row per keep from the sheets; the second checks every word. Their own board tags seed the rows: map each to the vocabulary and tag only what is left. Tag what is there, never what is good. On a big board, split the sheets across a few agents.
+The first makes sheets of 16 untagged keeps and prints the vocabulary, one vocabulary in two layers:
+
+- **The look**, sorted on, stored in `tags`: picture, photo, type, weight, layout, colour, surface, scale, and `motion` (none, kinetic, blur-grain, ui, repetition) for gifs, videos and live pages.
+- **What it is and is for**, stored in `about`, checked but never sorted on: format, domain, mood, hue, density. It is what a brief picks references by.
+
+Write a header row naming the columns (`name<TAB>picture<TAB>…<TAB>scale<TAB>motion<TAB>format<TAB>domain<TAB>mood<TAB>hue<TAB>density<TAB>note`, any order), then one row per keep from the sheets. The eight look fields are required; motion, the about fields and the note are optional, an empty cell when not seen. A row without a header is the old one: name, the eight look fields, an optional note. The second command checks every word against its field. Their own board tags seed the rows: map each to the vocabulary and tag only what is left. Tag what is there, never what is good. On a big board, split the sheets across a few agents.
 
 ## 3. Sort, then the eye
 
