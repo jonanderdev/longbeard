@@ -57,8 +57,8 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` f
 - **`slots`:** how much text it carries; a screen built on it carries the same, and at most one more small element.
 - **`devices`:** every element that is not content, so every element on a screen can be traced to one.
 
-## The subject's colours
+## The subject
 
-`subject-colours.mjs` proposes a palette from the product's own pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent" }`. It is one more palette a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages.
+The subject is a card on the board and is read like a reference, without a layout and never a base. `subject-colours.mjs` proposes a palette from its pictures ([subject.md](subject.md)): a quiet ground, its ink, and an accent when the subject has a second hue. Write it as `"subject": { "ground", "ink", "accent", "likes": [{ "what", "why" }], "things": ["<what they liked in its pictures or world: a stamp, a number, a paper bag>"] }`. The palette is one more a screen may borrow, as a quiet tint or an accent, never stronger than the references set their own pages. A liked thing is a move that may change form (principle 4).
 
 **Record, never judge.** A gradient, a glow, a face the rules call a tell: if a reference uses it, it is in its reading. What they own goes in `"theirs"`; a refused face or colour is left out; light only or dark only leaves out the readings' palettes of the other kind as borrowable palettes, never the references.

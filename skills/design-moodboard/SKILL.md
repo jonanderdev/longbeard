@@ -57,12 +57,13 @@ Their board already holds their taste: it is the pool. A rich board needs no sea
 
 **Keep every card that fits.** Never cut their board to a number. Drop only what plainly fails (off-topic, broken, a duplicate), and say how many and why in one line. A poster, a type specimen, packaging or an illustration is kept, marked `screen: no`: it carries colour and picture treatment, not an arrangement.
 
-**Is it enough?** Two checks:
+**Is it enough?** Three checks:
 
 - **Enough to compose from:** at least six keeps that are screens.
 - **Every part:** each key screen in the brief has at least one keep that shows that kind of screen.
+- **One far reference:** when every keep is a screen, at least one from outside screens (print, signage, packaging, an object from the subject's world), marked `screen: no`, so the screens have something to borrow that no other screen has.
 
-Both met → say so in one line ("34 fits, every part covered") and write the doc. Otherwise say what it lacks in up to three lines and ask:
+All met → say so in one line ("34 fits, every part covered") and write the doc. Otherwise say what it lacks in up to three lines and ask:
 
 > Search for these, or go with what your board has?
 

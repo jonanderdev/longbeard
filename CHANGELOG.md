@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **`design-direction`: the critic loop can end, and the text is about 400 words shorter.** The loop stops when only small spots are left or after three passes, and the rest goes on the sheet as known faults. The critic also asks what on the screen exists only because of this product (an empty answer is a fault), "not a copy" is a yes or no, and pictures, tones and moves are spread when the round is planned. The subject is a card on the board, liked with a why, and what they like in it may return in another form. `design-moodboard` asks for one far reference when the board is only screens.
+
 - **Design only** (new): `npx longbeard init --design`, or the question "Design only, or the whole pipeline?" on a first `init` in a terminal, installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, with an `AGENTS.md` block that has just the Idea and Design stages. `beard-lock.json` records the choice and `update` keeps to it. `init --full` or `update --full` adds the rest, and leaves your design docs as they are. `design-check`'s build mode says it needs the build stage.
 
 - `design-check` gains `rules.mjs`, shared with `design-prototype`: it opens a page headless at desktop and phone width and prints the hard rules a browser can measure in the findings table, each tied to its rule (sideways scroll, small targets, inputs without a visible label, a focus that shows nothing, placeholder copy, clipped text). Text cut on purpose carries `data-crop` and is skipped; it never checks overlap, collision, alignment or empty space. A check that could not run is "not checked".
