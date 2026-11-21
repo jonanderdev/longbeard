@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   The design-* family, the picture the README links (assets/design-flow.png).
-  Change it here, then render the PNG from the repo root, with Playwright:
-    node -e 'const {chromium}=require("playwright");(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1264,height:900},deviceScaleFactor:2});await p.goto("file://"+process.cwd()+"/assets/flow-design.html");await p.waitForFunction(()=>document.title==="ready");await (await p.$(".canvas")).screenshot({path:"assets/design-flow.png"});await b.close()})()'
+  Change it here, then render the PNG from the repo root:
+    node skills/design-moodboard/scripts/capture.mjs "file://$PWD/assets/flow-design.html" --width 1264 --clip-selector ".canvas" --out assets/design-flow.png
 -->
 <html lang="en">
 <head>
@@ -94,7 +94,7 @@
       <div class="right"><span class="doc">design-moodboard.md</span></div>
     </div>
     <div class="row">
-      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-direction</span> <em>the direction</em></h3><p>3–4 pictures of your subject, then eight first screens dealt from your references, each with its own layout, type and colours. <b>You pick, vary, mix.</b> Then a light touch-up: contrast, anything missing, never the composition.</p></div></div>
+      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-direction</span> <em>the direction</em></h3><p>3–4 pictures of your subject, then eight first screens, each one of your references rebuilt with your content and changed by a move or two borrowed from others. <b>You pick, ask for more, mix.</b> Then a light touch-up: contrast, anything missing, never the composition.</p></div></div>
       <div class="right"><span class="doc">design-direction.md</span></div>
     </div>
     <div class="row">

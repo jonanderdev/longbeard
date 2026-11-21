@@ -101,7 +101,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 Offer the next stage in one line. A stage whose file already exists is done, so go past it:
 
 - Site or app, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
-- No UI, or `DESIGN.md` exists → stages 2 and 3 are skipped. Next is Architecture: they type `/grill-with-docs`.
+- No UI, or `DESIGN.md` exists → Design is skipped. Next is Architecture: they type `/grill-with-docs`.
 - `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
 
 Do not start it until they say so.

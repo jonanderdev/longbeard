@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -12,41 +12,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const sheet = join(root, "skills/design-direction/scripts/sheet.mjs");
 const measure = join(root, "skills/design-families/scripts/measure.mjs");
 
-// Eight references, a to h. Each gives one arrangement; type, grounds and the rest are shared out.
-const library = (extra = {}) => ({
-  anchor: "a",
-  family: { tone: "light", empty: "55–70%", from: ["a", "b"] },
-  arrangements: "abcdefgh".split("").map((ref) => ({ id: `arr-${ref}`, what: "x", from: [ref] })),
-  navigation: [
-    { id: "nav-1", what: "x", from: ["a", "b"] },
-    { id: "nav-2", what: "x", from: ["c", "d"] },
-    { id: "nav-3", what: "x", from: ["e"] },
-  ],
-  type: [
-    { id: "type-1", from: ["a", "b"] },
-    { id: "type-2", from: ["c", "d"] },
-    { id: "type-3", from: ["e", "f"] },
-    { id: "type-4", from: ["g", "h"] },
-  ],
-  grounds: [
-    { id: "light", ground: "#ffffff", ink: "#111111", from: ["a", "c"] },
-    { id: "cream", ground: "#f4ecdc", ink: "#111111", from: ["b", "e"] },
-    { id: "dark", ground: "#101010", ink: "#f0f0f0", from: ["d", "g"] },
-    { id: "framed", ground: "#203040", panel: "#fbfbfb", ink: "#111111", from: ["f", "h"] },
-  ],
-  accents: [
-    { id: "red", colour: "#d20401", device: "x", from: ["a", "d"] },
-    { id: "pale", colour: "#fdfbe8", device: "x", from: ["b", "f"] },
-    { id: "none", colour: null, device: "x", from: ["c", "e", "g", "h"] },
-  ],
-  ...extra,
-});
-
-function project(lib = library()) {
-  const dir = mkdtempSync(join(tmpdir(), "longbeard-deal-"));
-  writeFileSync(join(dir, "library.json"), JSON.stringify(lib));
-  return dir;
-}
 const run = (script, dir, args) => spawnSync(process.execPath, [script, ...args], { cwd: dir, encoding: "utf8" });
 
 test("sheet: one numbered tile per shot, in the order given", () => {
@@ -310,19 +275,19 @@ test("colours: design-identity's colour options are made by rule, every option p
   const { rows } = JSON.parse(out.stdout);
   const grounds = rows.filter((r) => r.row === "ground");
   const accents = rows.filter((r) => r.row === "accent");
-  assert.deepEqual(grounds.slice(0, 3).map((r) => r.label), ["as dealt", "lighter", "darker"]);
+  assert.deepEqual(grounds.slice(0, 3).map((r) => r.label), ["as built", "lighter", "darker"]);
   assert.ok(grounds.every((r) => r.contrast >= 4.5));
   assert.equal(grounds.find((r) => r.label === "theirs").ink, "#f7f7f5");
   assert.ok(accents.filter((r) => r.colour !== "none").every((r) => r.contrast >= 3));
   assert.ok(!accents.some((r) => r.colour === "#fec704"), "a yellow under 3:1 on cream is left out");
   assert.ok(accents.some((r) => r.label === "none"));
   const pale = spawnSync(process.execPath, [colours, "--ground", "#fff", "--ink", "#000", "--accent", "#ececec"], { encoding: "utf8" });
-  assert.match(pale.stderr, /left out the dealt accent/);
+  assert.match(pale.stderr, /left out the built accent/);
   assert.equal(spawnSync(process.execPath, [colours, "--ground", "nope", "--ink", "#000"], { encoding: "utf8" }).status, 2);
-  // The dealt ink is part of the look: tan on brown stays tan wherever it reads, not white.
+  // The built ink is part of the look: tan on brown stays tan wherever it reads, not white.
   const tan = JSON.parse(spawnSync(process.execPath, [colours, "--ground", "#3b2416", "--ink", "#d8b98c", "--json"], { encoding: "utf8" }).stdout);
-  assert.equal(tan.rows.find((r) => r.label === "as dealt").ink, "#d8b98c");
-  // The text colour has its own row, the dealt ink first, every option on the ground at 4.5:1.
+  assert.equal(tan.rows.find((r) => r.label === "as built").ink, "#d8b98c");
+  // The text colour has its own row, the built ink first, every option on the ground at 4.5:1.
   const inks = tan.rows.filter((r) => r.row === "ink");
   assert.equal(inks[0].colour, "#d8b98c");
   assert.ok(inks.length >= 3 && inks.every((r) => r.contrast >= 4.5));

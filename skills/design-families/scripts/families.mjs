@@ -30,7 +30,7 @@
 // closest two are more than --spread apart (0.52 by default, on the 0 to 1
 // scale). How many families comes from the pool. What is still alone, or only
 // in a pair, is a stray: a pair is named as the seed of a family. A family
-// under six cannot be dealt from and is marked small. Two shots of one site
+// under six is too small to be a look of its own and is marked small. Two shots of one site
 // (the same link: site.jpg and site-menu.jpg) are one reference, its first
 // shot leading and the rest kept beside it as `also`.
 //
