@@ -80,15 +80,15 @@ Five principles decide every case: the base stands unless a move names it; every
 1. **Plan** (you): the bases and moves for the eight, and a brief per screen.
 2. **Build:** translate the base faithfully, measured against it (`layout-diff.mjs`) until it matches, then make the moves.
 3. **Critique:** with only the pictures (the reference, the screen, an overlay of the two), every spot where the screen is less finished than its reference, each shown in the reference.
-4. **Fix:** only those spots, toward the reference; then a fresh critic again, at most three times. What is left is shown as a known fault.
+4. **Fix:** only those spots, toward the reference, each fix a new version, every version kept; then a fresh critic again, at most three times. What is left is shown as a known fault.
 
-Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet), faults.
+Wait for every helper. Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet), faults.
 
 How, with the list of moves and the checks: [grid.md](references/grid.md).
 
 Show the sheet, the sheet of each screen beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), so nothing on a screen is a mystery to them, and any fault you could not fix. Never say which you prefer.
 
-**Against the brief,** one column of the table, facts only: what you see with the sheet open against the design brief's never, its three words, its personality (a cool palette for a warm brief, a script face for a serious one), and apart from (a screen that could be mistaken for the kind of product named there, when its distance is 4–5). Blank where nothing sits against it. It is there so they choose knowingly, not to steer them: a screen against the brief is shown like any other. Taken, it goes under **Changes** in the design brief, with why.
+**Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It is there so they choose knowingly, not to steer them. Taken, it goes under **Changes** in the design brief, with why.
 
 > Which would you take further? Any number, or none. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
 
@@ -98,15 +98,19 @@ Show the sheet, the sheet of each screen beside its base, and a table: each numb
 - **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built the same way.
 - **More, or none:** a fresh round of eight, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
-**Before showing a screen again** (more of it, a mix, a fix), put it beside the version they last saw and list what got worse; a change that breaks something they liked is undone. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
+**Before showing a screen again** (more of it, a mix, a fix), put it beside the version they last saw and list what got worse; a change that breaks something they liked is undone. Any earlier version stays theirs to take.
 
-**The other width, before the yes, without a stop.** When the screens are at desktop size, render the one they settled on at 390 yourself (`screens/<n>.html?size=390x844`) and look. Say nothing when it carries over. Say one line only when the composition's core depends on the width ("the headline only works across the full desktop width; on a phone it breaks into five lines"), so they choose knowingly; the phone is designed properly in `design-prototype`. When the screens are at phone size, the same with the desktop. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
+**The pick decides, the why guides.** When they pick a screen that breaks a why they gave, record it and ask once whether the why still holds; the screen is never blocked by it.
+
+**Their favourite, alone.** Before the yes, show the one they lean to at full size on its own, as a visitor meets it: a sheet rewards what stands out beside its neighbours. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
+
+**The other width, before the yes, without a stop.** Render the one they settled on at the other size yourself (`screens/<n>.html?size=390x844`, or the desktop for phone screens) and look. Say one line only when the composition's core depends on the width ("on a phone the headline breaks into five lines"); the phone is designed properly in `design-prototype`. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
 
 ## 5. The touch-up pass
 
 On the chosen screen only, after their yes. The screen was built from their references and chosen by them: **the composition is theirs, not the agent's.** This pass repairs; it never redesigns. Done carelessly, it is where a distinctive screen turns generic, so touch as little as possible.
 
-**Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, tiny navigation, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
+**Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
 
 **It fixes only:**
 - **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`; with the design brief's accessibility at AAA, `--min 7 --large 4.5`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
@@ -169,10 +173,8 @@ Yes → `design-identity`.
 ## Do not
 
 - Rank the screens, or say which you prefer.
-- Add anything no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect. Every element on a screen names its reference.
-- Approximate a reference: its sizes, spacing and type are measured and kept, unless a move changes them.
+- Add anything no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect.
 - Fit more content onto a screen than its base carries. The rest waits for the prototype.
 - Polish the screens beyond their references. Detail and states wait for `design-prototype`.
 - In the touch-up pass: move a zone, change the layout, add a section, or tidy an overlap, a crop or a collision the references use on purpose.
 - Take a reference's content, pictures or words.
-- Pick a face or a colour by taste. They come from the references and the subject; `design-identity` refines them, on this screen, after.

@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -128,4 +128,52 @@ test("eval score: screens dealt before the identity are judged by the sources de
   assert.equal(check.status, "FAIL");
   assert.match(check.detail, /round 1 #2/);
   assert.doesNotMatch(check.detail, /#1\b/);
+});
+
+// A round of two built screens, and a baseline of two, each with a capture.
+const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+function withScreens(pages) {
+  const dir = project({ ...good, ".longbeard/design/direction/screens.json": JSON.stringify(pages.map((_, i) => ({ n: i + 1, base: "a", moves: [{ what: "a palette", from: "b" }] }))) });
+  pages.forEach((page, i) => {
+    mkdirSync(join(dir, ".longbeard/design/direction/screens"), { recursive: true });
+    mkdirSync(join(dir, ".longbeard/design/direction/grid"), { recursive: true });
+    writeFileSync(join(dir, `.longbeard/design/direction/screens/${i + 1}.html`), page);
+    writeFileSync(join(dir, `.longbeard/design/direction/grid/${i + 1}.png`), png);
+  });
+  return dir;
+}
+const generic = '<style>h1{background:linear-gradient(90deg,#7c3aed,#ec4899);-webkit-background-clip:text;background-clip:text}.card{border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.1)}</style><script>const LOOK={face:"Inter",body:"Inter"}</script><h1>Elevate your mornings ✨</h1>';
+const plainScreen = '<style>body{font-family:"Fraunces",serif;background:#f6f1e7}</style><h1>Today\'s bread is still here.</h1>';
+
+test("eval score: the tells of a generic page are found in a screen's source, and a plain screen has none", () => {
+  const dir = withScreens([generic, plainScreen]);
+  const check = byId(spawnSync(process.execPath, [score, dir, "--json", "--no-browser"], { encoding: "utf8" }).stdout)["tells of a generic page"];
+  assert.equal(check.status, "FAIL");
+  assert.match(check.detail, /^1\/2 screens carry one/);
+  for (const tell of ["gradient text", "gradient of two hues", "rounded card with shadow", "soft drop shadow", "default face", "violet accent", "emoji", "stock marketing words"]) assert.match(check.detail, new RegExp(tell));
+});
+
+test("eval score: --plain shuffles the baseline into one unlabelled sheet, holds its tells until the marks are in, then tallies the marks by set", () => {
+  const dir = withScreens([plainScreen, plainScreen]);
+  const base = mkdtempSync(join(tmpdir(), "longbeard-plain-"));
+  mkdirSync(join(base, "screens"));
+  for (const n of [1, 2]) writeFileSync(join(base, `screens/${n}.html`), generic), writeFileSync(join(base, `screens/${n}.png`), png);
+  const scoreIt = () => byId(spawnSync(process.execPath, [score, dir, "--json", "--no-browser", "--plain", base], { encoding: "utf8" }).stdout);
+  let results = scoreIt();
+  const key = JSON.parse(readFileSync(join(dir, ".longbeard/eval/blind/key.json"), "utf8"));
+  assert.deepEqual(key.map((k) => k.tile), ["01", "02", "03", "04"]);
+  assert.deepEqual(key.map((k) => k.set).sort(), ["baseline", "baseline", "round", "round"]);
+  for (const k of key) assert.ok(existsSync(join(dir, `.longbeard/eval/blind/${k.tile}.png`)));
+  assert.doesNotMatch(readFileSync(join(dir, ".longbeard/eval/blind/sheet.html"), "utf8"), /\bbaseline\b|\bround\b|screens\//);
+  assert.equal(results["blind: the owner's marks"].status, "SKIP");
+  assert.match(results["tells of a generic page"].detail, /held until the marks are in/);
+  // The owner marks the baseline good and the round bad: the key decides which is which.
+  const marks = key.map((k) => `- ${k.tile}: ${k.set === "baseline" ? "good" : "bad"}`).join("\n");
+  writeFileSync(join(dir, ".longbeard/eval/blind/marks.md"), `# Marks\n\n${marks}\n`);
+  results = scoreIt();
+  assert.equal(results["blind: the owner's marks"].status, "FAIL");
+  assert.equal(results["blind: the owner's marks"].detail, "round 0 good · 0 OK · 2 bad; baseline 2 good · 0 OK · 0 bad");
+  assert.match(results["tells of a generic page"].detail, /round: 0\/2 .*baseline: 2\/2/);
+  // The same key on a second scoring: the sheet is shuffled once.
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, ".longbeard/eval/blind/key.json"), "utf8")), key);
 });

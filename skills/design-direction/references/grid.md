@@ -31,11 +31,12 @@ Sizes, gaps and fills are measured in the source as a share of its width and hei
 - An element that grew (longer copy, a bigger face) is set smaller within its role until its room is kept; it never eats its neighbour's gap unless the source collides on purpose.
 - A rule or a border ends where it ends in the source (the screen's edge, the box's, the column's). Whatever runs off the screen runs off as in the source: a band looping off both sides starts and ends mid-word.
 - Marks that become words (a device's dashes or dots made into links or labels) keep the marks' colour and take the base's small-text size, never smaller than its other small text.
+- A poster or a print piece sets its small text for its own size. On a screen, text a visitor reads to act (the menu, a control's label) takes the size the board's screen references give it, never smaller.
 - **When a layout turns,** every gap and alignment turns with its zone, mirrored, never closed up. Each text block keeps the edge it hangs from (the outer margin, the seam, the axis), the side its ragged edge faces, and its room; left or right follows from that. Running text of several lines stays aligned to the reading direction, in the column beside its edge. What is grouped with a text block (its button, its arrows, its small print) moves with it, its inside spacing unchanged.
 
 ### 3. A borrowed thing keeps its geometry and its why
 
-Before placing a borrowed thing, measure how it sits in its source: its size against the screen, where it crosses what it overlaps and how far, the room around it. Place it on the base with the same relations. "The headline over the picture's edge" in a source where it crosses at mid-height with room all round never sits on the picture's foot.
+Before placing a borrowed thing, measure how it sits in its source (its size against the screen, where it crosses what it overlaps and how far, the room around it) and place it with the same relations.
 
 **The why they gave is the rule for using it.** "The orange dot, the only contrast on a quiet page" goes only on a quiet base, alone. A why that describes an arrangement goes only where the arrangement is: "black-and-white photos at different heights, like a contact sheet" is about several photos together, so it never goes onto one framed picture. Before each move, read its why against the base; if it would not be true there, the move goes to another base. A like belongs to its reference: it goes where that reference goes, never a house style across the round.
 
@@ -64,7 +65,7 @@ Every reference they liked is the base of at least one screen, the lead of two. 
 
 ## Build each screen: plan, build, critique, fix
 
-One agent does too much when it builds eight screens and judges them too: its attention thins and it defends its own choices. So each screen is made by fresh agents, each with one job and only what that job needs. You plan and run them; screens may be built side by side.
+One agent that builds eight screens and judges them thins its attention and defends its own choices. So each screen is made by fresh agents, each with one job and only what that job needs; screens may be built side by side.
 
 **1. Plan (you).** Pair bases and moves for the eight (Which screens, principles 3 and 4), write `screens.json`, and for each screen a brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path; each move in words with its source picture's path, the like it carries and its why; the content in the base's slots, in the fill order; the product's pictures to use (chosen for this base, principle 1); the five principles above, as written. Nothing else from this file or the session.
 
@@ -84,17 +85,17 @@ One agent does too much when it builds eight screens and judges them too: its at
 
 It lists; it never redesigns. "Nothing" is a fine answer.
 
-**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden.
+**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept: a later fix is not always better. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again, until a critic finds nothing, at most three times. What is still listed after the third goes on the sheet as a known fault, in the table, never hidden; they may take any version.
 
-**Then the round (you):**
+**Then the round (you),** once every builder, critic and fixer has finished.
 - **Not a copy.** A fresh agent, given each screen and its base only: does it read as the same design with new words and pictures? Every screen changes at least one thing they did not name, beyond the content; where it still reads as the base, its plan gets another move, and it is built again from step 2.
 - **As varied as the board** (Which screens).
-- **Contrast,** every screen; a failure blocks the sheet: no screen is shown with text that cannot be read. Fixed with the colours the screen already has, or another picture or crop with a calm area under the text (principle 1), never by moving the text:
+- **Contrast,** every screen; a failure blocks the sheet. Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
 - **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
-- **Each picture:** `node <skill>/scripts/picture-cast.mjs <pictures>`; a strong cast, blown highlights or crushed shadows the reference does not have is a picture to replace or correct.
+- **Each picture:** `picture-cast.mjs <pictures>`; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
 
 **A screen shown again** (more of it, a mix, a fix they asked for) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone.
 
@@ -108,4 +109,4 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/s
 
 And a second sheet of each screen beside its base (`grid/bases.html`, `--cols 2`), so they can see what each one keeps and what it changes.
 
-For an app, build and capture at the device size (`?size=390x844`, `--width 390`, a clip of that size), with the app's navigation. The same for a site whose design brief says `first seen on: phone`: its first screen is the phone's; the desktop comes in `design-prototype`.
+For an app, or a site whose design brief says `first seen on: phone`, build and capture at the device size (`?size=390x844`, `--width 390`, a clip of that size); the desktop comes in `design-prototype`.
