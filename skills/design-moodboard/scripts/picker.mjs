@@ -6,10 +6,12 @@
 //
 // The TSV has one row per candidate: title, image, link, source, meta (a
 // short line such as the designer and likes). Columns after the image may be
-// empty. A line starting with # is a comment. Each
-// row's id is the round letter and its row number (a1, a2…, b1… in round 2),
-// so a pick maps to its line in the TSV. A row with source "seed" starts
-// liked; its image may be a path in the project instead of a URL.
+// empty. A line starting with # and holding no tab is a comment: a row always
+// has a tab, since it needs an image, so a title that starts with # is still
+// a row. Each row's id is the round letter and its row number among the rows
+// (a1, a2…, b1… in round 2), so a pick maps to its line in the TSV. A row with
+// source "seed" starts liked; its image may be a path in the project instead
+// of a URL. A row it cannot show is skipped, and stderr says how many and why.
 //
 //   node picker.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/picker.html
 //   node picker.mjs .longbeard/design/moodboard/candidates-2.tsv --round 2 --out .longbeard/design/moodboard/picker-2.html
@@ -61,12 +63,25 @@ const esc = (s) =>
     .replace(/'/g, "&#39;");
 const isUrl = (s) => /^https?:\/\//i.test(s);
 
+// A local path in a src: each part encoded, so # ? % and spaces stay in the name.
+const urlPath = (path) => path.split("/").map(encodeURIComponent).join("/");
+
+let comments = 0;
 const rows = readFileSync(tsvPath, "utf8")
   .split(/\r?\n/)
-  .filter((l) => l.trim() && !l.trimStart().startsWith("#"));
+  .filter((l) => {
+    if (!l.trim()) return false;
+    if (l.trimStart().startsWith("#") && !l.includes("\t")) {
+      comments++;
+      return false;
+    }
+    return true;
+  });
 
 const tiles = [];
 const seenImages = new Set();
+const skipped = new Map();
+const skip = (why) => skipped.set(why, (skipped.get(why) ?? 0) + 1);
 rows.forEach((line, i) => {
   const id = `${letter}${i + 1}`;
   const [title = "", image = "", link = "", source = "", meta = ""] = line.split("\t").map((c) => c.trim());
@@ -75,13 +90,15 @@ rows.forEach((line, i) => {
     const abs = image ? resolvePath(image) : "";
     if (!abs || !existsSync(abs)) {
       console.error(`picker: ${id} has no image (${image || "empty"}), skipped`);
+      skip("no image");
       return;
     }
-    src = relative(dirname(outPath), abs).split("\\").join("/");
+    src = urlPath(relative(dirname(outPath), abs).split("\\").join("/"));
     if (!src.startsWith(".")) src = `./${src}`;
   }
   if (seenImages.has(src)) {
     console.error(`picker: ${id} repeats an earlier image, skipped`);
+    skip("repeats an earlier image");
     return;
   }
   seenImages.add(src);
@@ -251,4 +268,9 @@ const html = `<!DOCTYPE html>
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, html);
 console.error(`picker: ${tiles.length} of ${rows.length} rows, ids ${letter}1–${letter}${rows.length}`);
+if (skipped.size) {
+  const why = [...skipped].map(([reason, n]) => `${n} ${reason}`).join(", ");
+  console.error(`picker: ${rows.length - tiles.length} rows skipped: ${why}`);
+}
+if (comments) console.error(`picker: ${comments} comment line${comments === 1 ? "" : "s"} ignored`);
 console.log(outArg);

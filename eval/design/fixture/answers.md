@@ -13,7 +13,7 @@ You are running the design flow for someone who is away. When a skill asks them 
 - 5. We love Field Notes Press and the Tidewater Journal. (Fictional names: they must never appear in the committed docs.)
 - 6. Apart from supermarket bakery counters and delivery apps. Distance 4.
 - 7. A new brand. We own nothing yet. Light only. No pictures of our own yet. English. AA.
-- 8. Motion: subtle.
+- 8. Motion: quiet; driven by time; smooth character on everything; no moments; no link.
 - 9. Our moodboard is the folder `moodboard/` in this project.
 - 10. Pace: full. (In a quick run, `run.mjs --pace quick` rewrites this line to quick.)
 - Anyone else: only me.
@@ -35,7 +35,7 @@ You are running the design flow for someone who is away. When a skill asks them 
   - `08-dark-arches`: the thin elegant serif in gold on deep green: it feels slow and crafted, like a shop sign.
   - `09-teal-window`: the rounded photo window with small mono text in its four corners: the picture is the page, and the text only labels it.
   - `10-arch-portrait`: the headline running over the arch's edge: words and picture belong together. The airy, thin, high-contrast serif: light and confident.
-- The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No vary, no mix.
+- The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No more, no mix.
 - Touch-up: keep all.
 - Five-second check with people: no thanks.
 - Change anything, or take it into the identity: take it into the identity.
@@ -44,7 +44,7 @@ You are running the design flow for someone who is away. When a skill asks them 
 - Type 1, colours 1. Refinement: go. The board: yes.
 
 ## design-prototype
-- Spacing: as dealt.
+- Spacing: as built.
 - The list of screens: fine as it is.
 - Options at forks: no, build what follows the first screen.
 - Five-second check with people: no thanks.

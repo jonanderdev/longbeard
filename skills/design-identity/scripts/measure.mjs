@@ -43,9 +43,9 @@
 // as JSON.
 //   node measure.mjs .longbeard/design/subject --swatches
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, extname, join, resolve } from "node:path";
+import { basename, dirname, extname, join, resolve } from "node:path";
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {
@@ -173,14 +173,22 @@ if (typeof WebSocket === "undefined") {
 
 const dir = mkdtempSync(join(tmpdir(), "measure-chrome-"));
 let proc;
-process.once("exit", () => {
+const drop = () => {
   try {
     if (proc?.pid) process.kill(proc.pid, "SIGKILL");
   } catch {}
   try {
     rmSync(dir, { recursive: true, force: true });
   } catch {}
-});
+};
+process.once("exit", drop);
+// An interrupt or a harness timeout must not leave Chrome or its profile behind.
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+  process.once(sig, () => {
+    drop();
+    process.exit(code);
+  });
+}
 
 // One browser for every reference. Each tab is a session on one socket.
 proc = spawn(
@@ -188,6 +196,10 @@ proc = spawn(
   ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--hide-scrollbars", "--mute-audio", "--force-color-profile=srgb", `--window-size=${width},${height}`, "about:blank"],
   { stdio: ["ignore", "ignore", "pipe"] },
 );
+proc.on("error", (e) => {
+  console.error(`measure: could not start ${exe}: ${e.message}`);
+  process.exit(1);
+});
 let buf = "";
 const wsUrl = await new Promise((done, fail) => {
   const t = setTimeout(() => fail(new Error("Chrome did not start")), 20000);
@@ -199,25 +211,58 @@ const wsUrl = await new Promise((done, fail) => {
       done(m[1]);
     }
   });
+  proc.on("exit", (code) => {
+    clearTimeout(t);
+    fail(new Error(`Chrome exited ${code}`));
+  });
 });
 const ws = new WebSocket(wsUrl);
 await new Promise((done, fail) => {
-  ws.onopen = done;
-  ws.onerror = () => fail(new Error("CDP socket failed"));
+  const t = setTimeout(() => fail(new Error("CDP socket did not open")), 10000);
+  ws.onopen = () => {
+    clearTimeout(t);
+    done();
+  };
+  ws.onerror = () => {
+    clearTimeout(t);
+    fail(new Error("CDP socket failed"));
+  };
 });
 let nextId = 0;
 const pending = new Map();
 ws.onmessage = (ev) => {
   const msg = JSON.parse(typeof ev.data === "string" ? ev.data : Buffer.from(ev.data).toString());
+  // An alert, confirm or beforeunload prompt holds the page until it is answered.
+  if (msg.method === "Page.javascriptDialogOpening") send("Page.handleJavaScriptDialog", { accept: false }, msg.sessionId).catch(() => {});
   if (msg.id && pending.has(msg.id)) {
     pending.get(msg.id)(msg);
     pending.delete(msg.id);
   }
 };
-const send = (method, params = {}, sessionId) =>
-  new Promise((done) => {
-    pending.set(++nextId, done);
-    ws.send(JSON.stringify(sessionId ? { id: nextId, method, params, sessionId } : { id: nextId, method, params }));
+// If Chrome goes away, every call waiting on it fails now, not at its time limit.
+ws.onclose = () => {
+  for (const done of [...pending.values()]) done({ error: { message: "Chrome closed the connection" } });
+  pending.clear();
+};
+// Every call has a time limit: a page that hangs fails its own reference, not the run.
+const send = (method, params = {}, sessionId, timeoutMs = 30000) =>
+  new Promise((done, fail) => {
+    const id = ++nextId;
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      fail(new Error(`Chrome did not answer ${method} in ${timeoutMs / 1000} s`));
+    }, timeoutMs);
+    pending.set(id, (msg) => {
+      clearTimeout(timer);
+      done(msg);
+    });
+    try {
+      ws.send(JSON.stringify(sessionId ? { id, method, params, sessionId } : { id, method, params }));
+    } catch (e) {
+      clearTimeout(timer);
+      pending.delete(id);
+      fail(e);
+    }
   });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -225,9 +270,9 @@ async function openTab() {
   const { result } = await send("Target.createTarget", { url: "about:blank" });
   const { result: attached } = await send("Target.attachToTarget", { targetId: result.targetId, flatten: true });
   const sid = attached.sessionId;
-  const call = (method, params) => send(method, params, sid);
+  const call = (method, params, timeoutMs) => send(method, params, sid, timeoutMs);
   const evaluate = async (expression) => {
-    const reply = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+    const reply = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }, 60000);
     if (reply.error) throw new Error(reply.error.message);
     if (reply.result?.exceptionDetails) throw new Error(reply.result.exceptionDetails.exception?.description || "the page threw");
     return reply.result.result.value;
@@ -969,7 +1014,7 @@ function notTheSite({ status = 0, words = 0, said = "", pictures = 0 }) {
 }
 
 async function measurePage(tab, url) {
-  await tab.call("Page.navigate", { url });
+  await tab.call("Page.navigate", { url }, 40000);
   for (let i = 0; i < 100 && (await tab.evaluate("document.readyState")) !== "complete"; i++) await sleep(200);
   await sleep(wait);
   // Animations that end (a headline that fades or slides in) are read as they end, never mid-way.
@@ -991,7 +1036,13 @@ const results = new Array(targets.length);
 const images = targets.map((t, i) => [t, i]).filter(([t]) => !isUrl(t));
 const pages = targets.map((t, i) => [t, i]).filter(([t]) => isUrl(t));
 const run = async (queue, measure) => {
-  const tab = await openTab();
+  let tab;
+  try {
+    tab = await openTab();
+  } catch (error) {
+    for (let item = queue.shift(); item; item = queue.shift()) results[item[1]] = { target: item[0], error: error.message };
+    return;
+  }
   for (let item = queue.shift(); item; item = queue.shift()) {
     const [target, i] = item;
     try {
@@ -1029,6 +1080,7 @@ if (swatches) {
     const old = store.refs[name] || {};
     store.refs[name] = { ...old, shot: t, link: link || old.link || null, image: { traits: r.traits, figure: r.figure, common: r.common, loud: r.loud, ...(r.frame ? { frame: r.frame } : {}) }, page: page ? pageOf(page) : old.page || null };
   }
+  mkdirSync(dirname(resolve(profilesArg)), { recursive: true });
   writeFileSync(profilesArg, `${JSON.stringify(store, null, 1)}\n`);
   const n = Object.keys(store.refs).length;
   const withPage = Object.values(store.refs).filter((p) => p.page).length;
@@ -1045,4 +1097,5 @@ if (swatches) {
   const { target, ...one } = results[0];
   console.log(JSON.stringify(one, null, 1));
 } else console.log(JSON.stringify(results, null, 1));
-process.exit(failed.length === targets.length ? 1 : 0);
+// What was measured is printed or written above; a non-zero exit says some input was not.
+process.exit(failed.length ? 1 : 0);
