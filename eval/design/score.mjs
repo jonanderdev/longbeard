@@ -380,6 +380,7 @@ const plainSet = plainArg ? screensOf(plainArg) : [];
 if (plainArg && !plainSet.length) check("blind: the baseline's screens", false, false, `no screens/<n>.html in ${plainArg}`);
 
 // The blind sheet: the round and the baseline, shuffled, numbered only. Made once; the key and the marks stay with it.
+// A mark is its first word; "OK-ish" is OK, and anything after it is the owner's note.
 const blind = at(".longbeard/eval/blind");
 let marked = null;
 if (plainSet.length && round.length) {
@@ -402,7 +403,7 @@ if (plainSet.length && round.length) {
     spawnSync(process.execPath, [sheet, join(blind, "sheet.html"), "--cols", "4", ...key.map((k) => join(blind, `${k.tile}.png`))], { encoding: "utf8" });
     if (!noBrowser) spawnSync(process.execPath, [script("design-direction", "capture.mjs"), pathToFileURL(join(blind, "sheet.html")).href, "--out", join(blind, "sheet.png")], { encoding: "utf8" });
   }
-  const marks = new Map([...(read(".longbeard/eval/blind/marks.md") || "").matchAll(/^- (\d+):\s*(good|ok|bad)\b/gim)].map((m) => [m[1].padStart(2, "0"), m[2].toLowerCase()]));
+  const marks = new Map([...(read(".longbeard/eval/blind/marks.md") || "").matchAll(/^- (\d+):\s*(good|ok\w*|bad)\b/gim)].map((m) => [m[1].padStart(2, "0"), m[2].toLowerCase().startsWith("ok") ? "ok" : m[2].toLowerCase()]));
   if (marks.size < key.length) check("blind: the owner's marks", false, null, `${marks.size}/${key.length} marked: fill in ${join(blind, "marks.md")} beside sheet.png`);
   else {
     marked = {};
