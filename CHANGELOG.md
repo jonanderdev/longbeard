@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The tag for what a picture shows is `shows`, not `subject`: "subject" is the product's own world in `design-direction`. A header or a stored profile that still says `subject` is read as `shows`.
 - **Readings record motion, a pasteable finish and the kind of picture, and the chosen screen carries them through:** `motion` is read for the lead and the references a pick is built on (`not seen` for a still), a screen may borrow a finish like any element, and a picture kind is recorded and never borrowed. `design-direction.md` gets `motion:` and `finish:` lines, `DESIGN.md` a Finish line and `motion/` rows, the prototype builds from them and says which reference's motion it replayed, `design-check` checks the build against them, and `design-figma` builds a static finish and notes the motion it cannot carry.
 
 - `measure.mjs` lists a live page's motion (each transition and animation with its property, time, delay, easing, loop or once, what it is on and its trigger, read before animations are ended) and its finish (shadows, filters, blends and textures with the share of the screen they cover), and says how many stylesheets it could not read, in new `motion`, `finish` and `unread` keys that leave the rest of the output as it was.

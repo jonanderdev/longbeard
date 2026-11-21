@@ -13,7 +13,7 @@
 // Two layers. The look (VOCABULARY: picture, photo, type, weight, layout,
 // colour, surface, scale, motion) is how a reference looks, and families.mjs
 // sorts on it; it is stored in profile.tags. The about layer (ABOUT: format,
-// domain, mood, hue, density, subject) is what a reference is and is for, and
+// domain, mood, hue, density, shows) is what a reference is and is for, and
 // what the picture shows: it is stored in profile.about and checked like the
 // look, but never sorted on.
 //
@@ -88,7 +88,8 @@ export const ABOUT = {
   hue: words("red orange lime yellow blue pink purple green teal brown-ochre"),
   density: { airy: "much room", balanced: "room and matter even", dense: "packed" },
   // What the picture shows.
-  subject: words("portrait close-crop landscape still-life classical-art cutout type-only"),
+  // What the picture shows. Not "subject": that word is the product's own world, in design-direction.
+  shows: words("portrait close-crop landscape still-life classical-art cutout type-only"),
 };
 // Every look field; the first eight are required in every row, and are the old row's columns in order.
 export const FIELDS = Object.keys(VOCABULARY);
@@ -139,6 +140,8 @@ export function parseTagLine(line) {
 // { tags, about } → the line: look fields in VOCABULARY order, " · ", about fields in
 // ABOUT order. none is left out; a word in two fields gets its field: prefix.
 export function formatTagLine({ tags = {}, about = {} } = {}) {
+  // A profile stored before the field was renamed keeps its words under subject.
+  if (about.subject && !about.shows) about = { ...about, shows: about.subject };
   const part = (layer, order) =>
     order
       .flatMap((field) =>
@@ -204,7 +207,8 @@ function main() {
     if (!line.trim()) continue;
     const cells = line.split("\t").map((x) => x.trim());
     if (cells[0] === "name") {
-      columns = cells.slice(1);
+      // "subject" was this column's first name: read it as shows.
+      columns = cells.slice(1).map((c) => (c === "subject" ? "shows" : c));
       const known = new Set([...FIELDS, ...ABOUT_FIELDS, "note", "line"]);
       const unknown = columns.filter((c) => !known.has(c));
       // With a line column, the look fields the header leaves out come from the line.
@@ -269,7 +273,10 @@ function main() {
     }
     // Merged over what was there: a field not given keeps its words.
     refs[name].tags = { ...(refs[name].tags || {}), ...tags };
-    if (Object.keys(about).length) refs[name].about = { ...(refs[name].about || {}), ...about };
+    if (Object.keys(about).length) {
+      const { subject: was, ...before } = refs[name].about || {};
+      refs[name].about = { ...before, ...(was && !before.shows ? { shows: was } : {}), ...about };
+    }
     if (row.note) refs[name].note = row.note;
     merged++;
   }
