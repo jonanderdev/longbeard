@@ -7,6 +7,7 @@
 - **Cheaper judges:** the not-a-copy check is one judge for the whole round, the five-second viewers see every key screen in turn instead of three new viewers per screen, and judges run on a smaller model where the agent lets you choose one. The critic and fix loop stops after two passes, and a stand-in picture is not a spot to fix.
 - `design-direction`'s full build (critique and fix) moved from `grid.md` to `full-build.md`, read only once they pick, so the first round reads less.
 - The README's Design stage is a short paragraph; the kit lists the skills.
+- **`screen-contrast.mjs` judges text only where it shows** (`clip-path`, `clip`, overflow, and a later copy of the same text in the same box), so a knockout label no longer reads as 1:1. It also cleans up Chrome's profile folder in under 5 s, where it used to wait out 21 s of retries and leave the folder behind. The full test run drops from about 6 minutes to under 2.
 - The design eval says which run to use when: `--from` for a change to how screens are built, a full run before a release.
 
 - The tag for what a picture shows is `shows`, not `subject`: "subject" is the product's own world in `design-direction`. A header or a stored profile that still says `subject` is read as `shows`.
