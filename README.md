@@ -38,18 +38,34 @@ You leave with a design you can hand over and keep working on:
 | Stage | What happens | You get |
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
-| 2. Design | A family of small design skills, each one job, each writing one doc. `design` reads your project and suggests the next one. Design brief: a studio's questions. Moodboard: your board, or a search you mark like or no. Direction: eight first screens, each one of your references rebuilt with your content, then changed by a move or two borrowed from your others, so you choose between real directions; a light touch-up fixes contrast and anything missing, never the composition. Identity: the chosen screen's type and colours refined on it, ending in the identity board. Screens: the rest, prototyped and approved. Then Figma. [How it flows](assets/design-flow.png) | `docs/design/`: the design brief, moodboard, direction, identity board. `DESIGN.md` on your yes. Figma screens, checked and marked Ready |
+| 2. Design | You bring the references; the agent does the craft. A short brief, your moodboard, then eight first screens built from your references to choose from. The one you pick gets its type and colours, the other screens follow it, and you approve each step. Each step is its own small skill ([the kit](#the-kit)). [How it flows](assets/design-flow.png) | `docs/design/`, then `DESIGN.md` on your yes, and Figma screens marked Ready |
 | 3. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
 | 4. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 5. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
 
 ### Why it designs this way
 
-A product's look should be chosen by the people who own it, and built with a designer's care.  
-**You are the designer.** Long Beard brings no taste of its own, because an AI has none: what it calls taste is an average of what once looked good, or the taste of whoever wrote the prompt. So it works like an art director's process instead. You pick real designs you love, say what you like in each, and make the calls a designer makes: which references lead, what to take from each, which result is yours. The agent does the craft: it rebuilds your references faithfully with your real content, combines what you took from them, checks that it still works, and adds nothing that is not on your board. It takes some effort from you, on purpose. If you want one prompt and a pretty result, another skill will serve you better.  
-Each design skill does one job, so you run only what you need: skip the moodboard if you have one, sort a big board into families only when it is big, plan copy and pictures only when you want to. Short steps, few questions, a doc at the end of each, so a long run never drifts.
+> A product's look should be chosen by the people who own it, and built with a designer's care.
 
-Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. It designs sites and apps first, and a graphic (a poster, a card, a social post) the same way: a short brief of its facts and format, then the same steps, ending at an exported Figma frame. A CLI, API or library skips Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
+**You are the designer.** Long Beard brings no taste of its own, because an AI has none. What it calls taste is an average of what once looked good, or the taste of whoever wrote the prompt. So it follows an art director's process instead:
+
+- **You choose.** You pick real designs you love and say what you like in each. Then you make the designer's calls: which references lead, what to take from each, and which result is yours.
+- **The agent does the craft.** It rebuilds your references faithfully with your real content and combines what you took from them. It checks that the result still works, and adds nothing that is not on your board.
+
+This takes some effort from you, on purpose. If you want one prompt and a pretty result, another skill will serve you better.
+
+**Small steps.** Each design skill does one job, so you run only what you need. Skip the moodboard if you already have one. Sort a big board into families only when it is big. Plan copy and pictures only when you want to. Each step asks few questions and ends with a doc, so a long run never drifts.
+
+**Stop and resume anywhere.** Each stage writes a file the next one reads. You can pick up later, or start on a project that already has some of these files.
+
+**What it designs:**
+
+- Sites and apps first.
+- A graphic (a poster, a card, a social post) goes through the same steps: a short brief of its facts and format, ending at an exported Figma frame.
+- A CLI, API or library skips Design.
+- A later feature runs the same loop, smaller.
+
+Figma is required for any project with a UI.
 
 ## The kit
 

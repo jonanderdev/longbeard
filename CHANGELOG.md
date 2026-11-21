@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **A colour they liked wins over contrast.** It is never stepped lighter or darker to pass. The pair is fixed with what else the screen has (the other colour, large text, a crop, the colour moved to a fill); when nothing fits, the colour stays with a warning on the sheet, in the identity options and in `DESIGN.md` (`WARN liked, kept`), which `design-check` and the eval report as a warning, not a block.
+- **`rules.mjs` counts a round only when the same page changed:** fix after every run. A first run of another state of a screen (`?menu=open`, same `--screen`) is part of the round it is in, so checking two states no longer uses up both rounds before anything is fixed.
+- **Cheaper judges:** the not-a-copy check is one judge for the whole round, the five-second viewers see every key screen in turn instead of three new viewers per screen, and judges run on a smaller model where the agent lets you choose one. The critic and fix loop stops after two passes, and a stand-in picture is not a spot to fix.
+- `design-direction`'s full build (critique and fix) moved from `grid.md` to `full-build.md`, read only once they pick, so the first round reads less.
+- The README's Design stage is a short paragraph; the kit lists the skills.
+- **`screen-contrast.mjs` judges text only where it shows** (`clip-path`, `clip`, overflow, and a later copy of the same text in the same box), so a knockout label no longer reads as 1:1. It also cleans up Chrome's profile folder in under 5 s, where it used to wait out 21 s of retries and leave the folder behind. The full test run drops from about 6 minutes to under 2.
+- The design eval says which run to use when: `--from` for a change to how screens are built, a full run before a release.
+
 - The tag for what a picture shows is `shows`, not `subject`: "subject" is the product's own world in `design-direction`. A header or a stored profile that still says `subject` is read as `shows`.
 - **Readings record motion, a pasteable finish and the kind of picture, and the chosen screen carries them through:** `motion` is read for the lead and the references a pick is built on (`not seen` for a still), a screen may borrow a finish like any element, and a picture kind is recorded and never borrowed. `design-direction.md` gets `motion:` and `finish:` lines, `DESIGN.md` a Finish line and `motion/` rows, the prototype builds from them and says which reference's motion it replayed, `design-check` checks the build against them, and `design-figma` builds a static finish and notes the motion it cannot carry.
 

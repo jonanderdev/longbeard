@@ -1,6 +1,12 @@
 # Design eval
 
-A repeatable end-to-end run of the design skills, judged by the files it leaves and by the owner's eye, blind. Run it before merging a change to any design-* skill, and compare with the last run.
+A repeatable end-to-end run of the design skills, judged by the files it leaves and by the owner's eye, blind. Compare each run with the last.
+
+**Which run, when.** A full run takes about an hour and a half of agent time, so it is not the check for every change:
+
+- A change to how the direction's screens are built (`design-direction`, its references and scripts): `--from` a finished run. It builds and checks the first round only, the first sheet in minutes.
+- A change to any other design skill: the tests, then a full run before the release that carries it, not before each merge.
+- Before a release: one full run, scored, and the blind sheet if the direction changed.
 
 ## What is fixed
 
@@ -25,7 +31,7 @@ node eval/design/score.mjs ../lb-eval
 
 The agent is run with a time limit and a plain environment. `--timeout <minutes>` stops it, and everything it started, when it runs past that; the default is 180 (three hours: a full run takes hours, and a round of screens one or two). A run that was stopped says so and exits 1, and what it wrote can still be scored. It gets only `PATH`, `HOME`, the shell's basics (`USER`, `SHELL`, `TERM`, `LANG`, `LC_*`, `TMPDIR`, `TZ`), `CHROME_PATH`, proxy and certificate settings, and anything named `ANTHROPIC_*` or `CLAUDE_*`. Another variable it needs, such as a key for a different agent's API, is named with `--env NAME` (repeat the flag, or separate names with commas); everything else in your shell stays out.
 
-To change only how the direction's screens are built, `--from <finished run>` takes its design brief, moodboard, readings, pictures and board, and the agent builds and checks the first round only. Every such run builds on the same inputs, so a difference between sheets is the rules'. Run the whole flow again before merging.
+To change only how the direction's screens are built, `--from <finished run>` takes its design brief, moodboard, readings, pictures and board, and the agent builds and checks the first round only. Every such run builds on the same inputs, so a difference between sheets is the rules'. Run the whole flow again before the release.
 
 ## Score
 

@@ -193,12 +193,19 @@ if (design) {
   // Each contrast line names two tokens; their values come from the colour table.
   const value = new Map([...design.matchAll(/^\|\s*`?([a-z][\w/-]*)`?\s*\|\s*(#[0-9a-f]{3,6})\b/gim)].map((m) => [m[1], m[2]]));
   const pairs = [];
+  // A colour the person liked and kept under the level is written `WARN liked, kept`: a soft warning, not a hard fail.
+  const kept = [];
   for (const m of design.matchAll(/^-\s*`?([a-z][\w/-]*)`?\s+on\s+`?([a-z][\w/-]*)`?\s*:?(.*)$/gim)) {
     const [fg, bg] = [value.get(m[1]), value.get(m[2])];
     if (!fg || !bg) continue;
+    if (/WARN\s+liked,\s*kept/i.test(m[3])) {
+      kept.push(`${m[1]} on ${m[2]}`);
+      continue;
+    }
     const kind = /large/i.test(m[3]) ? ":large" : /mark|control|focus|icon|border|non-text|outline/i.test(`${m[1]} ${m[3]}`) ? ":mark" : "";
     pairs.push(`${fg} on ${bg}${kind}`);
   }
+  if (kept.length) check("DESIGN.md: liked colours kept under the level", false, false, `warned, not failed: ${kept.join("; ")}`);
   const c = script("design-prototype", "contrast.mjs");
   if (!pairs.length) check("DESIGN.md: contrast pairs pass", true, false, "no contrast pair found on the colour tokens");
   else if (!c) notRun("DESIGN.md: contrast pairs pass", true, "no contrast.mjs to run");

@@ -22,8 +22,11 @@
 // the look's own moves. Not checked either: contrast (screen-contrast.mjs), states, hierarchy.
 //
 // Rounds and waivers (state in .longbeard/design/, --dir to move it):
-//   rounds.json    per screen: a run on a changed page is a round. After --rounds (2: a check
-//                  and one re-check) it says "rounds used up": stop fixing, report what is open.
+//   rounds.json    per screen: a run on a changed page is a round. Fix after every run, then
+//                  run again: two runs with no fix between are one round, and so is a first run
+//                  of another state of the same screen (another url, same --screen). After
+//                  --rounds (2: a check and one re-check) it says "rounds used up": stop fixing,
+//                  report what is open.
 //   waivers.json   --waive <id> --reason "why this finding is false", one finding at a time. The id
 //                  is in the Where cell. A reason of fewer than three words is refused. Waived
 //                  findings are still listed, with the reason.
@@ -566,13 +569,18 @@ const rows = [...found.values()].map((f) => ({ ...f, id: id(f), where: `${f.desc
 const waived = rows.filter((f) => waivers.some((w) => w.screen === screen && w.id === f.id));
 const open = rows.filter((f) => !waived.includes(f));
 
-// A run on a changed page is a round; the same page again is the same round.
-const changed = record.fp !== fingerprint;
+// A run on a changed page is a round; the same page again is the same round. Each url of a screen
+// (a state: ?menu=open) keeps its own fingerprint, so the first look at another state is part of
+// the round it is in, not a new one: only a change since that url's last run counts.
+const key = url ? url.split("#")[0] : "";
+const fps = record.fps || (record.fp ? { [key]: record.fp } : {});
 const used = record.round || 0;
-const round = changed && used < limit ? used + 1 : Math.max(used, 1);
+const seen = Object.hasOwn(fps, key);
+const changed = seen && fps[key] !== fingerprint;
+const round = !used ? 1 : changed && used < limit ? used + 1 : used;
 const beyond = changed && used >= limit;
 const closed = changed ? null : record.closed || null;
-rounds[screen] = { round, fp: fingerprint, at: today(), failed: 0, found: rows.map((f) => ({ id: f.id, rule: f.rule, where: f.where })), ...(closed ? { closed } : {}) };
+rounds[screen] = { round, fps: { ...fps, [key]: fingerprint }, at: today(), failed: 0, found: rows.map((f) => ({ id: f.id, rule: f.rule, where: f.where })), ...(closed ? { closed } : {}) };
 writeJson(roundsFile, rounds);
 
 const widthNote = widths.join(" and ");
@@ -582,7 +590,7 @@ const done = checks.filter(([key]) => !notChecked.some((n) => n.check === key)).
 if (json) {
   console.log(JSON.stringify({ screen, round, limit, roundsUsedUp: round >= limit && open.length > 0, closed, open, waived, notChecked, checked: done }, null, 1));
 } else {
-  console.log(`rules: ${screen} at ${widthNote}, round ${round} of ${limit}${beyond ? " (this page changed after the last round: not counted)" : changed || !used ? "" : " (the page has not changed since the last run)"}`);
+  console.log(`rules: ${screen} at ${widthNote}, round ${round} of ${limit}${beyond ? " (this page changed after the last round: not counted)" : changed || !used ? "" : seen ? " (the page has not changed since the last run)" : " (another state of this screen: same round)"}`);
   if (closed) console.log(`closed by the person on ${closed.at}: "${closed.words}". Do not fix more. Report what is open.`);
   if (open.length) {
     console.log("| Rule | Hard/soft | Where | Fix |\n|---|---|---|---|");

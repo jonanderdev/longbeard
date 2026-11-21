@@ -42,16 +42,19 @@ test("capture names a page that lands elsewhere, fails on it with --strict, and 
     const plain = await run(`${base}/`);
     if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
     assert.equal(plain.status, 0, plain.stderr);
-    const loose = await run(`${base}/app`);
+    // Each capture is its own Chrome: they run at once.
+    const [loose, redirect, fast, authed] = await Promise.all([
+      run(`${base}/app`),
+      run(`${base}/app`, ["--strict"]),
+      run(`${base}/spa`, ["--strict"]),
+      run(`${base}/app`, ["--strict", "--cookie", "session=ok"]),
+    ]);
     assert.equal(loose.status, 0, loose.stderr);
     assert.match(loose.stderr, /landed on .*\/login/);
-    const redirect = await run(`${base}/app`, ["--strict"]);
     assert.equal(redirect.status, 1);
     assert.match(redirect.stderr, /landed on .*\/login/);
-    const fast = await run(`${base}/spa`, ["--strict"]);
     assert.equal(fast.status, 1);
     assert.match(fast.stderr, /landed on .*\/login/);
-    const authed = await run(`${base}/app`, ["--strict", "--cookie", "session=ok"]);
     assert.equal(authed.status, 0, authed.stderr);
   } finally {
     server.close();
@@ -102,15 +105,20 @@ test("capture refuses motion options that do not fit together", async () => {
   }
 });
 
-test("capture fails on a page it cannot reach, and keeps a long local page in parts", async (t) => {
-  const gone = await run("http://127.0.0.1:1/");
-  if (/No Chrome/.test(gone.stderr)) return t.skip("no Chrome installed");
-  assert.equal(gone.status, 1);
-  assert.match(gone.stderr, /could not reach .*ERR_/);
+// A long local page takes half a minute to scroll through, so its capture starts as the file loads
+// and runs while the tests before it do; the test below reads its result.
+const tallLocal = (() => {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-tall-"));
   const page = join(dir, "tall.html");
   writeFileSync(page, '<!doctype html><body style="margin:0"><div style="height:45000px;background:linear-gradient(red,blue)"></div>');
-  const tall = await run(`file://${page}`, [], "tall.jpg");
+  return run(`file://${page}`, [], "tall.jpg");
+})();
+
+test("capture fails on a page it cannot reach, and keeps a long local page in parts", async (t) => {
+  const [gone, tall] = await Promise.all([run("http://127.0.0.1:1/"), tallLocal]);
+  if (/No Chrome/.test(gone.stderr)) return t.skip("no Chrome installed");
+  assert.equal(gone.status, 1);
+  assert.match(gone.stderr, /could not reach .*ERR_/);
   assert.equal(tall.status, 0, tall.stderr);
   assert.deepEqual(readdirSync(dirname(tall.out)).sort(), ["tall-2.jpg", "tall.jpg"]);
 });
@@ -163,10 +171,9 @@ test("capture answers a dialog the page opens, and says when a page is cut at th
   await new Promise((done) => server.listen(0, done));
   const base = `http://localhost:${server.address().port}`;
   try {
-    const dialog = await run(`${base}/`);
+    const [dialog, tall] = await Promise.all([run(`${base}/`), run(`${base}/tall`)]);
     if (/No Chrome/.test(dialog.stderr)) return t.skip("no Chrome installed");
     assert.equal(dialog.status, 0, dialog.stderr);
-    const tall = await run(`${base}/tall`);
     assert.equal(tall.status, 0, tall.stderr);
     assert.match(tall.stderr, /the page is 16000 px, over the 14000 px limit/);
   } finally {
@@ -185,22 +192,19 @@ test("capture clicks a consent button only inside a notice, and never in a --fra
       return res.end("");
     }
     if (req.url === "/plain") return res.end(`<!doctype html><body><h1>Privacy</h1><p>We care about your privacy.</p>${button("plain")}`);
-    res.end(`<!doctype html><body><h1>Home</h1><div style="position:fixed;bottom:0;left:0;background:#eee">We use cookies. ${button("notice")}</div>`);
+    // The same notice on every other path; its button is named for the path, so runs at once tell their clicks apart.
+    res.end(`<!doctype html><body><h1>Home</h1><div style="position:fixed;bottom:0;left:0;background:#eee">We use cookies. ${button(req.url.slice(1))}</div>`);
   });
   await new Promise((done) => server.listen(0, done));
   const base = `http://consent.localhost:${server.address().port}`;
   try {
-    const plain = await run(`${base}/plain`);
+    const [plain, notice, motion] = await Promise.all([run(`${base}/plain`), run(`${base}/notice`), run(`${base}/motion`, ["--frames", "2", "--scroll"], "motion")]);
     if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
     assert.equal(plain.status, 0, plain.stderr);
-    assert.deepEqual(clicked, []);
-    const notice = await run(`${base}/notice`);
     assert.equal(notice.status, 0, notice.stderr);
-    assert.deepEqual(clicked, ["notice"]);
-    clicked.length = 0;
-    const motion = await run(`${base}/notice`, ["--frames", "2", "--scroll"], "motion");
     assert.equal(motion.status, 0, motion.stderr);
-    assert.deepEqual(clicked, []);
+    // Only the notice in the plain capture was clicked: not the plain page's button, not the one in the --frames record.
+    assert.deepEqual(clicked, ["notice"]);
   } finally {
     server.close();
   }

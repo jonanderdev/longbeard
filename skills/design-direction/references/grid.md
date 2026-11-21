@@ -28,7 +28,7 @@ Everything below is one of these; decide a case not listed by them.
 A screen is its base, measured, until a move changes one named thing. What no move names stays as the base has it: layout (zones, proportions, margins, where headline, pictures and small text sit), anchors (a centred picture, a full-bleed panel, a headline on the axis), balance, alignments, devices and picture treatment.
 
 - The layout always comes from a reference. A move may turn it or take another reference's, never invent one.
-- What they said they like in the base is kept exactly ("this red" stays this red). What they never named is kept by its role: "a punchy accent over a quarter of the page" may become a punchy orange from another reference, at the same strength and share.
+- What they said they like in the base is kept exactly ("this red" stays this red). That holds against contrast too: a liked colour is never stepped lighter or darker to pass. Text on it that fails is fixed with what else the screen has (the other colour of the pair, a size or weight that makes it large text, another crop, the liked colour moved from the text to a fill behind it); when none fits, the colour stays and the screen carries a warning, on the sheet and in the table, with the pair and its ratio ("liked terracotta under the button label: 3.9:1, AA asks 4.5"). What they never named is kept by its role: "a punchy accent over a quarter of the page" may become a punchy orange from another reference, at the same strength and share.
 - A borrowed thing fits around the base's anchors, or goes to a base with room for it.
 - Text on a picture sits on a calm area, as light or dark as the source's. The picture is chosen and cropped to the text, never the text moved off it. With no such picture, say so on the sheet and offer one that has it.
 - A device that held content in its source (a box with a product, a band of words) holds the product's content, or is left out; never empty.
@@ -86,9 +86,9 @@ Each screen is built once and not judged: no critic, no fixer, no device close-u
   Fix the translation until nothing it lists is off, or each that is has a reason (longer copy set smaller).- Make the moves into `screens/<n>.html`, by principles 3 and 4, and capture it. State `built`.
 
 **Then the round (you).**
-- **Not a copy.** A fresh agent is given each screen and its base side by side, at thumbnail size, and answers yes or no: *can you tell them apart at a glance, by the ground or accent, the face, the layout turned, a device added or gone, or the picture treatment?* Yes is not a copy. No is a copy: its plan gets another move, and it is built again from step 2. Keeping the base's layout, measures and system is the method, never a copy by itself.
+- **Not a copy.** One fresh agent is given every screen of the round beside its base, each pair at thumbnail size and numbered, and answers yes or no for each: *can you tell them apart at a glance, by the ground or accent, the face, the layout turned, a device added or gone, or the picture treatment?* Yes is not a copy. No is a copy: its plan gets another move, it is built again from step 2, and the rebuilt screens go to one fresh judge together. Keeping the base's layout, measures and system is the method, never a copy by itself.
 - **As varied as the board** (Which screens), again on what was built.
-- **Contrast,** every screen, rough or not; a failure blocks the sheet. Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
+- **Contrast,** every screen, rough or not; a failure blocks the sheet, except a liked colour kept with its warning (principle 1). Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
@@ -96,23 +96,6 @@ Each screen is built once and not judged: no critic, no fixer, no device close-u
 - **Each picture:** `picture-cast.mjs <pictures>`, run on the product's pictures, not the captures: a cast, blown highlights or crushed shadows the reference lacks is a picture to replace.
 
 A helper that fails twice is recorded as `failed` with why, and shows on the sheet as failed.
-
-## The full build
-
-Only on what they pick: "more of 3" (the pick, if rough, and the new screens), a mix, or the screen they lean to. A screen made on a picked base is full from its plan. One agent that builds and judges defends its own choices, so each job below has a fresh agent with only what it needs. The plan and the build are the quick round's; then:
-
-**3. Critique (a fresh agent per screen, pictures only).** It gets: the base reference (cropped to its screen), the final screen, `layout-diff.mjs`'s `side.png` and `overlay.png` for it (`--mirror` when the layout turned) and the lines its `diff.json` marks off, the translation's capture, 3× crops of every small device, rule, tight gap and edge beside the same crops of the source (made for it: it runs no scripts), each move's source picture, the moves in words, and the contrast report. No rules, no brief, no session; only what the product is, in one line. It answers:
-- **Where is this screen less finished than its reference?** Every spot, small ones included (a gap, an edge, a size, a weight, a colour, a picture, text that cannot be read), each with the place in the reference that shows how it should be. The reference is the standard: what it does on purpose is never a fault.
-- **What changed from the translation that no move names?**
-- **In one line, what made the reference work, and does the screen keep it?**
-- **Anything on the screen that no reference has?**
-- **What on this screen exists only because of this product?** Not its words or pictures but a thing: its ownable, a mark, a number, a form. An empty answer is a fault, listed like any other: a screen as right for another trade has borrowed and added nothing.
-
-It lists; it never redesigns.
-
-**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, each toward what the reference does, with what the screen and its references already have; an empty answer to the last question is fixed with the ownable or a thing from the subject's card. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept: a later fix is not always better. Then capture, `layout-diff.mjs` and contrast again, and a fresh critic again. **It stops when every spot left is small, or after three passes.** A spot is small when it is within the 15% principle 2 keeps, shows only in a 3× crop and never at the screen's own size, and breaks nothing the reference does on purpose; an empty answer to the product question is never small. What is left goes on the sheet as a known fault, in the table, never hidden.
-
-Then the round's checks again on every new or changed screen.
 
 ## Without fresh agents
 

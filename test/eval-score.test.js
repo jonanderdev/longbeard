@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -89,13 +89,28 @@ const run = (dir, ...more) => {
   assert.ok(r.stdout, `score gave no result: ${r.stderr}`);
   return r;
 };
+// The same, without blocking: runs that render pages take seconds each, so a test starts them together.
+const runAsync = (dir, ...more) =>
+  new Promise((done) => {
+    const child = spawn(process.execPath, [score, dir, "--json", ...more]);
+    let stdout = "", stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("close", (status) => {
+      assert.ok(stdout, `score gave no result: ${stderr}`);
+      done({ status, stdout, stderr });
+    });
+  });
 const byId = (out) => Object.fromEntries(JSON.parse(out).results.map((r) => [r.id, r]));
 // Whether this machine can render pages: the checks that need Chrome are tested only where it can.
 const hasChrome = process.env.CHROME_PATH !== "none" && [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].some((p) => p && existsSync(p));
-const withBrowser = (dir) => (hasChrome ? run(dir) : run(dir, "--no-browser"));
+const withBrowser = (dir) => (hasChrome ? runAsync(dir) : runAsync(dir, "--no-browser"));
+// The good run, scored once with the browser and read by every test that asks of it.
+let goodRun;
+const scoredGood = () => (goodRun ??= withBrowser(project(good)));
 
-test("eval score: a good run passes every hard check", () => {
-  const result = withBrowser(project(good));
+test("eval score: a good run passes every hard check", async () => {
+  const result = await scoredGood();
   const results = byId(result.stdout);
   const failed = Object.values(results).filter((r) => r.status === "FAIL" || r.status === "NOT RUN");
   assert.deepEqual(failed, [], JSON.stringify(failed));
@@ -146,6 +161,15 @@ test("eval score: a DESIGN.md with front matter is read as before, and a failing
   assert.equal(failing["DESIGN.md: contrast pairs pass"].status, "FAIL");
 });
 
+test("eval score: a liked colour kept under the level is a soft warning, not a hard fail", () => {
+  const design = bad["DESIGN.md"].replace("- color/ink on color/bg: 13.1:1 AAA", "- color/ink on color/bg: 2.0:1 WARN liked, kept");
+  const r = byId(run(project({ ...good, "DESIGN.md": design }), "--no-browser").stdout);
+  assert.equal(r["DESIGN.md: contrast pairs pass"].status, "PASS");
+  assert.equal(r["DESIGN.md: liked colours kept under the level"].status, "FAIL");
+  assert.match(r["DESIGN.md: liked colours kept under the level"].detail, /color\/ink on color\/bg/);
+  assert.equal(r["DESIGN.md: liked colours kept under the level"].hard, false);
+});
+
 test("eval score: the token block must agree with the tables: no block, a block that differs and a table that cannot be read are each told apart", () => {
   const id = "DESIGN.md: token block agrees with its tables";
   const withDesign = (design) => byId(run(project({ ...good, "DESIGN.md": design }), "--no-browser").stdout)[id];
@@ -170,7 +194,7 @@ test("eval score: the token block must agree with the tables: no block, a block 
   assert.equal(out.status, 1);
 });
 
-test("eval score: a run lists its stand-ins: the Still to supply section is there, and is not the Nothing line when the prototype marks any", (t) => {
+test("eval score: a run lists its stand-ins: the Still to supply section is there, and is not the Nothing line when the prototype marks any", async (t) => {
   const id = "DESIGN.md: still to supply lists the stand-ins";
   const noSection = good["DESIGN.md"].replace(/\n## Still to supply[\s\S]*$/, "");
   const missing = byId(run(project({ ...good, "DESIGN.md": noSection }), "--no-browser").stdout)[id];
@@ -179,13 +203,14 @@ test("eval score: a run lists its stand-ins: the Still to supply section is ther
   assert.match(missing.detail, /no Still to supply section/);
   assert.equal(byId(run(project(good), "--no-browser").stdout)[id].status, "SKIP");
   if (!hasChrome) return t.skip("no Chrome installed: the prototype is not walked");
-  assert.equal(byId(run(project(good)).stdout)[id].status, "PASS");
   const marked = { ...good, ".longbeard/design/prototype/home.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="menu.html">Menu</a><p data-standin="fact" data-standin-note="assumed hours">Open 7 to 3</p></body>' };
-  const nothing = byId(run(project(marked)).stdout)[id];
+  const listed = good["DESIGN.md"].replace("- Nothing: every picture and fact is theirs.", "- home: opening hours, assumed - theirs to give");
+  const [plain, withMarks, withList] = await Promise.all([scoredGood(), runAsync(project(marked)), runAsync(project({ ...marked, "DESIGN.md": listed }))]);
+  assert.equal(byId(plain.stdout)[id].status, "PASS");
+  const nothing = byId(withMarks.stdout)[id];
   assert.equal(nothing.status, "FAIL");
   assert.match(nothing.detail, /1 stand-ins marked in the prototype, the section says nothing/);
-  const listed = good["DESIGN.md"].replace("- Nothing: every picture and fact is theirs.", "- home: opening hours, assumed - theirs to give");
-  const told = byId(run(project({ ...marked, "DESIGN.md": listed })).stdout)[id];
+  const told = byId(withList.stdout)[id];
   assert.equal(told.status, "PASS");
 });
 
@@ -200,14 +225,16 @@ test("eval score: a dead link fails the prototype", (t) => {
 // A checker installed in the project is the one the score runs, so a stub stands for a checker that crashes.
 const stub = (skill, name, body) => ({ [`.claude/skills/${skill}/scripts/${name}`]: body });
 
-test("eval score: a checker that crashes is not run: never a pass, never soft, and a hard one fails the run", () => {
+test("eval score: a checker that crashes is not run: never a pass, never soft, and a hard one fails the run", async () => {
   const crashing = project({
     ...good,
     ...stub("design-direction", "screen-contrast.mjs", 'throw new Error("boom");\n'),
     ...stub("design-prototype", "links.mjs", 'console.log("not a walk"); process.exit(0);\n'),
     ...stub("design-prototype", "contrast.mjs", "process.exit(3);\n"),
   });
-  const result = run(crashing);
+  // The same checkers saying a text is under (asserted last) are scored alongside.
+  const failing = project({ ...good, ...stub("design-direction", "screen-contrast.mjs", 'console.log("\\"Order\\"\\t2.1:1"); process.exit(1);\n') });
+  const [result, failingRun] = await Promise.all([runAsync(crashing), runAsync(failing)]);
   const results = byId(result.stdout);
   const out = JSON.parse(result.stdout);
   for (const id of ["DESIGN.md: contrast pairs pass", "chosen screen: contrast where text sits", "prototype: contrast where text sits"]) {
@@ -223,8 +250,7 @@ test("eval score: a checker that crashes is not run: never a pass, never soft, a
   assert.ok(out.notRun >= 4 && out.hardFails >= 4, JSON.stringify({ notRun: out.notRun, hardFails: out.hardFails }));
   assert.equal(result.status, 1);
   // The same checkers saying a text is under are a plain FAIL, with what they printed.
-  const failing = project({ ...good, ...stub("design-direction", "screen-contrast.mjs", 'console.log("\\"Order\\"\\t2.1:1"); process.exit(1);\n') });
-  const failed = byId(run(failing).stdout)["chosen screen: contrast where text sits"];
+  const failed = byId(failingRun.stdout)["chosen screen: contrast where text sits"];
   assert.equal(failed.status, "FAIL");
   assert.match(failed.detail, /2\.1:1/);
 });
@@ -269,10 +295,11 @@ test("eval score: a project with nothing in it fails, and says what is missing",
   assert.match(byId(result.stdout).docs.detail, /missing: docs\/design\/design-brief\.md/);
 });
 
+// The motion line is read from the brief's text: no page needs rendering.
 test("eval score: a motion line must be none or a how-much pick, not the old one word", () => {
   for (const [motion, status] of [["none", "PASS"], ["leading · driven by scroll, cursor · character physics on scroll", "PASS"], ["subtle", "FAIL"], ["driven by time", "FAIL"]]) {
     const brief = good["docs/design/design-brief.md"].replace(/- motion: .*\n/, `- motion: ${motion}\n`);
-    const results = byId(run(project({ ...good, "docs/design/design-brief.md": brief })).stdout);
+    const results = byId(run(project({ ...good, "docs/design/design-brief.md": brief }), "--no-browser").stdout);
     assert.equal(results["design brief complete"].status, status, motion);
   }
 });

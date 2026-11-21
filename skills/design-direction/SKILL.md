@@ -81,9 +81,11 @@ Five principles decide every case: the base stands unless a move names it; every
 
 **The first round is quick.** Each screen is its base and its moves, built once by a fresh agent, with no critic loop and no device close-ups. **The full build** (plan, build, critique, fix, every version kept) runs only on what they pick (step 4). Before any screen is built, the plan is checked for spread: pictures, tones and moves across the eight.
 
-Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`.** Wait for each helper before drawing the sheet; a failed screen is shown as failed. With no fresh agents, do each job yourself in turn and say the round is weaker.
+Then the round: not a copy (one judge for the whole round), as varied as the board, contrast (a failure blocks the sheet, rough or not, unless it is a colour they liked, kept with a warning), faults. **The round is done when every screen in `screens.json` has ended in a `state`.** Wait for each helper before drawing the sheet; a failed screen is shown as failed. With no fresh agents, do each job yourself in turn and say the round is weaker.
 
-How, with the moves, the states and the checks: [grid.md](references/grid.md).
+How, with the moves, the states and the checks: [grid.md](references/grid.md). The full build, read only once they pick: [full-build.md](references/full-build.md).
+
+**Judges run small.** A judge only looks and answers: the not-a-copy check, the critic, the five-second viewers, the flow walkers. Start each on the smallest model that sees pictures well enough for its job, where your agent lets you choose one (in Claude Code, the Agent tool's `model`: `haiku` for not-a-copy and the five-second viewers, `sonnet` for the critic). Builders and fixers run on the session's model. Where you cannot choose, every agent runs on the session's model, and nothing else changes.
 
 Show the sheet, each screen marked rough or full and beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
 
@@ -93,7 +95,7 @@ Show the sheet, each screen marked rough or full and beside its base, and a tabl
 
 ## 4. More, mix, choose
 
-- **More of some:** each pick, if still rough, is built in full, and gets three more screens on the same base with other moves, also built in full. Capture, sheet with `--cols 4`, show.
+- **More of some:** each pick, if still rough, is built in full ([full-build.md](references/full-build.md)), and gets three more screens on the same base with other moves, also built in full. Capture, sheet with `--cols 4`, show.
 - **A mix:** "4 with the colours of 7": the base of one with the move of another, built in full.
 - **More, or none:** a fresh round of eight, quick like the first, as often as they ask: other pairings of bases and moves from what they liked, none shown before. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
