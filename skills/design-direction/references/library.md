@@ -50,9 +50,9 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` f
 ## What each part is for
 
 - **`likes`:** their words from the board's note: what they like, and why. What they like is what the designs borrow; why is how it is used, and where it would be wrong.
-- **`concept` and `move`:** what must survive every change. The fidelity check and the distance check judge a screen on them.
+- **`concept` and `move`:** what must survive every change. The critic and the not-a-copy check judge a screen on them.
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. The type's sizes are the reference's sizes against its screen: a 96 px headline on a 1440 screen stays 96 px.
-- **`palette`:** the colours as they work together. A palette is borrowed whole, never one colour from it.
+- **`palette`:** the colours as they work together. A palette is borrowed whole, or one colour they did not name is swapped for another of the same role. Never one colour picked out of it by itself.
 - **`pictures`:** the treatment the product's pictures get on a screen built from this reference.
 - **`slots`:** how much text it carries; a screen built on it carries the same, and at most one more small element.
 - **`devices`:** every element that is not content, so every element on a screen can be traced to one.

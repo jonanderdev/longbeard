@@ -61,8 +61,14 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+// A local path in a src or href: each part encoded, so # ? % and spaces stay in the name.
 const href = (abs) => {
-  const src = relative(dirname(outPath), abs).split("\\").join("/");
+  const src = relative(dirname(outPath), abs)
+    .split("\\")
+    .join("/")
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
   return src.startsWith(".") ? src : `./${src}`;
 };
 
@@ -126,6 +132,9 @@ const cards = md
 
 const sections = new Map();
 let n = 0;
+// A mark is saved under the card's name, so adding or dropping a card never
+// moves a mark onto another. Two cards with one name tell apart by order.
+const names = new Map();
 for (const card of cards) {
   const frames = card.frames ? framesOf(card.frames) : null;
   if (card.frames && !frames) console.error(`moodboard: no frames in ${card.frames.trim()}`);
@@ -138,6 +147,9 @@ for (const card of cards) {
   if (!poster && frames) poster = frames[frames.length - 1].src;
   if (!poster) continue;
   const id = `m${++n}`;
+  const seenName = (names.get(card.name) ?? 0) + 1;
+  names.set(card.name, seenName);
+  const markKey = seenName > 1 ? `${card.name} #${seenName}` : card.name;
   const topic = topicOf(card.topic || card.part);
   // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
@@ -148,7 +160,7 @@ for (const card of cards) {
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
-  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}"${
+  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${
     frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
   }>
         <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
@@ -298,14 +310,19 @@ const html = `<!DOCTYPE html>
   const count = document.getElementById("count");
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { saved = {}; }
-  // Saved by id and title, so a card dropped and the board rebuilt never moves a mark.
-  const tag = (t) => t.dataset.id + "|" + t.dataset.title;
+  // Saved under the card's name, so a card added or dropped and the board
+  // rebuilt never moves a mark. A mark an earlier board saved under a running
+  // number and the name is still read.
+  const tag = (t) => t.dataset.key;
+  const old = (t) => t.dataset.id + "|" + t.dataset.title;
   const marks = saved.marks || {};
   const notes = saved.notes || {};
+  const read = (from, t) => (tag(t) in from ? from[tag(t)] : from[old(t)]) || "";
   note.value = saved.note || "";
   for (const t of tiles) {
-    if (marks[tag(t)]) t.dataset.state = marks[tag(t)];
-    t.querySelector(".why").value = notes[tag(t)] || "";
+    const mark = read(marks, t);
+    if (mark) t.dataset.state = mark;
+    t.querySelector(".why").value = read(notes, t);
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
