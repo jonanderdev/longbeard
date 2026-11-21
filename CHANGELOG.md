@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Copy is made from facts the product has: `design-content` fills a fact sheet from the brief and the design brief before any sentence (an empty field shrinks or drops its section, and the doc lists what you must supply), `design-prototype` does the same when it drafts without that doc, and rule 11 gains checks for one use of each device per screen, no invented numbers, names or quotes, claimed sincerity, and a voice that would not suit another trade.
+
 Design is now a family of small skills, each with one job and one doc, instead of two long ones. You run only what you need, each step asks little, and a long run no longer drifts. [How it flows](assets/design-flow.png).
 
 - **`design`** is now the way in: it reads your project and suggests the next design skill, and why. It never runs one for you. It offers `design-families` only for a board over about 60 references, and a gap search for one under about 8.

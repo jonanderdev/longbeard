@@ -31,7 +31,23 @@ Comes out:
 
 Read the brief (flows, key screens, identity nouns), the design brief (takeaway, voice, what is fixed) and, if they exist, the direction (what it carries, what waits for the prototype, the headline) and the identity (how pictures should feel).
 
-## 1. Draft it, then ask once
+## 1. Facts first, then the draft, then ask once
+
+Copy is made from facts the product has, never from plausible inventions. Before any sentence, fill the fact sheet from the brief and the design brief, in their words where you can:
+
+- **What it is:** one plain sentence.
+- **Who it is for,** and who it is not for.
+- **What people do today instead.**
+- **What is true here and not elsewhere,** with its proof.
+- **Words their customers use.**
+- **Numbers,** each with where it came from.
+- **One limit:** what it does not do, or who it is wrong for.
+
+The voice is the design brief's `voice` line, as confirmed in its read-back. Do not add to it.
+
+An empty field stays empty. Never fill it with a likely fact. Each section is built from fields that have something in them. A section with none is shortened or dropped, and the doc lists what they must supply. A fact you assumed to go on is marked as assumed (see the prototype's stand-in marks), not stated as true.
+
+Each rhetorical device (a heading in two fragments, "X, not Y", a row of three figures) is used once per screen, where it lands hardest. A generic line gets a fact or a decision, never a synonym.
 
 You write; they correct. For each key screen in the brief:
 
@@ -44,7 +60,7 @@ You write; they correct. For each key screen in the brief:
 
 Show it in chat, one screen at a time if there are many, compact:
 
-> Home: leads with "<headline>". Sections: <a>, <b>, <c>. Pictures: today's bread, the oven, the street. Right, or what's off?
+> Home: leads with "<headline>". Sections: <a>, <b>, <c>. Pictures: today's bread, the oven, the street. Still to supply: <empty fields>. Right, or what's off?
 
 One round of corrections. "Go" takes the draft.
 
@@ -69,6 +85,15 @@ Stand-ins stay marked as stand-ins everywhere they are used, until theirs replac
 ```markdown
 # Content: <product>
 
+## Facts
+- is: <one sentence> · for: <who> · not for: <who>
+- instead: <what people do today>
+- only here: <what is true here, with its proof>
+- their words: <…>
+- numbers: <each with its source>
+- limit: <what it does not do>
+- to supply: <empty fields, and the sections they shrink or drop>
+
 ## <Key screen>
 - job: <one line>
 - leads with: <the first read>
@@ -85,5 +110,6 @@ Then the next step in one line, from where the project is (`design` knows).
 ## Do not
 
 - Ask them to write the copy. Draft it.
+- Invent a number, a name or a quote. An empty field is a gap to name.
 - Use the references' pictures, subject or words.
 - Keep a picture without a clear licence, or rank pictures.
