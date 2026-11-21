@@ -4,7 +4,7 @@ description: >
   The way into the design-* skills. Reads what the project already has and
   says which design skill to run next, and why, in a few lines. It suggests;
   they choose, and any design-* skill can be called directly instead. Runs when
-  docs/brief.md exists, the brief has a UI, and there is no approved DESIGN.md,
+  docs/brief.md exists, the brief is a site, an app or a graphic, and there is no approved DESIGN.md,
   or when they ask what to do next on the look.
 ---
 
@@ -56,6 +56,8 @@ Look at the repo. Do not ask what is there. Read the design brief's `pace` first
 7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
 9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
+
+A graphic (the brief's surface) takes the same steps and ends at its exported Figma frame, so never offer Architecture; its other pieces are `design-prototype`.
 
 **Offered once, never pushed** (and not at `pace: quick`):
 - `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.

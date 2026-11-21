@@ -30,6 +30,8 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
 2. A direction exists → a change: show it, ask what changes, build new screens only if the composition does.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 **At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, and what they pick is still built in full.
 
 ## 0. Pictures of the subject

@@ -6,7 +6,7 @@ description: >
   feel and never feel, who it must stand apart from, and what is already fixed.
   One message of questions with suggested answers from the product brief, one
   read-back, and the answers written to docs/design/design-brief.md. Runs after
-  docs/brief.md exists and the brief has a UI, before any other design-* skill,
+  docs/brief.md exists and the brief is a site, an app or a graphic, before any other design-* skill,
   or when the feel of the product changes.
 ---
 
@@ -22,6 +22,8 @@ One doc comes out, `docs/design/design-brief.md`, committed. Every other design 
 1. No `docs/brief.md` → `idea` first. Stop.
 2. The brief says no UI → nothing to design. Stop.
 3. A design brief exists → this is a change. Read it, ask only about what changes, and add a line under **Changes** with the date and why.
+
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 
 ## The round: one message, then wait
 

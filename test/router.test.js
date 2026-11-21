@@ -53,3 +53,14 @@ test("the whole-pipeline router still names every stage", () => {
   const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" });
   for (const stage of ["Idea", "Design", "Architecture", "Plan", "Build"]) assert.match(generated.stdout, new RegExp(`^\\| ${stage} \\|`, "m"));
 });
+
+test("a graphic is routed into Design, and its run ends at Figma", () => {
+  for (const args of [[], ["--design"]]) {
+    const generated = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router", ...args], { encoding: "utf8" });
+    assert.match(generated.stdout, /^\| Design \| [^|]*graphic[^|]*no DESIGN\.md/m);
+  }
+  const full = spawnSync(process.execPath, [join(root, "bin/long-beard.js"), "router"], { encoding: "utf8" }).stdout;
+  assert.match(full, /A graphic ends at Figma/);
+  // One condition, not a new row.
+  assert.equal([...full.matchAll(/^\| (Idea|Design|Architecture|Plan|Build) \|/gm)].length, 5);
+});

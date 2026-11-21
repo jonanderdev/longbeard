@@ -22,6 +22,8 @@ Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and foll
 1. No `DESIGN.md` → `design-prototype` first. Stop.
 2. No Figma connection → say Figma is required for UI projects, and stop.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 Open the approved prototype (`.longbeard/design/prototype/`) beside every screen you build. If it is gone, work from `DESIGN.md` and say so.
 
 ## Rules

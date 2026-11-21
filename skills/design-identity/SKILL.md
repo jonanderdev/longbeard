@@ -32,6 +32,8 @@ Three stops, no more: options, one refinement, the board.
 1. No `docs/design/design-brief.md` → `design-brief`. No `docs/design/design-direction.md` → `design-direction`. Stop, and say which.
 2. An identity exists → a change. Show the board, ask what changes, and reopen only that.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
 **At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`, with `--level AAA` when the brief asks for it), and go to **3. The board**. They can ask for options at the board; that is full pace from there.

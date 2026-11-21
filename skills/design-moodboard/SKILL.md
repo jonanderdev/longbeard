@@ -30,6 +30,8 @@ It chooses no look and ranks nothing. It gathers what they like and says what it
 3. A board given in the design brief, or now → **Their board**.
 4. Otherwise → **Search**.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 **At `pace: quick`** (the design brief): their board as it is, with three or more references, and no gap search. With none, one search: a pool of about 30 across the key screens, steered by the design brief as below, shown as one contact sheet (`contact-sheet.mjs`); they name six to ten by number, and those are the keeps. No picker, no round two. The board and the doc are written as usual.
 
 ## The parts

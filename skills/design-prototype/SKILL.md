@@ -25,6 +25,8 @@ Read [design-rules.md](references/design-rules.md) before the first screen: it i
 2. `DESIGN.md` exists → **Feature loop**.
 3. Otherwise → **First pass**.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 Read the brief, `docs/design/design-brief.md`, `design-identity.md`, `design-direction.md`, and `design-content.md` if it exists. The chosen first screen is `.longbeard/design/direction/prototype/first.html`. If the private folder is gone, rebuild the first screen from `design-direction.md`'s composition and the identity, and say so.
 
 **At `pace: quick`** (the design brief): options only when they ask, never offered at a fork (build the one that follows the first screen, and name the fork). Everything else is as full: the states, contrast, the walks and the five-second check are what make it work, and quick never skips them.

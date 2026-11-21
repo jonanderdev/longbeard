@@ -14,7 +14,7 @@
     },
     {
       "name": "Design",
-      "when": "A brief with UI, no DESIGN.md",
+      "when": "A site, app or graphic brief, no DESIGN.md",
       "skills": [
         "design",
         "figma-generate-library",
@@ -90,14 +90,14 @@
       "license": "MIT",
       "source": "local",
       "when": "An idea, or a repo with no docs/brief.md",
-      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
+      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope. A poster, card or social post gets a short brief of its facts and format."
     },
     {
       "name": "design",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A brief with UI, no DESIGN.md, or what next on the look",
+      "when": "A site, app or graphic brief, no DESIGN.md, or what next on the look",
       "why": "Reads the project and suggests the next design skill. The way in."
     },
     {
