@@ -106,6 +106,18 @@ npx longbeard init
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. It then asks which add-ons. When it cannot ask, or with `--yes`, a first `init` takes the ticked ones. `--all` includes every add-on, `--skill <name>` takes one, and `--no-addons` takes none; each skips the list. An add-on you turn down at `init` is not offered again; take it later with `npx longbeard update --skill <name>`.
 
+### Design only
+
+If you only want to design, say so at `init`:
+
+```bash
+npx longbeard init --design
+```
+
+That installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, and writes an `AGENTS.md` block with just the Idea and Design stages. The planning and build skills, and the add-ons that only matter for code, stay out. Everything ends in a Figma file and `DESIGN.md`, so the Figma connection in your agent is needed. `design-check` checks frames and the design docs; checking built UI needs the build stage. In a terminal, `init` asks "Design only, or the whole pipeline?" when you pass neither `--design` nor `--full`.
+
+`beard-lock.json` records the choice, and `update` keeps to it. To take the rest later, run `npx longbeard init --full` (or `npx longbeard update --full`). It adds the other stages and leaves your `docs/design/` and `DESIGN.md` as they are.
+
 ## Start
 
 Open your agent in the project and say what you want to make:

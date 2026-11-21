@@ -98,11 +98,13 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 
 ## After writing
 
-Offer the next stage in one line. A stage whose file already exists is done, so go past it:
+Offer the next stage in one line, from the stages the router lists. A stage whose file already exists is done, so go past it:
 
 - Site or app, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
 - No UI, or `DESIGN.md` exists → stages 2 and 3 are skipped. Next is Architecture: they type `/grill-with-docs`.
 - `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
+
+With no Architecture stage in the router (a design-only install), the next stage is `design` for a site or app. Otherwise the brief is the result.
 
 Do not start it until they say so.
 

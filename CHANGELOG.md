@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Design only** (new): `npx longbeard init --design`, or the question "Design only, or the whole pipeline?" on a first `init` in a terminal, installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, with an `AGENTS.md` block that has just the Idea and Design stages. `beard-lock.json` records the choice and `update` keeps to it. `init --full` or `update --full` adds the rest, and leaves your design docs as they are. `design-check`'s build mode says it needs the build stage.
+
 Design is now a family of small skills, each with one job and one doc, instead of two long ones. You run only what you need, each step asks little, and a long run no longer drifts. [How it flows](assets/design-flow.png).
 
 - **`design`** is now the way in: it reads your project and suggests the next design skill, and why. It never runs one for you. It offers `design-families` only for a board over about 60 references, and a gap search for one under about 8.

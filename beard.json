@@ -51,6 +51,38 @@
       "writes": "one PR per spec"
     }
   ],
+  "shapes": {
+    "design": {
+      "label": "Design only",
+      "hint": "the brief, the design skills, design-check and Figma frames, with no planning or code",
+      "items": [
+        "idea",
+        "design",
+        "design-check",
+        "figma-use",
+        "figma-generate-library",
+        "figma-generate-design"
+      ],
+      "addons": [
+        "jury"
+      ],
+      "stages": {
+        "Idea": [
+          "idea"
+        ],
+        "Design": [
+          "design",
+          "figma-generate-library",
+          "figma-generate-design",
+          "design-check"
+        ]
+      },
+      "notes": [
+        "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. Nothing here builds code: design-check runs on Figma frames and the design docs, and checking built UI needs the build stage.",
+        "UI work follows DESIGN.md and its Ready Figma frames; a mismatch is a bug."
+      ]
+    }
+  },
   "items": [
     {
       "name": "idea",

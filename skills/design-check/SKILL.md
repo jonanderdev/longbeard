@@ -53,7 +53,7 @@ Called by `design-figma` after it composes or changes a Figma screen. Input: the
 
 ## Build mode
 
-After `implement-spec` builds a UI spec. Input: the running app's URL for each screen, and the Ready frames the tickets link. A screen with no Ready frame has nothing to compare with: report it as "not checked" and send it to `design-figma`.
+After `implement-spec` builds a UI spec. This mode belongs to the Build stage: when the router has none (a design-only install), say that it needs the build stage and offer frame mode or docs mode. Input: the running app's URL for each screen, and the Ready frames the tickets link. A screen with no Ready frame has nothing to compare with: report it as "not checked" and send it to `design-figma`.
 
 1. **Render** each screen at phone and desktop:
    ```
