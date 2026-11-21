@@ -135,10 +135,10 @@ if (built) {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
-  // The round spans near to far, so the person, not the method, sets how new.
+  // The round reaches from screens built on sites (near) to screens built on print or objects (far).
   const dist = built.list.map((sc) => String(sc.distance || "").toLowerCase()).filter(Boolean);
-  const spans = ["near", "mid", "far"].filter((d) => dist.includes(d));
-  check("screens: a range of distance", false, dist.length ? spans.length === 3 : null, dist.length ? ["near", "mid", "far"].map((d) => `${d} ${dist.filter((x) => x === d).length}`).join(" · ") : "no distance in screens.json");
+  const spans = ["near", "far"].filter((d) => dist.includes(d));
+  check("screens: a range of distance", false, dist.length ? spans.length === 2 : null, dist.length ? ["near", "far"].map((d) => `${d} ${dist.filter((x) => x === d).length}`).join(" · ") : "no distance in screens.json");
   check("deal: a screen chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
 } else if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
 else {

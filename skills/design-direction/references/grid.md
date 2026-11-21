@@ -2,27 +2,26 @@
 
 Read by `design-direction`, step 3.
 
-Eight first screens, built the way a designer works from a board: one reference whose design works, rebuilt with the product's own content, changed by things borrowed from the other cards, the subject's among them, and checked until it still works. Measuring against the references keeps their craft; it never decides how far a screen moves from them. The round spans near to far, and the person, choosing on rendered screens, decides how new. The agent's own taste adds nothing.
+Eight first screens, built the way a designer works from a board: one reference whose design works, rebuilt with the product's own content, changed by one or two things borrowed from the other cards, the subject's among them, and checked until it still works. A reference's sizes, spacing and alignments were tuned together, so every screen stays faithful to one whole system: parts of one filled out from others make a system nobody tuned, and it breaks. A round's newness comes from which system a screen is faithful to, near to far, and the person, choosing on rendered screens, decides how new. The agent's own taste adds nothing.
 
 Each screen is a page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, px at 1440, every face and colour a variable from `LOOK`, and a `PROVENANCE` list. One file for all eight, `screens.json`:
 
 ```
-[{ "n": 1, "base": "<card name>", "distance": "near | mid | far", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name, or subject>", "like": "<their words, or null>", "proposed": false }], "why": "<one line>", "versions": ["1-base", "1-a", "1-b"] }]
+[{ "n": 1, "base": "<card name>", "distance": "near | far", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name, or subject>", "like": "<their words, or null>", "proposed": false }], "why": "<one line>", "versions": ["1-base", "1-a", "1-b"] }]
 ```
 
 ## Five principles
 
 Everything below is one of these. When a case is not listed, decide it by them.
 
-### 1. The base stands as far as the screen's distance says
+### 1. One base, one whole system, unless a move names it
 
-A screen starts from its base reference, measured. How much of it stands is the screen's distance, planned for the round:
-- **near:** the base, with one move. What no move names stays as the base has it: its layout, its anchors (a picture centred on the page, a headline on the axis), its balance, its alignments, its devices and its pictures' treatment.
-- **mid:** two or three moves, at least one that changes structure (an element, the layout turned, a structure, a form from the subject).
-- **far:** only the base's proportions and system stand: its margins, grid, type scale, spacing rhythm and how empty it is. What fills them comes from moves, at least one from the subject.
+A screen is its base reference, measured, with one or two moves, at least one more than colour or type (an element, the layout turned, a form from the subject). What no move names stays as the base has it: its layout, its anchors (a picture centred on the page, a headline on the axis), its balance, its alignments, its devices and its pictures' treatment. How new a screen is comes from its base, never from bending it:
+- **near:** the base is a screen, a site or an app.
+- **far:** the base was made for something else: a poster, print, a sign, a package, an object from the product's world. Its system is rebuilt faithfully at screen size with the product's content; that it was never a screen is what makes it new.
 
-At every distance:
-- The layout comes from a card on the board: a reference's, turned or not, or a form from the subject's world. Never invented.
+And:
+- The layout always comes from the base, turned or not. Never invented, never another reference's grid laid on it.
 - What they said they like in the base is kept exactly ("this red" stays this red). What they never named is kept by its role: an unnamed big red is "a punchy accent over a quarter of the page", which a move may make another reference's orange, at the same strength.
 - A borrowed thing fits around the base's anchors (placed, sized or set smaller to fit), or goes to a base with room for it.
 - Text on a picture sits on an area as calm and as light or dark as its source's (sky, a plain wall): the picture is chosen and cropped for the text, which never leaves it. With no such picture, say so on the sheet.
@@ -30,7 +29,7 @@ At every distance:
 
 ### 2. Every measure is a share of the screen, and is kept
 
-Sizes, gaps and fills are measured in the source as a share of its width and height, and kept at 1440 within 15%: type sizes, the gaps between pictures, text to the margin or a panel's edge, a label to its picture, the parts of a small device (each part's size, its stroke, the spacing between them), how much of its zone a text block fills. This is the craft every distance keeps.
+Sizes, gaps and fills are measured in the source as a share of its width and height, and kept at 1440 within 15%: type sizes, the gaps between pictures, text to the margin or a panel's edge, a label to its picture, the parts of a small device (each part's size, its stroke, the spacing between them), how much of its zone a text block fills. This is the craft every screen keeps.
 
 - An element that grew (longer copy) is set smaller within its role until its room is kept, never eating its neighbour's gap.
 - A rule or a border ends where it ends in the source; whatever runs off the screen runs off as in the source.
@@ -38,11 +37,11 @@ Sizes, gaps and fills are measured in the source as a share of its width and hei
 - A poster or a print piece sets its small text for its own size. On a screen, text a visitor reads to act (the menu, a control's label) takes the size the board's screen references give it, never smaller.
 - **When a layout turns,** every gap and alignment turns with its zone, mirrored, never closed up; each text block keeps the edge it hangs from and its room, and what is grouped with it moves with it.
 
-### 3. A borrowed thing keeps its geometry, and its why guides it
+### 3. A borrowed thing keeps its geometry; its why guides it
 
 Before placing a borrowed thing, measure how it sits in its source (its size against the screen, where it crosses what it overlaps and how far, the room around it) and place it with the same relations.
 
-**The why they gave says how to use it.** "The orange dot, the only contrast on a quiet page" goes on a quiet base, alone; "black-and-white photos at different heights, like a contact sheet" goes where there are several photos. Where a why would not be true on a base, the move goes to another. A like belongs to its card, never a house style across the round. **The pick decides, the why guides:** words reach colour and type more easily than proportion or rhythm, so what they pick on the sheet outranks what they said. A picked screen is never blocked by a why it breaks.
+**The why they gave says how to use it:** "the orange dot, the only contrast on a quiet page" goes on a quiet base, alone. Where a why would not be true on a base, the move goes to another; a like is never a house style across the round. **The pick decides, the why guides:** words reach colour and type more easily than proportion or rhythm, so what they pick on the sheet outranks what they said. A picked screen is never blocked by a why it breaks.
 
 ### 4. A move changes only what it names
 
@@ -52,10 +51,9 @@ Moves are borrowed from the other cards and spread across the round. A move is o
 - **the face:** another reference's display face, of a kind that can carry the base's headline, at the base's size;
 - **the picture treatment:** another reference's crop, tone or frame;
 - **the scale:** the headline larger or smaller, as far as another reference sets its own;
-- **an element** (structure): one device from another reference, on the base's grid;
-- **the layout turned** (structure): mirrored, the headline and picture traded, or one zone moved, proportions kept;
-- **a structure:** another reference's grid, columns or reading path, on the base's proportions;
-- **a form from the subject** (structure): something only the product's world has, made into a layout or a device: the bakery's stamp holding the action, the oven's numbers carrying the status, the chalked list as the page's column. It comes from the subject card ([subject.md](subject.md)) and the ownable, never from the agent's idea of the category.
+- **an element:** one device from another reference, on the base's grid;
+- **the layout turned:** mirrored, the headline and picture traded, or one zone moved, proportions kept;
+- **a form from the subject:** something only the product's world has, made into a device on the base's grid, at the base's sizes: the bakery's stamp holding the action, the oven's numbers carrying the status, the chalked list in the base's text column. It comes from the subject card ([subject.md](subject.md)) and the ownable, never from the agent's idea of the category.
 
 A move brings only that one thing: a face move brings the face, never its source's colour or case; a palette move brings colours, never a face. A liked terracotta headline stays terracotta whatever face it takes.
 
@@ -70,8 +68,8 @@ Every face, colour, element and effect names its card in `PROVENANCE`: a referen
 One agent that builds eight screens and judges them thins its attention and defends its own choices. So each screen is made by fresh agents, each with one job and only what that job needs; screens may be built side by side. **Wait for every one** before the round's checks and the sheet: a run never ends with a helper still working.
 
 **1. Plan (you).**
-- **The range.** Each round spans near to far, for example three near, three mid and two far, so they see how far their board can go; "more of 3" keeps 3's distance.
-- **The bases.** Every reference they liked is the base of a screen, the lead of two; with fewer than eight, the lead, then the likes, take another at another distance.
+- **The range.** Every card on the board not made for a screen is the base of at least one screen, so the round reaches as far as their board does. With none, say so with the sheet.
+- **The bases.** Every reference they liked is the base of a screen, the lead of two; with fewer than eight, the lead, then the likes, take another with other moves.
 - **The spread, checked now, before any screen is built.** Across the eight, faces, palettes, tones, picture treatments, pictures and crops spread as widely as the board's: each face mostly on its own reference's screens, a borrowed thing on two screens at most, no photo the main picture on more than two, no tone on more than half. Only a like that says it is the point ("always black and white") repeats more.
 
 Write `screens.json`, and a brief per screen, `briefs/<n>.md`: its distance; the base's reading and picture path; each move in words with its source picture (for a subject form, the subject pictures), its like and its why; the content in the base's slots, in the fill order; the product's pictures for this base; the five principles, as written. Nothing else from this file or the session.
@@ -81,21 +79,21 @@ Write `screens.json`, and a brief per screen, `briefs/<n>.md`: its distance; the
   ```
   node <skill>/scripts/layout-diff.mjs <reference picture> .longbeard/design/direction/grid/<n>-base.png --out .longbeard/design/direction/checks/<n>-base
   ```
-  Fix it until nothing it lists is off without a reason (longer copy set smaller; a portrait poster, read by its shares). At far, only its proportions and system carry on.
+  Fix it until nothing it lists is off without a reason (longer copy set smaller; a portrait poster, read by its shares).
 - Make the moves into `screens/<n>.html`, by principles 3 and 4, and capture it.
 
-**3. Critique (a fresh agent per screen, pictures only).** It gets: the base reference (cropped to its screen), the final screen, the translation's capture, 3× crops of the small devices, rules and tight gaps beside the same crops of their sources (made for it; it runs no scripts), each move's source picture and words, the screen's distance, and the contrast report. At near, `layout-diff.mjs`'s `side.png` and `overlay.png` too (`--mirror` when the layout turned); at mid and far no overlay, since what moved was planned. No rules, no brief, no session. It answers:
-- **Where is the craft less finished than its sources?** Every spot a visitor would see (a gap, an edge, a size, a weight, a colour, a picture, text that cannot be read), each with the place in a source that shows how it should be. Craft, never distance: how far the screen moved from its reference is not a fault, and what a source does on purpose (overlaps, crops, collisions, tiny type) is never one.
-- **What on this screen exists only because of this product?** Name it. Nothing but the content and the pictures is a fault.
+**3. Critique (a fresh agent per screen, pictures only).** It gets: the base reference (cropped to its screen), the final screen, the translation's capture, 3× crops of the small devices, rules and tight gaps beside the same crops of their sources (made for it; it runs no scripts), each move's source picture and words, the contrast report, and `layout-diff.mjs`'s `side.png` and `overlay.png` (`--mirror` when the layout turned). No rules, no brief, no session. It answers:
+- **Where is the craft less finished than its sources?** Every spot a visitor would see (a gap, an edge, a size, a weight, a colour, a picture, text that cannot be read), each with the place in a source that shows how it should be. What a source does on purpose (overlaps, crops, collisions, tiny type) is never a fault, and nor is what a move changed.
+- **What on this screen exists only because of this product?** Name it. Nothing but the content and the pictures is a fault, and it goes back to the plan: the screen gets a move from the subject card. A fixer never adds one.
 - **In one line, what made the reference work, and does the screen keep it?**
 - **Anything on the screen that no card has?**
 
 It lists; it never redesigns.
 
-**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, toward its sources' craft, never back toward the base's layout. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept and captured: a later fix is not always better. Then capture, `layout-diff.mjs` at near, contrast, and a fresh critic again. Stop when the critic lists nothing a visitor would see at full size (only points under 4 px or one step of weight), or after three fixes. What is left goes on the sheet as a known fault; the person may take any version.
+**4. Fix (a fresh agent per screen).** It gets the critic's list, the screen's file and the same pictures, and changes only the spots listed, toward its sources' craft; it never adds an element, a colour or an effect. Each fix is a new version (`<n>-a.html`, `<n>-b.html`), every one kept and captured: a later fix is not always better. Then capture, `layout-diff.mjs`, contrast, and a fresh critic again. Stop when the critic lists nothing a visitor would see at full size (only points under 4 px or one step of weight), or after three fixes. What is left goes on the sheet as a known fault; the person may take any version.
 
 **Then the round (you):**
-- **Distance as planned.** A fresh agent, given each screen and its base only, says near, mid or far. A screen planned mid or far that reads as near gets another move and is built again from step 2; one planned near that reads far loses a move. Near is a fine answer: it changes one thing they did not name, beyond the content.
+- **Not a copy, not a stranger.** A fresh agent, given each screen and its base only: does it read as the base with new words and pictures, or as something else than the base? The first gets its plan's move made stronger (an element, not a colour) and is built again from step 2; the second has bent its base, and loses a move.
 - **Contrast,** every screen; a failure blocks the sheet. Fixed with the screen's own colours or another crop (principle 1), never by moving the text:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready

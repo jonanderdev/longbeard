@@ -4,9 +4,10 @@ description: >
   Find the direction: eight first screens, each built on one of their
   references with the product's real content and pictures and changed by
   things borrowed from their other cards, the product's own world among them.
-  Each round spans near (one change) to far (only the reference's proportions
-  and system kept), so they, not the method, decide how new. Nothing on a
-  screen that is not on their board. They pick on a rendered sheet, ask for
+  Each screen stays faithful to one reference's whole system; a round reaches
+  from screens built on sites to screens built on print, signs or objects,
+  and they decide how new. Nothing on a screen that is not on their board.
+  They pick on a rendered sheet, ask for
   more of one or a mix; then a light touch-up pass fixes contrast, anything
   missing and anything plainly broken, never the composition. Writes
   docs/design/design-direction.md. Runs after design-brief and
@@ -19,7 +20,7 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design whose sizes, spacing, type and colours were chosen together. So a screen starts from one reference, rebuilt with the product's own content, takes things from the other cards (a palette, a face, an element, a structure, a form from the product's own world), and is checked until its craft holds. Measuring keeps a reference's craft; it never decides how far a screen moves from it. **They are the designer.** They pick the references, say what they like in each, and choose the result, near or far; originality comes from their references meeting their product. The agent's craft is making the moves fit. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a card on their board, and a fresh agent checks that. The agent never ranks the screens. After the choice, a light touch-up repairs what is broken and never redesigns.
+The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design whose sizes, spacing, type and colours were chosen together. So a screen starts from one reference, rebuilt with the product's own content, takes one or two things from the other cards (a palette, a face, an element, a form from the product's own world), and is checked until its craft holds. A system that was tuned together breaks when it is bent, so newness comes from which reference a screen is built on, near (a site) or far (a poster, a sign, a package), never from bending one. **They are the designer.** They pick the references, say what they like in each, and choose the result; originality comes from their references meeting their product. The agent's craft is making the moves fit; its own taste adds nothing: every face, colour, element and effect on a screen comes from a card on their board, and a fresh agent checks that. The agent never ranks the screens. After the choice, a light touch-up repairs what is broken and never redesigns.
 
 Comes out:
 
@@ -58,10 +59,10 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .l
 (When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
 
 > Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
-> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it, and what it does for you** ("the orange dot: the only contrast on a quiet page", "the thin serif: it makes the page feel slow and expensive"). The product's own pictures and the ownable are a card too: what you like there can shape the layout, not only the colours. What you like is what the designs borrow, and why is how they use it; what you pick on the sheet still decides. Paste the copy-out.
-> One more, if the board has none: a picture from outside screens, from your product's world or near it (a sign, a package, a printed menu, an object). It gives the far screens somewhere to go.
+> Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it, and what it does for you** ("the orange dot: the only contrast on a quiet page", "the thin serif: it makes the page feel slow and expensive"). The product's own pictures and the ownable are a card too: what you like there can shape more than colour. What you like is what the designs borrow, and why is how they use it. Paste the copy-out.
+> One more, if the board has none: a picture of something not made for a screen, from your product's world or near it (a sign, a package, a printed menu, an object). The far screens are built on it.
 
-Add the subject card to the board (its pictures and the ownable, [subject.md](references/subject.md)). A missing why or far reference is asked once. The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, from more than one family. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more?" A poster is a reference like any other, rebuilt at screen size, its proportions kept.
+Add the subject card to the board (its pictures and the ownable, [subject.md](references/subject.md)). A missing why is asked once. The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, from more than one family. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more?"
 
 **A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there, not every element that site had. Say it:
 
@@ -77,14 +78,14 @@ Open the lead and every like at full size and write `.longbeard/design/direction
 
 Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base and its moves:
 
-Five principles decide every case: the base stands as far as the screen's distance says; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry, and its why guides it; a move changes only what it names; nothing from outside the board, and the subject is on it. Each screen is made by fresh agents with one job each:
+Five principles decide every case: one base, one whole system, unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry, and its why guides it; a move changes only what it names; nothing from outside the board, and the subject is on it. Each screen is made by fresh agents with one job each:
 
-1. **Plan** (you): a range of distance (for example three near, three mid, two far), the bases and moves, the spread of pictures and tones checked before any build, and a brief per screen.
+1. **Plan** (you): the bases, every card not made for a screen among them, one or two moves each, the spread checked before any build, and a brief per screen.
 2. **Build:** translate the base, measured against it (`layout-diff.mjs`), then make the moves.
-3. **Critique:** with only the pictures, where the craft is less finished than its sources (never how far it moved), and what on the screen exists only because of this product; nothing is a fault.
+3. **Critique:** with only the pictures, where the craft is less finished than its sources, and what on the screen exists only because of this product; nothing sends it back to the plan.
 4. **Fix:** only those spots, toward the sources' craft, each fix a new version, every version kept; a fresh critic again until nothing a visitor would see is left, at most three times. What is left is shown as a known fault.
 
-Wait for every helper. Then the round: distance as planned, contrast (a failure blocks the sheet), faults.
+Wait for every helper. Then the round: not a copy and not a stranger to its base, contrast (a failure blocks the sheet), faults.
 
 How, with the list of moves and the checks: [grid.md](references/grid.md).
 
@@ -96,7 +97,7 @@ Show the sheet, the sheet of each screen beside its base, and a table: each numb
 
 ## 4. More, mix, choose
 
-- **More of some:** for each pick, three more on the same base at its distance, with other moves, built and checked the same way; sheet with `--cols 4`.
+- **More of some:** for each pick, three more on the same base with other moves, built and checked the same way; sheet with `--cols 4`.
 - **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another.
 - **More, or none:** a fresh round of eight, as often as they ask, none shown before. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
