@@ -221,6 +221,20 @@ async function main() {
     }
     return false;
   };
+  // Is the text cut by a clip-path, a clip or an overflow on it or above it? Then only part of it shows.
+  const cut = (el, boxes) => {
+    for (let up = el; up && up.nodeType === 1; up = up.parentElement) {
+      const s = getComputedStyle(up);
+      if (s.clipPath && s.clipPath !== "none") return true;
+      if (s.clip && s.clip !== "auto" && /absolute|fixed/.test(s.position)) return true;
+      if (s.overflowX !== "visible" || s.overflowY !== "visible") {
+        const r = up.getBoundingClientRect();
+        const x = r.left + scrollX, y = r.top + scrollY;
+        if (boxes.some((b) => b.x < x - 0.5 || b.y < y - 0.5 || b.r > x + r.width + 0.5 || b.b > y + r.height + 0.5)) return true;
+      }
+    }
+    return false;
+  };
   const byEl = new Map();
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -251,12 +265,15 @@ async function main() {
       }
       // A faded container fades its text too: every opacity from the element up multiplies in.
       if (colour) for (let up = el; up && up.nodeType === 1; up = up.parentElement) colour[3] *= Number(getComputedStyle(up).opacity);
-      byEl.set(el, { text: "", boxes: [], colour, unread, size, weight, outline, large: size >= 24 || (size >= 18.66 && weight >= 700) });
+      byEl.set(el, { el: byEl.size, text: "", boxes: [], colour, unread, size, weight, outline, large: size >= 24 || (size >= 18.66 && weight >= 700) });
     }
     const t = byEl.get(el);
     t.text += (t.text ? " " : "") + n.textContent.trim().replace(/\\s+/g, " ");
     t.boxes.push(...boxes);
   }
+  for (const [el, t] of byEl) t.cut = cut(el, t.boxes);
+  // Kept for the mask shots below, which show one element at a time.
+  window.__screenContrastEls = [...byEl.keys()];
   return [...byEl.values()];
 })()`);
 
@@ -270,8 +287,46 @@ async function main() {
   const shot = await call("Page.captureScreenshot", { format: "png", captureBeyondViewport: looked > H, clip: { x: 0, y: 0, width: W, height: looked, scale: 1 } });
   if (!shot.result?.data) fail(`could not take the screenshot${shot.error ? `: ${shot.error.message}` : ""}`);
 
-  // Read the shot's pixels in a blank page, and measure each text against what is under it.
+  const boxOf = (t) => {
+    const x = Math.min(...t.boxes.map((b) => b.x)), y = Math.min(...t.boxes.map((b) => b.y));
+    return [x, y, Math.max(...t.boxes.map((b) => b.r)) - x, Math.max(...t.boxes.map((b) => b.b)) - y];
+  };
+  // Where each text actually shows. A text cut by a clip-path, a clip or an overflow shows only
+  // inside its cut; and a copy of the same text in the same box drawn after it (a knockout label:
+  // the copy in another colour, clipped to a disc behind) hides it wherever that copy shows. For
+  // these texts one more shot is taken per element: everything hidden but that element, painted
+  // white on black, with its own and its ancestors' clips still applied. That shot is its mask.
   const measured = texts.filter((t) => !t.unread);
+  const keyOf = (t) => t.text + "|" + boxOf(t).join(",");
+  for (const [i, t] of measured.entries()) {
+    const over = measured.slice(i + 1).filter((u) => keyOf(u) === keyOf(t));
+    t.covers = over.map((u) => u.el);
+    for (const u of over) u.cut = t.cut = true;
+  }
+  const masks = {};
+  const toMask = measured.filter((t) => t.cut);
+  if (toMask.length) {
+    await call("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 1 } });
+    await evaluate(`(() => {
+  const s = document.createElement("style");
+  s.textContent = "html, body { background: none !important; } * { visibility: hidden !important; } [data-screen-contrast-mask] { visibility: visible !important; background: #fff !important; border-color: transparent !important; box-shadow: none !important; outline: none !important; filter: none !important; mix-blend-mode: normal !important; } [data-screen-contrast-mask] * { visibility: hidden !important; }";
+  document.head.appendChild(s);
+  return true;
+})()`);
+    for (const t of toMask) {
+      const [x, y, w, h] = boxOf(t);
+      await evaluate(`(() => {
+  for (const e of document.querySelectorAll("[data-screen-contrast-mask]")) e.removeAttribute("data-screen-contrast-mask");
+  window.__screenContrastEls[${t.el}].setAttribute("data-screen-contrast-mask", "");
+  return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => done(true))));
+})()`);
+      const m = await call("Page.captureScreenshot", { format: "png", captureBeyondViewport: looked > H, clip: { x, y, width: w, height: h, scale: 1 } });
+      if (!m.result?.data) fail(`could not take a mask shot${m.error ? `: ${m.error.message}` : ""}`);
+      masks[t.el] = { x, y, w, h, data: m.result.data };
+    }
+  }
+
+  // Read the shot's pixels in a blank page, and measure each text against what is under it.
   await call("Page.navigate", { url: "about:blank" });
   await sleep(200);
   const results = await evaluate(`(async () => {
@@ -285,13 +340,38 @@ async function main() {
   const d = g.getImageData(0, 0, img.width, img.height).data;
   const lin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
   const lum = (r, gg, b) => 0.2126 * lin(r) + 0.7152 * lin(gg) + 0.0722 * lin(b);
+  // Each mask as a test: does its element show at (x, y)? Shown means at least half its brightest
+  // pixel, so a faded ancestor still shows and a clip's soft edge counts on one side only.
+  const masks = ${JSON.stringify(masks)};
+  const shows = {};
+  for (const [el, m] of Object.entries(masks)) {
+    const mi = new Image();
+    mi.src = "data:image/png;base64," + m.data;
+    await mi.decode();
+    const mc = Object.assign(document.createElement("canvas"), { width: mi.width, height: mi.height });
+    const mg = mc.getContext("2d", { willReadFrequently: true });
+    mg.drawImage(mi, 0, 0);
+    const md = mg.getImageData(0, 0, mi.width, mi.height).data;
+    let peak = 0;
+    for (let i = 0; i < md.length; i += 4) peak = Math.max(peak, md[i], md[i + 1], md[i + 2]);
+    shows[el] = (x, y) => {
+      const mx = x - m.x, my = y - m.y;
+      if (peak < 8 || mx < 0 || my < 0 || mx >= mi.width || my >= mi.height) return false;
+      const i = (my * mi.width + mx) * 4;
+      return Math.max(md[i], md[i + 1], md[i + 2]) * 2 >= peak;
+    };
+  }
   return texts.map((t) => {
     const [tr, tg, tb, ta] = t.colour;
     const area = t.boxes.reduce((s, b) => s + (b.r - b.x) * (b.b - b.y), 0);
     const stride = Math.max(1, Math.floor(Math.sqrt(area / 20000)));
     const ks = [];
     let worst = Infinity, worstBg = null;
+    const own = shows[t.el], covers = (t.covers || []).map((c) => shows[c]);
     for (const b of t.boxes) for (let y = b.y; y < b.b; y += stride) for (let x = b.x; x < b.r; x += stride) {
+      // Only where the text shows: inside its own cut, and not under a copy of it drawn on top.
+      if (own && !own(x, y)) continue;
+      if (covers.some((c) => c(x, y))) continue;
       const i = (y * img.width + x) * 4;
       const br = d[i], bg = d[i + 1], bb = d[i + 2];
       // The text's alpha over the pixel under it.
@@ -312,10 +392,6 @@ async function main() {
   const hex = (rgb) => `#${rgb.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
   // Rounded down, so a ratio just under its threshold never prints as the threshold.
   const r2 = (v) => (v == null ? null : Math.floor(v * 100) / 100);
-  const boxOf = (t) => {
-    const x = Math.min(...t.boxes.map((b) => b.x)), y = Math.min(...t.boxes.map((b) => b.y));
-    return [x, y, Math.max(...t.boxes.map((b) => b.r)) - x, Math.max(...t.boxes.map((b) => b.b)) - y];
-  };
   const said = (t) => (t.text.length > 40 ? `${t.text.slice(0, 39)}…` : t.text);
   const rows = results.map((t) => {
     const need = t.large ? large : min;

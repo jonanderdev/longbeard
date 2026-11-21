@@ -125,3 +125,33 @@ test("screen-contrast: exit 3 is a run that could not finish, a hung page includ
   assert.equal(hung.status, 3, hung.stderr);
   assert.match(hung.stderr, /did not answer within 2 s/);
 });
+
+// A knockout label: ink text on the ground, and over the ink disc a ground-coloured copy clipped to the disc.
+const knockout = (on) =>
+  page(`<style>
+  :root{--ink:#a9452b;--ground:#e7e4df}
+  body{background:var(--ground);padding:80px}
+  .cta{position:relative;display:inline-block}
+  .cta .disc { position: absolute; left: -45.5px; top: -45.5px; width: 91px; height: 91px; border-radius: 50%; background: var(--ink); }
+  .cta .label { position: absolute; left: 0; top: -16px; height: 32px; font-size: 32px; font-weight: 300; line-height: 1; white-space: nowrap; color: var(--ink); }
+  .cta .label.on { color: ${on}; clip-path: circle(45.5px at 0 50%); }
+</style>
+<a class="cta" href="#"><span class="disc"></span><span class="label">Order for pickup</span><span class="label on" aria-hidden="true">Order for pickup</span></a>`);
+
+test("screen-contrast: a knockout label is read only where each copy shows", async (t) => {
+  const good = await run([knockout("var(--ground)"), "--size", "800x300", "--json"]);
+  if (/No Chrome/.test(good.stderr)) return t.skip("no Chrome installed");
+  const g = JSON.parse(good.stdout);
+  assert.equal(good.status, 0, good.stdout);
+  assert.equal(g.failing, 0);
+  assert.equal(g.texts.length, 2);
+  for (const text of g.texts) assert.ok(text.p5 >= 3, JSON.stringify(text));
+});
+
+test("screen-contrast: a clipped copy the colour of the disc under it still fails", async (t) => {
+  const bad = await run([knockout("var(--ink)"), "--size", "800x300"]);
+  if (/No Chrome/.test(bad.stderr)) return t.skip("no Chrome installed");
+  assert.equal(bad.status, 1, bad.stderr + bad.stdout);
+  assert.match(bad.stdout, /"Order for pickup"\tbox [\d,]+\ttext #a9452b\tworst on #a9452b\t1:1/);
+  assert.match(bad.stderr, /2 texts, 1 under/);
+});
