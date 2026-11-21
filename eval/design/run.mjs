@@ -26,10 +26,18 @@
 //                                   them unlabelled into a run's sheet for the owner to mark.
 //
 // --agent is any shell command that works in the current folder and takes the prompt
-// where it says {prompt}, else as its last argument; quoting works:
-//   --agent 'claude -p {prompt} --allowedTools "Bash(node:*)" Read Write'. The agent needs Chrome, and the network for Google Fonts and
+// where it says {prompt}, else as its last argument; quoting works. Put {prompt} first when the
+// command's flags take a list (--allowedTools does), or the list swallows the prompt:
+//   --agent 'claude -p {prompt} --permission-mode acceptEdits --allowedTools "Bash(node:*)" "Bash(git:*)" "Bash(mkdir:*)" "Bash(cp:*)" Read Write Edit Glob Grep'
+// A headless agent has nobody to approve what it asks to do, so it is given what the flow needs: write
+// files, run the skills' node scripts, git. The agent needs Chrome, and the network for Google Fonts and
 // Wikimedia Commons (the subject's stand-in pictures). Figma is not part of it.
-import { spawnSync } from "node:child_process";
+//
+// --timeout <minutes> (default 180) stops the agent, and everything it started, when it runs past that.
+// The agent gets only the environment it needs: PATH, HOME and the shell's basics, proxy and certificate
+// settings, CHROME_PATH, and anything named ANTHROPIC_* or CLAUDE_*. Another variable it needs (a
+// key for another agent's API, say) is named with --env NAME (repeat it, or comma-separate).
+import { spawn, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -42,10 +50,18 @@ const flag = (name, def = "") => {
   const i = args.indexOf(`--${name}`);
   return i === -1 ? def : (args.splice(i, 2)[1] ?? "");
 };
+// Every occurrence of a flag, each value split at commas.
+const flags = (name) => {
+  const all = [];
+  for (let i = args.indexOf(`--${name}`); i !== -1; i = args.indexOf(`--${name}`)) all.push(...(args.splice(i, 2)[1] ?? "").split(",").map((v) => v.trim()).filter(Boolean));
+  return all;
+};
 const out = flag("out");
 const agent = flag("agent");
 const pace = flag("pace", "full");
 const from = flag("from");
+const timeoutMinutes = Number(flag("timeout", "180"));
+const extraEnv = flags("env");
 const plainAt = args.indexOf("--plain");
 const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
@@ -55,8 +71,11 @@ const fixtureArg = flag("fixture");
 const fixture = resolve(fixtureArg || (fromFixture ? join(here, fromFixture.split("/").pop()) : join(here, "fixture")));
 // A file of the fixture, or the default fixture's when it has none of its own (a second board shares the brief).
 const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(here, "fixture", rel));
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--pace full|quick] [--from <a finished run>] [--fixture <folder>] [--plain] [--agent \"claude -p\"]";
-if (!out || args.length || !["full", "quick"].includes(pace) || (plain && (!from || !agent))) {
+// What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
+// the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
+const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--pace full|quick] [--from <a finished run>] [--fixture <folder>] [--plain] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
@@ -96,7 +115,7 @@ if (plain) {
   ].join(" ");
   writeFileSync(join(work, "PROMPT.txt"), `${brief}\n`);
   console.log(`baseline: ${work}\nrunning: ${agent} <prompt>`);
-  const run = runAgent(work, brief);
+  const run = await runAgent(work, brief);
   const shots = existsSync(join(work, "screens")) ? readdirSync(join(work, "screens")).filter((f) => /^\d+\.html$/.test(f)) : [];
   mkdirSync(dir, { recursive: true });
   cpSync(work, dir, { recursive: true });
@@ -106,8 +125,8 @@ if (plain) {
     const c = spawnSync(process.execPath, [capture, pathToFileURL(join(dir, "screens", f)).href, "--out", png, "--clip", "0,0,1440,900"], { encoding: "utf8" });
     if (c.status !== 0) console.error(`run: no capture of ${f}: ${c.stderr.trim()}`);
   }
-  console.log(`agent exited ${run.status}; ${shots.length} screens in ${join(dir, "screens")}. Shuffle them into a run's sheet: node ${join(here, "score.mjs")} <run> --plain ${dir}`);
-  process.exit(shots.length ? 0 : 1);
+  console.log(`agent ${run.timedOut ? `stopped after ${timeoutMinutes} minutes` : `exited ${run.status}`}; ${shots.length} screens in ${join(dir, "screens")}. Shuffle them into a run's sheet: node ${join(here, "score.mjs")} <run> --plain ${dir}`);
+  process.exit(shots.length && !run.timedOut ? 0 : 1);
 }
 
 // The project: the brief, the answers, git, and the skills as an install would lay them out.
@@ -160,23 +179,50 @@ const prompt = from ? [
 writeFileSync(join(dir, "PROMPT.txt"), `${prompt}\n`);
 console.log(`project: ${dir} (pace ${pace}, ${skills.length} skills, ${board.length} references)`);
 if (!agent) {
-  console.log(`run the agent there with the prompt in PROMPT.txt, e.g.\n  cd ${dir} && claude -p "$(cat PROMPT.txt)"\nthen: node ${join(here, "score.mjs")} ${dir}`);
+  console.log(`run the agent there with the prompt in PROMPT.txt, e.g.\n  cd ${dir} && claude -p "$(cat PROMPT.txt)" --permission-mode acceptEdits --allowedTools "Bash(node:*)" "Bash(git:*)" "Bash(mkdir:*)" "Bash(cp:*)" Read Write Edit Glob Grep\nthen: node ${join(here, "score.mjs")} ${dir}`);
   process.exit(0);
 }
 // The clock for score.mjs's time to the first sheet. A run by hand: `date +%s000 > .longbeard/eval/started.txt` before the agent starts.
 writeFileSync(join(dir, ".longbeard/eval/started.txt"), `${Date.now()}\n`);
 console.log(`running: ${agent} <prompt>`);
-const run = runAgent(dir, prompt);
-console.log(`agent exited ${run.status}. Score it: node ${join(here, "score.mjs")} ${dir}`);
-process.exit(run.status ?? 1);
+const run = await runAgent(dir, prompt);
+console.log(`agent ${run.timedOut ? `stopped after ${timeoutMinutes} minutes (--timeout); what it wrote so far can still be scored` : `exited ${run.status}`}. Score it: node ${join(here, "score.mjs")} ${dir}`);
+process.exit(run.timedOut ? 1 : run.status ?? 1);
+
+function agentEnv(text) {
+  const env = {};
+  for (const [k, v] of Object.entries(process.env)) if (allowed.test(k) || extraEnv.includes(k)) env[k] = v;
+  env.LB_PROMPT = text;
+  return env;
+}
 
 // The agent, through the shell so its command may quote (--allowedTools "Bash(node:*)"), the prompt at {prompt} or last.
+// It runs as its own process group, so the time limit (and an interrupt here) stops whatever it started too.
 function runAgent(cwd, text) {
   const line = agent.includes("{prompt}") ? agent.replaceAll("{prompt}", '"$LB_PROMPT"') : `${agent} "$LB_PROMPT"`;
-  const r = spawnSync("/bin/sh", ["-c", line], { cwd, stdio: "inherit", env: { ...process.env, LB_PROMPT: text } });
-  if (r.error) {
-    console.error(`run: ${r.error.message}`);
-    process.exit(1);
-  }
-  return r;
+  return new Promise((done) => {
+    const child = spawn("/bin/sh", ["-c", line], { cwd, stdio: "inherit", env: agentEnv(text), detached: true });
+    let timedOut = false;
+    const stop = () => {
+      try {
+        process.kill(-child.pid, "SIGKILL");
+      } catch {
+        child.kill("SIGKILL");
+      }
+    };
+    const timer = setTimeout(() => ((timedOut = true), stop()), timeoutMinutes * 60000);
+    const interrupt = () => (stop(), process.exit(130));
+    process.once("SIGINT", interrupt);
+    process.once("SIGTERM", interrupt);
+    child.on("error", (e) => {
+      console.error(`run: ${e.message}`);
+      process.exit(1);
+    });
+    child.on("close", (status) => {
+      clearTimeout(timer);
+      process.off("SIGINT", interrupt);
+      process.off("SIGTERM", interrupt);
+      done({ status, timedOut });
+    });
+  });
 }

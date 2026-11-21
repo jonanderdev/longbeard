@@ -16,8 +16,11 @@
 // screens from two boards should be no more alike than screens of one.
 // Every run: the screens' source is scanned for the common tells of generic generated pages.
 //
-// One line per check: PASS, FAIL or SKIP, hard or soft, and why. Exit 1 when a
-// hard check fails. --no-browser skips the checks that render pages (Chrome).
+// One line per check: PASS, FAIL, SKIP or NOT RUN, hard or soft, and why. A score counts only the
+// checks that ran: a check that crashed or could not run (no Chrome, a script with no result) is NOT RUN,
+// never a pass and never demoted to soft, and a hard one fails the run like a hard FAIL. SKIP is
+// only what was asked for (--no-browser) or has nothing to check. Exit 1 when a hard check fails or
+// did not run.
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -49,12 +52,19 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 const at = (...p) => join(dir, ...p);
-// The fixture the project was built from (run.mjs --fixture records it), else the default one.
+// The fixture the project was built from (run.mjs --fixture records it), else the default one. The recorded
+// path may be another checkout's: when it is not here, the same folder of this checkout's eval/design.
 const fixtureFile = at(".longbeard/eval/fixture.txt");
-const fixture = existsSync(fixtureFile) ? readFileSync(fixtureFile, "utf8").trim() : join(here, "fixture");
+const recorded = existsSync(fixtureFile) ? readFileSync(fixtureFile, "utf8").trim() : "";
+const fixture = recorded ? (existsSync(recorded) ? recorded : join(here, recorded.split(/[\\/]+/).filter(Boolean).pop())) : join(here, "fixture");
 // The names a committed doc must never carry: the fictional studios and people on the board, the sites the person loves, and the board pictures' own names.
-const sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
-const boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
+let sources = [], boardNames = [], fixtureError = "";
+try {
+  sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
+  boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
+} catch (e) {
+  fixtureError = `the fixture ${recorded || fixture} could not be read: ${e.message}`;
+}
 const read = (...p) => (existsSync(at(...p)) ? readFileSync(at(...p), "utf8") : null);
 // The scripts as installed in the project, so the run is judged with what it shipped; the repo's otherwise.
 const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), at(".agents/skills", skill, "scripts", name), join(repo, "skills", skill, "scripts", name)].find(existsSync);
@@ -62,6 +72,18 @@ const node = (file, list) => spawnSync(process.execPath, [file, ...list], { enco
 
 const results = [];
 const check = (id, hard, ok, detail = "") => results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
+// A check that could not run: not counted in the score, and a hard one fails the run.
+const notRun = (id, hard, detail = "") => results.push({ id, hard, status: "NOT RUN", detail });
+// What a spawned checker said: 0 is a pass; 1 is a fail only when it printed what failed (stdout), since a
+// crash also exits 1 but says nothing there; any other exit, a signal or a missing script did not run.
+const outcome = (r, hasFindings = (out) => out.trim().length > 0) => {
+  if (!r || r.error || r.status === null || r.status === undefined) return { ran: false, why: (r?.error?.message || (r && `ended by ${r.signal || "a signal"}`) || "no script to run") };
+  if (r.status === 0) return { ran: true, pass: true };
+  if (r.status === 1 && hasFindings(r.stdout || "") && !/No Chrome/.test(r.stderr || "")) return { ran: true, pass: false };
+  // Say why in one line: the error the checker named, else the last thing it said.
+  const lines = (r.stderr || r.stdout || "").split("\n").map((l) => l.trim()).filter(Boolean);
+  return { ran: false, why: `exit ${r.status}: ${(lines.find((l) => /^(\w*Error\b|[\w-]+:\s)/.test(l)) || lines.at(-1) || "no output").slice(0, 160)}` };
+};
 
 // ------------------------------------------------------------------ the docs
 const brief = read("docs/design/design-brief.md");
@@ -94,14 +116,18 @@ const level = /^- accessibility:\s*AAA/m.test(brief || "") ? "AAA" : "AA";
 const committed = [...(existsSync(at("docs/design")) ? readdirSync(at("docs/design")).map((f) => `docs/design/${f}`) : []), "DESIGN.md"].filter((f) => existsSync(at(f)));
 const leaks = [];
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// A name is matched as written (case and all) and as a whole word, so a name that is also a plain word
+// ("calma", "still practice") trips only on the name as the board draws it, never on ordinary use.
+const nameIn = (name, text) => new RegExp(`(?<![\\p{L}\\p{N}_])${escape(name)}(?![\\p{L}\\p{N}_])`, "u").test(text);
 for (const f of committed) {
   const text = read(f);
-  for (const name of [...sources, ...boardNames]) if (new RegExp(`\\b${escape(name)}\\b`, "i").test(text)) leaks.push(`${f}: ${name}`);
+  for (const name of [...sources, ...boardNames]) if (nameIn(name, text)) leaks.push(`${f}: ${name}`);
   for (const path of [".longbeard/", "design-exploration/"]) if (text.includes(path)) leaks.push(`${f}: ${path}`);
   // A link is a source, except the stylesheets the identity board loads its faces from.
   for (const url of text.match(/https?:\/\/[^\s)"'<>]+/g) || []) if (!/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(url)) leaks.push(`${f}: ${url}`);
 }
-check("no source in the docs", true, !leaks.length, leaks.slice(0, 6).join("; ") + (leaks.length > 6 ? ` … ${leaks.length} in all` : ""));
+if (fixtureError) notRun("no source in the docs", true, fixtureError);
+else check("no source in the docs", true, !leaks.length, leaks.slice(0, 6).join("; ") + (leaks.length > 6 ? ` … ${leaks.length} in all` : ""));
 
 // ------------------------------------------------------------------ the screens
 const lib = (() => {
@@ -175,27 +201,39 @@ if (design) {
   }
   const c = script("design-prototype", "contrast.mjs");
   if (!pairs.length) check("DESIGN.md: contrast pairs pass", true, false, "no contrast pair found on the colour tokens");
+  else if (!c) notRun("DESIGN.md: contrast pairs pass", true, "no contrast.mjs to run");
   else {
     const r = node(c, [...pairs, "--level", level]);
-    const fails = r.stdout.split("\n").filter((l) => /FAIL/.test(l));
-    check("DESIGN.md: contrast pairs pass", true, r.status === 0, r.status === 0 ? `${pairs.length} pairs at ${level}` : fails.join("; ") || r.stderr.trim());
+    const o = outcome(r, (out) => /FAIL/.test(out));
+    if (!o.ran) notRun("DESIGN.md: contrast pairs pass", true, o.why);
+    else {
+      const fails = r.stdout.split("\n").filter((l) => /FAIL/.test(l));
+      check("DESIGN.md: contrast pairs pass", true, o.pass, o.pass ? `${pairs.length} pairs at ${level}` : fails.join("; "));
+    }
   }
 }
 
 // ------------------------------------------------------------------ rendered: the chosen screen and the prototype
+// Rendering needs Chrome. --no-browser skips these on purpose; no Chrome, or a checker that crashed, is NOT RUN.
 const min = level === "AAA" ? ["--min", "7", "--large", "4.5"] : [];
 const sc = script("design-direction", "screen-contrast.mjs") || script("design-prototype", "screen-contrast.mjs");
+// Runs a rendering check unless --no-browser (a skip, and nothing returned); the caller judges what it returns.
 const browser = (id, hard, run) => {
-  // A skipped render returns nothing, so the caller writes no check of its own.
   if (noBrowser) return void check(id, hard, null, "--no-browser");
-  const r = run();
-  if (/No Chrome/.test(r.stderr)) return void check(id, hard, null, "no Chrome");
-  return r;
+  return run();
+};
+// screen-contrast.mjs: exit 0 passes, 1 means a text is under (it lists them on stdout), anything else did not run.
+const contrastWhy = (page, extra = []) => {
+  const r = node(sc, [pathToFileURL(page).href, ...extra, ...min]);
+  return { o: outcome(r), r };
 };
 const first = at(".longbeard/design/direction/prototype/first.html");
 if (existsSync(first)) {
-  const r = browser("chosen screen: contrast where text sits", true, () => node(sc, [pathToFileURL(first).href, "--wait-title", "ready", ...min]));
-  if (r) check("chosen screen: contrast where text sits", true, r.status === 0, r.status === 0 ? "" : r.stdout.trim().split("\n").slice(0, 3).join("; ") || r.stderr.trim());
+  const got = browser("chosen screen: contrast where text sits", true, () => (sc ? contrastWhy(first, ["--wait-title", "ready"]) : { o: { ran: false, why: "no screen-contrast.mjs to run" } }));
+  if (got) {
+    if (!got.o.ran) notRun("chosen screen: contrast where text sits", true, got.o.why);
+    else check("chosen screen: contrast where text sits", true, got.o.pass, got.o.pass ? "" : got.r.stdout.trim().split("\n").slice(0, 3).join("; "));
+  }
 } else check("chosen screen: contrast where text sits", true, false, "no .longbeard/design/direction/prototype/first.html");
 
 const protoDir = at(".longbeard/design/prototype");
@@ -204,49 +242,67 @@ if (!protoPages.length) check("prototype: pages", true, false, "no pages in .lon
 else {
   const start = ["home.html", "index.html"].find((f) => protoPages.includes(f)) || protoPages[0];
   const keys = [...(read("docs/brief.md") || "").replace(/^[\s\S]*?## Key screens\s*\n/, "").split(/\n## /)[0].matchAll(/^- ([a-z][\w-]*):/gm)].map((m) => m[1]);
-  const r = browser("prototype: links", true, () => node(script("design-prototype", "links.mjs"), [pathToFileURL(join(protoDir, start)).href, "--json", ...(keys.length ? ["--expect", keys.join(",")] : [])]));
+  const linksScript = script("design-prototype", "links.mjs");
+  const r = browser("prototype: links", true, () => (linksScript ? node(linksScript, [pathToFileURL(join(protoDir, start)).href, "--json", ...(keys.length ? ["--expect", keys.join(",")] : [])]) : { error: new Error("no links.mjs to run") }));
   if (r) {
+    // links.mjs exits 0 or 1 with a walk on stdout; anything else, or no walk, did not run.
     let walk = null;
     try {
       walk = JSON.parse(r.stdout);
     } catch {}
-    if (!walk) check("prototype: links", true, false, r.stderr.trim() || "links.mjs gave no result");
+    if (!walk || (r.status !== 0 && r.status !== 1) || !Array.isArray(walk.pages)) notRun("prototype: links", true, (r.error?.message || r.stderr || "links.mjs gave no result").trim().slice(0, 200));
     else {
       const faults = [...walk.broken.map((b) => `broken ${b.from}→${b.to}`), ...walk.nowhere.map((n) => `nowhere ${n.page}: ${n.what}`), ...walk.deadEnds.map((d) => `dead end ${d}`)];
       check("prototype: links", true, !faults.length, faults.slice(0, 5).join("; ") || `${walk.pages.length} pages from ${start}`);
       check("prototype: every key screen reached", false, !walk.unreached.length, walk.unreached.length ? `unreached: ${walk.unreached.join(", ")}` : `${keys.length} key screens`);
     }
   }
-  const failing = [];
+  const failing = [], didNot = [];
   let ran = 0;
   for (const p of protoPages) {
-    const r = browser("prototype: contrast where text sits", true, () => node(sc, [pathToFileURL(join(protoDir, p)).href, ...min]));
-    if (!r) break;
-    ran++;
-    if (r.status !== 0) failing.push(`${p}: ${r.stdout.trim().split("\n")[0] || r.stderr.trim()}`);
+    const got = browser("prototype: contrast where text sits", true, () => (sc ? contrastWhy(join(protoDir, p)) : { o: { ran: false, why: "no screen-contrast.mjs to run" } }));
+    if (!got) break;
+    if (!got.o.ran) didNot.push(`${p}: ${got.o.why}`);
+    else {
+      ran++;
+      if (!got.o.pass) failing.push(`${p}: ${got.r.stdout.trim().split("\n")[0]}`);
+    }
   }
-  if (ran) check("prototype: contrast where text sits", true, !failing.length, failing.slice(0, 4).join("; ") || `${ran} pages at ${level}`);
+  // A page that failed is a fail; otherwise a page that did not run leaves the check not run, never passed on the others' word.
+  if (failing.length) check("prototype: contrast where text sits", true, false, failing.slice(0, 4).join("; "));
+  else if (didNot.length) notRun("prototype: contrast where text sits", true, `${didNot.length} of ${protoPages.length} pages did not run: ${didNot.slice(0, 2).join("; ")}`);
+  else if (ran) check("prototype: contrast where text sits", true, true, `${ran} pages at ${level}`);
 }
 
 // ------------------------------------------------------------------ rendered: the round's screens (screens.mjs)
 // Each screen of the first round: no tiny or clipped text, contrast where text sits, and no more text than its base carries and one more.
 const gridIds = ["screens: no text under 12px", "screens: no clipped text", "screens: contrast on every screen", "screens: text within the base's slots"];
-if (!built?.list.length) for (const id of gridIds) check(id, !id.includes("slots"), null, "no screens");
+const gridHard = [true, true, true, false];
+if (!built?.list.length) for (const [i, id] of gridIds.entries()) check(id, gridHard[i], null, "no screens");
 else {
   const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
-  if (!r) for (const id of gridIds.slice(1)) check(id, false, null, results.at(-1).detail);
-  if (r) {
+  if (!r) {
+    for (const [i, id] of gridIds.entries()) if (i) check(id, gridHard[i], null, "--no-browser");
+  } else {
+    // screens.mjs exits 0 with its result; anything else, or output that is not a result, did not run.
     let out = null;
     try {
       out = JSON.parse(r.stdout);
     } catch {}
-    if (!out) for (const id of gridIds) check(id, false, false, (r.stderr || "screens.mjs gave no result").trim().slice(0, 200));
+    if (r.status !== 0 || !out?.summary) for (const [i, id] of gridIds.entries()) notRun(id, gridHard[i], (r.error?.message || r.stderr || "screens.mjs gave no result").trim().slice(0, 200));
     else {
       const g = out.summary;
       const list = (xs) => xs.slice(0, 4).join("; ") + (xs.length > 4 ? ` … ${xs.length} in all` : "");
-      check(gridIds[0], true, !g.tiny.length, g.tiny.length ? list(g.tiny) : `smallest ${g.minText}px`);
-      check(gridIds[1], true, !g.clipped.length, list(g.clipped));
-      check(gridIds[2], true, !g.contrast.length, g.contrast.length ? list(g.contrast) : `${g.screens} screens`);
+      const unread = g.notRead || [], contrastGone = g.contrastNotRun || [];
+      // A finding is a fail; no finding on a screen that could not be read is not a pass.
+      const judge = (i, found, say, notes) => {
+        if (found.length) check(gridIds[i], gridHard[i], false, list(found));
+        else if (notes.length) notRun(gridIds[i], gridHard[i], `${notes.length} screen${notes.length === 1 ? "" : "s"} did not run: ${list(notes)}`);
+        else check(gridIds[i], gridHard[i], true, say);
+      };
+      judge(0, g.tiny, `smallest ${g.minText}px`, unread);
+      judge(1, g.clipped, "", unread);
+      judge(2, g.contrast, `${g.screens} screens`, contrastGone);
       check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
     }
   }
@@ -289,9 +345,12 @@ const hueSat = ([r, g, b]) => {
   const h = max === R ? ((G - B) / d) % 6 : max === G ? (B - R) / d + 2 : (R - G) / d + 4;
   return { h: (h * 60 + 360) % 360, s: d / (1 - Math.abs(max + min - 1)) };
 };
-const coloursIn = (text) => [...text.matchAll(/#[0-9a-f]{6}\b|#[0-9a-f]{3}\b/gi)].map((m) => hexRgb(m[0])).concat([...text.matchAll(/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/gi)].map((m) => [m[1], m[2], m[3]].map(Number))).filter(Boolean);
+const coloursIn = (text) => [...text.matchAll(/#[0-9a-f]{6}(?:[0-9a-f]{2})?\b|#[0-9a-f]{3}\b/gi)].map((m) => hexRgb(m[0])).concat([...text.matchAll(/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/gi)].map((m) => [m[1], m[2], m[3]].map(Number))).filter(Boolean);
 // The common tells of a generic generated page, read from the screen's own source. Each is a fact, not a verdict:
 // a reference on the board may use one on purpose, and the owner judges.
+// Emoji as a person sees them: drawn as a picture by default (Emoji_Presentation), or asked for with the
+// emoji selector. Not ©, ® or ™, nor the arrows, which are text however a font draws them.
+const hasEmoji = (text) => /\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F/u.test(text.replace(/[\u00A9\u00AE\u2122\u203C\u2049\u2190-\u21FF\u27A1\u2900-\u297F\u2B05-\u2B07]\uFE0F?/g, " "));
 const TELLS = {
   "gradient text": (css) => /background-clip\s*:\s*text/i.test(css) && /gradient\(/i.test(css),
   "gradient of two hues": (css) =>
@@ -309,13 +368,33 @@ const TELLS = {
   "violet accent": (css) => coloursIn(css).map(hueSat).some((c) => c.s > 0.4 && c.h >= 245 && c.h <= 290),
   "tracked caps label": (css) =>
     css.split("}").some((rule) => /text-transform\s*:\s*uppercase/i.test(rule) && /letter-spacing\s*:\s*(?:0?\.(?:1[2-9]|[2-9])\d*em|[2-9](?:\.\d+)?px)/i.test(rule)),
-  emoji: (_css, text) => /\p{Extended_Pictographic}/u.test(text),
+  emoji: (_css, text) => hasEmoji(text),
   "stock marketing words": (_css, text) => /\b(?:elevate|seamless(?:ly)?|unlock|empower|delve|journey|discover the|experience the|crafted with (?:love|care)|welcome to|artisanal)\b/i.test(text),
+};
+// A screen built from the template keeps its colours in a LOOK object in script (ground, ink, accent, more: {…}),
+// and its CSS refers to them as var(--ground) and the like. The object's text, found by its braces.
+const lookOf = (page) => {
+  const at = page.search(/\bLOOK\s*=\s*\{/);
+  if (at < 0) return "";
+  let depth = 0, quote = "";
+  for (let i = page.indexOf("{", at); i < page.length; i++) {
+    const c = page[i];
+    if (quote) quote = c === quote && page[i - 1] !== "\\" ? "" : quote;
+    else if (c === '"' || c === "'" || c === "`") quote = c;
+    else if (c === "{" && ++depth) continue;
+    else if (c === "}" && !--depth) return page.slice(page.indexOf("{", at), i + 1);
+  }
+  return "";
 };
 const sourceOf = (html) => {
   const page = existsSync(html) ? readFileSync(html, "utf8") : "";
-  const css = [...page.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join("\n") + [...page.matchAll(/style="([^"]*)"/gi)].map((m) => `x{${m[1]}}`).join("\n");
-  const text = page.replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ");
+  let css = [...page.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join("\n") + [...page.matchAll(/style="([^"]*)"/gi)].map((m) => `x{${m[1]}}`).join("\n");
+  // The colours LOOK names, by role: put in the CSS where a variable stands, and listed once so a colour the CSS never
+  // spells out (a violet accent set only there) is still read. A colour in LOOK is one the screen renders with.
+  const named = new Map([...lookOf(page).matchAll(/["']?([\w-]+)["']?\s*:\s*["'](#[0-9a-f]{3,8}|rgba?\([^"']*\))["']/gi)].map((m) => [m[1], m[2]]));
+  for (const [name, colour] of named) css = css.replaceAll(new RegExp(`var\\(\\s*--${escape(name)}\\s*\\)`, "g"), colour);
+  if (named.size) css += `\nlook{colours:${[...named.values()].join(" ")}}`;
+  const text = page.replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d))).replace(/&[a-z]+;/gi, " ");
   return { page, css, text };
 };
 const tellsOf = (sc) => {
@@ -456,12 +535,15 @@ else {
 }
 
 // ------------------------------------------------------------------ say it
-const counted = results.filter((r) => r.status !== "SKIP");
+// The score counts what ran. A hard check that failed, or did not run, fails the run.
+const counted = results.filter((r) => r.status === "PASS" || r.status === "FAIL");
 const passed = counted.filter((r) => r.status === "PASS").length;
-const hardFails = results.filter((r) => r.hard && r.status === "FAIL");
-if (json) console.log(JSON.stringify({ pace, level, score: `${passed}/${counted.length}`, hardFails: hardFails.length, results }, null, 1));
+const notRan = results.filter((r) => r.status === "NOT RUN");
+const hardFails = results.filter((r) => r.hard && (r.status === "FAIL" || r.status === "NOT RUN"));
+const tail = `${hardFails.length ? `, ${hardFails.length} hard fail${hardFails.length > 1 ? "s" : ""} or not run` : ""}${notRan.length ? `, ${notRan.length} not run` : ""}`;
+if (json) console.log(JSON.stringify({ pace, level, score: `${passed}/${counted.length}`, hardFails: hardFails.length, notRun: notRan.length, results }, null, 1));
 else {
-  for (const r of results) console.log(`${r.status.padEnd(5)}${(r.hard ? "hard" : "soft").padEnd(6)}${r.id}${r.detail ? `: ${r.detail}` : ""}`);
-  console.log(`score: ${passed}/${counted.length} (pace ${pace}, ${level})${hardFails.length ? `, ${hardFails.length} hard fail${hardFails.length > 1 ? "s" : ""}` : ""}`);
+  for (const r of results) console.log(`${r.status.padEnd(8)}${(r.hard ? "hard" : "soft").padEnd(6)}${r.id}${r.detail ? `: ${r.detail}` : ""}`);
+  console.log(`score: ${passed}/${counted.length} (pace ${pace}, ${level})${tail}`);
 }
 process.exit(hardFails.length ? 1 : 0);

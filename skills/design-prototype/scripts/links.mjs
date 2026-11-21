@@ -8,7 +8,8 @@
 //
 // Pages are rendered (links a script builds count), and only pages in the
 // prototype's folder are walked; a link elsewhere (a real site, mailto:) is
-// listed, never followed. A query (?state=empty) or a hash is the same page, but the
+// listed, never followed. A form that submits to another page is a way on, and so is
+// a button whose script navigates: each is clicked, and the page it lands on is followed. A query (?state=empty) or a hash is the same page, but the
 // page is opened with the query it was first reached by, so state a prototype keeps in
 // the address (a basket, a chosen slot) carries on as it does for a person.
 //
@@ -16,7 +17,7 @@
 //   broken     a link to a page that is not there
 //   nowhere    a link or button that goes nowhere: href "#", "", "javascript:…", or a
 //              button outside a form with no onclick and no link around it
-//   dead end   a page with no link to any other page of the prototype
+//   dead end   a page with no way on to another page of the prototype (a link, a form, a button)
 //   unreached  a page named in --expect that no click reaches
 // then each page reached, with its clicks from the start.
 // Exit 1 when anything is broken, nowhere, a dead end, unreached or unmarked; 0 when the walk is clean.
@@ -111,14 +112,25 @@ const ws = new WebSocket(wsUrl);
 await new Promise((done) => (ws.onopen = done));
 let nextId = 0;
 const pending = new Map();
+let sessionId;
 ws.onmessage = (ev) => {
   const msg = JSON.parse(String(ev.data));
   if (pending.has(msg.id)) pending.get(msg.id)(msg), pending.delete(msg.id);
+  // A script's alert or confirm would hold the page; answer it so a click can go on.
+  else if (msg.method === "Page.javascriptDialogOpening") ws.send(JSON.stringify({ id: ++nextId, method: "Page.handleJavaScriptDialog", params: { accept: true }, sessionId: msg.sessionId || sessionId }));
 };
-const send = (method, params = {}, sessionId) => new Promise((done) => (pending.set(++nextId, done), ws.send(JSON.stringify({ id: nextId, method, params, sessionId }))));
+// Every call has a deadline: a page that never answers costs 20 s, never the walk.
+const send = (method, params = {}, session) => new Promise((done) => {
+  const id = ++nextId;
+  const t = setTimeout(() => (pending.delete(id), done({ error: { message: `${method} timed out` } })), 20000);
+  pending.set(id, (msg) => (clearTimeout(t), done(msg)));
+  ws.send(JSON.stringify({ id, method, params, sessionId: session }));
+});
 const { result: target } = await send("Target.createTarget", { url: "about:blank" });
 const { result: att } = await send("Target.attachToTarget", { targetId: target.targetId, flatten: true });
+sessionId = att.sessionId;
 const call = (method, params) => send(method, params, att.sessionId);
+await call("Page.enable");
 const evaluate = async (expression) => {
   const r = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
   if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || "the page threw");
@@ -127,19 +139,25 @@ const evaluate = async (expression) => {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 await call("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
 
-// Every link and button on the rendered page: where it goes, and its words.
+// Every link, form and button on the rendered page: where it goes, and its words.
 const readPage = `(() => {
-  const words = (el) => (el.innerText || el.getAttribute("aria-label") || el.title || "").trim().replace(/\\s+/g, " ").slice(0, 40);
+  const words = (el) => (el.innerText || el.value || el.getAttribute("aria-label") || el.title || "").trim().replace(/\\s+/g, " ").slice(0, 40);
   const links = [...document.querySelectorAll("a")].map((a) => ({ href: a.getAttribute("href"), url: a.href, words: words(a) }));
-  // Buttons that may do nothing; whether a script listens on them is asked of DevTools below.
-  window.__links = [...document.querySelectorAll("button, [role=button]")]
-    .filter((b) => !b.closest("a, form") && !b.onclick && !b.getAttribute("onclick") && !b.getAttribute("popovertarget") && !b.getAttribute("commandfor") && !b.disabled);
-  return { links, buttons: window.__links.map((b) => ({ words: words(b) })) };
+  // A form whose action names a page submits there: a way on, like a link. One with no action, "#" or
+  // script as its action is left to its buttons below.
+  const real = (v) => { const t = (v || "").trim(); return Boolean(t) && t !== "#" && !/^javascript:/i.test(t); };
+  const forms = [...document.forms].filter((f) => real(f.getAttribute("action"))).map((f) => ({ href: f.getAttribute("action").trim(), url: new URL(f.getAttribute("action").trim(), document.baseURI).href, words: words(f.querySelector("button, input[type=submit], input[type=image]") || f) || "form" }));
+  // Controls that may do something. Whether a script listens on them is asked of DevTools below, and
+  // a click shows where they lead. A control in a form that already names its page is that form's.
+  window.__controls = [...document.querySelectorAll("button, [role=button], input[type=button], input[type=submit], input[type=image]")]
+    .filter((b) => !b.closest("a") && !b.disabled && !b.getAttribute("popovertarget") && !b.getAttribute("commandfor") && !(b.form && real(b.form.getAttribute("action"))))
+    .slice(0, 40);
+  return { links, forms, buttons: window.__controls.map((b) => ({ words: words(b), inForm: Boolean(b.form || b.closest("form")), inline: Boolean(b.onclick || b.getAttribute("onclick")) })) };
 })()`;
 // A button does something when a click listener sits on it or on anything above it (a menu wired
 // on its parent, a handler on document).
 async function listened(i) {
-  const chain = await call("Runtime.evaluate", { expression: `(() => { const a = []; for (let n = window.__links[${i}]; n; n = n.parentNode) a.push(n); a.push(window); return a; })()` });
+  const chain = await call("Runtime.evaluate", { expression: `(() => { const a = []; for (let n = window.__controls[${i}]; n; n = n.parentNode) a.push(n); a.push(window); return a; })()` });
   const arrayId = chain.result?.result?.objectId;
   if (!arrayId) return true;
   const props = await call("Runtime.getProperties", { objectId: arrayId, ownProperties: true });
@@ -149,6 +167,29 @@ async function listened(i) {
     if ((l.result?.listeners || []).some((x) => /^(click|pointerdown|pointerup|mousedown|mouseup|touchstart|touchend)$/.test(x.type))) return true;
   }
   return false;
+}
+// Open a page and wait for it to settle.
+async function open(url) {
+  const nav = await call("Page.navigate", { url });
+  if (nav.result?.errorText || nav.error) return false;
+  await settle();
+  return true;
+}
+async function settle() {
+  for (let i = 0; i < 50 && (await evaluate("document.readyState").catch(() => "")) !== "complete"; i++) await sleep(100);
+  await sleep(wait);
+}
+// Click the i-th control on a fresh copy of the page and say where the browser is afterwards: a
+// script that navigates ends on another page, a form with a script on it likewise.
+async function clickThrough(url, i) {
+  if (!(await open(url))) return "";
+  await evaluate(readPage).catch(() => null);
+  // A required field would stop the submit before the script sees it; the walk is of the way on, not the validation.
+  await evaluate("for (const f of document.forms) f.noValidate = true").catch(() => null);
+  await evaluate(`window.__controls && window.__controls[${i}] && window.__controls[${i}].click()`).catch(() => null);
+  await sleep(wait);
+  await settle();
+  return (await evaluate("location.href").catch(() => "")) || "";
 }
 
 // ---- Stand-ins: what a page shows that the product does not really have yet. ----
@@ -199,17 +240,28 @@ const queue = [startPath];
 const broken = [], nowhere = [], deadEnds = [], outside = new Set();
 while (queue.length) {
   const path = queue.shift();
-  const nav = await call("Page.navigate", { url: firstUrl.get(path) || pathToFileURL(path).href });
-  if (nav.result?.errorText) {
+  const pageUrl = firstUrl.get(path) || pathToFileURL(path).href;
+  if (!(await open(pageUrl))) {
     broken.push({ from: "(start)", to: path });
     continue;
   }
-  for (let i = 0; i < 50 && (await evaluate("document.readyState").catch(() => "")) !== "complete"; i++) await sleep(100);
-  await sleep(wait);
-  const { links, buttons } = await evaluate(readPage).catch(() => ({ links: [], buttons: [] }));
+  const { links, forms, buttons } = await evaluate(readPage).catch(() => ({ links: [], forms: [], buttons: [] }));
   const name = pageName(path);
   await collectStandins(name);
   let out = 0;
+  // A way on to url: out of the prototype, to a page that is not there, to this page, or to another to walk.
+  const take = (href, url, words) => {
+    if (!/^file:/.test(url)) return void outside.add(url);
+    const to = fileURLToPath(url.split(/[?#]/)[0]);
+    if (!inside(to)) return void outside.add(url);
+    if (!existsSync(to)) return void broken.push({ from: name, to: href, words });
+    if (to !== path) out++;
+    if (!depth.has(to)) {
+      depth.set(to, depth.get(path) + 1);
+      firstUrl.set(to, url.split("#")[0]);
+      queue.push(to);
+    }
+  };
   for (const l of links) {
     const href = (l.href ?? "").trim();
     if (!href || href === "#" || /^javascript:/i.test(href)) {
@@ -217,27 +269,25 @@ while (queue.length) {
       continue;
     }
     if (href.startsWith("#")) continue; // a jump within the page
-    if (!/^file:/.test(l.url)) {
-      outside.add(l.url);
-      continue;
-    }
-    const to = fileURLToPath(l.url.split(/[?#]/)[0]);
-    if (!inside(to)) {
-      outside.add(l.url);
-      continue;
-    }
-    if (!existsSync(to)) {
-      broken.push({ from: name, to: href, words: l.words });
-      continue;
-    }
-    if (to !== path) out++;
-    if (!depth.has(to)) {
-      depth.set(to, depth.get(path) + 1);
-      firstUrl.set(to, l.url.split("#")[0]);
-      queue.push(to);
-    }
+    take(href, l.url, l.words);
   }
-  for (const [i, b] of buttons.entries()) if (!(await listened(i))) nowhere.push({ page: name, what: `button "${b.words || "(no words)"}"`, href: "no action" });
+  for (const f of forms) take(f.href, f.url, f.words);
+  // Ask which controls are wired before any click: a click leaves the page.
+  const wired = [];
+  for (const [i, b] of buttons.entries()) wired.push(b.inForm || b.inline || (await listened(i)));
+  for (const [i, b] of buttons.entries()) {
+    if (!wired[i]) {
+      nowhere.push({ page: name, what: `button "${b.words || "(no words)"}"`, href: "no action" });
+      continue;
+    }
+    // Wired: click it and see whether the browser goes to another page.
+    const after = await clickThrough(pageUrl, i);
+    if (!after || !/^file:/.test(after) || fileURLToPath(after.split(/[?#]/)[0]) === path) {
+      if (after && !/^(file:|about:|chrome-error:)/.test(after)) outside.add(after);
+      continue;
+    }
+    take(after, after, b.words);
+  }
   if (!out) deadEnds.push(name);
 }
 const reached = new Set([...depth.keys()].map(pageName));

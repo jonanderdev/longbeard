@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -384,6 +384,38 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
   assert.deepEqual(out.deadEnds, ["basket"]);
   assert.deepEqual(out.unreached, ["checkout"]);
   assert.equal(out.outside.length, 1);
+});
+
+test("links: a form that submits to another page and a button that navigates by script are ways on, not dead ends", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-links-forms-"));
+  // Home has no link at all: its ways on are a form with an action, a button wired to navigate, a form whose script navigates,
+  // and a button that only toggles something (not a way on, and not reported as nowhere).
+  writeFileSync(join(dir, "home.html"), `<form action="order.html" method="post"><input name="loaf" required><button>Order</button></form>
+<button id="go">Next</button>
+<form id="f"><input name="email" required><input type="submit" value="Sign up"></form>
+<button id="t">Toggle</button>
+<script>
+document.getElementById("go").addEventListener("click", () => { location.href = "thanks.html"; });
+document.getElementById("f").addEventListener("submit", (e) => { e.preventDefault(); location.href = "signed.html"; });
+document.getElementById("t").addEventListener("click", () => { document.title = "toggled"; });
+</script>`);
+  writeFileSync(join(dir, "order.html"), `<a href="home.html">Home</a>`);
+  writeFileSync(join(dir, "thanks.html"), `<a href="home.html">Home</a>`);
+  writeFileSync(join(dir, "signed.html"), `<a href="home.html">Home</a>`);
+  // A page whose only way on is a form to a page that is not there still fails.
+  writeFileSync(join(dir, "stuck.html"), `<form action="gone.html"><button>Go</button></form>`);
+  const links = join(root, "skills/design-prototype/scripts/links.mjs");
+  const result = spawnSync(process.execPath, [links, `file://${join(dir, "home.html")}`, "--expect", "order,thanks,signed", "--json"], { encoding: "utf8" });
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  const out = JSON.parse(result.stdout);
+  assert.deepEqual(out.pages, [{ page: "home", clicks: 0 }, { page: "order", clicks: 1 }, { page: "thanks", clicks: 1 }, { page: "signed", clicks: 1 }]);
+  assert.deepEqual([out.broken, out.nowhere, out.deadEnds, out.unreached], [[], [], [], []]);
+  const stuck = spawnSync(process.execPath, [links, `file://${join(dir, "stuck.html")}`, "--json"], { encoding: "utf8" });
+  assert.equal(stuck.status, 1);
+  const bad = JSON.parse(stuck.stdout);
+  assert.deepEqual(bad.broken.map((b) => b.to), ["gone.html"]);
+  assert.deepEqual(bad.deadEnds, ["stuck"]);
 });
 
 test("links: lists what is marked data-standin, says when nothing is, and finds a stand-in picture with no mark", (t) => {
