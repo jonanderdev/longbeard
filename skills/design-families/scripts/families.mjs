@@ -592,7 +592,8 @@ if (boardArg) {
   const ordered = families.flatMap((f) => (f.stray ? [...f.members].sort((a, b) => (pairOf.has(a) ? 0 : 1) - (pairOf.has(b) ? 0 : 1) || String(pairOf.get(a)).localeCompare(String(pairOf.get(b)), undefined, { numeric: true })).map((s) => [f, s]) : f.members.map((s) => [f, s])));
   const cards = ordered.map(([f, s]) => {
     const r = byShot.get(s);
-    const shot = relative(process.cwd(), resolve(s)).split("\\").join("/");
+    // A URL shot stays a URL; a file is written relative to where the board is made.
+    const shot = /^https?:\/\//i.test(s) ? s : relative(process.cwd(), resolve(s)).split("\\").join("/");
     const more = also.get(r.name);
     return `### ${r.name}
 - link: ${r.link || "none (shared in chat)"}

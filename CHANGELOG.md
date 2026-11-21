@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.12.2 — 2026-11-21
+
+- **A shot can be a picture's URL.** `moodboard.mjs` shows an `https://` shot from that address instead of dropping it as missing, and `families.mjs --board` writes it into `board.md` as it is (it was turned into `https:/…`). A library exported with its pins' addresses makes a moodboard with no pictures copied.
+
 ## 0.12.1 — 2026-11-21
 
 - **More galleries for the moodboard:** Minimal Gallery and httpster (browsed by tag, since neither has a search a script can use) for sites, and Fonts In Use (by subject tag or format; its search is off-limits to scripts) for the far reference: print, signs, packaging, with the typefaces named. `sources.md` says how to read each one's cards, and which galleries stay out of the picker and why (Land-book, Lapa Ninja, landing.love and siteinspire refuse scripts; One Page Love asks for its API key; Best Website Gallery's search finds only names).
