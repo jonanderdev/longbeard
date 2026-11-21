@@ -71,7 +71,7 @@ Their answer either stands, or goes under **Changes** in the design brief, with 
 
 ## 2. Read the references
 
-Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, a reading complete enough to rebuild it at screen size (concept, move, layout, type, spacing, palette, picture treatment, text carried, every device). **Measured when it can be measured:** a live page with `measure.mjs <link>`; a picture with `measure.mjs <picture> --lines` and `fonts.mjs --shape` for the nearest free face. Add the subject, with its palette from `subject-colours.mjs`, named after a look ([subject.md](references/subject.md)), its likes and the things in its pictures they liked, and anything they own. How: [library.md](references/library.md).
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, a reading complete enough to rebuild it at screen size (concept, move, layout, type, spacing, palette, picture treatment and kind, finish, text carried, every device). **Measured when it can be measured:** a live page with `measure.mjs <link>`; a picture with `measure.mjs <picture> --lines` and `fonts.mjs --shape` for the nearest free face. Add the subject, with its palette from `subject-colours.mjs`, named after a look ([subject.md](references/subject.md)), its likes and the things in its pictures they liked, and anything they own. How: [library.md](references/library.md).
 
 ## 3. Build the screens
 

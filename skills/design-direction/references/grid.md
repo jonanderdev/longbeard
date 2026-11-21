@@ -54,9 +54,9 @@ One or two moves per screen, each borrowed from another reference, spread across
 - **a palette:** another reference's whole palette, or the subject's;
 - **a thing from the subject:** one they liked on its card (a stamp, a number, a paper bag), changed in form to fit, a device or a layout, keeping what they liked in it;
 - **a colour by its role:** one colour they did not name, for another of the same role and strength;
-- **an element:** one device from another reference, on the base's grid;
+- **an element:** one device from another reference, on the base's grid, or a surface finish (a grain, a shadow, a blend) from its reading;
 - **the face:** another's display face that can carry the base's headline, at its size;
-- **the picture treatment:** another's crop, tone or frame;
+- **the picture treatment:** another's crop, tone or frame, never its kind of picture (the product's own decide it; with none of that kind, the sheet says so);
 - **the layout turned:** mirrored, headline and picture traded, or one zone moved, proportions kept;
 - **the scale:** the headline larger or smaller, as far as another reference sets its own.
 

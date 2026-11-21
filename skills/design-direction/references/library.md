@@ -19,6 +19,8 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
     "palette": { "ground": "#…", "ink": "#…", "accent": "#… or null", "more": { "<role>": "#…" } },
     "pictures": "<how pictures are treated: crop, tone (black and white, a duotone, as shot), frame (an arch, a rounded window, full bleed), how many, how big>",
     "motion": { "what": "…", "trigger": "…", "ms": 600, "easing": "…", "character": "…", "by": "page | frames | not seen" },
+    "finish": { "css": "…", "by": "page | eye" },
+    "picture_kind": "photo | illustration | 3d | mixed",
     "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
     "devices": ["<each element that is not content: a disc, a ruled line, a word band, a ring of text>"],
     "measured": { "empty": 62, "pictures": 28, "radius": 12 }
@@ -58,11 +60,13 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast`).
 - **`slots`:** how much text it carries; a screen built on it carries the same, and one small element more at most.
 - **`devices`:** every element that is not content, so each on a screen traces to one.
 
-## Motion
+## Motion, finish and picture kind
 
 What a reference cannot show is "not seen", never guessed.
 
 - **`motion`:** only for the lead and the references a pick is built on, never every like. `what` opens with the kind in the `motion` tag, where there is one; `character` is in the design brief's words. A live page: the page's motion as `measure.mjs` lists it (`by: page`). Recorded frames: by eye (`by: frames`), an easing they cannot show left "not seen". A still: `{ "by": "not seen" }`. A design brief whose motion is none ignores the field; its pick is never overridden.
+- **`finish`:** a grain, shadow, blend or filter as a recipe that can be pasted: from a live page its own CSS, from a picture by eye. No recipe is "not seen".
+- **`picture_kind`:** recorded only, never borrowed: the product's own pictures decide it, and when it has none of that kind the sheet says so.
 
 ## The subject
 
