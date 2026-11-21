@@ -211,7 +211,19 @@ if (design) {
       check("DESIGN.md: contrast pairs pass", true, o.pass, o.pass ? `${pairs.length} pairs at ${level}` : fails.join("; "));
     }
   }
+  // The token block at the top is a copy of the tables: tokens.mjs --check exits 0 when they agree, 1 (with what differs, or "no front matter") when not, and 2 when the tables cannot be read.
+  const tk = script("design-prototype", "tokens.mjs") || script("design-check", "tokens.mjs");
+  if (!tk) notRun("DESIGN.md: token block agrees with its tables", true, "no tokens.mjs to run");
+  else {
+    const r = node(tk, [at("DESIGN.md"), "--check"]);
+    const o = outcome(r);
+    const said = (r.stdout || "").trim().replace(`${at("DESIGN.md")}: `, "");
+    if (!o.ran) notRun("DESIGN.md: token block agrees with its tables", true, o.why);
+    else check("DESIGN.md: token block agrees with its tables", true, o.pass, o.pass ? said : said.split("\n").slice(0, 4).join("; "));
+  }
 }
+// What links.mjs found on the prototype, for the Still to supply check below: { walk }, { skip }, or { why } when it did not run.
+let walked = { why: "no prototype pages" };
 
 // ------------------------------------------------------------------ rendered: the chosen screen and the prototype
 // Rendering needs Chrome. --no-browser skips these on purpose; no Chrome, or a checker that crashed, is NOT RUN.
@@ -243,6 +255,7 @@ else {
   const start = ["home.html", "index.html"].find((f) => protoPages.includes(f)) || protoPages[0];
   const keys = [...(read("docs/brief.md") || "").replace(/^[\s\S]*?## Key screens\s*\n/, "").split(/\n## /)[0].matchAll(/^- ([a-z][\w-]*):/gm)].map((m) => m[1]);
   const linksScript = script("design-prototype", "links.mjs");
+  walked = { skip: true };
   const r = browser("prototype: links", true, () => (linksScript ? node(linksScript, [pathToFileURL(join(protoDir, start)).href, "--json", ...(keys.length ? ["--expect", keys.join(",")] : [])]) : { error: new Error("no links.mjs to run") }));
   if (r) {
     // links.mjs exits 0 or 1 with a walk on stdout; anything else, or no walk, did not run.
@@ -250,8 +263,11 @@ else {
     try {
       walk = JSON.parse(r.stdout);
     } catch {}
-    if (!walk || (r.status !== 0 && r.status !== 1) || !Array.isArray(walk.pages)) notRun("prototype: links", true, (r.error?.message || r.stderr || "links.mjs gave no result").trim().slice(0, 200));
-    else {
+    if (!walk || (r.status !== 0 && r.status !== 1) || !Array.isArray(walk.pages)) {
+      walked = { why: (r.error?.message || r.stderr || "links.mjs gave no result").trim().slice(0, 200) };
+      notRun("prototype: links", true, walked.why);
+    } else {
+      walked = { walk };
       const faults = [...walk.broken.map((b) => `broken ${b.from}→${b.to}`), ...walk.nowhere.map((n) => `nowhere ${n.page}: ${n.what}`), ...walk.deadEnds.map((d) => `dead end ${d}`)];
       check("prototype: links", true, !faults.length, faults.slice(0, 5).join("; ") || `${walk.pages.length} pages from ${start}`);
       check("prototype: every key screen reached", false, !walk.unreached.length, walk.unreached.length ? `unreached: ${walk.unreached.join(", ")}` : `${keys.length} key screens`);
@@ -272,6 +288,19 @@ else {
   if (failing.length) check("prototype: contrast where text sits", true, false, failing.slice(0, 4).join("; "));
   else if (didNot.length) notRun("prototype: contrast where text sits", true, `${didNot.length} of ${protoPages.length} pages did not run: ${didNot.slice(0, 2).join("; ")}`);
   else if (ran) check("prototype: contrast where text sits", true, true, `${ran} pages at ${level}`);
+}
+
+// A finished run lists its stand-ins: DESIGN.md has a Still to supply section, and where the prototype marks stand-ins it is not the "Nothing" line.
+if (design) {
+  const id = "DESIGN.md: still to supply lists the stand-ins";
+  const section = design.match(/^## Still to supply[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
+  const listed = (section || "").split("\n").map((l) => l.trim()).filter((l) => l && !/^[-*]?\s*"?nothing\b/i.test(l)).length;
+  if (section === undefined) check(id, false, false, "no Still to supply section");
+  else if (walked.walk) {
+    const n = (walked.walk.standins || []).length;
+    check(id, false, !n || listed > 0, n ? (listed ? `${n} stand-ins marked, ${listed} listed` : `${n} stand-ins marked in the prototype, the section says nothing`) : "none marked in the prototype");
+  } else if (walked.skip) check(id, false, null, "--no-browser");
+  else notRun(id, false, walked.why);
 }
 
 // ------------------------------------------------------------------ rendered: the round's screens (screens.mjs)

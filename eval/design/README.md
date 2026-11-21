@@ -35,6 +35,8 @@ To change only how the direction's screens are built, `--from <finished run>` ta
 - no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`. A name is matched as the board draws it (case and all) and as a whole word, so a name that is also a plain word (`calma`, `still practice`) trips only on the name itself, never on ordinary use;
 - every screen has a base and moves from cards on the board, every reference is a base (soft), and a screen was chosen;
 - the identity's json block parses; `DESIGN.md` records the brief's accessibility level, and every contrast pair on its colour tokens passes at it;
+- `DESIGN.md`'s token block at the top agrees with its tables (`tokens.mjs --check`, from the project's installed skill): no block is a fail, and tables it cannot read leave the check `NOT RUN`;
+- a finished run lists its stand-ins (soft): `DESIGN.md` has a Still to supply section, and where `links.mjs` finds stand-ins in the prototype it is not the "Nothing" line. The walk needs Chrome, so with `--no-browser` only the section's being there is checked;
 - rendered (skipped with `--no-browser`): the chosen screen and every prototype page pass contrast; the prototype's way on leads somewhere from the first page: a link, a form that submits to another page, or a button that navigates by script (`links.mjs` clicks it and follows the page it lands on);
 - the round's screens (`screens.mjs`): no text under 12px at 1440, no clipped text, contrast on every screen; no more text blocks than the base carries and one more (soft);
 - every screen has a `build` (quick or full) and a `state` in `screens.json`, a failed one with its why (soft);

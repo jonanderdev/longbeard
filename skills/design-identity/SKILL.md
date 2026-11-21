@@ -40,6 +40,8 @@ Read the design brief (words, personality, feel, never, what is fixed, accessibi
 
 ## 1. Options, on the chosen screen, in one message
 
+When the project brought a `DESIGN.md` with tokens (see `design`), its faces and colours come first on each sheet, "as brought", ahead of the options below, and are rendered on the chosen screen like any other. They are the person's choice and are never overruled.
+
 **Type pairings, three to five.** A pairing is a display face and a text face. The first is the one the screen was built with.
 
 - **Measured neighbours, never from memory:** `fonts.mjs` lists every Google Fonts face of the same kind, measured (width, x-height, darkness, stroke contrast), nearest first, each with how widely it is used.

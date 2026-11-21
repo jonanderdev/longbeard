@@ -33,11 +33,17 @@
 //           optional Tracking, Use. A bare size is px. A bare line height under 4 is a multiplier, 4 and over is px.
 //           A bare tracking is em. Italic is not a field in the format, so it stays in the prose.
 //   Space and radius: Token, Value (a bare number is px), Use.
+//           An older DESIGN.md gave them as bullets, and those are read like table rows: space/<name> <number> pairs
+//           (- Scale: space/sm 8, space/md 16) and radius/<name> <number> pairs. A radius bullet that gives only a value
+//           and words (- Corner radius: 8px on cards) has no name to give the token: it is left out, with a line saying
+//           which line and that it needs a radius/<name> row in the table. A name is never guessed.
 //   Motion: Token, Duration (250ms; a bare number is ms), Easing, optional Delay, Use.
 //
 // primary. The format expects a colour named primary. Ours stay as they are, and the block gets one more key at the
 // top level: primary, a reference to the colour this design leads with. That is color/primary if the table has one,
-// else color/accent, else color/ink. With themes it points into the first theme's column.
+// else color/accent, else color/ink. With themes it points into the first theme's column, and each theme group also
+// gets its own primary, pointing at that theme's colour, so a reader of the dark group gets the dark value. The format
+// allows both: colors.primary and colors.dark.primary are different paths, and a primary may sit in a group.
 //
 // Name. Kept from the existing front matter; else --name; else the first heading of docs/brief.md; else the folder's name.
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
@@ -172,7 +178,27 @@ function readTables(text) {
       tokens.push({ token, ...bk, value });
     }
   }
+  readBullets(text, tokens, seen);
   return { tokens, themes };
+}
+
+// An older DESIGN.md's spacing and radius bullets, read like table rows. Fenced code is not read.
+function readBullets(text, tokens, seen) {
+  let fence = false;
+  text.split("\n").forEach((line, i) => {
+    if (/^\s*(```|~~~)/.test(line)) fence = !fence;
+    if (fence || !/^\s*[-*]\s/.test(line)) return;
+    const pairs = [...line.matchAll(/(?<![\w/])((?:space|radius)\/[\w/-]+)\s*[:=]?\s*(-?\d*\.?\d+(?:px|rem|em)?)(?![\w.])/g)];
+    for (const [, token, v] of pairs) {
+      const bk = blockKey(token);
+      if (seen.has(`${bk.group}.${bk.key}`)) throw new Fail(`${token} is in the tables twice (or collides with ${seen.get(`${bk.group}.${bk.key}`)} once its slashes are hyphens)`);
+      seen.set(`${bk.group}.${bk.key}`, token);
+      tokens.push({ token, ...bk, value: dimension(v, "px", token) });
+    }
+    if (!pairs.some((p) => p[1].startsWith("radius/")) && /^\s*[-*]\s*\**(corner radius|corner radii|radius|radii|rounding|corners)\**\s*:/i.test(line)) {
+      warnings.push(`line ${i + 1}: "${line.trim().slice(0, 60)}" has no name for its radius, so it is left out. It needs a radius/<name> row in the table.`);
+    }
+  });
 }
 
 // The tokens as a flat list of [dotted path, scalar], in file order, and the same as YAML lines.
@@ -197,9 +223,13 @@ export function build(text) {
       if (colours.find((t) => t.key === lead).value[first] === undefined) throw new Fail(`color/${lead} has no value in the ${first} column, so primary cannot point at it`);
       put(["colors", "primary"], `{colors.${first ? `${first}.` : ""}${lead}}`);
     }
-    for (const t of colours) {
-      for (const [theme, v] of Object.entries(t.value)) put(theme ? ["colors", theme, t.key] : ["colors", t.key], v);
+    // With themes, each group leads with its own primary (unless the table has a color/primary row, which is there already).
+    const own = lead && lead !== "primary" ? colours.find((t) => t.key === lead) : null;
+    for (const theme of themes) {
+      if (own?.value[theme] !== undefined) put(["colors", theme, "primary"], `{colors.${theme}.${lead}}`);
+      for (const t of colours) if (t.value[theme] !== undefined) put(["colors", theme, t.key], t.value[theme]);
     }
+    for (const t of colours) if (t.value[""] !== undefined) put(["colors", t.key], t.value[""]);
   }
   for (const g of groupOrder.slice(1)) {
     for (const t of tokens.filter((x) => x.group === g)) {

@@ -33,7 +33,18 @@ const good = {
   "docs/design/design-direction.md": "# Direction\n\n- takeaway: …\n- five seconds: what it is 3 of 3, what to do 2 of 3, feel: warm, plain\n",
   "docs/design/design-identity.md": '# Identity\n\n```json identity\n{"display":{"face":"Fraunces"},"colours":[{"name":"flour","hex":"#f6f1e7"}]}\n```\n',
   "docs/design/design-identity.html": '<link href="https://fonts.googleapis.com/css2?family=Fraunces">',
-  "DESIGN.md": `# Design
+  // The token block is what tokens.mjs writes from the tables below it.
+  "DESIGN.md": `---
+version: alpha
+name: Hearth
+colors:
+  primary: "{colors.accent}"
+  bg: "#f6f1e7"
+  ink: "#2c2824"
+  accent: "#b0563a"
+---
+
+# Design
 
 ## Colour
 | Token | Value | Use |
@@ -51,6 +62,9 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 
 ## Accessibility
 - Level: AA. Every contrast pair above meets it.
+
+## Still to supply
+- Nothing: every picture and fact is theirs.
 `,
   ".longbeard/design/direction/library.json": JSON.stringify({ references: [{ name: "a", slots: { small: 1 } }, { name: "b", slots: { small: 2 } }] }),
   ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }], build: "full", state: "fixed" }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }], build: "quick", state: "built" }], chosen: 1 }),
@@ -130,6 +144,49 @@ test("eval score: a DESIGN.md with front matter is read as before, and a failing
   assert.match(passing["DESIGN.md: contrast pairs pass"].detail, /^2 pairs/);
   const failing = byId(run(withBlock(bad["DESIGN.md"]), "--no-browser").stdout);
   assert.equal(failing["DESIGN.md: contrast pairs pass"].status, "FAIL");
+});
+
+test("eval score: the token block must agree with the tables: no block, a block that differs and a table that cannot be read are each told apart", () => {
+  const id = "DESIGN.md: token block agrees with its tables";
+  const withDesign = (design) => byId(run(project({ ...good, "DESIGN.md": design }), "--no-browser").stdout)[id];
+  assert.equal(withDesign(good["DESIGN.md"]).status, "PASS");
+  assert.equal(withDesign(good["DESIGN.md"]).hard, true);
+  // No block at all.
+  const bare = good["DESIGN.md"].replace(/^---[\s\S]*?---\n\n/, "");
+  assert.equal(withDesign(bare).status, "FAIL");
+  assert.match(withDesign(bare).detail, /no front matter/);
+  // A table edited by hand after the block was written.
+  const edited = good["DESIGN.md"].replace("| color/accent | #b0563a |", "| color/accent | #aa0000 |");
+  assert.equal(withDesign(edited).status, "FAIL");
+  assert.match(withDesign(edited).detail, /colors\.accent: table #aa0000, front matter #b0563a/);
+  // Tables the checker cannot read: it did not run.
+  const unreadable = good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | dark grey |");
+  assert.equal(withDesign(unreadable).status, "NOT RUN");
+  assert.equal(withDesign(unreadable).hard, true);
+  // A checker installed in the project that crashes did not run either, and fails the run.
+  const stubbed = project({ ...good, ...stub("design-prototype", "tokens.mjs", 'throw new Error("boom");\n') });
+  const out = run(stubbed, "--no-browser");
+  assert.equal(byId(out.stdout)[id].status, "NOT RUN");
+  assert.equal(out.status, 1);
+});
+
+test("eval score: a run lists its stand-ins: the Still to supply section is there, and is not the Nothing line when the prototype marks any", (t) => {
+  const id = "DESIGN.md: still to supply lists the stand-ins";
+  const noSection = good["DESIGN.md"].replace(/\n## Still to supply[\s\S]*$/, "");
+  const missing = byId(run(project({ ...good, "DESIGN.md": noSection }), "--no-browser").stdout)[id];
+  assert.equal(missing.status, "FAIL");
+  assert.equal(missing.hard, false);
+  assert.match(missing.detail, /no Still to supply section/);
+  assert.equal(byId(run(project(good), "--no-browser").stdout)[id].status, "SKIP");
+  if (!hasChrome) return t.skip("no Chrome installed: the prototype is not walked");
+  assert.equal(byId(run(project(good)).stdout)[id].status, "PASS");
+  const marked = { ...good, ".longbeard/design/prototype/home.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="menu.html">Menu</a><p data-standin="fact" data-standin-note="assumed hours">Open 7 to 3</p></body>' };
+  const nothing = byId(run(project(marked)).stdout)[id];
+  assert.equal(nothing.status, "FAIL");
+  assert.match(nothing.detail, /1 stand-ins marked in the prototype, the section says nothing/);
+  const listed = good["DESIGN.md"].replace("- Nothing: every picture and fact is theirs.", "- home: opening hours, assumed - theirs to give");
+  const told = byId(run(project({ ...marked, "DESIGN.md": listed })).stdout)[id];
+  assert.equal(told.status, "PASS");
 });
 
 test("eval score: a dead link fails the prototype", (t) => {

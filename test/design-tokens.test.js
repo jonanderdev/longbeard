@@ -85,11 +85,47 @@ test("tokens.mjs: a single theme gives flat colours, typed type fields, and prim
   assert.match(front, /\nmotion:\n  enter:\n    duration: 250ms\n    timingFunction: cubic-bezier\(0\.2, 0, 0, 1\)$/);
 });
 
-test("tokens.mjs: two themes group the colours by the column heads, and primary points into the first", () => {
+test("tokens.mjs: two themes group the colours by the column heads, primary points into the first, and each group has its own", () => {
   const dir = project(themed);
   assert.equal(run(dir).status, 0);
   const front = frontOf(read(dir));
-  assert.match(front, /colors:\n  primary: "\{colors\.light\.accent\}"\n  light:\n    bg: "#f6f1e7"\n    ink: "#2c2824"\n    accent: "#b0563a"\n  dark:\n    bg: "#1b1916"\n    ink: "#efe8dc"\n    accent: "#e08a6a"\n    glow: "#ffd9a0"$/);
+  assert.match(front, /colors:\n  primary: "\{colors\.light\.accent\}"\n  light:\n    primary: "\{colors\.light\.accent\}"\n    bg: "#f6f1e7"\n    ink: "#2c2824"\n    accent: "#b0563a"\n  dark:\n    primary: "\{colors\.dark\.accent\}"\n    bg: "#1b1916"\n    ink: "#efe8dc"\n    accent: "#e08a6a"\n    glow: "#ffd9a0"$/);
+  assert.equal(run(dir, "--check").status, 0);
+  // A color/primary row is already in each group: nothing is added twice.
+  const own = project(themed.replace("| color/accent |", "| color/primary |"));
+  assert.equal(run(own).status, 0);
+  const got = frontOf(read(own));
+  assert.equal(got.match(/^ {4}primary:/gm).length, 2);
+  assert.match(got, /^ {2}primary: "\{colors\.light\.primary\}"$/m);
+});
+
+test("tokens.mjs: an older DESIGN.md's spacing and radius bullets are read like table rows", () => {
+  const old = body.replace(/\| space\/sm[\s\S]*?\| radius\/md \| 8 \| cards \|\n/, "")
+    .replace("## Spacing\n| Token | Value | Use |\n|---|---|---|\n", "## Spacing\n- Density: balanced\n- Scale: space/sm 8, space/md 16px, space/lg 24\n- Corner radius: radius/md 8, radius/pill 999 on tags\n");
+  const dir = project(old);
+  const r = run(dir);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stderr, "");
+  const front = frontOf(read(dir));
+  assert.match(front, /\nrounded:\n  md: 8px\n  pill: 999px\nspacing:\n  sm: 8px\n  md: 16px\n  lg: 24px\n/);
+  assert.equal(run(dir, "--check").status, 0);
+  // The same token in a bullet and a table is the same mistake as in two tables.
+  const twice = project(old + "\n| Token | Value | Use |\n|---|---|---|\n| space/sm | 4 | x |\n");
+  assert.equal(run(twice).status, 2);
+  assert.match(run(twice).stderr, /space\/sm is in the tables twice/);
+});
+
+test("tokens.mjs: a radius bullet with a bare value and words is left out, with one line saying which line and what it needs", () => {
+  const old = body.replace("| radius/md | 8 | cards |\n", "").replace("## Motion", "- Corner radius: 8px on cards, none on images\n\n## Motion");
+  const line = old.split("\n").findIndex((l) => l.startsWith("- Corner radius")) + 1;
+  const dir = project(old);
+  const r = run(dir);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, new RegExp(`^.*DESIGN\\.md: line ${line}: .*Corner radius.*left out\\. It needs a radius/<name> row in the table\\.\\n$`));
+  assert.equal(r.stderr.trim().split("\n").length, 1);
+  const front = frontOf(read(dir));
+  assert.doesNotMatch(front, /rounded:/);
+  assert.match(front, /\nspacing:\n  sm: 8px\n  md: 16px\n/);
 });
 
 test("tokens.mjs: a color/primary row is used as it is, and ink leads when there is no accent", () => {

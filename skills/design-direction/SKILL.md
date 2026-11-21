@@ -18,7 +18,7 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references, and, once they pick it, is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like is what the screens borrow. The agent's craft is making a borrowed move fit its base. Its own taste adds nothing: every face, colour, element and effect on a screen comes from their board (the product's own subject is a card on it), and a fresh agent checks that. They choose on rendered screens; the agent never ranks them.
+The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references, and, once they pick it, is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like is what the screens borrow. The agent's craft is making a borrowed move fit its base. Its own taste adds nothing: every face, colour, element and effect on a screen comes from their board (the product's own subject is a card on it), and a fresh agent checks that.
 
 Comes out:
 
@@ -48,7 +48,7 @@ Before the grid: three or four pictures of what the product is about, not other 
 
 **The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark). Say the fill order in one line.
 
-**The lead and the likes.** Build the board of what they work from: a copy of the moodboard's `board.md` as `.longbeard/design/direction/board.md` (with families taken, copy `.longbeard/design/families/board.md` without the cards whose `topic` is a family they did not take), plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`):
+**The lead and the likes.** Build their board: a copy of the moodboard's `board.md` as `.longbeard/design/direction/board.md` (with families taken, copy `.longbeard/design/families/board.md` without the cards whose `topic` is a family they did not take), plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`):
 
 ```
 node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --out .longbeard/design/direction/board.html
@@ -63,7 +63,7 @@ Then one message:
 
 The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" The subject's card is liked like any other, for a picture, a colour or a thing in it (a stamp, a number, a paper bag), with a why; it lends moves and is never a base. A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 
-**A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there, not every element that site had. Say it:
+**A like against the design brief.** When a like asks for what the brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there, not every element that site had. Say it:
 
 > Your like for <reference> names <what>, and the brief says <what it fixes>. I'll keep the brief and carry <what> by its role (the gold on a light ground). Or change the brief?
 
@@ -85,9 +85,9 @@ Then the round: not a copy, as varied as the board, contrast (a failure blocks t
 
 How, with the moves, the states and the checks: [grid.md](references/grid.md).
 
-Show the sheet, marked rough or full for each screen, the sheet of each screen beside its base, and a table: each number, rough or full, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
+Show the sheet, each screen marked rough or full and beside its base, and a table: each number, rough or full, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
 
-**Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It lets them choose knowingly, not steers. Taken, it goes under **Changes** in the design brief, with why.
+**Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It informs; it does not steer. Taken, it goes under **Changes** in the design brief, with why.
 
 > Which would you take further? Any number, or none: a pick is built in full. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
 
@@ -101,7 +101,7 @@ Show the sheet, marked rough or full for each screen, the sheet of each screen b
 
 **The pick decides, the why guides.** When they pick a screen that breaks a why they gave, record it and ask once whether the why still holds; the screen is never blocked by it.
 
-**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it: a sheet rewards what stands out beside its neighbours. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
+**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
 
 **A few controls, bounded by their board.** Offer them a few live controls on that screen (type scale, line spacing, accent strength, corner radius), each limited to what their references use, so they judge a value by seeing it. They paste the copy-out back and you record it in the screen, never as a query string. How: [controls.md](references/controls.md).
 
@@ -109,7 +109,7 @@ Show the sheet, marked rough or full for each screen, the sheet of each screen b
 
 ## 5. The touch-up pass
 
-On the chosen screen only, after their yes. **The composition is theirs, not the agent's.** This pass repairs; it never redesigns. Touch as little as possible: done carelessly, a distinctive screen turns generic here.
+On the chosen screen only, after their yes. This pass repairs; it never redesigns. Touch as little as possible: done carelessly, a distinctive screen turns generic here.
 
 **Breaking old rules on purpose is the look.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, an unusual reading path are never faults here. Never separate, shrink, move or tidy them.
 
