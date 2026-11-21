@@ -3,6 +3,7 @@
 ## Unreleased
 
 - `design-check` gains `rules.mjs`, shared with `design-prototype`: it opens a page headless at desktop and phone width and prints the hard rules a browser can measure in the findings table, each tied to its rule (sideways scroll, small targets, inputs without a visible label, a focus that shows nothing, placeholder copy, clipped text). Text cut on purpose carries `data-crop` and is skipped; it never checks overlap, collision, alignment or empty space. A check that could not run is "not checked".
+- The fix loop is enforced by that script: it counts rounds per screen and says "rounds used up" when the limit is reached, a waiver needs a reason and stays listed, "ship it as it is" is recorded with the person's words, and a run that cannot start blocks once and then lets the build go on. State is in `.longbeard/design/rounds.json` and `waivers.json`.
 - Copy is made from facts the product has: `design-content` fills a fact sheet from the brief and the design brief before any sentence (an empty field shrinks or drops its section, and the doc lists what you must supply), `design-prototype` does the same when it drafts without that doc, and rule 11 gains checks for one use of each device per screen, no invented numbers, names or quotes, claimed sincerity, and a voice that would not suit another trade.
 
 Design is now a family of small skills, each with one job and one doc, instead of two long ones. You run only what you need, each step asks little, and a long run no longer drifts. [How it flows](assets/design-flow.png).

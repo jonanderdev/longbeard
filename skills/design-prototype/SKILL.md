@@ -87,7 +87,7 @@ Check them against the rules: Idea first, then hard (structure, contrast, target
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/prototype/home.html" --screen home
 ```
 
-It prints findings in `design-check`'s table, each with its rule. Fix every hard one. Words cut off on purpose, the look's own crop, carry `data-crop` in the markup and are skipped; any other cut word is a finding. A check it could not run is "not checked", never passed. It does not look at overlap, collision, alignment, empty space or section height: those are the look, and only your eye judges them.
+It prints findings in `design-check`'s table, each with its rule. Fix every hard one. Words cut off on purpose, the look's own crop, carry `data-crop` in the markup and are skipped; any other cut word is a finding. The script counts rounds per screen: when it says "rounds used up", stop fixing and tell them what is open. A finding that is wrong is waived with a reason (`--waive <id> --reason "…"`) and still shown to them. A check it could not run is "not checked", never passed. It does not look at overlap, collision, alignment, empty space or section height: those are the look, and only your eye judges them.
 
 **Walk the links.** Every page the key screens list, reached by clicking from the first:
 
