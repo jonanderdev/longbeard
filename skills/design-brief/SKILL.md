@@ -47,7 +47,13 @@ Before any design, a few questions. Each has my suggestion in brackets: "yes" ta
 5. Sites, apps, brands, books or places you love for this? (They steer the moodboard; their names stay out of the docs.)
 6. Who should it stand apart from? And how far from what that kind of product usually looks like: 1 familiar to its users · · · 5 nothing like the category? [<the alternatives the brief names, and a number>]
 7. What is fixed? A new brand, or a refresh (and what stays)? Colours, typefaces or a logo you own or refuse; light, dark or both; your own pictures, or none yet; languages; accessibility, AA or AAA. [<what the brief or the repo shows; AA unless the people need more>]
-8. Motion: none, subtle, or expressive? [<from the personality>]
+8. Motion: pick what fits, or "none" (state changes only):
+   how much, one: quiet (fades only) · present (moves that guide the eye) · leading (motion is part of the identity)
+   driven by, any: scroll (reveals, pinned sections) · cursor (things that follow or react) · time (on load, on change)
+   feel, with where it applies: physics (inertia, springs, weight) · smooth (eased, calm) · snappy (fast, crisp); e.g. physics on scroll, snappy on buttons
+   moments, any: page transitions · type that splits and assembles · pictures that move on scroll
+   A site whose motion you love? Paste the link, if any.
+   [<a pick for each, or none, from the personality scales>]
 9. Do you have a moodboard already? A Figma link, a folder, screenshots or links.
 10. How much design does this need? Full: the look is part of what the product is. Quick: an internal tool or a first version, done well but fast, with fewer stops. [<quick for an internal or admin tool, full otherwise>]
 
@@ -60,7 +66,7 @@ Never search, open references or propose a look in this turn.
 
 Two lines, then their yes or a correction. The second is the voice: how the product talks, drafted from the brief and their words, with one sample line in it. They have not been asked about the voice, so this is where they correct it; every headline and every piece of copy is written in it.
 
-> Leads with <takeaway>, first seen on <phone | desktop>; <pace>; <three words>, never <word>; loud 2, picture-led 4, cool 2, playful 1, new 4, dense 2; never <…>; apart from <kind of product>, 4 of 5 from the category; fixed: <…>, AA; motion subtle; a moodboard in Figma.
+> Leads with <takeaway>, first seen on <phone | desktop>; <pace>; <three words>, never <word>; loud 2, picture-led 4, cool 2, playful 1, new 4, dense 2; never <…>; apart from <kind of product>, 4 of 5 from the category; fixed: <…>, AA; motion present, driven by scroll, smooth; a moodboard in Figma.
 > Voice: <how it talks>, e.g. "<one sample line>". Right?
 
 Give each number as the scale's right end (loud 2 is fairly quiet), so the read-back says what the doc will. A correction is one more line, not a second round. Several 3s left after the read-back: ask once which way they lean on those, in the same line. Answers that contradict the product brief are `grilling`, not this skill.
@@ -80,13 +86,15 @@ Give each number as the scale's right end (loud 2 is fairly quiet), so the read-
 - apart from: <the kind of product it must not be mistaken for, described> · distance <n> (1 familiar to its users, 5 nothing like the category)
 - fixed: <new brand, or a refresh and what stays; owned or refused colours and faces as values; light/dark/both; pictures: theirs or none yet; languages>
 - accessibility: <AA or AAA>
-- motion: <none | subtle | expressive>
+- motion: <none | quiet, present or leading> · driven by <scroll, cursor, time: any of them> · feel <physics, smooth or snappy, each with where it applies> · moments <page transitions, split type, pictures that move on scroll> · loves: <what moves in the site they pasted, and why, in their words> (a pick they left out is left out of the line; "none" is the whole line)
 - voice: <how it talks, as confirmed in the read-back, and one sample line>
 - decides: <who else says yes, or "only them">
 
 ## Changes
 - <date>: <what changed and why>
 ```
+
+**Motion is theirs.** The suggestion follows the personality scales, never the agent's opinion of good motion. Nothing is searched for here: a pasted link goes to `brief-loves.md` with what they like in its motion and why, and a request to "show me some" is noted there too, for `design-moodboard`.
 
 **Names stay out.** The sites and brands they love, and the competitors they named, go to `.longbeard/design/brief-loves.md` (gitignored) for `design-moodboard` to search from. The committed doc describes what those things do ("long editorial pages, one picture at a time"), never who. Owned colours and faces are theirs, so their values are written.
 
@@ -103,7 +111,8 @@ So nobody asks again, and so each answer changes something:
 | apart from, distance | `design-moodboard` (what to search and keep out), `design-direction` (the eye's check), `design-check` (could it be mistaken for one) |
 | fixed | the direction's library (`theirs` entries, dropped grounds), `design-identity` |
 | accessibility | every contrast check (`contrast.mjs --level`, `screen-contrast.mjs --min`), `DESIGN.md`, `design-check` |
-| motion, dense | `design-prototype`, `DESIGN.md` |
+| motion | `design-prototype` (builds those picks and nothing beyond them), `DESIGN.md` (its Motion section), `design-check` (checks against them), `design-moodboard` (the pasted link, and examples only if asked) |
+| dense | `design-prototype`, `DESIGN.md` |
 | voice | headlines, copy, the identity board, `DESIGN.md` |
 | decides | every approval: the direction, the identity board, `DESIGN.md` |
 
@@ -132,3 +141,4 @@ Say the next step in one line, from what they answered:
 - Write the voice without showing it in the read-back.
 - Put a layout, colour, typeface or style name in a suggested answer.
 - Write a site, brand, person or link into the committed doc.
+- Suggest motion from your own sense of what looks good, or fill a pick they left out.

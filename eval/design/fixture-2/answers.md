@@ -13,7 +13,7 @@ You are running the design flow for someone who is away. When a skill asks them 
 - 5. We love Field Notes Press and the Tidewater Journal. (Fictional names: they must never appear in the committed docs.)
 - 6. Apart from supermarket bakery counters and delivery apps. Distance 4.
 - 7. A new brand. We own nothing yet. Light only. No pictures of our own yet. English. AA.
-- 8. Motion: subtle.
+- 8. Motion: quiet; driven by time; smooth on everything; no moments; no link.
 - 9. Our moodboard is the folder `moodboard/` in this project.
 - 10. Pace: full. (In a quick run, `run.mjs --pace quick` rewrites this line to quick.)
 - Anyone else: only me.

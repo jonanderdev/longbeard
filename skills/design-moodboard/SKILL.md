@@ -34,7 +34,7 @@ It chooses no look and ranks nothing. It gathers what they like and says what it
 
 ## The parts
 
-The board covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, photography, motion, as the brief needs them. For an app: the brief's key screens, its navigation, motion. Every keep has one `part`.
+The board covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, photography, motion, as the brief needs them. For an app: the brief's key screens, its navigation, motion. Motion is a part only when the design brief's `motion` is not none: the site they pasted for it (in `brief-loves.md`) is its first keep, and examples are searched for only if they asked for some. Every keep has one `part`.
 
 ## Their board
 
