@@ -16,4 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # The font test measures installed faces.
+      - run: sudo apt-get update && sudo apt-get install -y fonts-dejavu fonts-freefont-ttf fonts-crosextra-caladea
       - run: npm test

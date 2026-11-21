@@ -351,6 +351,8 @@ test("fonts: faces of the same kind only, nearest in shape first, the chosen one
   assert.equal(result.status, 0, result.stderr);
   const out = JSON.parse(result.stdout);
   assert.equal(out.chosen.face, "DejaVu Serif");
+  // Its neighbours are read from the machine too: with none of them installed there is nothing to order.
+  if (out.measured === 0 && out.missed > 0) return t.skip("FreeSerif and Caladea are not installed");
   // Serifs only; not the sans, not a small-caps twin, not one without the weight in use.
   const names = out.rows.map((r) => r.face);
   assert.ok(names.length >= 1 && names.every((n) => ["Caladea", "FreeSerif"].includes(n)), JSON.stringify(names));
