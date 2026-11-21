@@ -191,9 +191,11 @@ for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
 }
 
 // One browser for every reference. Each tab is a session on one socket.
+// Several tabs work at once, so no tab may be slowed for not being in front: a picture decoding in a
+// tab behind another would otherwise wait for ever.
 proc = spawn(
   exe,
-  ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--hide-scrollbars", "--mute-audio", "--force-color-profile=srgb", `--window-size=${width},${height}`, "about:blank"],
+  ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--hide-scrollbars", "--mute-audio", "--force-color-profile=srgb", "--disable-renderer-backgrounding", "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", `--window-size=${width},${height}`, "about:blank"],
   { stdio: ["ignore", "ignore", "pipe"] },
 );
 proc.on("error", (e) => {
