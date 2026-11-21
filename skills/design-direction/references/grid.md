@@ -4,7 +4,9 @@ Read by `design-direction`, step 3.
 
 Eight first screens, each built the way a designer works from a board: take one reference whose design works, rebuild it faithfully with the product's own content, then change it with one or two things borrowed from other references, and make sure it still works. The references are finished designs: their sizes, spacing, type and colour were chosen together, and that is why they work. The agent's own taste adds nothing.
 
-Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. Keep each screen's translation too, before its moves, as `screens/<n>-base.html`. One file for all eight, `.longbeard/design/direction/screens.json`:
+Each screen is its own page, `.longbeard/design/direction/screens/<n>.html`, from [screen-template.html](screen-template.html): plain HTML and CSS, sizes in px at 1440 (or the device's width for an app), every face and colour a variable from `LOOK`, and a `PROVENANCE` list. Keep each screen's translation too, before its moves, as `screens/<n>-base.html`. Anything on a screen the product does not really have yet (a stand-in picture, a price, an hour, a number or a name the brief does not give) carries `data-standin="picture"` or `data-standin="fact"` on its element, and `data-standin-note` for what is assumed. A picture of theirs carries nothing.
+
+One file for all eight, `.longbeard/design/direction/screens.json`:
 
 ```
 [{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move, in a phrase>", "from": "<card name>", "like": "<their words, or null>" }], "why": "<one line>", "proposed": false }]
@@ -95,7 +97,7 @@ It lists; it never redesigns. "Nothing" is a fine answer.
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
 - **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
-- **Each picture:** `picture-cast.mjs <pictures>`; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
+- **Each picture:** `picture-cast.mjs <pictures>` runs on the product's pictures, not on the screens' captures; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
 
 **A screen shown again** (more of it, a mix, a fix they asked for) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone.
 

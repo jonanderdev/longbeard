@@ -102,3 +102,13 @@ test("crops: a sheet that does not match its hash, or a skewed card, is named an
   assert.equal(run(dir, []).status, 2);
   void cards;
 });
+
+test("crops: a region that starts before its sheet loses that part of its width", (t) => {
+  const { dir, hash } = board();
+  // Half the sheet wide, starting a quarter of it to the left of the sheet: one pixel of four is on it.
+  writeFileSync(join(dir, "cards.json"), JSON.stringify([{ name: "Edge", hash, transform: [[0.5, 0, -0.25], [0, 1, 0]] }]));
+  const result = run(dir, ["cards.json", "--sheets", "sheets", "--out", "refs"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(size(join(dir, "refs", "edge.png")), [1, 2]);
+});
