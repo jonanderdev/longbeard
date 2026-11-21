@@ -63,7 +63,7 @@ Their board already holds their taste: it is the pool. A rich board needs no sea
 
 - **Enough to compose from:** at least six keeps that are screens.
 - **Every part:** each key screen in the brief has at least one keep that shows that kind of screen.
-- **One far reference:** when every keep is a screen, at least one from outside screens (print, signage, packaging, an object from the subject's world), marked `screen: no`, so the screens have something to borrow that no other screen has.
+- **One far reference:** when every keep is a screen, at least one from outside screens (print, signage, packaging, an object from the subject's world), marked `screen: no`, so the screens have something to borrow that no other screen has. Fonts In Use has these by subject and format ([sources.md](references/sources.md)).
 
 All met → say so in one line ("34 fits, every part covered") and write the doc. Otherwise say what it lacks in up to three lines and ask:
 
@@ -77,7 +77,7 @@ All met → say so in one line ("34 fits, every part covered") and write the doc
 
 ## Search
 
-Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens. The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
+Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens; Minimal Gallery and httpster when a kind of site or a look needs more (they browse by tag, not search). The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
 
 **The design brief steers the pool, not the picks.** Read its words, personality, never, apart from and distance before the first query:
 
