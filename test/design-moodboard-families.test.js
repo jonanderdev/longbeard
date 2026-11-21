@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -315,6 +315,72 @@ test("tag: an old row of name and the eight look fields still merges, with no he
   const { a } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
   assert.deepEqual(a.tags, { picture: ["photo"], photo: ["duotone"], type: ["display"], weight: ["bold"], layout: ["split"], colour: ["muted"], surface: ["grain"], scale: ["large"] });
   assert.equal(a.about, undefined);
+});
+
+test("tag line: format then parse is the same, none left out and read back", async () => {
+  const { parseTagLine, formatTagLine } = await import(pathToFileURL(script("tag.mjs")));
+  const tags = { picture: ["photo", "lettering"], photo: ["mono"], type: ["serif", "mono"], weight: ["bold"], layout: ["collage"], colour: ["duotone"], surface: ["grain"], scale: ["large"], motion: ["ui"] };
+  const about = { format: ["editorial"], domain: ["fashion"], mood: ["editorial", "bold"], hue: ["red"], density: ["airy"], subject: ["portrait", "close-crop"] };
+  const line = formatTagLine({ tags, about });
+  assert.equal(line, "photo lettering photo:mono serif type:mono weight:bold layout:collage colour:duotone grain large motion:ui · format:editorial fashion mood:editorial mood:bold red airy portrait close-crop");
+  assert.deepEqual(parseTagLine(line), { tags, about, unknown: [], ambiguous: [] });
+  // A none field is left out of the line, and reads back as none.
+  const still = { picture: ["none"], photo: ["none"], type: ["sans"], weight: ["regular"], layout: ["left"], colour: ["neutral"], surface: ["flat"], scale: ["huge"], motion: ["none"] };
+  assert.equal(formatTagLine({ tags: still, about: {} }), "sans regular left neutral flat huge");
+  assert.deepEqual(parseTagLine("sans regular left neutral flat huge").tags, still);
+  assert.equal(formatTagLine({ tags: {}, about: { subject: ["type-only"] } }), "type-only");
+  assert.throws(() => formatTagLine({ tags: { surface: ["shiny"] } }), /surface "shiny"/);
+});
+
+test("tag line: a word in two fields is refused bare and read with its field:, an unknown word is kept", async () => {
+  const { parseTagLine, AMBIGUOUS } = await import(pathToFileURL(script("tag.mjs")));
+  assert.deepEqual(AMBIGUOUS.toSorted(), ["bold", "collage", "duotone", "editorial", "mono", "none", "ui"]);
+  const prefixed = { none: ["photo", "picture"], mono: ["type", "photo"], duotone: ["photo", "colour"], collage: ["picture", "layout"], ui: ["picture", "motion"], editorial: ["format", "mood"], bold: ["weight", "mood"] };
+  for (const word of AMBIGUOUS) {
+    const bare = parseTagLine(`serif ${word}`);
+    assert.deepEqual(bare.ambiguous, [word], word);
+    assert.deepEqual(bare.unknown, []);
+    for (const field of prefixed[word]) {
+      const read = parseTagLine(`${field}:${word}`);
+      assert.deepEqual({ ...read.tags, ...read.about }[field], [word], `${field}:${word}`);
+      assert.deepEqual([...read.ambiguous, ...read.unknown], []);
+    }
+  }
+  // Unknown words, bare or with a field they are not in, are kept as written; · and spacing split alike.
+  const odd = parseTagLine("photo  serif·fintech  scale:serif   · Calm");
+  assert.deepEqual(odd.unknown, ["fintech", "scale:serif"]);
+  assert.deepEqual(odd.tags.type, ["serif"]);
+  assert.deepEqual(odd.about, { mood: ["calm"] });
+  // The first word for a field stays first.
+  assert.deepEqual(parseTagLine("render photo render").tags.picture, ["render", "photo"]);
+});
+
+test("tag: a line column fills the cells left empty, and refuses an unknown or bare ambiguous word by name", () => {
+  const refs = { a: profile("a", { lum: 0.9, empty: 80, picture: "none", layout: "left" }), b: profile("b", { lum: 0.9, empty: 80, picture: "none", layout: "left" }) };
+  delete refs.a.tags;
+  delete refs.b.tags;
+  const dir = project({
+    "profiles.json": JSON.stringify({ refs }),
+    "bad.tsv": "name\tline\na\tphoto serif bold split muted grain large · fintech\n",
+    "good.tsv": "name\tscale\tline\tnote\na\thuge\tphoto colour serif weight:bold split muted grain kinetic · web-hero fashion calm red airy portrait\thero\nb\t\tsans regular left neutral flat quiet · type-only\t\n",
+    "twice.tsv": "name\tscale\tline\na\thuge\tphoto colour serif regular split muted grain large\n",
+  });
+  const bad = spawnSync(process.execPath, [script("tag.mjs"), "profiles.json", "bad.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /a line: "fintech" in no field/);
+  assert.match(bad.stderr, /"bold" is in weight, mood: write weight:bold or mood:bold/);
+  assert.equal(JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs.a.tags, undefined);
+  const twice = spawnSync(process.execPath, [script("tag.mjs"), "profiles.json", "twice.tsv"], { cwd: dir, encoding: "utf8" });
+  assert.equal(twice.status, 1);
+  assert.match(twice.stderr, /a scale is in its cell and in the line/);
+  const good = run("tag.mjs", dir, ["profiles.json", "good.tsv"]);
+  assert.match(good.stdout, /tagged 2, 0 left untagged/);
+  const { a, b } = JSON.parse(readFileSync(join(dir, "profiles.json"), "utf8")).refs;
+  assert.deepEqual(a.tags, { picture: ["photo"], photo: ["colour"], type: ["serif"], weight: ["bold"], layout: ["split"], colour: ["muted"], surface: ["grain"], scale: ["huge"], motion: ["kinetic"] });
+  assert.deepEqual(a.about, { format: ["web-hero"], domain: ["fashion"], mood: ["calm"], hue: ["red"], density: ["airy"], subject: ["portrait"] });
+  assert.equal(a.note, "hero");
+  assert.deepEqual(b.tags, { picture: ["none"], photo: ["none"], type: ["sans"], weight: ["regular"], layout: ["left"], colour: ["neutral"], surface: ["flat"], scale: ["quiet"], motion: ["none"] });
+  assert.deepEqual(b.about, { subject: ["type-only"] });
 });
 
 test("families: from profiles, what the picture is separates references the numbers alone would join", () => {
