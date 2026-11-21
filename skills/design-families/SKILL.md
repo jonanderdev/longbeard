@@ -107,9 +107,27 @@ No names, links or paths. The members of each family are in `.longbeard/design/f
 
 Then the next step in one line: `design-direction`.
 
+## A library that grows
+
+When new references arrive after the families are named, add them without sorting again: nothing already in a family moves, and the names stay. Measure and tag only the new keeps into the same `profiles.json` (steps 1 and 2), then:
+
+```
+node <skill>/scripts/families.mjs .longbeard/design/families/profiles.json --assign .longbeard/design/families/families.json
+```
+
+Every reference in no family is new. Each joins the nearest family when it sits within `--spread`, with a confidence from 0 to 1 and its 5 nearest references already in families. The new ones that join nothing are sorted among themselves: a group of three or more is a **seed**, a proposed new family; the rest are strays with their nearest family. It writes `assign.json` and never changes `families.json`.
+
+- Check each join by eye on a contact sheet beside its family, low confidence first. Move one that does not belong.
+- Name each seed for what is seen, as in step 3, or fold it into a family by eye.
+- Place each stray as in step 3.
+- Show only what changed: which family each new reference went to, and any new family. Then update `docs/design/design-families.md`: sizes, and any new family under **Also on the board**.
+
+Sort the whole pool again only when they ask, or when the new references outnumber the ones already sorted.
+
 ## Do not
 
 - Run on a curated board of a few dozen without being asked.
 - Move, rename or delete anything on their own Figma pages.
 - Pick the family for them, or hide one because it looks like their "never".
 - Sort before every keep is measured and tagged, or read profiles into the chat.
+- Sort a named pool from scratch to add a few new references: use `--assign`.
