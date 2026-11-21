@@ -102,9 +102,15 @@ process.once("exit", () => {
     proc?.kill("SIGKILL");
   } catch {}
   // Chrome's helpers can still be writing as it goes: remove again until the folder is gone.
-  try {
-    rmSync(dir, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
-  } catch {}
+  // Each try walks the folder afresh (rmSync's own retries only retry the last rmdir, and wait 21 s for nothing).
+  for (let end = Date.now() + 5000; ; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50)) {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+      break;
+    } catch {
+      if (Date.now() > end) break;
+    }
+  }
 });
 for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => fail(`stopped by ${signal}`));
 process.on("unhandledRejection", (e) => fail(e?.message || String(e)));
