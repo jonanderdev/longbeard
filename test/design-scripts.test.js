@@ -531,3 +531,42 @@ test("layout-diff: --mirror compares against the reference flipped", (t) => {
   assert.ok(!read("mirrored").off.includes("headline box [x, y, w, h]"), "against the flipped reference it is where it should be");
   assert.ok(read("mirrored").off.length < read("plain").off.length);
 });
+
+test("measure: --profiles makes its folder, keeps what it measured when an input fails, and exits non-zero", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-profiles-"));
+  const shots = join(dir, "shots");
+  mkdirSync(shots);
+  writeFileSync(join(shots, "good.png"), png(2, 1, [255, 0, 0, 255, 255, 255]));
+  writeFileSync(join(shots, "broken.png"), "not a picture");
+  const profiles = join(dir, "not", "yet", "profiles.json");
+  const result = await measured([shots, "--profiles", profiles]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /broken\.png/);
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(profiles, "utf8")).refs), ["good"]);
+});
+
+test("picture-cast: a picture on a plain white or black ground is not blown or crushed for it, and a transparent one is an error", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-ground-"));
+  // A mid-grey subject in the middle, ground all round.
+  const onGround = (ground) => {
+    const px = [];
+    for (let y = 0; y < 40; y++) for (let x = 0; x < 40; x++) px.push(...(x > 7 && x < 32 && y > 7 && y < 32 ? [150, 130, 120] : ground));
+    return png(40, 40, px);
+  };
+  writeFileSync(join(dir, "a-white.png"), onGround([255, 255, 255]));
+  writeFileSync(join(dir, "b-black.png"), onGround([0, 0, 0]));
+  const cast = (args) => spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/picture-cast.mjs"), ...args], { encoding: "utf8" });
+  const result = cast([dir]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const [white, black] = JSON.parse(result.stdout);
+  assert.deepEqual([white.blown, white.fault, white.ground], [0, false, "white"], JSON.stringify(white));
+  assert.deepEqual([black.crushed, black.fault, black.ground], [0, false, "black"], JSON.stringify(black));
+  // A one-pixel gif with nothing in it.
+  const empty = join(mkdtempSync(join(tmpdir(), "longbeard-clear-")), "clear.gif");
+  writeFileSync(empty, Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64"));
+  const clear = cast([empty]);
+  assert.equal(clear.status, 1, clear.stderr);
+  assert.match(JSON.parse(clear.stdout)[0].error, /nothing visible/);
+});

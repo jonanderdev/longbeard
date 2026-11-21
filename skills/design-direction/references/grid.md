@@ -97,7 +97,7 @@ It lists; it never redesigns. "Nothing" is a fine answer.
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
 - **Faults:** a clipped word, text smaller than 12 px at 1440, a lone word on a heading's last line, the same sentence twice.
-- **Each picture:** `picture-cast.mjs <pictures>`; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
+- **Each picture:** `picture-cast.mjs <pictures>` runs on the product's pictures, not on the screens' captures; a cast, blown highlights or crushed shadows the reference does not have is a picture to replace.
 
 **A screen shown again** (more of it, a mix, a fix they asked for) goes beside the version they last saw first, to a fresh critic: what got worse? A change that breaks something they liked is undone.
 
