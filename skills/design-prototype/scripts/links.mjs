@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Walk a clickable prototype from its first page, the way a person can: every
-// link followed, every page reached counted in clicks from the start. It finds
-// what makes a flow break before anyone tries it. Node 22+, an installed
-// Chrome, no dependencies.
+// Scan a clickable prototype: every page in its folder, from its first page on, for
+// links that break and pages with no way on, and for what it still stands in for.
+// Whether a person can reach each screen is the flow walks' job, not this one's.
+// Node 22+, an installed Chrome, no dependencies.
 //
-//   node links.mjs "file://$PWD/.longbeard/design/prototype/home.html" --expect menu,product,basket,checkout
+//   node links.mjs "file://$PWD/.longbeard/design/prototype/home.html"
 //
-// Pages are rendered (links a script builds count), and only pages in the
-// prototype's folder are walked; a link elsewhere (a real site, mailto:) is
-// listed, never followed. A form that submits to another page is a way on, and so is
+// Pages are rendered (links a script builds count). Links are followed from the first page, then
+// every other page in the prototype's folder is opened too, so a page behind a state (an empty
+// basket) is still scanned. A link elsewhere (a real site, mailto:) is listed, never followed. A form that submits to another page is a way on, and so is
 // a button whose script navigates: each is clicked, and the page it lands on is followed. A query (?state=empty) or a hash is the same page, but the
 // page is opened with the query it was first reached by, so state a prototype keeps in
 // the address (a basket, a chosen slot) carries on as it does for a person.
@@ -18,18 +18,17 @@
 //   nowhere    a link or button that goes nowhere: href "#", "", "javascript:…", or a
 //              button outside a form with no onclick and no link around it
 //   dead end   a page with no way on to another page of the prototype (a link, a form, a button)
-//   unreached  a page named in --expect that no click reaches
-// then each page reached, with its clicks from the start.
-// Exit 1 when anything is broken, nowhere, a dead end, unreached or unmarked; 0 when the walk is clean.
+// then the pages scanned.
+// Exit 1 when anything is broken, nowhere, a dead end or unmarked; 0 when the scan is clean.
 //
 // It also lists what the page does not really have yet: every element marked data-standin="picture"
 // or data-standin="fact" (a stand-in picture; a price, an hour, a number or a name the brief does not
 // give), with data-standin-note for what is assumed. One line each, "stand-in", then a count, or "none
 // marked". The list never fails the walk. A picture whose file sits in a credits.tsv beside it (a
 // stand-in from pictures.mjs) with no mark is "unmarked", and does.
-//   --expect a,b (page names, without .html), --width 1440, --wait 300 (ms per page), --json
+//   --width 1440, --wait 300 (ms per page), --json
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -44,12 +43,11 @@ const has = (name) => {
   const i = args.indexOf(`--${name}`);
   return i === -1 ? false : (args.splice(i, 1), true);
 };
-const expect = flag("expect").split(",").map((x) => x.trim().replace(/\.html?$/i, "")).filter(Boolean);
 const width = Number(flag("width", "1440"));
 const wait = Number(flag("wait", "300"));
 const json = has("json");
 const [start] = args;
-const usage = 'usage: node links.mjs "file:///…/prototype/home.html" [--expect menu,basket] [--width 1440] [--wait 300] [--json]';
+const usage = 'usage: node links.mjs "file:///…/prototype/home.html" [--width 1440] [--wait 300] [--json]';
 if (!start || args.length !== 1 || !/^file:/.test(start) || !(width >= 200 && width <= 3840) || !(wait >= 0 && wait <= 10000)) {
   console.error(usage);
   process.exit(2);
@@ -236,12 +234,15 @@ async function collectStandins(page) {
 }
 // ---- end of stand-ins ----
 
-const depth = new Map([[startPath, 0]]);
+const seen = new Set([startPath]);
 const firstUrl = new Map([[startPath, start.split("#")[0]]]);
 const queue = [startPath];
 const broken = [], nowhere = [], deadEnds = [], outside = new Set();
-while (queue.length) {
+// When the links run out, every page in the folder not reached yet is opened by itself.
+const rest = () => readdirSync(dirname(startPath)).filter((f) => /\.html?$/i.test(f)).sort().map((f) => join(dirname(startPath), f)).filter((p) => !seen.has(p));
+while (queue.length || (queue.push(...rest().slice(0, 1)), queue.length)) {
   const path = queue.shift();
+  seen.add(path);
   const pageUrl = firstUrl.get(path) || pathToFileURL(path).href;
   if (!(await open(pageUrl))) {
     broken.push({ from: "(start)", to: path });
@@ -258,8 +259,8 @@ while (queue.length) {
     if (!inside(to)) return void outside.add(url);
     if (!existsSync(to)) return void broken.push({ from: name, to: href, words });
     if (to !== path) out++;
-    if (!depth.has(to)) {
-      depth.set(to, depth.get(path) + 1);
+    if (!seen.has(to)) {
+      seen.add(to);
       firstUrl.set(to, url.split("#")[0]);
       queue.push(to);
     }
@@ -292,19 +293,16 @@ while (queue.length) {
   }
   if (!out) deadEnds.push(name);
 }
-const reached = new Set([...depth.keys()].map(pageName));
-const unreached = expect.filter((e) => !reached.has(e));
-const pages = [...depth.entries()].sort((a, b) => a[1] - b[1]).map(([p, d]) => ({ page: pageName(p), clicks: d }));
+const pages = [...seen].map((p) => ({ page: pageName(p) }));
 
-if (json) console.log(JSON.stringify({ pages, broken, nowhere, deadEnds, unreached, standins, unmarked, outside: [...outside] }, null, 1));
+if (json) console.log(JSON.stringify({ pages, broken, nowhere, deadEnds, standins, unmarked, outside: [...outside] }, null, 1));
 else {
   for (const b of broken) console.log(`broken     ${b.from} → ${b.to}${b.words ? ` ("${b.words}")` : ""}`);
   for (const n of nowhere) console.log(`nowhere    ${n.page}: ${n.what} (${n.href})`);
   for (const d of deadEnds) console.log(`dead end   ${d}: no link to another page`);
-  for (const u of unreached) console.log(`unreached  ${u}: no click from ${pageName(startPath)} reaches it`);
   for (const u of unmarked) console.log(`unmarked   ${u.page}: picture ${u.file} is a stand-in (credits.tsv) and has no data-standin`);
   for (const s of standins) console.log(`stand-in   ${s.page}: ${s.kind} ${s.kind === "fact" ? `"${s.what}"` : s.what}${s.note ? ` (${s.note})` : ""}`);
   console.log(standins.length ? `stand-ins: ${standins.length} (${[...new Set(standins.map((s) => s.kind))].map((k) => `${standins.filter((s) => s.kind === k).length} ${k}`).join(", ")}), what they still need to supply` : "stand-ins: none marked");
-  console.log(`pages: ${pages.map((p) => `${p.page} ${p.clicks}`).join(", ")}${outside.size ? ` · ${outside.size} link${outside.size > 1 ? "s" : ""} out of the prototype, not followed` : ""}`);
+  console.log(`pages: ${pages.map((p) => p.page).join(", ")}${outside.size ? ` · ${outside.size} link${outside.size > 1 ? "s" : ""} out of the prototype, not followed` : ""}`);
 }
-process.exit(broken.length || nowhere.length || deadEnds.length || unreached.length || unmarked.length ? 1 : 0);
+process.exit(broken.length || nowhere.length || deadEnds.length || unmarked.length ? 1 : 0);

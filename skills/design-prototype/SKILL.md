@@ -93,13 +93,13 @@ node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 
 It prints findings in `design-check`'s table, each with its rule. Fix every hard one. Words cut off on purpose, the look's own crop, carry `data-crop` in the markup and are skipped; any other cut word is a finding. Fix what it found after every run, then run it again: two runs with no fix between are one round, and so is a first run of another state of the same screen (`?menu=open`, the same `--screen`). The script counts rounds per screen: when it says "rounds used up", stop fixing and tell them what is open. A finding that is wrong is waived with a reason (`--waive <id> --reason "…"`) and still shown to them. A check it could not run is "not checked", never passed. It does not look at overlap, collision, alignment, empty space or section height: those are the look, and only your eye judges them.
 
-**Walk the links.** Every page the key screens list, reached by clicking from the first:
+**Scan the links.** Every page of the prototype, from the first:
 
 ```
-node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.html" --expect menu,product,basket,checkout
+node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.html"
 ```
 
-It says each broken link, each link or button that goes nowhere, each page with no way on, each key screen no click reaches, and how many clicks each page is from the start. Fix every one before they see it. A key screen deeper than its flow needs is said. It also lists every stand-in and assumed fact on the pages it walks (`stand-in` lines, or "stand-ins: none marked"), and says `unmarked` for a stand-in picture that carries no mark: mark it.
+It says each broken link, each link or button that goes nowhere, and each page with no way on. Fix every one before they see it. Whether a person reaches each key screen is the flow walks' to say, below, not this scan's. It also lists every stand-in and assumed fact on the pages it walks (`stand-in` lines, or "stand-ins: none marked"), and says `unmarked` for a stand-in picture that carries no mark: mark it.
 
 **Walk the flows.** For each flow in the brief, one fresh agent that knows nothing of the product: a new agent or a clean session, on a smaller model where your agent lets you choose one (in Claude Code, the Agent tool's `model: sonnet`), given the first page's path and the flow's goal in the person's words, never the steps ("you want a sourdough for Saturday pickup"). It uses the browser it already has (a browser tool, or Playwright from a script: never a browser tool written for the job) to click, fill and choose through the prototype like a person, and says where it went, where it hesitated, and whether it got there. A flow it cannot finish, a wrong turn two of them take, or a step it calls unclear is fixed inside the identity and the direction: a label, a missing link or action, an order of sections. No agent can be started clean: walk it yourself, say so, and say it is weaker.
 
