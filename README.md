@@ -45,11 +45,27 @@ You leave with a design you can hand over and keep working on:
 
 ### Why it designs this way
 
-A product's look should be chosen by the people who own it, and built with a designer's care.  
-**You are the designer.** Long Beard brings no taste of its own, because an AI has none: what it calls taste is an average of what once looked good, or the taste of whoever wrote the prompt. So it works like an art director's process instead. You pick real designs you love, say what you like in each, and make the calls a designer makes: which references lead, what to take from each, which result is yours. The agent does the craft: it rebuilds your references faithfully with your real content, combines what you took from them, checks that it still works, and adds nothing that is not on your board. It takes some effort from you, on purpose. If you want one prompt and a pretty result, another skill will serve you better.  
-Each design skill does one job, so you run only what you need: skip the moodboard if you have one, sort a big board into families only when it is big, plan copy and pictures only when you want to. Short steps, few questions, a doc at the end of each, so a long run never drifts.
+> A product's look should be chosen by the people who own it, and built with a designer's care.
 
-Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. It designs sites and apps first, and a graphic (a poster, a card, a social post) the same way: a short brief of its facts and format, then the same steps, ending at an exported Figma frame. A CLI, API or library skips Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
+**You are the designer.** Long Beard brings no taste of its own, because an AI has none. What it calls taste is an average of what once looked good, or the taste of whoever wrote the prompt. So it follows an art director's process instead:
+
+- **You choose.** You pick real designs you love and say what you like in each. Then you make the designer's calls: which references lead, what to take from each, and which result is yours.
+- **The agent does the craft.** It rebuilds your references faithfully with your real content and combines what you took from them. It checks that the result still works, and adds nothing that is not on your board.
+
+This takes some effort from you, on purpose. If you want one prompt and a pretty result, another skill will serve you better.
+
+**Small steps.** Each design skill does one job, so you run only what you need. Skip the moodboard if you already have one. Sort a big board into families only when it is big. Plan copy and pictures only when you want to. Each step asks few questions and ends with a doc, so a long run never drifts.
+
+**Stop and resume anywhere.** Each stage writes a file the next one reads. You can pick up later, or start on a project that already has some of these files.
+
+**What it designs:**
+
+- Sites and apps first.
+- A graphic (a poster, a card, a social post) goes through the same steps: a short brief of its facts and format, ending at an exported Figma frame.
+- A CLI, API or library skips Design.
+- A later feature runs the same loop, smaller.
+
+Figma is required for any project with a UI.
 
 ## The kit
 
