@@ -726,9 +726,8 @@ function generateRouter(items, manifest = curated(), shape = "full") {
   // A preselected add-on was decided at init, so it is never offered again.
   const addons = catalog(manifest).filter((item) => item.optional && keeps(item) && !item.preselected && !have.has(item.name));
   const rows = stages.map((stage) => `| ${stage.name} | ${stage.when} | ${stage.skills.join(" → ")} | ${stage.writes} |`);
-  const framework = stages.some((stage) => stage.name === "Architecture") ? " At Architecture, a framework skill." : "";
   const offer = addons.length
-    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}.${framework}\n`
+    ? `\nAdd-ons, offered once when needed (\`npx longbeard update --skill <name>\`): ${addons.map((item) => (item.hint ? `${item.name} (${item.hint})` : item.name)).join(", ")}.\n`
     : "";
   // A shape says its own two paragraphs: the whole pipeline's name stages and skills it may not have.
   const notes = shapeDef(manifest, shape)?.notes ?? [
