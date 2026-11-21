@@ -533,9 +533,14 @@ function summary(lines, blocks, w, h) {
 }
 const readImage = (src) => `(async () => {
   const ALL_LINES = ${allLines};
+  // The load event, not decode(): decode() waits on the tab's rendering, which stops for a tab behind
+  // another, so a picture read while a page is measured in a second tab never answered.
   const img = new Image();
-  img.src = ${JSON.stringify(src)};
-  await img.decode();
+  await new Promise((done, fail) => {
+    img.onload = done;
+    img.onerror = () => fail(new Error("The source image cannot be decoded."));
+    img.src = ${JSON.stringify(src)};
+  });
   // Transparent pixels are read as on white, the ground a cut-out sits on, never as black.
   const paint = (ctx, cw, ch) => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch); };
   // Only the first screen: a tall desktop capture (a full page) is cut to the 1440 by 900 it opens on.
@@ -709,9 +714,14 @@ const readImage = (src) => `(async () => {
 
 // Swatches: the whole picture at 240 px on its long side, its pixels handed back as base64 RGBA.
 const readPixels = (src) => `(async () => {
+  // The load event, not decode(): decode() waits on the tab's rendering, which stops for a tab behind
+  // another, so a picture read while a page is measured in a second tab never answered.
   const img = new Image();
-  img.src = ${JSON.stringify(src)};
-  await img.decode();
+  await new Promise((done, fail) => {
+    img.onload = done;
+    img.onerror = () => fail(new Error("The source image cannot be decoded."));
+    img.src = ${JSON.stringify(src)};
+  });
   const k = Math.min(1, 240 / Math.max(img.naturalWidth, img.naturalHeight));
   const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
   const c = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d");
