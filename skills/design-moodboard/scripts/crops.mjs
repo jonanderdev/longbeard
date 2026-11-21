@@ -25,6 +25,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -120,6 +121,8 @@ for (const [hash, cs] of byHash) {
 
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   const home = process.env.HOME || process.env.USERPROFILE || "";
   const pf = process.env.PROGRAMFILES || "C:\\Program Files";
@@ -146,14 +149,23 @@ if (jobs.length) {
   if (!exe) fail("No Chrome/Edge/Chromium found. Install one or set CHROME_PATH.");
   const dir = mkdtempSync(join(tmpdir(), "crops-chrome-"));
   const proc = spawn(exe, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--force-color-profile=srgb", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
-  process.once("exit", () => {
+  const drop = () => {
     try {
       proc.kill("SIGKILL");
     } catch {}
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch {}
-  });
+  };
+  process.once("exit", drop);
+  // An interrupt or a harness timeout must not leave Chrome or its profile behind.
+  for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+    process.once(sig, () => {
+      drop();
+      process.exit(code);
+    });
+  }
+  proc.on("error", (e) => fail(`could not start ${exe}: ${e.message}`));
   let buf = "";
   const wsUrl = await new Promise((done, no) => {
     const t = setTimeout(() => no(new Error("Chrome did not start")), 20000);
@@ -161,20 +173,44 @@ if (jobs.length) {
       const m = (buf += d).match(/DevTools listening on (ws:\/\/\S+)/);
       if (m) done(m[1], clearTimeout(t));
     });
+    proc.on("exit", (code) => no(new Error(`Chrome exited ${code}`)));
   }).catch((e) => fail(e.message));
   const ws = new WebSocket(wsUrl);
-  await new Promise((done) => (ws.onopen = done));
+  await new Promise((done, no) => {
+    const t = setTimeout(() => no(new Error("CDP socket did not open")), 10000);
+    ws.onopen = () => done(clearTimeout(t));
+    ws.onerror = () => no(new Error("CDP socket failed"));
+  }).catch((e) => fail(e.message));
   let nextId = 0;
   const pending = new Map();
   ws.onmessage = (ev) => {
     const msg = JSON.parse(String(ev.data));
     if (pending.has(msg.id)) pending.get(msg.id)(msg), pending.delete(msg.id);
   };
-  const send = (method, params = {}, sessionId) => new Promise((done) => (pending.set(++nextId, done), ws.send(JSON.stringify({ id: nextId, method, params, sessionId }))));
-  const { result: target } = await send("Target.createTarget", { url: "about:blank" });
-  const { result: att } = await send("Target.attachToTarget", { targetId: target.targetId, flatten: true });
+  // If Chrome goes away, every call waiting on it fails now, not at its time limit.
+  ws.onclose = () => {
+    for (const done of [...pending.values()]) done({ error: { message: "Chrome closed the connection" } });
+    pending.clear();
+  };
+  // Every call has a time limit, so a sheet that hangs the page skips its own cards.
+  const send = (method, params = {}, sessionId, timeoutMs = 60000) =>
+    new Promise((done, no) => {
+      const id = ++nextId;
+      const timer = setTimeout(() => (pending.delete(id), no(new Error(`Chrome did not answer ${method} in ${timeoutMs / 1000} s`))), timeoutMs);
+      pending.set(id, (msg) => done((clearTimeout(timer), msg)));
+      try {
+        ws.send(JSON.stringify({ id, method, params, sessionId }));
+      } catch (e) {
+        clearTimeout(timer);
+        pending.delete(id);
+        no(e);
+      }
+    });
+  const { result: target } = await send("Target.createTarget", { url: "about:blank" }).catch((e) => fail(e.message));
+  const { result: att } = await send("Target.attachToTarget", { targetId: target.targetId, flatten: true }).catch((e) => fail(e.message));
   const evaluate = async (expression) => {
     const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }, att.sessionId);
+    if (r.error) throw new Error(r.error.message);
     if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || "the page threw");
     return r.result.result.value;
   };
@@ -189,8 +225,10 @@ if (jobs.length) {
         await img.decode();
         const W = img.naturalWidth, H = img.naturalHeight;
         return ${JSON.stringify(regions)}.map(({ a, d, tx, ty }) => {
-          const x = Math.max(0, Math.round(tx * W)), y = Math.max(0, Math.round(ty * H));
-          const w = Math.min(W - x, Math.round(a * W)), h = Math.min(H - y, Math.round(d * H));
+          // A region that starts before the sheet loses that part of its width and height too.
+          const x0 = Math.round(tx * W), y0 = Math.round(ty * H);
+          const x = Math.max(0, x0), y = Math.max(0, y0);
+          const w = Math.min(W, x0 + Math.round(a * W)) - x, h = Math.min(H, y0 + Math.round(d * H)) - y;
           if (w < 1 || h < 1) return null;
           const c = Object.assign(document.createElement("canvas"), { width: w, height: h });
           c.getContext("2d").drawImage(img, x, y, w, h, 0, 0, w, h);

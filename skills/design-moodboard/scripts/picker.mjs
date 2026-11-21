@@ -2,16 +2,26 @@
 // A picker: a wide pool of candidates from any source, as one page where the
 // person marks each like or no. It hotlinks each listing's own thumbnail and
 // saves nothing, so it is a view, not a capture. Their picks come back as
-// text they copy into the chat.
+// text they copy into the chat. A liked tile opens a small note, "what you like
+// in it, and why", kept with the mark and copied out beside that pick; no note
+// is fine, and a no needs none.
 //
 // The TSV has one row per candidate: title, image, link, source, meta (a
 // short line such as the designer and likes). Columns after the image may be
-// empty. A line starting with # is a comment. Each
-// row's id is the round letter and its row number (a1, a2…, b1… in round 2),
-// so a pick maps to its line in the TSV. A row with source "seed" starts
-// liked; its image may be a path in the project instead of a URL.
+// empty. A line starting with # and holding no tab is a comment: a row always
+// has a tab, since it needs an image, so a title that starts with # is still
+// a row. Each row's id is the round letter and its row number among the rows
+// (a1, a2…, b1… in round 2), so a pick maps to its line in the TSV. A row with
+// source "seed" starts liked; its image may be a path in the project instead
+// of a URL. A row it cannot show is skipped, and stderr says how many and why.
+//
+// --families families.json (from group.mjs) shows the tiles in groups, each
+// headed by its name and size, the biggest first. A row in no group follows,
+// last. Ids and marks are the same with or without it, and without it the
+// page is one grid, as before.
 //
 //   node picker.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/picker.html
+//   node picker.mjs .longbeard/design/moodboard/candidates.tsv --families .longbeard/design/moodboard/families.json --out .longbeard/design/moodboard/picker.html
 //   node picker.mjs .longbeard/design/moodboard/candidates-2.tsv --round 2 --out .longbeard/design/moodboard/picker-2.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -24,11 +34,12 @@ const flag = (name) => {
 };
 const outArg = flag("out");
 const roundArg = flag("round") || "1";
+const familiesArg = flag("families");
 const round = Number(roundArg);
 const tsvArg = args[0];
 if (!tsvArg || !outArg || args.length !== 1 || !Number.isInteger(round) || round < 1 || round > 26) {
   console.error(
-    "usage: node picker.mjs .longbeard/design/<step>/candidates.tsv --out .longbeard/design/<step>/picker.html [--round 2]",
+    "usage: node picker.mjs .longbeard/design/<step>/candidates.tsv --out .longbeard/design/<step>/picker.html [--round 2] [--families families.json]",
   );
   process.exit(2);
 }
@@ -61,12 +72,37 @@ const esc = (s) =>
     .replace(/'/g, "&#39;");
 const isUrl = (s) => /^https?:\/\//i.test(s);
 
+// A local path in a src: each part encoded, so # ? % and spaces stay in the name.
+const urlPath = (path) => path.split("/").map(encodeURIComponent).join("/");
+
+let comments = 0;
 const rows = readFileSync(tsvPath, "utf8")
   .split(/\r?\n/)
-  .filter((l) => l.trim() && !l.trimStart().startsWith("#"));
+  .filter((l) => {
+    if (!l.trim()) return false;
+    if (l.trimStart().startsWith("#") && !l.includes("\t")) {
+      comments++;
+      return false;
+    }
+    return true;
+  });
+
+let groups = null;
+if (familiesArg) {
+  try {
+    groups = JSON.parse(readFileSync(resolvePath(familiesArg), "utf8")).families;
+    if (!Array.isArray(groups)) throw new Error("no families list");
+  } catch (error) {
+    console.error(`picker: cannot read families at ${familiesArg}: ${error.message}`);
+    process.exit(1);
+  }
+}
 
 const tiles = [];
+const tileById = new Map();
 const seenImages = new Set();
+const skipped = new Map();
+const skip = (why) => skipped.set(why, (skipped.get(why) ?? 0) + 1);
 rows.forEach((line, i) => {
   const id = `${letter}${i + 1}`;
   const [title = "", image = "", link = "", source = "", meta = ""] = line.split("\t").map((c) => c.trim());
@@ -75,13 +111,15 @@ rows.forEach((line, i) => {
     const abs = image ? resolvePath(image) : "";
     if (!abs || !existsSync(abs)) {
       console.error(`picker: ${id} has no image (${image || "empty"}), skipped`);
+      skip("no image");
       return;
     }
-    src = relative(dirname(outPath), abs).split("\\").join("/");
+    src = urlPath(relative(dirname(outPath), abs).split("\\").join("/"));
     if (!src.startsWith(".")) src = `./${src}`;
   }
   if (seenImages.has(src)) {
     console.error(`picker: ${id} repeats an earlier image, skipped`);
+    skip("repeats an earlier image");
     return;
   }
   seenImages.add(src);
@@ -92,20 +130,65 @@ rows.forEach((line, i) => {
       ? `<a class="name" href="${esc(link)}" title="${esc(name)}" target="_blank" rel="noopener noreferrer">${esc(name)}</a>`
       : `<span class="name" title="${esc(name)}">${esc(name)}</span>`) +
     (meta ? `<span class="meta">${esc(meta)}</span>` : "");
-  tiles.push(`<figure class="tile" data-id="${esc(id)}" data-title="${esc(name)}"${seed ? ' data-seed="1"' : ""}>
+  const tile = `<figure class="tile" data-id="${esc(id)}" data-title="${esc(name)}"${seed ? ' data-seed="1"' : ""}>
       <button type="button" class="frame" aria-pressed="false" aria-label="${esc(`${id} ${name}: mark like, no, or clear`)}">
         <img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer">
         <span class="id">${esc(id)}</span>${source ? `<span class="src">${esc(source)}</span>` : ""}
         <span class="mark"></span>
       </button>
       <figcaption>${caption}</figcaption>
-    </figure>`);
+      <input class="why" type="text" placeholder="What you like in it, and why (optional)" aria-label="${esc(`${id} ${name}: what you like in it, and why`)}">
+    </figure>`;
+  tiles.push(tile);
+  tileById.set(id, tile);
 });
 
 if (!tiles.length) {
   console.error("picker: no row has an image");
   process.exit(1);
 }
+
+// Without groups, one grid. With them, a section per family, each tile once.
+const grid = (list) => `<div class="grid">
+    ${list.join("\n    ")}
+  </div>`;
+let body = grid(tiles);
+if (groups) {
+  const placed = new Set();
+  const sections = [];
+  const section = (title, ids, stray) => {
+    const own = ids.filter((id) => tileById.has(id) && !placed.has(id));
+    own.forEach((id) => placed.add(id));
+    if (own.length) sections.push(`<section class="group"${stray ? ' data-stray="1"' : ""}>
+    <h2>${esc(title)} <span class="n">${own.length}</span> <span class="liked"></span></h2>
+    ${grid(own.map((id) => tileById.get(id)))}
+  </section>`);
+  };
+  let k = 0;
+  for (const g of groups) {
+    if (g.stray) section("Unlike the rest", g.members || [], true);
+    else section(String(g.name || "").trim() || `Group ${++k}`, g.members || [], false);
+  }
+  const rest = [...tileById.keys()].filter((id) => !placed.has(id));
+  if (rest.length) {
+    section("Not grouped", rest, true);
+    console.error(`picker: ${rest.length} rows are in no group`);
+  }
+  body = sections.join("\n  ");
+}
+
+const groupCss = `  .group { margin: 0 0 32px; }
+  .group h2 { margin: 0 0 12px 2px; font-size: 15px; font-weight: 600; }
+  .group h2 .n, .group h2 .liked { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .group[hidden] { display: none; }
+`;
+const groupJs = `    for (const g of document.querySelectorAll(".group")) {
+      const own = [...g.querySelectorAll(".tile")];
+      g.hidden = own.every((t) => t.hidden);
+      const n = own.filter((t) => t.dataset.state === "like").length;
+      g.querySelector(".liked").textContent = n ? "· " + n + " liked" : "";
+    }
+`;
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -124,11 +207,14 @@ const html = `<!DOCTYPE html>
   .filters { margin: 0 0 18px 2px; display: flex; gap: 8px; }
   .filters button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid #c8c8c4; background: var(--paper); color: var(--ink); cursor: pointer; }
   .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .tile { margin: 0; display: flex; flex-direction: column; background: var(--paper); border-radius: 16px; overflow: hidden; outline: 3px solid transparent; outline-offset: -3px; }
   .tile[data-state="like"] { outline-color: var(--like); }
   .tile[data-state="no"] .frame img { opacity: 0.3; filter: grayscale(1); }
   .tile[hidden] { display: none; }
+  .why { display: none; margin: 0 12px 12px; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid #c8c8c4; border-radius: 8px; }
+  .tile[data-state="like"] .why { display: block; }
+  .why:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
   .frame { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; overflow: hidden; background: #141414; cursor: pointer; }
   .frame:focus-visible { outline: 3px solid #2f6fdb; outline-offset: -3px; }
   .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -160,16 +246,14 @@ const html = `<!DOCTYPE html>
 <body>
 <main>
   <h1>Pick, round ${round}</h1>
-  <p class="how">Click a picture: once for like, twice for no, three times to clear. Leave anything you have no view on. The name opens the source.</p>
+  <p class="how">Click a picture: once for like, twice for no, three times to clear. A liked picture opens a note: say what you like in it, and why, if you can. Leave anything you have no view on. The name opens the source.</p>
   <div class="filters" role="group" aria-label="Show">
     <button type="button" data-show="all" aria-pressed="true">All</button>
     <button type="button" data-show="open" aria-pressed="false">Not marked</button>
     <button type="button" data-show="like" aria-pressed="false">Likes</button>
     <button type="button" data-show="no" aria-pressed="false">Noes</button>
   </div>
-  <div class="grid">
-    ${tiles.join("\n    ")}
-  </div>
+  ${body}
 </main>
 <div class="bar">
   <div class="bar-in">
@@ -188,6 +272,7 @@ const html = `<!DOCTYPE html>
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { saved = {}; }
   const states = saved.states || {};
+  const whys = saved.whys || {};
   note.value = saved.note || "";
   // A mark is saved with its title, so a row dropped and the page rebuilt
   // never moves a mark onto another picture. A cleared seed stays cleared.
@@ -195,14 +280,22 @@ const html = `<!DOCTYPE html>
   for (const t of tiles) {
     const s = tag(t) in states ? states[tag(t)] : t.dataset.seed ? "like" : "";
     if (s) t.dataset.state = s;
+    t.querySelector(".why").value = whys[tag(t)] || "";
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
+  const why = (t) => t.querySelector(".why").value.trim().replace(/\\s+/g, " ");
   const list = (state) => tiles.filter((t) => t.dataset.state === state).map((t) => t.dataset.id + " " + short(t.dataset.title));
   function render() {
     const like = list("like");
     const no = list("no");
-    const lines = ["Picks, round ${round} (${letter})", "like: " + (like.join("; ") || "none"), "no: " + (no.join("; ") || "none")];
+    const said = tiles.filter((t) => t.dataset.state === "like" && why(t));
+    const lines = ["Picks, round ${round} (${letter})", "like: " + (like.join("; ") || "none")];
+    if (said.length) {
+      lines.push("like, in their words:");
+      for (const t of said) lines.push("- " + t.dataset.id + " " + short(t.dataset.title) + ": " + why(t));
+    }
+    lines.push("no: " + (no.join("; ") || "none"));
     if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
     out.value = lines.join("\\n");
     count.textContent = like.length + " like · " + no.length + " no · " + tiles.length + " shown";
@@ -211,9 +304,11 @@ const html = `<!DOCTYPE html>
       t.querySelector(".frame").setAttribute("aria-pressed", s ? "true" : "false");
       t.hidden = !(show === "all" || (show === "open" ? !s : s === show));
     }
-    const keep = {};
+${groups ? groupJs : ""}    const keep = {};
     for (const t of tiles) if (t.dataset.state || t.dataset.seed) keep[tag(t)] = t.dataset.state || "";
-    try { localStorage.setItem(key, JSON.stringify({ states: keep, note: note.value })); } catch (e) {}
+    const keepWhys = {};
+    for (const t of tiles) if (why(t)) keepWhys[tag(t)] = t.querySelector(".why").value;
+    try { localStorage.setItem(key, JSON.stringify({ states: keep, whys: keepWhys, note: note.value })); } catch (e) {}
   }
   const next = { "": "like", like: "no", no: "" };
   for (const t of tiles) {
@@ -231,6 +326,7 @@ const html = `<!DOCTYPE html>
     });
   }
   note.addEventListener("input", render);
+  for (const t of tiles) t.querySelector(".why").addEventListener("input", render);
   // The text box is the real path: the clipboard API can be refused on a file:// page.
   document.getElementById("copy").addEventListener("click", async (e) => {
     out.focus();
@@ -251,4 +347,9 @@ const html = `<!DOCTYPE html>
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, html);
 console.error(`picker: ${tiles.length} of ${rows.length} rows, ids ${letter}1–${letter}${rows.length}`);
+if (skipped.size) {
+  const why = [...skipped].map(([reason, n]) => `${n} ${reason}`).join(", ");
+  console.error(`picker: ${rows.length - tiles.length} rows skipped: ${why}`);
+}
+if (comments) console.error(`picker: ${comments} comment line${comments === 1 ? "" : "s"} ignored`);
 console.log(outArg);

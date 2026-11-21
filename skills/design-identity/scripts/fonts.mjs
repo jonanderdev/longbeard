@@ -26,6 +26,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+if (typeof WebSocket === "undefined") { console.error("Node 22+ is required."); process.exit(1); }
 
 const args = process.argv.slice(2);
 const flag = (name, def = "") => {
@@ -59,6 +60,8 @@ if (!face || shapeBad || (shapeArg && args.length) || !(weight >= 100 && weight 
 
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   const home = process.env.HOME || process.env.USERPROFILE || "";
   const pf = process.env.PROGRAMFILES || "C:\\Program Files";

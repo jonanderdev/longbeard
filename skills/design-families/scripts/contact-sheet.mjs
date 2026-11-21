@@ -36,7 +36,7 @@ const containAt = args.indexOf("--contain");
 const contain = containAt !== -1;
 if (contain) args.splice(containAt, 1);
 if (!tsvPath || !outDir) {
-  console.error("usage: node contact-sheet.mjs candidates.tsv --out /tmp/hunt-sheets [--per 36]");
+  console.error("usage: node contact-sheet.mjs candidates.tsv --out <scratch>/sheets [--per 36] [--cols 6] [--contain]");
   process.exit(2);
 }
 
@@ -60,6 +60,8 @@ if (!lines.length) {
 
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   const home = process.env.HOME || process.env.USERPROFILE || "";
   const local = process.env.LOCALAPPDATA || "";
@@ -224,7 +226,7 @@ Promise.all([...document.images].map((img) => img.decode().catch(() => {}))).the
 </script>`;
   const htmlPath = join(dir, `sheet-${s + 1}.html`);
   writeFileSync(htmlPath, html);
-  await page("Page.navigate", { url: `file://${htmlPath}` }, 30000);
+  await page("Page.navigate", { url: pathToFileURL(htmlPath).href }, 30000);
   await sleep(500);
   for (let i = 0; i < 60; i++) {
     const title = (

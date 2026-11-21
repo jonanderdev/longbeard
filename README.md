@@ -38,7 +38,7 @@ You leave with a design you can hand over and keep working on:
 | Stage | What happens | You get |
 |---|---|---|
 | 1. Idea | The agent grills the idea in rounds, each question with its recommendation | `docs/brief.md`: one page, no tech choices |
-| 2. Design | A family of small design skills, each one job, each writing one doc. `design` reads your project and suggests the next one. Design brief: a studio's questions. Moodboard: your board, or a search you mark like or no. Direction: eight first screens dealt from your references, each taking its layout, type and colours from different ones, so you choose between real directions; a light touch-up fixes contrast and anything missing, never the composition. Identity: the chosen screen's type and colours refined on it, ending in the identity board. Screens: the rest, prototyped and approved. Then Figma. [How it flows](assets/design-flow.png) | `docs/design/`: the design brief, moodboard, direction, identity board. `DESIGN.md` on your yes. Figma screens, checked and marked Ready |
+| 2. Design | A family of small design skills, each one job, each writing one doc. `design` reads your project and suggests the next one. Design brief: a studio's questions. Moodboard: your board, or a search you mark like or no. Direction: eight first screens, each one of your references rebuilt with your content, then changed by a move or two borrowed from your others, so you choose between real directions; a light touch-up fixes contrast and anything missing, never the composition. Identity: the chosen screen's type and colours refined on it, ending in the identity board. Screens: the rest, prototyped and approved. Then Figma. [How it flows](assets/design-flow.png) | `docs/design/`: the design brief, moodboard, direction, identity board. `DESIGN.md` on your yes. Figma screens, checked and marked Ready |
 | 3. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
 | 4. Plan | Each flow becomes a spec, each spec vertical-slice tickets | specs and tickets on GitHub Issues or local files |
 | 5. Build | One agent per ticket, test-first, reviewed, then checked against its Figma frame | one pull request per spec; you merge |
@@ -49,7 +49,7 @@ A product's look should be chosen by the people who own it, and built with a des
 **You are the designer.** Long Beard brings no taste of its own, because an AI has none: what it calls taste is an average of what once looked good, or the taste of whoever wrote the prompt. So it works like an art director's process instead. You pick real designs you love, say what you like in each, and make the calls a designer makes: which references lead, what to take from each, which result is yours. The agent does the craft: it rebuilds your references faithfully with your real content, combines what you took from them, checks that it still works, and adds nothing that is not on your board. It takes some effort from you, on purpose. If you want one prompt and a pretty result, another skill will serve you better.  
 Each design skill does one job, so you run only what you need: skip the moodboard if you have one, sort a big board into families only when it is big, plan copy and pictures only when you want to. Short steps, few questions, a doc at the end of each, so a long run never drifts.
 
-Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. A CLI, API or library skips Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
+Each stage writes a file the next one reads, so you can stop anywhere and pick up later, or join with a project that already has some of them. It designs sites and apps first, and a graphic (a poster, a card, a social post) the same way: a short brief of its facts and format, then the same steps, ending at an exported Figma frame. A CLI, API or library skips Design. A later feature runs the same loop, smaller. Figma is required for a project with a UI.
 
 ## The kit
 
@@ -62,7 +62,7 @@ Long Beard's own skills are written here, in [`skills/`](skills/). `init` copies
 | &nbsp;&nbsp;&nbsp;↳ [design-brief](skills/design-brief/SKILL.md) | A designer's questions before looking: feel, never, apart from, what is fixed | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-moodboard](skills/design-moodboard/SKILL.md) | Reads your board and fills its gaps, or finds references you mark like or no | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks, in Figma too, so choosing is easy | Long Beard |
-| &nbsp;&nbsp;&nbsp;↳ [design-direction](skills/design-direction/SKILL.md) | A few pictures of your subject, then eight first screens dealt from your references, type and colours included; you pick; a light touch-up | Long Beard |
+| &nbsp;&nbsp;&nbsp;↳ [design-direction](skills/design-direction/SKILL.md) | A few pictures of your subject, then eight first screens, each one reference rebuilt with your content and changed by a move or two borrowed from others; you pick; a light touch-up | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-identity](skills/design-identity/SKILL.md) | The chosen screen's type and colours, refined on it from rendered options; the identity board | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-prototype](skills/design-prototype/SKILL.md) | The key screens and their states; `DESIGN.md` on approval | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-figma](skills/design-figma/SKILL.md) | Tokens, the identity board, components and Ready screens in Figma | Long Beard |
@@ -92,7 +92,8 @@ A skill for one stack belongs in the project that uses that stack. The list `ini
 
 ## You need
 
-- Node 22 or newer, and Chrome, for the screenshots the design skills and `design-check` take.
+- Node 18 or newer, to run the installer.
+- Node 22 or newer, and Chrome, for the screenshots the design skills and `design-check` take. Their scripts say so and stop on an older Node.
 - The Figma connection in your agent, for a project with a UI.
 
 ## Install
@@ -105,6 +106,18 @@ npx longbeard init
 ```
 
 `init` installs the list, writes the `AGENTS.md` block, and records it in `beard-lock.json`. In a terminal it asks which agents. When it cannot ask, it installs for Cursor and Claude Code. `--yes` skips the question. `--agent cursor` sets them (repeat it to add another). `--global` installs for every project on this machine. It then asks which add-ons. When it cannot ask, or with `--yes`, a first `init` takes the ticked ones. `--all` includes every add-on, `--skill <name>` takes one, and `--no-addons` takes none; each skips the list. An add-on you turn down at `init` is not offered again; take it later with `npx longbeard update --skill <name>`.
+
+### Design only
+
+If you only want to design, say so at `init`:
+
+```bash
+npx longbeard init --design
+```
+
+That installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, and writes an `AGENTS.md` block with just the Idea and Design stages. The planning and build skills, and the add-ons that only matter for code, stay out. Everything ends in a Figma file and `DESIGN.md`, so the Figma connection in your agent is needed. `design-check` checks frames and the design docs; checking built UI needs the build stage. In a terminal, `init` asks "Design only, or the whole pipeline?" when you pass neither `--design` nor `--full`.
+
+`beard-lock.json` records the choice, and `update` keeps to it. To take the rest later, run `npx longbeard init --full` (or `npx longbeard update --full`). It adds the other stages and leaves your `docs/design/` and `DESIGN.md` as they are.
 
 ## Start
 

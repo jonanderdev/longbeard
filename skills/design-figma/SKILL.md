@@ -22,12 +22,14 @@ Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and foll
 1. No `DESIGN.md` → `design-prototype` first. Stop.
 2. No Figma connection → say Figma is required for UI projects, and stop.
 
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
 Open the approved prototype (`.longbeard/design/prototype/`) beside every screen you build. If it is gone, work from `DESIGN.md` and say so.
 
 ## Rules
 
 - **One file per product.** A new one if the project has none. Its URL goes in `DESIGN.md`.
-- **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files can come with community kits attached; their steps say to reuse them. Do not: search the file only, and build what is missing from `DESIGN.md`.
+- **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files can come with community kits attached; their steps say to reuse them. Do not: search the file only, and build what is missing from `DESIGN.md`. Read its tables or the token block at the top (the same tokens, written from the tables); if they differ, the tables win and `design-check` docs mode reports it.
 - **Build, do not capture.** Compose screens from tokens and components. Never run `generate_figma_design` on the prototype. For pictures, create the image frames, then `upload_assets` the prototype's own files.
 - **Themes are modes.** One colour collection, a mode per theme; each screen built once. If Figma refuses the modes, stop and ask.
 - **Pages:** Cover, Foundations, Components, one `Screens — <flow>` per flow in the brief, `Explorations` for anything kept for later.
@@ -37,6 +39,8 @@ Open the approved prototype (`.longbeard/design/prototype/`) beside every screen
 - **Components have their states:** focus and pressed for every control, before a screen uses it.
 - **One text style per weight used.** A weight `DESIGN.md` lacks is a new style and a new row there.
 - **Trust the file, not the picture.** Screenshot only after an edit returns, and read text back from the nodes. Re-wire a cloned variant's text properties; replace a swapped instance that keeps old overrides.
+- **Stand-ins are said on the frame.** Each item under Still to supply in `DESIGN.md` gets a short note beside the frame that shows it (what is a stand-in or assumed, and what replaces it), and a stand-in picture's layer is named `… (stand-in)`. The note is not part of the design. It stays until the real one is in.
+- **Finish and motion.** A static finish (a grain, a shadow, a blend) is built as fills and effects from the Finish line. Motion Figma cannot carry (scroll, physics) is a note beside the frame, from the Motion section, and not built.
 - **Faithful.** Match the approved prototype. Anything that cannot be built the same way: say so and ask. Never simplify silently.
 - **Check each screen** with `design-check` frame mode, passing the prototype shot. Fix its hard findings.
 - **Ready:** on their yes to a frame, add `— Ready` to its name. Tickets link Ready frames.
@@ -55,7 +59,7 @@ If a Figma decision changes a rule (a new token, a variant, a spacing step), upd
 
 Say in two lines what they now have: a Figma file of their own, with its link, built from variables and components, so a change to a token changes every screen. They can keep working in it by hand or by asking; a change to a rule goes into `DESIGN.md` too.
 
-Offer to delete `.longbeard/design/` working files: the docs, `DESIGN.md` and Figma carry the result. On no, leave them; they are gitignored. Then the next stage: architecture, which they start by typing `/grill-with-docs`.
+Offer to delete `.longbeard/design/` working files: the docs, `DESIGN.md` and Figma carry the result. On no, leave them; they are gitignored. Then the next stage the router lists: architecture, which they start by typing `/grill-with-docs`. A design-only install has none, and ends here.
 
 ## Do not
 

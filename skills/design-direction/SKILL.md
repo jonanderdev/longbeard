@@ -1,13 +1,13 @@
 ---
 name: design-direction
 description: >
-  Find the direction: eight first screens, each one of their references rebuilt
-  faithfully with the product's real content and pictures, then changed by one
-  or two things borrowed from their other references, so each keeps what made
-  its reference work and the round offers several directions. Nothing on a
-  screen that is not on their board. They pick on a rendered sheet, ask for
-  more of one or a mix; then a light touch-up pass fixes contrast, anything
-  missing and anything plainly broken, never the composition. Writes
+  Find the direction: a quick first round of eight screens, each one of their
+  references rebuilt faithfully with the product's real content and pictures,
+  then changed by one or two things borrowed from their other references.
+  Nothing on a screen that is not on their board. They pick on a rendered
+  sheet, ask for more of one or a mix; what they pick is built in full, then
+  a light touch-up fixes contrast, anything missing and anything plainly
+  broken, never the composition. Writes
   docs/design/design-direction.md. Runs after design-brief and
   design-moodboard; design-identity then refines its type and colour.
 ---
@@ -18,7 +18,7 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references (a palette, an element, a face, a picture treatment, the layout turned), and is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like in each reference is what the screens borrow. The agent's craft is making a borrowed move fit its base so it still works. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a reference on their board, and a fresh agent checks that. They choose on rendered screens; the agent never ranks them. After the choice, a light touch-up repairs what is broken and never redesigns.
+The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references, and, once they pick it, is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like is what the screens borrow. The agent's craft is making a borrowed move fit its base. Its own taste adds nothing: every face, colour, element and effect on a screen comes from their board (the product's own subject is a card on it), and a fresh agent checks that.
 
 Comes out:
 
@@ -30,99 +30,100 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
 2. A direction exists → a change: show it, ask what changes, build new screens only if the composition does.
 
-**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, never a rougher screen.
+A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
+
+**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. What they pick is still built in full.
 
 ## 0. Pictures of the subject
 
-Before the grid: three or four pictures of what the product is about (the bakery's bread, the climbing gym's wall, the app's real data), not other designs. Every screen from here on uses them, treated as each screen's reference treats its pictures, and their colours are one more palette a screen may borrow. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How, and what to check: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with the message in step 1, as stand-ins theirs replace.
+Before the grid: three or four pictures of what the product is about, not other designs. Every screen uses them, treated as its reference treats its pictures, and their colours are one more palette it may borrow. Theirs first; with none, a few clearly licensed stand-ins from `pictures.mjs`, one query per picture, never a bulk search. How: [subject.md](references/subject.md). Do not stop to ask: show them on a contact sheet with step 1's message, as stand-ins theirs replace.
 
 ## 1. The content and the references, in one message
 
-**What the screens carry, in order.** A reference's design holds the amount of text it was made for; a whole site's content forced into it breaks it. So each screen carries what its base reference carries, filled by rule:
+**What the screens carry, in order.** A reference holds the text it was made for; a whole site's content forced into it breaks it. So each screen carries what its base carries, filled by rule:
 - **The headline** says the takeaway.
-- **The small slots** take real content in a fixed order: the primary action, then the status (open now, in stock), then the thing the product shows (today's bakes, the balance, the ownable). Each screen takes as many as its reference has, from the top, and stops.
+- **The small slots** take real content in a fixed order: the primary action, then the status (open now, in stock), then the thing the product shows (today's bakes, the balance, the ownable). Each screen takes as many as its base has, from the top, and stops.
 - **At most one extra** small element, only where the reference's own system gives it a place.
 - **The rest** (the second action, the full list, how to reach it) is written down for `design-prototype`, which fits it with options where it forks.
 
-Say the order in one line.
+**The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark). Say the fill order in one line.
 
-**The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark).
-
-**The lead and the likes.** Build the board of what they work from (the moodboard, or the families they took):
+**The lead and the likes.** Build their board: a copy of the moodboard's `board.md` as `.longbeard/design/direction/board.md` (with families taken, copy `.longbeard/design/families/board.md` without the cards whose `topic` is a family they did not take), plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`):
 
 ```
-node <skill>/scripts/moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/direction/board.html
+node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --out .longbeard/design/direction/board.html
 ```
 
-(When they took families, build it from `.longbeard/design/families/board.md` instead, on a copy without the cards whose `topic` is a family they did not take: that board holds every family and stray.) Then one message:
+A card with a `like:` line already holds their like and why: the board shows it to correct, so do not ask again.
+
+Then one message:
 
 > Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.
 > Then open the board: **Lead** the reference whose composition should set the tone, **Like** the ones I should draw from, and in each one's note say **what you like in it, and what it does for you** ("the orange dot: the only contrast on a quiet page", "the thin serif: it makes the page feel slow and expensive"). What you like is what the designs borrow, and why you like it is how they use it. A like without a why: I'll ask once. Paste the copy-out.
 
-The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
+The lead is the base of two screens, every like of at least one, and all of them lend moves. **The spread comes from them:** 6 to 10 together, ideally from more than one family and on different grounds. With fewer, say it before building: "With 3 references the eight screens will look alike. Like a few more for a wider spread?" The subject's card is liked like any other, for a picture, a colour or a thing in it (a stamp, a number, a paper bag), with a why; it lends moves and is never a base. A poster is a reference like any other: its layout is rebuilt at screen size, its proportions kept.
 
-**A like against the design brief.** When a like asks for what the design brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there (the main action hidden), not every element that site happened to have (a reference's arrows or dots stay). Say it:
+**A like against the design brief.** When a like asks for what the brief rules out ("gold on deep green" when the brief says light only), the brief wins, and say it before building, once. The brief rules out only what it names: a lesson from a past site rules out what went wrong there, not every element that site had. Say it:
 
 > Your like for <reference> names <what>, and the brief says <what it fixes>. I'll keep the brief and carry <what> by its role (the gold on a light ground). Or change the brief?
 
-Their answer either stands, or goes under **Changes** in the design brief, with why.
+Their answer stands, or goes under **Changes** in the design brief, with why.
 
 ## 2. Read the references
 
-Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, a reading complete enough to rebuild it at screen size, its concept and its move, its layout as measured, its type (faces, sizes in px at 1440, weights, tracking, leading), its spacing, its palette, how it treats pictures, how much text it carries, and every device on it. **Measured, never judged by eye when it can be measured:** a live page with `measure.mjs <link>`; a picture with `measure.mjs <picture> --lines` and `fonts.mjs --shape` for the nearest free face. Add the subject's palette, proposed by `subject-colours.mjs` and named as part of the subject after a look ([subject.md](references/subject.md)), and anything they own. How: [library.md](references/library.md).
+Open the lead and every like at full size and write `.longbeard/design/direction/library.json`: for each, a reading complete enough to rebuild it at screen size (concept, move, layout, type, spacing, palette, picture treatment and kind, finish, text carried, every device). **Measured when it can be measured:** a live page with `measure.mjs <link>`; a picture with `measure.mjs <picture> --lines` and `fonts.mjs --shape` for the nearest free face. Add the subject, with its palette from `subject-colours.mjs`, named after a look ([subject.md](references/subject.md)), its likes and the things in its pictures they liked, and anything they own. How: [library.md](references/library.md).
 
 ## 3. Build the screens
 
-Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base and its moves:
+Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base, its moves, its `build` (`quick` or `full`) and its `state`.
 
-Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board. Each screen is made by fresh agents with one job each:
+Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board.
 
-1. **Plan** (you): the bases and moves for the eight, and a brief per screen.
-2. **Build:** translate the base faithfully, measured against it (`layout-diff.mjs`) until it matches, then make the moves.
-3. **Critique:** with only the pictures (the reference, the screen, an overlay of the two), every spot where the screen is less finished than its reference, each shown in the reference.
-4. **Fix:** only those spots, toward the reference, each fix a new version, every version kept; then a fresh critic again, at most three times. What is left is shown as a known fault.
+**The first round is quick.** Each screen is its base and its moves, built once by a fresh agent, with no critic loop and no device close-ups. **The full build** (plan, build, critique, fix, every version kept) runs only on what they pick (step 4). Before any screen is built, the plan is checked for spread: pictures, tones and moves across the eight.
 
-Wait for every helper. Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet), faults.
+Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`.** Wait for each helper before drawing the sheet; a failed screen is shown as failed. With no fresh agents, do each job yourself in turn and say the round is weaker.
 
-How, with the list of moves and the checks: [grid.md](references/grid.md).
+How, with the moves, the states and the checks: [grid.md](references/grid.md).
 
-Show the sheet, the sheet of each screen beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), so nothing on a screen is a mystery to them, and any fault you could not fix. Never say which you prefer.
+Show the sheet, each screen marked rough or full and beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), and any fault you could not fix. Never say which you prefer.
 
-**Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It is there so they choose knowingly, not to steer them. Taken, it goes under **Changes** in the design brief, with why.
+**Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It informs; it does not steer. Taken, it goes under **Changes** in the design brief, with why.
 
-> Which would you take further? Any number, or none. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
+> Which would you take further? Any number, or none: a pick is built in full. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
 
 ## 4. More, mix, choose
 
-- **More of some:** for each pick, three more screens on the same base with other moves (another palette, another face, another element), built and checked the same way. Capture, sheet with `--cols 4`, show.
-- **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built the same way.
-- **More, or none:** a fresh round of eight, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
+- **More of some:** each pick, if still rough, is built in full, and gets three more screens on the same base with other moves, also built in full. Capture, sheet with `--cols 4`, show.
+- **A mix:** "4 with the colours of 7": the base of one with the move of another, built in full.
+- **More, or none:** a fresh round of eight, quick like the first, as often as they ask: other pairings of bases and moves from what they liked, none shown before. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
-**Before showing a screen again** (more of it, a mix, a fix), put it beside the version they last saw and list what got worse; a change that breaks something they liked is undone. Any earlier version stays theirs to take.
+**A screen shown again** (more of it, a mix, a fix) goes beside the version they last saw to a fresh critic: what got worse? A change that breaks something they liked is undone. Any earlier version stays theirs to take.
 
 **The pick decides, the why guides.** When they pick a screen that breaks a why they gave, record it and ask once whether the why still holds; the screen is never blocked by it.
 
-**Their favourite, alone.** Before the yes, show the one they lean to at full size on its own, as a visitor meets it: a sheet rewards what stands out beside its neighbours. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
+**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it. Iterate until one screen is theirs, read it back in one line, read its base's motion unless the design brief's is none ([library.md](references/library.md)), and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
 
-**The other width, before the yes, without a stop.** Render the one they settled on at the other size yourself (`screens/<n>.html?size=390x844`, or the desktop for phone screens) and look. Say one line only when the composition's core depends on the width ("on a phone the headline breaks into five lines"); the phone is designed properly in `design-prototype`. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
+**A few controls, bounded by their board.** Offer them a few live controls on that screen (type scale, line spacing, accent strength, corner radius), each limited to what their references use, so they judge a value by seeing it. They paste the copy-out back and you record it in the screen, never as a query string. How: [controls.md](references/controls.md).
+
+**The other width, before the yes, without a stop.** Render the one they settled on at the other size yourself (`screens/<n>.html?size=390x844`, or the desktop for phone screens) and look. Say one line only when the composition's core depends on the width ("on a phone the headline breaks into five lines"); `design-prototype` designs the phone properly. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, give the sheet's path to send, and go on only once they say it holds.
 
 ## 5. The touch-up pass
 
-On the chosen screen only, after their yes. The screen was built from their references and chosen by them: **the composition is theirs, not the agent's.** This pass repairs; it never redesigns. Done carelessly, it is where a distinctive screen turns generic, so touch as little as possible.
+On the chosen screen only, after their yes. This pass repairs; it never redesigns. Touch as little as possible: done carelessly, a distinctive screen turns generic here.
 
-**Modern design breaks old rules on purpose, and that is the point to keep.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, an unusual reading path. These are never faults here. Never separate, shrink, move or tidy them.
+**Breaking old rules on purpose is the look.** Text over a picture, type that collides with or runs behind an image, words cropped at the edge, giant type, elements touching or overlapping, off-grid placement, wide empty space, an unusual reading path are never faults here. Never separate, shrink, move or tidy them.
 
 **It fixes only:**
 - **Contrast where text sits.** Text under 4.5:1 (3:1 large) on what is actually behind it (`screen-contrast.mjs`; with the design brief's accessibility at AAA, `--min 7 --large 4.5`): fixed with the text's colour, a weight, or a scrim the size of the text, never by moving the text off the picture.
-- **Something missing.** A slot's item, the primary action, or a button the screen needs that is not there or cannot be found: added inside the zone where it belongs, in the look's own controls. What waits for the prototype is not missing.
-- **Something plainly off.** A clipped word, text hidden where it cannot be read at all, a control that looks tappable and is not, the same line twice.
-- **Rank, only when inverted.** The headline outranked by smaller text (a description bigger or louder than the title): the smaller one is brought down, not the headline restyled.
+- **Something missing.** A slot's item, the primary action, or a button the screen needs that is not there or cannot be found: added inside its zone, in the look's own controls. What waits for the prototype is not missing.
+- **Something plainly off.** A clipped word, text hidden where it cannot be read, a control that looks tappable and is not, the same line twice.
+- **Rank, only when inverted.** The headline outranked by smaller text: the smaller one is brought down, not the headline restyled.
 
 **Only with:** colour, weight, size within a step, and spacing inside a zone. Never a zone moved, the arrangement changed, a section added, or a device the references use removed.
 
-**When unsure, leave it** and ask in one line ("the name sits under the photo's edge: on purpose, or should it clear it?").
+**When unsure, leave it** and ask in one line.
 
-Make the fixes on `first.html`, keeping the screen before them, capture before and after side by side, and list each change in one line ("description 32→20px: it outranked the headline"). Nothing to fix is a fine result: say so. Then:
+Make the fixes on `first.html`, keep the screen before them, capture both side by side, and list each change in one line. Nothing to fix is a fine result. Then:
 
 > Keep all, or turn any off?
 
@@ -149,8 +150,10 @@ Record the result in `first.html` itself, its `LOOK` and its CSS, never as a que
 
 - navigation: <one sentence>
 - zones: <hero, side, band: one line each>
-- holds across screens: <the family's ranges: how empty, type scale, picture share, margin, radius, edges, density>
+- holds across screens: <what the other screens keep from this one: how empty, type scale, picture share, margin, radius, edges, density>
 - pictures: <how they are treated>
+- motion: <what moves, its trigger, ms and easing, from its base's reading and within the design brief's pick; or "none">
+- finish: <the surface finish as a pasteable recipe, from its base or a borrowed move; or "none">
 
 ## Hierarchy
 1. <first read> 2. <second> 3. <the rest>. Primary action: <what, where>.
@@ -173,8 +176,8 @@ Yes → `design-identity`.
 ## Do not
 
 - Rank the screens, or say which you prefer.
-- Add anything no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect.
-- Fit more content onto a screen than its base carries. The rest waits for the prototype.
-- Polish the screens beyond their references. Detail and states wait for `design-prototype`.
+- Show a rough screen as finished, or draw the sheet while a screen has no final state.
+- Add anything their board does not have: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect.
+- Fit more content onto a screen than its base carries, or polish it beyond its references. The rest, detail and states wait for `design-prototype`.
 - In the touch-up pass: move a zone, change the layout, add a section, or tidy an overlap, a crop or a collision the references use on purpose.
 - Take a reference's content, pictures or words.

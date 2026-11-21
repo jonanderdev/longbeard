@@ -4,6 +4,7 @@
 // Suffix :large or :mark checks against 3:1 instead of 4.5:1. --level AAA (the design brief's
 // accessibility line) asks 7:1 for text and 4.5:1 for large text; a mark stays 3:1. Short hex (#abc) is read as #aabbcc.
 // An argument it cannot read is an error: it exits 1 rather than pass unchecked.
+// The ratio is cut, not rounded, to two places: 4.496 prints as 4.49 and fails, never as 4.50 FAIL.
 const hex6 = (h) => (h.length === 4 ? `#${[...h.slice(1)].map((c) => c + c).join("")}` : h).toLowerCase();
 const lum = (hex) => {
   const [r, g, b] = [1, 3, 5]
@@ -35,6 +36,6 @@ for (const arg of args) {
   const best = kind === "mark" ? "" : ratio >= (kind ? 4.5 : 7) ? "AAA" : "";
   const verdict = ratio < need ? "FAIL" : best || "AA";
   if (verdict === "FAIL") failed = true;
-  console.log(`${m[1]} on ${m[2]}  ${ratio.toFixed(2)}:1  ${verdict}${kind || level === "AAA" ? ` (${[kind, `needs ${need}:1`].filter(Boolean).join(", ")})` : ""}`);
+  console.log(`${m[1]} on ${m[2]}  ${(Math.floor(ratio * 100) / 100).toFixed(2)}:1  ${verdict}${kind || level === "AAA" ? ` (${[kind, `needs ${need}:1`].filter(Boolean).join(", ")})` : ""}`);
 }
 process.exit(failed ? 1 : 0);

@@ -14,7 +14,7 @@
     },
     {
       "name": "Design",
-      "when": "A brief with UI, no DESIGN.md",
+      "when": "A site, app or graphic brief, no DESIGN.md",
       "skills": [
         "design",
         "figma-generate-library",
@@ -51,6 +51,38 @@
       "writes": "one PR per spec"
     }
   ],
+  "shapes": {
+    "design": {
+      "label": "Design only",
+      "hint": "the brief, the design skills, design-check and Figma frames, with no planning or code",
+      "items": [
+        "idea",
+        "design",
+        "design-check",
+        "figma-use",
+        "figma-generate-library",
+        "figma-generate-design"
+      ],
+      "addons": [
+        "jury"
+      ],
+      "stages": {
+        "Idea": [
+          "idea"
+        ],
+        "Design": [
+          "design",
+          "figma-generate-library",
+          "figma-generate-design",
+          "design-check"
+        ]
+      },
+      "notes": [
+        "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. Nothing here builds code: design-check runs on Figma frames and the design docs, and checking built UI needs the build stage.",
+        "UI work follows DESIGN.md and its Ready Figma frames; a mismatch is a bug."
+      ]
+    }
+  },
   "items": [
     {
       "name": "idea",
@@ -58,14 +90,14 @@
       "license": "MIT",
       "source": "local",
       "when": "An idea, or a repo with no docs/brief.md",
-      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
+      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope. A poster, card or social post gets a short brief of its facts and format."
     },
     {
       "name": "design",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A brief with UI, no DESIGN.md, or what next on the look",
+      "when": "A site, app or graphic brief, no DESIGN.md, or what next on the look",
       "why": "Reads the project and suggests the next design skill. The way in."
     },
     {
@@ -101,7 +133,7 @@
       "license": "MIT",
       "source": "local",
       "when": "A moodboard, no direction",
-      "why": "A few pictures of the subject, then first screens dealt from your references, type and colours included, for a wide spread; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
+      "why": "A few pictures of the subject, then eight first screens, each one of your references rebuilt with your content and changed by a move or two borrowed from others; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
       "via": "design"
     },
     {

@@ -4,7 +4,7 @@ description: >
   The way into the design-* skills. Reads what the project already has and
   says which design skill to run next, and why, in a few lines. It suggests;
   they choose, and any design-* skill can be called directly instead. Runs when
-  docs/brief.md exists, the brief has a UI, and there is no approved DESIGN.md,
+  docs/brief.md exists, the brief is a site, an app or a graphic, and there is no approved DESIGN.md,
   or when they ask what to do next on the look.
 ---
 
@@ -57,6 +57,8 @@ Look at the repo. Do not ask what is there. Read the design brief's `pace` first
 8. `DESIGN.md` and no Ready frames → `design-figma`.
 9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
 
+A graphic (the brief's surface) takes the same steps and ends at its exported Figma frame, so never offer Architecture; its other pieces are `design-prototype`.
+
 **Offered once, never pushed** (and not at `pace: quick`):
 - `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.
 - `design-wordmark`, once the identity is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
@@ -66,6 +68,8 @@ Example:
 > You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens built from them. Your board is small enough to skip sorting.
 
 Then stop. They type the skill, or say yes and you load it.
+
+**A `DESIGN.md` they bring** has no token tables of ours (rows like `color/ink`), and may carry its tokens at the top in the published DESIGN.md format. Until `design-prototype` writes ours, steps 7 to 9 treat it as no `DESIGN.md`: say so once, and offer it as the identity's starting point, every value in it their choice, kept unless they change it.
 
 ## Do not
 

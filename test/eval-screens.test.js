@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +38,69 @@ test("screens: each screen's smallest text, clipped text, and blocks against its
   assert.deepEqual([one.dom.blocks, one.capacity], [2, 3]);
   assert.deepEqual([two.dom.blocks, two.capacity], [6, 4]);
   assert.deepEqual(summary.overSlots, ["2 (6 blocks, its base carries 3)"]);
+});
+
+// screens.mjs finds screen-contrast.mjs from its own place in the repo, so a copy of it in a made-up tree runs a stub in its stead.
+function withContrastStub(body) {
+  const tree = mkdtempSync(join(tmpdir(), "longbeard-screens-tree-"));
+  mkdirSync(join(tree, "eval/design"), { recursive: true });
+  mkdirSync(join(tree, "skills/design-direction/scripts"), { recursive: true });
+  copyFileSync(join(root, "eval/design/screens.mjs"), join(tree, "eval/design/screens.mjs"));
+  writeFileSync(join(tree, "skills/design-direction/scripts/screen-contrast.mjs"), body);
+  return join(tree, "eval/design/screens.mjs");
+}
+
+test("screens: a contrast run that crashes, exits with another code or says nothing readable is not run, never a pass", (t) => {
+  const dir = project();
+  const stubs = {
+    crash: 'throw new Error("boom");\n',
+    "could not run": 'console.error("screen-contrast: no Chrome"); process.exit(3);\n',
+    "nothing readable": 'console.log("done"); process.exit(0);\n',
+    "usage": "process.exit(2);\n",
+  };
+  for (const [what, body] of Object.entries(stubs)) {
+    const r = spawnSync(process.execPath, [withContrastStub(body), dir, "--json"], { encoding: "utf8", timeout: 240000 });
+    if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
+    assert.equal(r.status, 0, `${what}: ${r.stderr}`);
+    const { summary, screens } = JSON.parse(r.stdout);
+    assert.deepEqual(screens.map((s) => s.contrast.failing), [null, null], what);
+    assert.equal(summary.contrastNotRun.length, 2, what);
+    assert.deepEqual(summary.contrast, [], what);
+  }
+  // A result with a failure is a failure: exit 1 with what failed.
+  const failing = 'process.stdout.write(JSON.stringify({ texts: [{ text: "Order", p5: 2.1, pass: false }], failing: 1 })); process.exit(1);\n';
+  const r = spawnSync(process.execPath, [withContrastStub(failing), dir, "--json"], { encoding: "utf8", timeout: 240000 });
+  const { summary } = JSON.parse(r.stdout);
+  assert.equal(summary.contrast.length, 2);
+  assert.deepEqual(summary.contrastNotRun, []);
+});
+
+// A fake agent that writes down the environment it was given, or sleeps past its time limit.
+const nodeAgent = (code) => `"${process.execPath}" -e '${code}' {prompt}`;
+const runFolder = () => join(mkdtempSync(join(tmpdir(), "longbeard-run-")), "p");
+
+test("run.mjs gives the agent only the environment it needs, and the ones named with --env", () => {
+  const out = runFolder();
+  const run = spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--out", out, "--env", "WANTED_KEY", "--agent", nodeAgent('require("fs").writeFileSync("env.json", JSON.stringify(process.env))')], {
+    encoding: "utf8",
+    env: { ...process.env, SECRET_TOKEN: "s", AWS_SECRET_ACCESS_KEY: "s", GITHUB_TOKEN: "s", WANTED_KEY: "w", ANTHROPIC_API_KEY: "a", CLAUDE_CODE_X: "c" },
+  });
+  assert.equal(run.status, 0, run.stderr);
+  const env = JSON.parse(readFileSync(join(out, "env.json"), "utf8"));
+  for (const name of ["PATH", "HOME", "LB_PROMPT", "WANTED_KEY", "ANTHROPIC_API_KEY", "CLAUDE_CODE_X"]) assert.ok(env[name], `${name} reaches the agent`);
+  for (const name of ["SECRET_TOKEN", "AWS_SECRET_ACCESS_KEY", "GITHUB_TOKEN"]) assert.equal(env[name], undefined, `${name} stays out`);
+});
+
+test("run.mjs stops an agent that runs past --timeout, and says so", () => {
+  const out = runFolder();
+  const began = Date.now();
+  // 0.02 minutes: a little over a second; the agent would sleep half a minute.
+  const run = spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--out", out, "--timeout", "0.02", "--agent", nodeAgent("setTimeout(() => {}, 30000)")], { encoding: "utf8" });
+  assert.equal(run.status, 1, run.stdout + run.stderr);
+  assert.match(run.stdout, /stopped after 0\.02 minutes/);
+  assert.ok(Date.now() - began < 20000, "stopped well before the agent would have ended");
+  // A limit that is not a positive number of minutes is a usage error.
+  assert.equal(spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--out", runFolder(), "--timeout", "soon"], { encoding: "utf8" }).status, 2);
 });
 
 test("run.mjs --fixture builds from another board, and score.mjs guards that board's names", () => {

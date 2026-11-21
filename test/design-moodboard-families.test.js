@@ -387,7 +387,7 @@ test("families: from profiles, what the picture is separates references the numb
   const refs = {};
   // Three looks with the same tone and emptiness: photographs, 3D renders, and type alone on the ground.
   for (let i = 0; i < 5; i++) refs[`photo${i}`] = profile(`photo${i}`, { lum: 0.02, empty: 60 + i, picture: "photo", layout: "full-bleed", colours: 150, soft: 30, sharp: 35, grid: 70 });
-  // The renders are on dark and on light grounds: the same look, one family, its grounds dealt later.
+  // The renders are on dark and on light grounds: the same look, one family, its grounds chosen later.
   for (let i = 0; i < 4; i++) refs[`render${i}`] = profile(`render${i}`, { lum: i < 2 ? 0.02 : 0.95, empty: 61 + i, picture: "render", layout: "scattered", colours: 300, soft: 50, sharp: 20, grid: 35 });
   for (let i = 0; i < 4; i++) refs[`type${i}`] = profile(`type${i}`, { lum: 0.02, empty: 62 + i, picture: "none", layout: "left", colours: 6, soft: 2, sharp: 60, grid: 10 });
   refs.pairA = profile("pairA", { lum: 0.95, empty: 30, loud: 60, picture: "collage", layout: "collage", colours: 200 });
@@ -516,6 +516,23 @@ test("families --assign: new references join the families there are, the rest ar
   const empty = spawnSync(process.execPath, [script("families.mjs"), "profiles.json", "--assign", "other.json"], { cwd: dir, encoding: "utf8" });
   assert.equal(empty.status, 1);
   assert.match(empty.stderr, /no family whose members are in profiles.json/);
+});
+
+test("families: a profile with no picture read is named and left out, and an off-white ground is not strongly warm", () => {
+  const refs = {};
+  for (let i = 0; i < 4; i++) {
+    refs[`paper${i}`] = profile(`paper${i}`, { lum: 0.9, empty: 95, picture: "none", layout: "centred", colours: 3 });
+    refs[`paper${i}`].image.traits.ground = "#f1ede4";
+  }
+  refs.noimage = { shot: "refs/noimage.jpg", link: null, page: null };
+  refs.notraits = { shot: "refs/notraits.jpg", image: { figure: null } };
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  const result = run("families.mjs", dir, ["profiles.json", "--sliders", "cool=3"]);
+  assert.match(result.stderr, /left out, no picture read in profiles\.json.*: noimage, notraits/);
+  assert.match(result.stdout, /^4 references/);
+  // Warm or cool is read from chroma: a ground a little off white leans warm, but only a little.
+  const { families } = JSON.parse(readFileSync(join(dir, "families.json"), "utf8"));
+  assert.ok(families[0].sliders.cool > 2.4 && families[0].sliders.cool < 3, JSON.stringify(families[0].sliders));
 });
 
 test("families: an about layer on every profile changes nothing", () => {

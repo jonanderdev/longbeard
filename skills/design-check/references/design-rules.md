@@ -11,7 +11,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 - **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it.
 - **Soft** is a default. `DESIGN.md` may override a soft check on purpose, with a written reason. A soft finding with no reason in `DESIGN.md` is reported, not blocked.
 - A finding is four things: the rule (number and check), hard or soft, where on the screen, and the fix.
-- The shared core applies to everything. Then add the site list or the app list, whichever the brief's surface says.
+- The shared core applies to everything, except where the Graphics list says it does not. Then add the site, app or graphics list, whichever the brief's surface says.
 
 ## 0. Idea
 
@@ -117,13 +117,18 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 ## 11. Copy
 
-**Principle:** words do the job of the screen in the product's own voice.
+**Principle:** words do the job of the screen in the product's own voice, made from facts it has.
+
+**Dated 2026-11-21. Reviewed each release.**
 
 - [hard] No placeholder copy: no lorem ipsum, no "Title", no "Button", no "User Name".
 - [soft] Buttons say what happens: "Send invoice", not "Submit", "OK", "Get started" or "Learn more".
 - [soft] Headings are short. A heading that runs over two lines at its size is a sentence that belongs in the body.
 - [soft] The voice matches `DESIGN.md`. Read three strings aloud: they sound like one product.
-- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y".
+- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y". Sincerity is shown, not claimed ("honest", "simply").
+- [soft] A rhetorical device (a heading in two fragments, "X, not Y", a row of three figures) appears once on a screen, where it lands hardest.
+- [soft] No detail is invented. Every number, name and quote traces to the brief, or is marked as assumed (see the prototype's stand-in marks). A section with nothing true to say is shorter or gone.
+- [soft] Voice test: would this voice suit a product in another trade? If yes, it is not this product's yet.
 
 ## 12. Imagery
 
@@ -183,6 +188,15 @@ Add these when the brief's surface is an app: the tool a person comes back to.
 - [soft] Density fits repeated use. Lists and tables show enough rows to work, not marketing-sized cards.
 - [soft] Navigation keeps the same place and shape on every screen of the flow.
 - [soft] Frequent actions are one step away. Rare and destructive ones may be further.
+
+## Graphics
+
+Add these when the brief's surface is a graphic: a poster, a card, a social post, a piece to look at. A piece counts as a screen.
+
+- **Applies:** rules 0 to 3, 5, 6, 11, 12 and 14. Rule 4 holds for the margin and the gaps between groups. Rule 7 holds across the pieces of a set.
+- **Does not apply:** rule 8 (states), rule 9 (affordance), the targets, focus and label checks of rule 10, and rule 13 (responsive). A missing state frame is not a finding.
+- [hard] Readable at its distance. Scale the shot to how the piece is seen (a poster read across a street, about 400 px on its long side; a feed post at phone width). The headline and every fact the brief gives still read.
+- [hard] Nothing important in the trim. On a print piece, no word, fact or logo sits in the trim or the safe margin. A picture or a crop that runs off the edge on purpose is not a finding.
 
 ## Sources
 

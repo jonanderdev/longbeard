@@ -32,7 +32,7 @@
 // closest two are more than --spread apart (0.52 by default, on the 0 to 1
 // scale). How many families comes from the pool. What is still alone, or only
 // in a pair, is a stray: a pair is named as the seed of a family. A family
-// under six cannot be dealt from and is marked small. Two shots of one site
+// under six is too small to be a look of its own and is marked small. Two shots of one site
 // (the same link: site.jpg and site-menu.jpg) are one reference, its first
 // shot leading and the rest kept beside it as `also`.
 //
@@ -127,8 +127,12 @@ const num = (v) => (v === undefined || v === null || v === "" ? null : Number(v)
 let refs;
 if (/\.json$/i.test(input)) {
   const store = JSON.parse(readFileSync(input, "utf8")).refs || {};
+  // A profile with no shot or no read of its picture cannot be compared: it is named, never dropped quietly.
+  const readable = ([, p]) => p && p.shot && p.image?.traits;
+  const unread = Object.entries(store).filter((e) => !readable(e)).map(([name]) => name);
+  if (unread.length) console.error(`families: left out, no picture read in ${input} (measure them again): ${unread.join(", ")}`);
   refs = Object.entries(store)
-    .filter(([, p]) => p.shot && p.image)
+    .filter(readable)
     .map(([name, p]) => ({ name, shot: p.shot, link: p.link || null, image: p.image.traits, figure: p.image.figure || null, page: p.page?.flag ? null : p.page?.traits || null, media: p.page?.flag ? null : p.page?.media || null, flag: p.page?.flag || "", tags: p.tags || null }));
 } else {
   const pages = new Map();
@@ -178,24 +182,26 @@ for (const part of slidersArg.split(",").map((x) => x.trim()).filter(Boolean)) {
 }
 const mean = (xs) => (xs.filter((x) => x !== null).length ? xs.filter((x) => x !== null).reduce((t, x) => t + x, 0) / xs.filter((x) => x !== null).length : null);
 const to5 = (x) => 1 + 4 * Math.min(1, Math.max(0, x));
-const hueSat = (hex) => {
+// Hue in degrees and chroma (how far the colour is from grey, 0 to 1). Not HSL saturation, which
+// reads an off-white as strongly coloured: a ground of #f1ede4 has a chroma of 0.05, not 0.3.
+const hueChroma = (hex) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(String(hex).slice(i, i + 2), 16) / 255);
   if ([r, g, b].some(Number.isNaN)) return null;
   const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
   if (!d) return [0, 0];
   const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return [h * 60, d / (1 - Math.abs(mx + mn - 1) || 1)];
+  return [h * 60, d];
 };
 const PICTURE_PLACE = { none: 0, lettering: 0, ui: 0.5, icon: 0.5, shape: 0.5, pattern: 0.5, photo: 1, render: 1, illustration: 1, collage: 1, product: 1 };
 const COLOUR_PLACE = { neutral: 0, muted: 0.25, "one-accent": 0.4, bright: 0.75, multi: 1 };
 function placeOf(r) {
   const empty = num(r.image.empty), loud = num(r.image.loud);
   const pic = r.tags?.picture?.[0], col = r.tags?.colour?.[0];
-  // Warm or cool: the ground and the figure's palette, each colour by its share and how saturated it is.
+  // Warm or cool: the ground and the figure's palette, each colour by its share and its chroma.
   const swatches = [[r.image.ground, empty ?? 0], ...(r.figure?.palette || []).map((c) => [c.colour, ((100 - (empty ?? 0)) * c.share) / 100])];
   let warm = 0, cool = 0, all = 0;
   for (const [hex, share] of swatches) {
-    const hs = hex && hueSat(hex);
+    const hs = hex && hueChroma(hex);
     if (!hs) continue;
     const w = share * hs[1];
     all += share;

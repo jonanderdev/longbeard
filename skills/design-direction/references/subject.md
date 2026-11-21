@@ -14,11 +14,11 @@ Before the grid: three or four pictures of what the product is about (the bakery
   node <skill>/scripts/pictures.mjs "flour on a wooden bench" --out .longbeard/design/pictures --count 2 --orientation landscape
   ```
 
-  It keeps only clearly licensed pictures (CC0, public domain, CC BY, CC BY-SA) large enough for a screen, and writes `credits.tsv` beside them. Open each (a contact sheet); drop one that is off-subject and search again with a more concrete query ("roasted coffee beans", not "coffee"). Commons leans to museum and archive photos for some subjects (crafts come back as excavated shards and old engravings): after two queries that miss, ask them for two or three photos of their own, a phone is fine, or go on with fewer.
+  It keeps only pictures whose licence holds everywhere (CC0, CC BY, CC BY-SA, public domain marked as worldwide) large enough for a screen, and writes `credits.tsv` beside them, with a ready credit line for each; credits required by a licence must appear in the product, and the ready line is in `credits.tsv`. Open each (a contact sheet); drop one that is off-subject and search again with a more concrete query ("roasted coffee beans", not "coffee"). Commons leans to museum and archive photos for some subjects (crafts come back as excavated shards and old engravings): after two queries that miss, ask them for two or three photos of their own, a phone is fine, or go on with fewer.
 - **Pictures a reference could hold.** The references' pictures are clean: one subject, a plain or quiet ground, a calm crop. Prefer the stand-in that is one loaf on a plain bench to the one with a kettle and a counter behind it; crop to the subject. A picture with clutter in it makes a faithful layout look unfinished.
 - **Of the kind the look uses.** When the moodboard is photographs, look for photographs; when it is illustration or renders, say that those are not searched, and use the closest photographs, cropped and toned as the moodboard does, until theirs exist.
 
-Do not stop to ask: show them on a contact sheet (`contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures`) with the message in step 1, as stand-ins theirs replace.
+The pictures are the subject's card on the board (step 1): it is liked, with a why, like any reference, for a picture, a colour or a thing in it. Do not stop to ask: show them on a contact sheet (`contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures`) with the message in step 1, as stand-ins theirs replace. Each screen that uses one marks it `data-standin="picture"`.
 
 ## Colours
 
