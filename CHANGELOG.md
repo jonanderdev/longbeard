@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **`image-to-code` is no longer an add-on.** It generates its own design images and builds from them, which is the agent's taste, not the board's. A picture you like goes on the moodboard instead, and a Figma file you were handed goes to `figma-design-to-code`. `update` removes it from a project that has it, unless you edited it.
 - **`links.mjs` scans, it no longer walks.** It opens every page in the prototype's folder, not only those a click reaches, and says what is broken, goes nowhere or has no way on, with the stand-ins to supply. Whether a person reaches each key screen is the flow walks' job: `--expect`, the unreached list and the click counts are gone, and so is the eval's "every key screen reached" check, which failed on a checkout behind an empty basket.
 - **A colour they liked wins over contrast.** It is never stepped lighter or darker to pass. The pair is fixed with what else the screen has (the other colour, large text, a crop, the colour moved to a fill); when nothing fits, the colour stays with a warning on the sheet, in the identity options and in `DESIGN.md` (`WARN liked, kept`), which `design-check` and the eval report as a warning, not a block.
 - **`rules.mjs` counts a round only when the same page changed:** fix after every run. A first run of another state of a screen (`?menu=open`, same `--screen`) is part of the round it is in, so checking two states no longer uses up both rounds before anything is fixed.

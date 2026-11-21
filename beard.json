@@ -287,16 +287,6 @@
       "when": "A security review you asked for",
       "why": "Look for a broken trust boundary. The full audit runs only when you ask for an audit or a pen-test.",
       "optional": true
-    },
-    {
-      "name": "image-to-code",
-      "author": "Leonxlnx",
-      "license": "MIT",
-      "source": "https://github.com/Leonxlnx/imagegen-skills",
-      "when": "A picture you already have",
-      "why": "Build the page from that picture.",
-      "optional": true,
-      "hint": "from a picture"
     }
   ]
 }

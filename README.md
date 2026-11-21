@@ -98,7 +98,6 @@ Add-ons are your choice. In a terminal, `init` lists them and you tick the ones 
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews UI and accessibility when you ask | Vercel |
 | [modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/modern-web-guidance) | Current browser APIs instead of legacy patterns when writing HTML, CSS or client-side JS. Ticked at `init`. It looks each guide up with `npx`, so it needs the network | Google Chrome |
 | [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Reviews a trust boundary when you ask | Cloudflare |
-| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Builds a page from a picture you have | Leonxlnx |
 
 A kit is an author's whole flow, taken as they publish it: the skills in their plugin manifest, else every folder in their `skills/`. `update` installs a skill they add and removes one they retire, unless you edited it. Inside a kit's flow, its own steps win. To leave one kit skill out, `npx longbeard remove <name>`.
 
