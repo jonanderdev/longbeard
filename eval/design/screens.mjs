@@ -11,6 +11,8 @@
 // - its text blocks outside the navigation, against what its base reference
 //   carries (library.json's slots: the headline, the small slots, and one more);
 // - contrast where text sits (screen-contrast.mjs).
+// A check that did not run on a screen (a page not read, a contrast run that crashed) is
+// listed under notRead and contrastNotRun in the summary: never counted as a pass.
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -173,17 +175,21 @@ for (const sc of list) {
 }
 ws.close();
 
-// Contrast where text sits, each screen in its own run of screen-contrast.mjs.
+// Contrast where text sits, each screen in its own run of screen-contrast.mjs. It exits 0 when every text passes and
+// 1 when one fails, both with a result; any other exit, a timeout or output that is not a result means the check did
+// not run on that screen, and the screen is never counted as passing.
 for (const s of screens) {
-  const c = spawnSync(process.execPath, [contrastScript, s.url, "--wait-title", "ready", "--size", `${W}x${H}`, "--json"], { encoding: "utf8", timeout: 90000 });
+  const c = spawnSync(process.execPath, [contrastScript, s.url, "--wait-title", "ready", "--size", `${W}x${H}`, "--json"], { encoding: "utf8", timeout: 90000, maxBuffer: 64 * 1024 * 1024 });
+  let out = null;
   try {
-    const out = JSON.parse(c.stdout);
-    s.contrast = { failing: out.failing, worst: out.texts.filter((t) => !t.pass).slice(0, 3).map((t) => `"${t.text}" ${t.p5}:1`) };
-  } catch {
-    s.contrast = { failing: null, worst: [], error: (c.stderr || "").trim().slice(0, 200) };
-  }
+    out = JSON.parse(c.stdout);
+  } catch {}
+  if ((c.status === 0 || c.status === 1) && out && Array.isArray(out.texts) && Number.isInteger(out.failing)) s.contrast = { failing: out.failing, worst: out.texts.filter((t) => !t.pass).slice(0, 3).map((t) => `"${t.text}" ${t.p5}:1`) };
+  else s.contrast = { failing: null, worst: [], error: (c.error?.message || c.stderr || `exit ${c.status}`).trim().slice(0, 200) };
 }
 
+// A screen whose page was not read counts as not run for the checks that read it.
+const read = (s) => s.dom.title !== "not read";
 const summary = {
   screens: screens.length,
   minText: Math.min(...screens.map((s) => s.dom.minText ?? Infinity)),
@@ -192,11 +198,14 @@ const summary = {
   contrast: screens.filter((s) => s.contrast.failing).map((s) => `${s.n}: ${s.contrast.worst.join(", ")}`),
   overSlots: screens.filter((s) => s.capacity != null && s.dom.blocks > s.capacity).map((s) => `${s.n} (${s.dom.blocks} blocks, its base carries ${s.capacity - 1})`),
   blocks: screens.map((s) => s.dom.blocks),
+  // The checks that could not run, by screen: not run is never a pass.
+  notRead: screens.filter((s) => !read(s)).map((s) => String(s.n)),
+  contrastNotRun: screens.filter((s) => s.contrast.failing === null).map((s) => `${s.n}: ${s.contrast.error || "no result"}`),
 };
 if (json) console.log(JSON.stringify({ summary, screens }, null, 1));
 else {
   console.log("n  min px  clipped  blocks/cap  contrast");
-  for (const s of screens) console.log([String(s.n).padEnd(3), String(s.dom.minText).padEnd(8), String(s.dom.clipped.length).padEnd(9), `${s.dom.blocks}/${s.capacity ?? "?"}`.padEnd(12), String(s.contrast.failing ?? "?")].join(""));
+  for (const s of screens) console.log([String(s.n).padEnd(3), String(s.dom.minText).padEnd(8), String(s.dom.clipped.length).padEnd(9), `${s.dom.blocks}/${s.capacity ?? "?"}`.padEnd(12), String(s.contrast.failing ?? "not run")].join(""));
 }
 // Chrome's pipe would keep the process open.
 process.exit(0);
