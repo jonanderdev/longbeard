@@ -98,7 +98,7 @@ Give each number as the scale's right end (loud 2 is fairly quiet), so the read-
 
 **Motion is theirs.** The suggestion follows the personality scales, never the agent's opinion of good motion. Nothing is searched for here: a pasted link goes to `brief-loves.md` with what they like in its motion and why, and a request to "show me some" is noted there too, for `design-moodboard`.
 
-**Names stay out.** The sites and brands they love, and the competitors they named, go to `.longbeard/design/brief-loves.md` (gitignored) for `design-moodboard` to search from. The committed doc describes what those things do ("long editorial pages, one picture at a time"), never who. Owned colours and faces are theirs, so their values are written.
+**Names stay out.** The sites and brands they love, and the competitors they named, go to `.longbeard/design/brief-loves.md` for `design-moodboard` to search from. Before that first write, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line: the names must never be committed. The committed doc describes what those things do ("long editorial pages, one picture at a time"), never who. Owned colours and faces are theirs, so their values are written.
 
 ## Who reads what
 
