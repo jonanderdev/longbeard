@@ -56,6 +56,20 @@
 // a lower --spread with it. It writes to families/f3-split/ (families.json and
 // one list per new family), so the pool's own families stay as they are.
 // --only also takes names: --only "card-12,card-40,card-41".
+//
+// --assign families.json adds new references to families that already exist, for a library that
+// grows: nothing already in a family moves. families.json is a previous run's output, or any
+// { families: [{ id, members: [shot or name] }] }; its strays are passed over and it is never
+// changed. Every reference in profiles.json in no family is new. Each is compared with each family
+// by its average distance to the members (the linkage families join by) and joins the nearest when
+// that is within --spread, with a confidence from 0 to 1: half how far inside the spread it sits,
+// half how much nearer that family is than the next. The new references that join nothing are
+// sorted among themselves: a group of --min or more is a seed, a proposed new family; the rest are
+// strays, with their nearest family. Each lists its 5 nearest references already in a family. Shots
+// of one site are not folded, and bins are not split. It writes assign.json beside the input (or
+// --out). It needs profiles.json, and does not go with --only, --board or --sliders.
+//
+//   node families.mjs .longbeard/design/families/profiles.json --assign .longbeard/design/families/families.json
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 
@@ -72,8 +86,9 @@ const outArg = flag("out", "");
 const pagesArg = flag("pages", "");
 const slidersArg = flag("sliders", "");
 const onlyArg = flag("only", "");
+const assignArg = flag("assign", "");
 const [input] = args;
-const usage = "usage: node families.mjs profiles.json | traits.tsv [--only families/f3.tsv | name,name] [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json] [--sliders loud=2,picture=4,rich=3,cool=2]";
+const usage = "usage: node families.mjs profiles.json | traits.tsv [--only families/f3.tsv | name,name] [--spread 0.52] [--min 3] [--board board.md] [--links links.tsv] [--pages traits-pages.tsv] [--out families.json] [--sliders loud=2,picture=4,rich=3,cool=2]\n       node families.mjs profiles.json --assign families.json [--spread 0.52] [--min 3] [--out assign.json]";
 if (!input || args.length !== 1 || (spreadArg && !(Number(spreadArg) > 0 && Number(spreadArg) < 1)) || !(Number.isInteger(min) && min >= 1)) {
   console.error(usage);
   process.exit(2);
@@ -83,6 +98,12 @@ const fail = (text) => {
   process.exit(1);
 };
 if (!existsSync(input)) fail(`nothing at ${input}`);
+if (assignArg) {
+  const clash = [onlyArg && "--only", boardArg && "--board", slidersArg && "--sliders"].filter(Boolean);
+  if (clash.length) fail(`--assign does not go with ${clash.join(", ")}: it only adds new references to the families there are`);
+  if (!/\.json$/i.test(input)) fail("--assign needs profiles.json (measure.mjs --profiles), not a TSV");
+  if (!existsSync(assignArg)) fail(`no families at ${assignArg}`);
+}
 const spread = spreadArg ? Number(spreadArg) : 0.52;
 
 // ------------------------------------------------------------------ read the references
@@ -190,8 +211,9 @@ function placeOf(r) {
 }
 
 // Two shots of one site are one reference: the shortest name leads, the others ride along.
+// Not with --assign: there each shot is placed on its own.
 const byLink = new Map();
-for (const r of refs) if (r.link) byLink.set(r.link, [...(byLink.get(r.link) || []), r]);
+if (!assignArg) for (const r of refs) if (r.link) byLink.set(r.link, [...(byLink.get(r.link) || []), r]);
 const also = new Map();
 for (const group of byLink.values()) {
   if (group.length < 2) continue;
@@ -307,6 +329,85 @@ function cluster(cut, among = refs.map((_, i) => i)) {
   }
   return groups.filter((g) => g.alive).map((g) => g.members);
 }
+
+// ------------------------------------------------------------------ --assign: add new references to the families there are
+if (assignArg) {
+  let prior;
+  try {
+    prior = JSON.parse(readFileSync(assignArg, "utf8"));
+  } catch {
+    fail(`${assignArg} is not JSON`);
+  }
+  // A member is named by its shot or its name.
+  const indexOf = new Map();
+  refs.forEach((r, i) => indexOf.set(r.name, i));
+  refs.forEach((r, i) => indexOf.set(r.shot, i));
+  const placed = new Set(), missing = [], fams = [];
+  for (const f of prior?.families || []) {
+    if (f.stray) continue;
+    const members = [];
+    for (const m of f.members || []) {
+      const i = indexOf.get(m);
+      if (i === undefined) missing.push(m);
+      else if (!placed.has(i)) placed.add(i), members.push(i);
+    }
+    // Other shots of a site a full sort folded in are in the family too, though not compared.
+    for (const names of Object.values(f.also || {})) for (const m of names) if (indexOf.has(m)) placed.add(indexOf.get(m));
+    if (members.length) fams.push({ id: String(f.id), members });
+  }
+  if (!fams.length) fail(`${assignArg} has no family whose members are in ${input}`);
+  const r2 = (x) => Math.round(x * 100) / 100;
+  const inFamily = fams.flatMap((f) => f.members);
+  const fresh = refs.map((_, i) => i).filter((i) => !placed.has(i));
+  const read = (i) => {
+    const ranked = fams.map((f) => ({ family: f.id, distance: f.members.reduce((t, j) => t + D[i][j], 0) / f.members.length })).sort((a, b) => a.distance - b.distance);
+    const [first, second] = ranked;
+    const nearest = [...inFamily].sort((a, b) => D[i][a] - D[i][b]).slice(0, 5).map((j) => ({ name: refs[j].name, distance: r2(D[i][j]) }));
+    return { first, d2: second ? second.distance : null, second: second ? { family: second.family, distance: r2(second.distance) } : null, nearest };
+  };
+  const assigned = [], left = [], lines = [];
+  for (const i of fresh) {
+    const { first, d2, second, nearest } = read(i);
+    if (first.distance > spread) {
+      left.push(i);
+      continue;
+    }
+    // Half how far inside the spread it sits, half how much nearer this family is than the next (all of it with one family).
+    const d1 = first.distance;
+    const margin = d2 === null ? 1 : d2 > 0 ? (d2 - d1) / d2 : 0;
+    const confidence = r2(Math.max(0, Math.min(1, 0.5 * (1 - d1 / spread) + 0.5 * margin)));
+    assigned.push({ name: refs[i].name, shot: refs[i].shot, family: first.family, distance: r2(d1), confidence, second, nearest_family: first.family, nearest });
+    lines.push(`${refs[i].name} → ${first.family}  distance ${r2(d1)}  confidence ${confidence}${second ? `  (next ${second.family} ${second.distance})` : ""}  near ${nearest.map((x) => x.name).join(", ")}`);
+  }
+  // What joins nothing is sorted among itself: a group of --min or more is a seed, the rest strays.
+  const rest = left.length >= 2 ? cluster(spread, left) : left.map((i) => [i]);
+  const seeds = [], strayRows = [];
+  for (const g of rest.filter((g) => g.length >= min).sort((a, b) => b.length - a.length)) {
+    const meanIn = (i) => g.filter((j) => j !== i).reduce((t, j) => t + D[i][j], 0) / (g.length - 1);
+    const ordered = [...g].sort((a, b) => meanIn(a) - meanIn(b));
+    const seed = { size: g.length, radius: r2(ordered.reduce((t, i) => t + meanIn(i), 0) / g.length), members: ordered.map((i) => refs[i].name) };
+    seeds.push(seed);
+    for (const i of ordered) {
+      const { first } = read(i);
+      lines.push(`${refs[i].name} → new family ${seeds.length} (${seed.size}, radius ${seed.radius})  nearest ${first.family} ${r2(first.distance)}`);
+    }
+  }
+  for (const i of rest.filter((g) => g.length < min).flat()) {
+    const { first, second, nearest } = read(i);
+    strayRows.push({ name: refs[i].name, shot: refs[i].shot, nearest_family: first.family, distance: r2(first.distance), second, nearest });
+    lines.push(`${refs[i].name} → stray  nearest ${first.family} ${r2(first.distance)}  near ${nearest.map((x) => x.name).join(", ")}`);
+  }
+  const outPath = outArg ? resolve(outArg) : join(dirname(resolve(input)), "assign.json");
+  if (outPath === resolve(assignArg)) fail(`--out ${outArg} is the families file: write the assignment elsewhere`);
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, `${JSON.stringify({ spread, families: fams.map((f) => ({ id: f.id, size: f.members.length })), assigned, seeds, strays: strayRows }, null, 2)}\n`);
+  console.log(`${fresh.length} new of ${n} references: ${assigned.length} join a family, ${seeds.length} new families proposed (${seeds.reduce((t, s) => t + s.size, 0)} references), ${strayRows.length} strays, spread ${spread}`);
+  if (missing.length) console.log(`members of ${assignArg} not in ${input}, passed over: ${missing.join(", ")}`);
+  for (const l of lines) console.log(l);
+  console.log(`assign: ${relative(process.cwd(), outPath) || outPath}`);
+  process.exit(0);
+}
+
 const groups = cluster(spread);
 // A bin: one family of 20 or more holding far more than its share: over three times the median of
 // the other families, or over two fifths of the pool. On a
