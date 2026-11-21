@@ -38,7 +38,7 @@ One line per finding, hard first:
 2. **Hard** checks, every section, then the site or app list from the brief's surface.
 3. **Soft** checks, then the tells (rule 14).
 
-Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means. Its Accessibility line (or else the design brief's `accessibility`) sets the contrast level for every contrast check: AA is 4.5:1 and 3:1 large; AAA is 7:1 and 4.5:1 large (`contrast.mjs --level AAA`, `screen-contrast.mjs --min 7 --large 4.5`). Its Motion line is checked too: motion beyond it, or any without a reduced-motion fallback, is a soft finding.
+Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means. Its Accessibility line (or else the design brief's `accessibility`) sets the contrast level for every contrast check: AA is 4.5:1 and 3:1 large; AAA is 7:1 and 4.5:1 large (`contrast.mjs --level AAA`, `screen-contrast.mjs --min 7 --large 4.5`). Its Motion line, and the design brief's `motion` picks behind it, are checked too: motion beyond the picks (a trigger, a feel or a moment not picked, or more than the pick for how much), a pick not built, or any motion without a reduced-motion fallback, is a soft finding.
 
 ## Frame mode
 

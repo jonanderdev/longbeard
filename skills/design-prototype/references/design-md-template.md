@@ -44,7 +44,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - <component>: <what it is for, its variants, its states>
 
 ## Motion
-- <none | subtle | expressive, from the design brief: durations, what moves and when; reduced motion turns it off>
+- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; durations, what moves and when; reduced motion turns it off>
 
 ## Accessibility
 - Level: <AA | AAA, from the design brief>. Every contrast pair above meets it; design-check checks against it.
