@@ -56,7 +56,7 @@ One round of corrections. "Go" takes the draft.
 node <skill>/scripts/pictures.mjs "baker shaping dough" --out .longbeard/design/pictures --count 1
 ```
 
-It keeps only clear licences (CC0, public domain, CC BY, CC BY-SA), large enough for a screen, and adds each to `credits.tsv`. Of the kind the look uses, treated the way the direction says (crop, toning). Show what was added on a contact sheet; they drop any they dislike. Never ranked.
+It keeps only licences that hold everywhere (CC0, CC BY, CC BY-SA, public domain marked as worldwide), large enough for a screen, and adds each to `credits.tsv` with a ready credit line. Credits required by a licence must appear in the product, and the ready line is in `credits.tsv`; a share-alike picture, cropped or toned, stays under the same licence. Of the kind the look uses, treated the way the direction says (crop, toning). Show what was added on a contact sheet; they drop any they dislike. Never ranked.
 
 ```
 node <skill>/scripts/contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures
