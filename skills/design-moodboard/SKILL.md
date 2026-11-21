@@ -19,7 +19,7 @@ description: >
 Two things come out:
 
 - **`docs/design/design-moodboard.md`**, committed: what the board says. The moves it holds, what the likes share, what the noes share, what is missing. Never a source.
-- **`.longbeard/design/moodboard/`**, gitignored: `board.md` (one card per keep, with its link), `refs/` (the captures), the picker pages, contact sheets. The skills read it; nobody needs to open it.
+- **`.longbeard/design/moodboard/`**, gitignored: `board.md` (one card per keep, with its link), `refs/` (the captures), the picker pages. Contact sheets are scratch, outside it. The skills read it; nobody needs to open it.
 
 It chooses no look and ranks nothing. It gathers what they like and says what it holds.
 
@@ -82,7 +82,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 - **Apart from:** with distance 4–5, leave out candidates that look like the kind of product named there (its usual layout, its usual colours); with 1–2, keep them in, since fitting in is the ask. In `brief-loves.md`, the competitors they named are never seeds.
 - **Never:** a candidate that is plainly the never ("a dark neon dashboard" when never says neon) is not a candidate. Anything less plain stays: they say no on the picker, not you.
 
-1. **A wide pool:** 150 to 250 candidates, across every part. Query the form, not the word ("editorial article layout", not "writing app"). Before calling a field thin, try three more forms and the brief's identity nouns. Cut only what is not a candidate (off-form, broken, under the source's floor); never cut for taste. One row per candidate in `.longbeard/design/moodboard/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
+1. **A wide pool:** 150 to 250 candidates, across every part. Query the form, not the word ("editorial article layout", not "writing app"). Before calling a field thin, try three more forms and the brief's identity nouns. Cut only what is not a candidate (off-form, broken, under the source's floor); never cut for taste. The Dribbble script's default drop list holds only what is never a screen for any product (merch, CVs, worksheets, seasonal cards, stickers, mockups). A kind of product or a look is a candidate for some brief, so you pass it with `--drop` only when this brief rules it out, and the script says on stderr what it cut. One row per candidate in `.longbeard/design/moodboard/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
 2. **Check it on contact sheets** (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`): drop non-screens and broken thumbnails only. Thin after that → search again for what is thin.
 3. **The picker:**
 
