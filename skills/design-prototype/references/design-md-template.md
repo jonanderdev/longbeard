@@ -52,6 +52,10 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 ## Imagery
 - <what the pictures are and how they are treated, or "none">
 
+## Still to supply
+- <screen>: <what the stand-in picture shows, or the assumed fact as shown> — <stand-in | assumed>. <What replaces it>
+- Written even when empty: "Nothing: every picture and fact is theirs."
+
 ## Decisions
 - <date>: <what was decided> — <the reason>. <Soft rule overridden, if any: rule number and why>
 
@@ -62,4 +66,4 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - Every token name is its code name, and the same name in Figma.
 - Every colour pair in the table has been through `scripts/contrast.mjs`. No FAIL is written.
 - More than one theme: one row per token, with a value column per theme. Every pair is checked in each theme.
-- A section with nothing to say is left out, not filled with a guess.
+- A section with nothing to say is left out, not filled with a guess. Still to supply is the one that stays: its "nothing" says it was checked.

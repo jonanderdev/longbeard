@@ -64,6 +64,8 @@ Show it in chat, one screen at a time if there are many, compact:
 
 One round of corrections. "Go" takes the draft.
 
+A fact the brief does not give (a price, an hour, a number, a name) is an assumed fact: it goes under `assumed:` on its screen below, and carries `data-standin="fact"` where a screen shows it.
+
 ## 2. The picture list, and stand-ins for the gaps
 
 `design-direction` already found three or four pictures of the subject in `.longbeard/design/pictures/`. Here, list every picture the key screens need, mark which exist (theirs, or those stand-ins), and find only the missing ones: one query per picture, of the product's own subject, never the references'.
@@ -78,7 +80,7 @@ It keeps only clear licences (CC0, public domain, CC BY, CC BY-SA), large enough
 node <skill>/scripts/contact-sheet.mjs .longbeard/design/pictures/credits.tsv --out <scratch>/pictures
 ```
 
-Stand-ins stay marked as stand-ins everywhere they are used, until theirs replace them.
+Stand-ins stay marked as stand-ins everywhere they are used, until theirs replace them: each one on a screen carries `data-standin="picture"` in the markup.
 
 ## Write `docs/design/design-content.md`
 
@@ -101,6 +103,7 @@ Stand-ins stay marked as stand-ins everywhere they are used, until theirs replac
 - actions: <primary> · <secondary>
 - pictures: <what each shows> — <theirs | stand-ins: n chosen>
 - states: empty "<…>" · loading "<…>" · error "<…>"
+- assumed: <each fact the brief does not give, as written above, or "none">
 ```
 
 Credits stay in `.longbeard/`, except where a licence requires credit in the product: then say where it must appear.

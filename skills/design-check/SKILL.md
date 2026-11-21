@@ -67,6 +67,7 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
    - tokens: colours, type and spacing are `DESIGN.md`'s values (`scripts/contrast.mjs` for any pair that looks off)
    - copy: the frame's words, not placeholders or new ones
    - states: each frame state exists and says the same thing
+   - stand-ins: nothing under Still to supply in `DESIGN.md` reaches the build as it stands (its picture, or its assumed price, hour, number or name). One that does is a hard finding under rule 0, with the screen and the item; it clears when they supply the real one or take the item off the list.
    A difference from the frame is a finding, hard when it breaks a hard rule or changes structure or copy. The rules' glue line holds: a mismatch with the frame is a bug.
 4. **Check the rules** on the build shots, in the order above.
 5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check.

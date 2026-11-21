@@ -364,6 +364,48 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
   assert.equal(out.outside.length, 1);
 });
 
+test("links: lists what is marked data-standin, says when nothing is, and finds a stand-in picture with no mark", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-standins-"));
+  mkdirSync(join(dir, "proto"));
+  mkdirSync(join(dir, "pictures"));
+  for (const f of ["loaf.jpg", "bench.jpg", "own.jpg"]) writeFileSync(join(dir, "pictures", f), "x");
+  writeFileSync(join(dir, "pictures", "credits.tsv"), "# name\tfile\tsource\tauthor\tlicence\nloaf\tpictures/loaf.jpg\t\ta\tCC0\nbench\tpictures/bench.jpg\t\ta\tCC0\n");
+  const walk = (page, extra = []) => spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "proto", page)}`, ...extra], { encoding: "utf8" });
+  // Two stand-in pictures (one inside a marked wrapper), one assumed price, one picture of theirs: exactly three listed.
+  writeFileSync(join(dir, "proto", "home.html"), `<a href="menu.html">Menu</a>
+<img src="../pictures/loaf.jpg" alt="a rye loaf" data-standin="picture">
+<div data-standin="picture" data-standin-note="until the bakery's own"><img src="../pictures/bench.jpg" alt="the bench"></div>
+<img src="../pictures/own.jpg" alt="the baker">
+<p>Rye loaf <span data-standin="fact" data-standin-note="price not in the brief">£4.20</span></p>`);
+  writeFileSync(join(dir, "proto", "menu.html"), `<a href="home.html">Home</a><img src="../pictures/own.jpg" alt="the baker">`);
+  const result = walk("home.html", ["--json"]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr + result.stdout);
+  const out = JSON.parse(result.stdout);
+  assert.deepEqual(out.standins.map((s) => [s.page, s.kind, s.note]), [
+    ["home", "picture", ""],
+    ["home", "picture", "until the bakery's own"],
+    ["home", "fact", "price not in the brief"],
+  ]);
+  assert.deepEqual(out.standins.map((s) => s.what), ["a rye loaf (loaf.jpg)", "the bench (bench.jpg)", "£4.20"]);
+  assert.deepEqual(out.unmarked, []);
+  assert.match(walk("home.html").stdout, /^stand-ins: 3 \(2 picture, 1 fact\)/m);
+  // Everything theirs: nothing listed, and the text says so.
+  writeFileSync(join(dir, "proto", "theirs.html"), `<a href="back.html">on</a><img src="../pictures/own.jpg" alt="the baker"><p>£4.20</p>`);
+  writeFileSync(join(dir, "proto", "back.html"), `<a href="theirs.html">back</a>`);
+  const none = walk("theirs.html");
+  assert.equal(none.status, 0, none.stdout);
+  assert.match(none.stdout, /^stand-ins: none marked$/m);
+  assert.doesNotMatch(none.stdout, /^stand-in /m);
+  // A picture from credits.tsv with no mark is a finding; a marked one beside it is not.
+  writeFileSync(join(dir, "proto", "loose.html"), `<a href="back.html">on</a><img src="../pictures/loaf.jpg" alt="a rye loaf"><div data-standin="picture"><img src="../pictures/bench.jpg" alt=""></div>`);
+  const loose = walk("loose.html");
+  assert.equal(loose.status, 1, loose.stdout);
+  assert.match(loose.stdout, /^unmarked   loose: picture loaf\.jpg is a stand-in/m);
+  assert.doesNotMatch(loose.stdout, /unmarked.*bench/);
+  assert.match(loose.stdout, /^stand-ins: 1 \(1 picture\)/m);
+});
+
 // A picture with type in it, drawn by rule: hollow letters (an "o" a block) on a light ground, a
 // headline of five tall ones, a body line of small ones, and a patch of noise standing for a photo.
 function typePicture(flipped = false) {
