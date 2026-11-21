@@ -24,6 +24,8 @@ Look at the repo. Do not ask what is there.
 3. No brief, and the repo has code or a README → **Existing project**.
 4. Otherwise → **New idea**.
 
+The idea is a piece to look at, not a product to use (a poster, a card, a social post): read [graphic.md](references/graphic.md) first.
+
 ## New idea
 
 Load Matt's `grilling` and run it. The design tree is the brief's sections below. Start with the frontier: a working name, problem, who it is for, surface. Flows, screens, position and scope hang off those. A working name is enough; it can change.
@@ -68,7 +70,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 <2–4. The screens design prototypes first. No UI: "none".>
 
 ## Surface
-<site | app | no UI (CLI, API, library)>. <One line why. A site is the page a person lands on to understand or choose; an app is the tool they come back to.>
+<site | app | graphic | no UI (CLI, API, library)>. <One line why. A site is the page a person lands on to understand or choose; an app is the tool they come back to.>
 
 ## V1 and later
 - v1: <what ships first, as flows from above>
@@ -100,7 +102,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 
 Offer the next stage in one line, from the stages the router lists. A stage whose file already exists is done, so go past it:
 
-- Site or app, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
+- Site, app or graphic, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
 - No UI, or `DESIGN.md` exists → Design is skipped. Next is Architecture: they type `/grill-with-docs`.
 - `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
 

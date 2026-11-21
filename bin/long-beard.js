@@ -732,7 +732,7 @@ function generateRouter(items, manifest = curated(), shape = "full") {
     : "";
   // A shape says its own two paragraphs: the whole pipeline's name stages and skills it may not have.
   const notes = shapeDef(manifest, shape)?.notes ?? [
-    "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.",
+    "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A graphic ends at Figma. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.",
     "UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.",
   ];
   return `# Long Beard
