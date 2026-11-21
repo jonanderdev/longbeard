@@ -1,6 +1,6 @@
 # The subject's pictures and colours
 
-Read by `design-direction`, step 0 and step 2.
+Read by `design-direction`, steps 0 to 3.
 
 ## Pictures
 
@@ -31,3 +31,7 @@ node <skill>/scripts/subject-colours.mjs .longbeard/design/pictures --json
 **Then look, and name every colour.** Open its sheet (`--sheet <scratch>/subject.html`, captured), which shows each proposed colour beside the pictures with the places it comes from lit up. Every colour must be something a person sees as the subject and can name: "the crust", "the flour", "the oven's black". A colour that lights up the backdrop, a cloth, a wall or a prop is not the subject's, even when it fills the photo: drop it (`--exclude "#hex"`) and run it again. The script already flags colours that sit mostly at the edges as background and never makes them the signature or the accent; the look is the check it cannot do. Write the name beside each colour wherever it is shown ("crust, lightened to carry white text").
 
 Only then it goes in the library as `"subject"`. Never tune them stronger to make a screen livelier: a colour no reference would set a page on is not a direction they chose.
+
+## The subject is a card
+
+On the board beside the references, the subject is one more card: its pictures and the ownable. They like it and say why like any other, and its moves may change form, not only pictures and colours. Its reading in `library.json`, beside its palette, lists its **forms**: what only its world has and a screen could be built from, each with where it is seen (a picture, the brief, the ownable): the bakery's stamp on the bag, the oven's numbers, the chalked list. A form is something the product has; it is never the agent's idea of the category ("rustic", "artisan"). With no like on the subject card, its moves are proposed from this reading and marked so.
