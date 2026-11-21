@@ -30,7 +30,7 @@ One line per finding, hard first:
 - A soft rule that `DESIGN.md` overrides with a reason is not a finding. Without a reason, it is.
 - No findings: say "passes" and list which rules were checked.
 
-**Hard blocks; soft is reported.** The caller gets one fresh pass to fix the hard findings, then one re-check. Hard findings that remain are listed as open. They never pass silently.
+**Hard blocks; soft is reported.** The caller gets one fresh pass to fix the hard findings, then one re-check. Hard findings that remain are listed as open. They never pass silently. The rules script keeps the count (`rounds.json` in `.longbeard/design/`, per screen): when it says "rounds used up", stop fixing and report what is open. A finding that is false is waived with a reason (`--waive <id> --reason "…"`, in `waivers.json`), one at a time. It is still listed as waived, never hidden, and a hard rule is never waived, only a wrong finding. When the person says to ship it as it is, record their words (`--ship "…"`) and report what is open.
 
 ## Order
 
@@ -69,8 +69,12 @@ After `implement-spec` builds a UI spec. This mode belongs to the Build stage: w
    - states: each frame state exists and says the same thing
    - stand-ins: nothing under Still to supply in `DESIGN.md` reaches the build as it stands (its picture, or its assumed price, hour, number or name). One that does is a hard finding under rule 0, with the screen and the item; it clears when they supply the real one or take the item off the list.
    A difference from the frame is a finding, hard when it breaks a hard rule or changes structure or copy. The rules' glue line holds: a mismatch with the frame is a bug.
-4. **Check the rules** on the build shots, in the order above.
-5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check.
+4. **Check the rules** on the build shots, in the order above. Run the rules script on each screen and state at both widths, with `--app` when the surface is an app (the list's touch sizes), and `--cookie` as in step 1:
+   ```
+   node <skill>/scripts/rules.mjs <url> --screen <screen>
+   ```
+   It measures sideways scroll, target size, visible labels, a visible focus, placeholder copy and clipped text, and its rows go into the findings as they are. Its "not checked" lines stay "not checked". What only an eye can judge (idea, hierarchy, grouping, the tells) is still yours. Frame mode cannot use it: a Figma frame is not a page.
+5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check. The script's round count is the limit. A run that could not open the page says what to do once, and the second time the screen is reported as "not checked" and the build goes on.
 6. **PR evidence.** Matt's `pr` writes the body. Put the shots in its Before/After: the Ready frame beside the build at each width. Then the findings table, with what remains open after the re-check.
 
 ## Docs mode
