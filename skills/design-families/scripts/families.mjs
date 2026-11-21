@@ -42,7 +42,8 @@
 // reference in its family, most typical first, pairs as their own groups.
 //
 // --sliders "loud=2,picture=4,rich=3,cool=2" places each family on the
-// sliders they answered in the first questions, 1 to 5: quiet (1) to loud (5),
+// sliders they answered in the first questions (playful and new are skipped:
+// the eye judges those), 1 to 5: quiet (1) to loud (5), airy (1) to dense (5),
 // type-led to picture-led, plain to rich, warm to cool. Each reference's place
 // comes from what is already measured and tagged, never from the eye; a
 // family's is its members' median. Each family's line then says whether it
@@ -141,10 +142,14 @@ const SLIDERS = {
   picture: ["type-led", "picture-led"],
   rich: ["plain", "rich"],
   cool: ["warm", "cool"],
+  dense: ["airy", "dense"],
 };
+// playful and new, also on the design brief, are not read from a picture: the eye judges those.
+const UNMEASURED = new Set(["playful", "new"]);
 const asked = {};
 for (const part of slidersArg.split(",").map((x) => x.trim()).filter(Boolean)) {
   const [key, value] = part.split("=").map((x) => x.trim());
+  if (UNMEASURED.has(key)) continue;
   if (!SLIDERS[key] || !(Number(value) >= 1 && Number(value) <= 5)) fail(`--sliders ${part}: use ${Object.keys(SLIDERS).join(", ")}, each 1 to 5 (${Object.entries(SLIDERS).map(([k, [a, b]]) => `${k}: 1 ${a}, 5 ${b}`).join("; ")})`);
   asked[key] = Number(value);
 }
@@ -179,6 +184,8 @@ function placeOf(r) {
     picture: mean([pic in PICTURE_PLACE ? to5(PICTURE_PLACE[pic]) : null, r.page && has(r.page.pictures) ? to5(num(r.page.pictures) / 60) : null]),
     rich: mean([col in COLOUR_PLACE ? to5(COLOUR_PLACE[col]) : null, r.figure?.colours ? to5(Math.log(Math.max(1, r.figure.colours)) / Math.log(200)) : null]),
     cool: all ? 3 + 2 * Math.max(-1, Math.min(1, (cool - warm) / (all * 0.25))) : null,
+    // Dense: how little of the first screen is empty. 80% empty is airy (1), 20% is dense (5).
+    dense: empty === null ? null : to5((80 - empty) / 60),
   };
 }
 

@@ -3,7 +3,7 @@ name: design-identity
 description: >
   Lock and refine the identity on the screen they chose in design-direction:
   the type pairing and a small set of colours, starting from what that screen
-  was dealt, with close alternatives from measured font lists, even colour
+  was built with, with close alternatives from measured font lists, even colour
   steps, their other references, the subject's pictures and anything they own,
   all rendered on that screen, never picked by the agent. Ends in the identity
   board: the faces at size and the colours as swatches with their values and
@@ -16,11 +16,11 @@ description: >
 **Uses if there:** `docs/design/design-moodboard.md`, `docs/design/design-families.md`  
 **Writes:** `docs/design/design-identity.md`, `docs/design/design-identity.html`
 
-The direction found the look by dealing type and colour from many references. This skill makes it the product's own: it starts from what the chosen screen was dealt, shows close alternatives on that same screen, and locks one pairing and one palette. Every option comes from somewhere they can point to: the chosen screen, the measured lists, their references, the subject's pictures, what they own. The agent never invents a palette or picks a face by taste.
+The direction found the look by building screens from their references. This skill makes it the product's own: it starts from what the chosen screen was built with, shows close alternatives on that same screen, and locks one pairing and one palette. Every option comes from somewhere they can point to: the chosen screen, the measured lists, their references, the subject's pictures, what they own. The agent never invents a palette or picks a face by taste.
 
 Two files come out, both committed:
 
-- **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-prototype` builds with and `deal.mjs --identity` deals from.
+- **`docs/design/design-identity.md`**: the faces and the colours with their values and roles, and why, in plain words. Its `json identity` block is what `design-prototype` builds with.
 - **`docs/design/design-identity.html`**: the identity board. `design-figma` puts it on the Figma Cover.
 
 Options and captures live in `.longbeard/design/identity/`, gitignored.
@@ -32,11 +32,13 @@ Three stops, no more: options, one refinement, the board.
 1. No `docs/design/design-brief.md` → `design-brief`. No `docs/design/design-direction.md` → `design-direction`. Stop, and say which.
 2. An identity exists → a change. Show the board, ask what changes, and reopen only that.
 
-Read the design brief (personality, feel, never, what is fixed) and the direction's "Look, as dealt". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+
+**At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`), and go to **3. The board**. They can ask for options at the board; that is full pace from there.
 
 ## 1. Options, on the chosen screen, in one message
 
-**Type pairings, three to five.** A pairing is a display face and a text face. The first is the one the screen was dealt.
+**Type pairings, three to five.** A pairing is a display face and a text face. The first is the one the screen was built with.
 
 - **Measured neighbours, never from memory:** `fonts.mjs` lists every Google Fonts face of the same kind, measured (width, x-height, darkness, stroke contrast), nearest first, each with how widely it is used.
 
@@ -47,9 +49,9 @@ Read the design brief (personality, feel, never, what is fixed) and the directio
   ```
 
 - **From their other references:** a face another like uses (the library's `type`), when it suits this composition.
-- At least two of the pairings use faces from beyond the hundred most used (`used` over 100), so the set is not only what every site has. A face dealt `by: eye` is a stand-in: say so, and offer the free faces nearest it. Every face is free to license, or theirs.
+- At least two of the pairings use faces from beyond the hundred most used (`used` over 100), so the set is not only what every site has. A face read `by: eye` is a stand-in: say so, and offer the free faces nearest it. Every face is free to license, or theirs.
 
-**Palettes, three to five.** A palette is three to five colours, each with a role: `ground` (a surface it can stand on), `ink` (text), `accent`. A colour can hold more than one role. The first is the one the screen was dealt.
+**Palettes, three to five.** A palette is three to five colours, each with a role: `ground` (a surface it can stand on), `ink` (text), `accent`. A colour can hold more than one role. The first is the one the screen was built with.
 
 - **Even steps** around it: `colours.mjs` gives lighter, darker, warmer, cooler in OKLCH, and the derived roles, and leaves out what fails contrast.
 
@@ -57,10 +59,10 @@ Read the design brief (personality, feel, never, what is fixed) and the directio
   node <skill>/scripts/colours.mjs --ground "#f1ede4" --ink "#111111" --accent "#fe2601" --family "<the references' colours>" --theirs "<theirs>"
   ```
 
-- **From their other references,** the library's grounds and accents.
+- **From their other references,** the palettes in the direction's readings (`library.json`), each whole.
 - **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
 - **Theirs,** what the design brief records as owned.
-- Every palette has an ink that reads on each ground at 4.5:1, and an accent that holds 3:1 on at least one ground.
+- Every palette has an ink that reads on each ground at 4.5:1 (7:1 when the design brief's accessibility is AAA: `contrast.mjs --level AAA`), and an accent that holds 3:1 on at least one ground.
 
 **Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 
@@ -70,9 +72,9 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/protot
 node <skill>/scripts/sheet.mjs .longbeard/design/identity/type.html .longbeard/design/identity/type-1.png … --cols 3
 ```
 
-One sheet of pairings (each on the dealt colours) and one of palettes (each on the dealt type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as dealt", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best.
+One sheet of pairings (each on the screen's colours) and one of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word), add that as a fact on the same line; it stays an option.
 
-> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as dealt.
+> Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as built.
 
 ## 2. One refinement
 
@@ -88,7 +90,7 @@ Copy [identity-board.html](references/identity-board.html) to `docs/design/desig
 
 > Is this us?
 
-A note reopens only that row, then the board again. A yes is the identity.
+A note reopens only that row, then the board again. A yes is the identity. When the design brief's `decides` names someone else, the board is what they confirm: give its path, and write the identity once they say it holds.
 
 ## Write `docs/design/design-identity.md`
 
@@ -114,14 +116,9 @@ docs/design/design-identity.html
 ```
 ~~~
 
-Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
+Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`, with `--level AAA` when the design brief asks for it). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
 
-Then put the identity on the chosen screen, so the prototype starts from it (the names are the colours' names in the identity block; `--identity` swaps the library's type and colours for the identity's):
-
-```
-node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json --identity docs/design/design-identity.md --mix chosen,type=identity,ground=<ground name>,accent=<accent name>
-node <skill>/scripts/deal.mjs .longbeard/design/direction/library.json --choose 1
-```
+Then put the identity on the chosen screen, so the prototype starts from it: in `.longbeard/design/direction/prototype/first.html`, set `LOOK` to the identity's faces and colours (the display face and weight, the body face, the ground, the ink, the accent, and any other colour by its role in `more`), and capture it once to see it holds. Nothing else in the page changes.
 
 Then the next step in one line: `design-prototype`. If the name is only set in the display face, offer `design-wordmark` once, in the same line; no mark is a fine answer.
 

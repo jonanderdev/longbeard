@@ -156,10 +156,16 @@ const texts = await evaluate(`(() => {
     if (!byEl.has(el)) {
       const s = getComputedStyle(el);
       const size = parseFloat(s.fontSize), weight = parseInt(s.fontWeight, 10) || 400;
-      const colour = parse(s.color) || [0, 0, 0, 1];
+      let colour = parse(s.color) || [0, 0, 0, 1];
+      // Text drawn only as an outline (a stroke, the fill clear): its stroke is what is read.
+      const fill = parse(s.webkitTextFillColor || "") || colour;
+      const stroke = parseFloat(s.webkitTextStrokeWidth) || 0;
+      const outline = stroke > 0 && fill[3] < 0.1;
+      if (outline) colour = parse(s.webkitTextStrokeColor) || colour;
+      else if (fill[3] < colour[3]) colour = fill;
       // A faded container fades its text too: every opacity from the element up multiplies in.
       for (let up = el; up && up.nodeType === 1; up = up.parentElement) colour[3] *= Number(getComputedStyle(up).opacity);
-      byEl.set(el, { text: "", boxes: [], colour, size, weight, large: size >= 24 || (size >= 18.66 && weight >= 700) });
+      byEl.set(el, { text: "", boxes: [], colour, size, weight, outline, large: size >= 24 || (size >= 18.66 && weight >= 700) });
     }
     const t = byEl.get(el);
     t.text += (t.text ? " " : "") + n.textContent.trim().replace(/\\s+/g, " ");
@@ -171,7 +177,7 @@ const texts = await evaluate(`(() => {
 // Hide every text, so the shot is what lies under it.
 await evaluate(`(() => {
   const s = document.createElement("style");
-  s.textContent = "* { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; caret-color: transparent !important; text-decoration-color: transparent !important; }";
+  s.textContent = "* { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; -webkit-text-fill-color: transparent !important; caret-color: transparent !important; text-decoration-color: transparent !important; }";
   document.head.appendChild(s);
   return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => done(true))));
 })()`);
@@ -224,7 +230,7 @@ const rows = results.map((t) => {
   return {
     text: t.text.length > 40 ? `${t.text.slice(0, 39)}…` : t.text,
     box: [x, y, r - x, b - y],
-    colour: hex(t.colour) + (t.colour[3] < 1 ? ` at ${Math.round(t.colour[3] * 100)}%` : ""),
+    colour: hex(t.colour) + (t.colour[3] < 1 ? ` at ${Math.round(t.colour[3] * 100)}%` : "") + (t.outline ? " (outline)" : ""),
     size: t.size,
     large: t.large,
     background: t.worstBg ? hex(t.worstBg) : null,

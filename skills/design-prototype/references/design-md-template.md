@@ -22,7 +22,7 @@ Figma: <file URL>. Figma is the truth for screens. This file is the rules behind
 | color/ink | #… | body text |
 | … | | |
 
-Contrast (scripts/contrast.mjs):
+Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - color/ink on color/bg: <ratio> <AA | AAA>
 - <every text, control and focus pair>
 
@@ -35,12 +35,19 @@ Contrast (scripts/contrast.mjs):
 - Licence: <covers how this ships: web, app bundle>
 
 ## Spacing
+- Density: <airy | balanced | dense, from the design brief, and what it means here: rows per screen, how much before "more">
 - Scale: <space/sm 8, space/md 16, …>
 - <how the scale is used: inside components, between items, between groups, between sections>
 - Corner radius: <value, and where>
 
 ## Components
 - <component>: <what it is for, its variants, its states>
+
+## Motion
+- <none | subtle | expressive, from the design brief: durations, what moves and when; reduced motion turns it off>
+
+## Accessibility
+- Level: <AA | AAA, from the design brief>. Every contrast pair above meets it; design-check checks against it.
 
 ## Imagery
 - <what the pictures are and how they are treated, or "none">

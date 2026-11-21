@@ -34,11 +34,11 @@ One line per finding, hard first:
 
 ## Order
 
-1. **Idea** (rule 0): cover the logo. Is it still this product?
+1. **Idea** (rule 0): cover the logo. Is it still this product? And, with `docs/design/design-brief.md` open: could it be mistaken for the kind of product its `apart from` names (a soft finding at distance 3, hard at 4–5, none at 1–2, where fitting in was the ask), and does it look like its `never`, or its never word (soft)?
 2. **Hard** checks, every section, then the site or app list from the brief's surface.
 3. **Soft** checks, then the tells (rule 14).
 
-Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means.
+Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means. Its Accessibility line (or else the design brief's `accessibility`) sets the contrast level for every contrast check: AA is 4.5:1 and 3:1 large; AAA is 7:1 and 4.5:1 large (`contrast.mjs --level AAA`, `screen-contrast.mjs --min 7 --large 4.5`). Its Motion line is checked too: motion beyond it, or any without a reduced-motion fallback, is a soft finding.
 
 ## Frame mode
 
@@ -77,7 +77,7 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
 On request, or when a design-* skill has written a doc. The design docs are committed and kept for good, so they stay clean.
 
 - Read `DESIGN.md` and every file in `docs/design/`.
-- **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; a path into `.longbeard/` or `design-exploration/`. The fix is the idea in plain words ("a quiet reading page", not whose).
+- **Hard:** a name of a site, brand, studio, designer or person taken from the references; a link to one; the site the stand-in pictures came from (their credits stay in `.longbeard/design/pictures/credits.tsv`); a path into `.longbeard/` or `design-exploration/`, comments in a copied template included. The fix is the idea in plain words ("a quiet reading page", not whose).
 - **Hard:** `design-identity.md`'s colours or faces differ from its `json identity` block, or `DESIGN.md`'s tokens differ from an identity that was not changed on purpose (a change is under Decisions with its date).
 - The product's own name, the faces and colours it uses, and anything the brief or design brief records as theirs are not findings.
 

@@ -30,6 +30,8 @@ It chooses no look and ranks nothing. It gathers what they like and says what it
 3. A board given in the design brief, or now → **Their board**.
 4. Otherwise → **Search**.
 
+**At `pace: quick`** (the design brief): their board as it is, with three or more references, and no gap search. With none, one search: a pool of about 30 across the key screens, steered by the design brief as below, shown as one contact sheet (`contact-sheet.mjs`); they name six to ten by number, and those are the keeps. No picker, no round two. The board and the doc are written as usual.
+
 ## The parts
 
 The board covers the whole product, not its first screen. For a site: home, navigation, index, case study, article, photography, motion, as the brief needs them. For an app: the brief's key screens, its navigation, motion. Every keep has one `part`.
@@ -74,6 +76,12 @@ Both met → say so in one line ("34 fits, every part covered") and write the do
 
 Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens. The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
 
+**The design brief steers the pool, not the picks.** Read its words, personality, never, apart from and distance before the first query:
+
+- **Queries carry the personality** where it leans (1–2 or 4–5): a loud, playful, dense brief searches "bold colour-block dashboard", a quiet, classic, airy one "minimal serif editorial homepage". A slider at 3, or not answered, adds nothing. Half the pool from the leaning forms, half wide, so they can still surprise themselves.
+- **Apart from:** with distance 4–5, leave out candidates that look like the kind of product named there (its usual layout, its usual colours); with 1–2, keep them in, since fitting in is the ask. In `brief-loves.md`, the competitors they named are never seeds.
+- **Never:** a candidate that is plainly the never ("a dark neon dashboard" when never says neon) is not a candidate. Anything less plain stays: they say no on the picker, not you.
+
 1. **A wide pool:** 150 to 250 candidates, across every part. Query the form, not the word ("editorial article layout", not "writing app"). Before calling a field thin, try three more forms and the brief's identity nouns. Cut only what is not a candidate (off-form, broken, under the source's floor); never cut for taste. One row per candidate in `.longbeard/design/moodboard/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
 2. **Check it on contact sheets** (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`): drop non-screens and broken thumbnails only. Thin after that → search again for what is thin.
 3. **The picker:**
@@ -101,7 +109,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 - **App:** a Dribbble concept has never faced real content. Keep it only if its idea survives the brief's longest names, real numbers and an empty state.
 - **Site:** live sites outweigh Dribbble shots.
 
-"You choose" instead of picking: pick closest to the design brief, and say so.
+"You choose" instead of picking: pick closest to the design brief (its words, personality and never, in that order), and say so.
 
 ## The board
 
@@ -115,7 +123,7 @@ Write `.longbeard/design/moodboard/board.md`, one card per keep:
 - frames: <for motion, the folder; else leave out>
 - screen: <yes | no>
 - move: <what it does, as a move, about ten words: "headline fills the width, cropped at the right edge">
-- why: <why it fits the design brief, one line>
+- why: <why it fits the design brief, one line, in its words or personality: "dense and serious, as asked">
 ```
 
 `move` is the heart of it: the composition, picture treatment or type move that made them like it, written so a person could draw it with the picture closed. Never a brand ("like <studio>'s purple").

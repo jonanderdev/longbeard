@@ -1,0 +1,94 @@
+<!doctype html>
+<!--
+  One direction screen, to copy to .longbeard/design/direction/screens/<n>.html.
+  A screen is one reference rebuilt faithfully with the product's content, then
+  changed by one or two moves borrowed from other references (grid.md). Write
+  it as a designer would write a static page: plain HTML and CSS, measured
+  sizes in px at the screen's width. The template only does what is the same
+  every time: the look as variables, overrides in the URL, the faces loaded,
+  and the title set to "ready" once they are in, so a capture can wait for it.
+
+  WRITE three things:
+  - LOOK: the faces and colours this screen uses, by role. Every colour and
+    face in the CSS is one of these variables, never a hex or a name, so
+    design-identity can try another face or palette from the URL.
+  - The CSS and the HTML of the screen.
+  - PROVENANCE: for every face, colour, element and effect on the screen, the
+    reference it comes from. Anything that cannot name one does not belong.
+
+  URL overrides (design-identity, the touch-up): ?face= &body= &weight=
+  &ground=%23… &ink=%23… &accent=%23… (accent=none hides it) &size=390x844.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>screen</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body { background: var(--ground); color: var(--ink); font-family: var(--body-face), system-ui, sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  .screen { position: relative; width: var(--w); height: var(--h); overflow: hidden; }
+  .display { font-family: var(--face), serif; font-weight: var(--weight); }
+  /* WRITE: the screen's CSS. Sizes in px at 1440 as measured from its reference; colours and faces only as variables. */
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <!-- WRITE: the screen's HTML, with the product's real content and pictures (../../pictures/…). -->
+</div>
+<script>
+// ---------------------------------------------------------------- WRITE: the look
+const LOOK = {
+  face: "Display Face", weight: 400,           // the display face and its weight
+  body: "Body Face",                            // the face of everything else
+  ground: "#f4f1ea", ink: "#141414",            // the page, and the text on it
+  accent: "#e2501c",                            // one accent, or null
+  more: { /* panel: "#1a1a1a", "panel-ink": "#f4f1ea" : any other colour the screen uses, by role */ },
+  css: [],                                      // stylesheets for faces not on Google Fonts
+};
+// ---------------------------------------------------------------- WRITE: provenance
+// Every face, colour, element and effect, with the reference it comes from (card names).
+const PROVENANCE = [
+  // { what: "layout: arch photo left, headline over its right edge", from: "base reference" },
+  // { what: "the solid accent disc as the only button", from: "another reference" },
+];
+// ---------------------------------------------------------------- the same every time
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const look = { ...LOOK, more: { ...(LOOK.more || {}) } };
+  for (const k of ["face", "body", "ground", "ink"]) if (q.get(k)) look[k] = q.get(k);
+  if (q.get("weight")) look.weight = Number(q.get("weight"));
+  if (q.get("accent")) look.accent = q.get("accent") === "none" ? null : q.get("accent");
+  const [W, H] = (q.get("size") || "1440x900").split("x").map(Number);
+  const set = (k, v) => document.documentElement.style.setProperty(k, v);
+  set("--w", W + "px");
+  set("--h", H + "px");
+  set("--face", `"${look.face}"`);
+  set("--weight", look.weight || 400);
+  set("--body-face", `"${look.body || look.face}"`);
+  set("--ground", look.ground);
+  set("--ink", look.ink);
+  set("--accent", look.accent || look.ink);
+  for (const [k, v] of Object.entries(look.more)) set(`--${k}`, v);
+  document.body.dataset.provenance = PROVENANCE.length;
+  const wanted = [[look.face, look.weight || 400], [look.body || look.face, 400], [look.body || look.face, 700]];
+  const sheets = [];
+  for (const href of look.css || []) wanted.push([null, null, href]);
+  for (const [face, weight, href] of wanted) {
+    const urls = href ? [href] : [`https://fonts.googleapis.com/css2?family=${encodeURIComponent(face).replace(/%20/g, "+")}:wght@${weight}&display=block`, `https://fonts.googleapis.com/css2?family=${encodeURIComponent(face).replace(/%20/g, "+")}&display=block`];
+    for (const url of urls) {
+      if (document.querySelector(`link[href="${url}"]`)) continue;
+      const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href: url });
+      sheets.push(new Promise((done) => ((link.onload = done), (link.onerror = done))));
+      document.head.appendChild(link);
+    }
+  }
+  await Promise.all(sheets);
+  await Promise.all(wanted.filter(([f]) => f).map(([f, w]) => document.fonts.load(`${w} 100px "${f}"`).catch(() => [])));
+  await document.fonts.ready;
+  document.title = "ready";
+})();
+</script>
+</body>
+</html>

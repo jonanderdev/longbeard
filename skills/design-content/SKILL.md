@@ -29,7 +29,7 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief` first. Stop.
 2. A content doc exists → a change: ask what changes, and update only that.
 
-Read the brief (flows, key screens, identity nouns), the design brief (takeaway, voice, what is fixed) and, if they exist, the direction (must carry, headline) and the identity (how pictures should feel).
+Read the brief (flows, key screens, identity nouns), the design brief (takeaway, voice, what is fixed) and, if they exist, the direction (what it carries, what waits for the prototype, the headline) and the identity (how pictures should feel).
 
 ## 1. Draft it, then ask once
 

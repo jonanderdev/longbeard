@@ -37,9 +37,13 @@
 // the colour it came from (its share, in how many pictures), how it was tuned,
 // its contrast. --json prints { signature, colours, proposals, library, notes }:
 // colours are the pooled colours that survived the noise rules, and library
-// holds one or two grounds in deal.mjs's format, from ["subject"], to add to
-// library.json, and an accent only when the subject has a second hue of its own
+// holds one or two grounds ({ id, ground, ink, from: ["subject"] }), the
+// subject's palette for library.json, and an accent only when the subject has a second hue of its own
 // (a one-hue accent stays in the proposals, for design-identity to offer).
+// The light ground is a quiet tint. The second may be the signature at full
+// strength: a screen borrows it as a ground only when a reference has a ground
+// that strong, and as an accent otherwise, so the subject's colours never push
+// a board somewhere it is not.
 //
 // --sheet out.html writes a page: each proposal's colours as large swatches,
 // and beside each, every picture with the pixels near its source colour lit
