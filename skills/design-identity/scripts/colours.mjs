@@ -2,7 +2,7 @@
 // The colour options of design-identity, made by rule, not picked by the agent: the
 // chosen screen's ground and accent, even steps around each in OKLCH (lighter,
 // darker, warmer, cooler), the family's own colours, and theirs. Every ground
-// keeps the dealt ink where it reads, or else gets near-black or near-white, and an option that fails contrast is left
+// keeps the built ink where it reads, or else gets near-black or near-white, and an option that fails contrast is left
 // out: 4.5:1 for text on a ground, 3:1 for an accent on its ground. No
 // dependencies.
 //
@@ -10,8 +10,8 @@
 //     --family "#ebe4e0,#b6bc94,#fd3b19" --theirs "#2b4c7e"
 //
 // Three choices only: the ground, the text colour (ink) and one accent. The
-// ink has its own row, the dealt ink first: lighter, darker, warmer and cooler
-// steps of it, near-black and near-white, each checked on the dealt ground.
+// ink has its own row, the built ink first: lighter, darker, warmer and cooler
+// steps of it, near-black and near-white, each checked on the built ground.
 //
 // Prints one row per option: row, label, colour, ink (for grounds), contrast.
 // --json prints the same as JSON, for a page that renders the rows.
@@ -151,7 +151,7 @@ const add = (row, label, colour, extra) => {
   seen.add(`${row}${colour}`);
   rows.push({ row, label, colour, ...extra });
 };
-// Grounds: each with an ink. The dealt ink is part of the chosen look (tan on brown), so it stays
+// Grounds: each with an ink. The built ink is part of the chosen look (tan on brown), so it stays
 // wherever it reads; only where it fails does the ground take near-black or near-white, whichever
 // reads best.
 const inks = ["#111111", "#f7f7f5"];
@@ -160,7 +160,7 @@ const groundOption = (label, colour) => {
   const best = own >= 4.5 ? [ink, own] : inks.map((i) => [i, contrast(i, colour)]).sort((a, b) => b[1] - a[1])[0];
   if (best[1] >= 4.5) add("ground", label, colour, { ink: best[0], contrast: Math.round(best[1] * 10) / 10 });
 };
-groundOption("as dealt", ground);
+groundOption("as built", ground);
 groundOption("lighter", step(ground, "lighter"));
 groundOption("darker", step(ground, "darker"));
 groundOption("warmer", step(ground, "warmer"));
@@ -169,12 +169,12 @@ const family = list(familyArg);
 const theirs = list(theirsArg);
 for (const c of family) if (oklch(c)[1] < 0.08) groundOption("the family's", c);
 for (const c of theirs) groundOption("theirs", c);
-// Ink: its own row, the dealt ink first, each on the dealt ground at 4.5:1 or out.
+// Ink: its own row, the built ink first, each on the built ground at 4.5:1 or out.
 const inkOption = (label, colour) => {
   const k = contrast(colour, ground);
   if (k >= 4.5) add("ink", label, colour, { contrast: Math.round(k * 10) / 10 });
 };
-inkOption("as dealt", ink);
+inkOption("as built", ink);
 for (const kind of ["lighter", "darker", "warmer", "cooler"]) inkOption(kind, step(ink, kind));
 inkOption("near-black", "#111111");
 inkOption("near-white", "#f7f7f5");
@@ -185,14 +185,14 @@ const accentOption = (label, colour) => {
   if (k >= 3) add("accent", label, colour, { contrast: Math.round(k * 10) / 10 });
 };
 if (accent) {
-  accentOption("as dealt", accent);
+  accentOption("as built", accent);
   for (const kind of ["lighter", "darker", "warmer", "cooler"]) accentOption(kind, step(accent, kind));
 }
 for (const c of family) if (oklch(c)[1] >= 0.08) accentOption("the family's", c);
 for (const c of theirs) accentOption("theirs", c);
 add("accent", "none", "none", {});
 
-const left = [...(accent && !rows.some((r) => r.row === "accent" && r.label === "as dealt") ? ["the dealt accent (under 3:1 on this ground)"] : [])];
+const left = [...(accent && !rows.some((r) => r.row === "accent" && r.label === "as built") ? ["the built accent (under 3:1 on this ground)"] : [])];
 if (json) console.log(JSON.stringify({ rows, left }, null, 1));
 else {
   for (const r of rows) console.log([r.row, r.label, r.colour, r.ink || "", r.contrast ?? ""].join("\t"));

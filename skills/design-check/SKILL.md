@@ -38,7 +38,7 @@ One line per finding, hard first:
 2. **Hard** checks, every section, then the site or app list from the brief's surface.
 3. **Soft** checks, then the tells (rule 14).
 
-Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means. Its Accessibility line (or else the design brief's `accessibility`) sets the contrast level for every contrast check: AA is 4.5:1 and 3:1 large; AAA is 7:1 and 4.5:1 large (`contrast.mjs --level AAA`, `screen-contrast.mjs --min 7 --large 4.5`). Its Motion line is checked too: motion beyond it, or any without a reduced-motion fallback, is a soft finding.
+Read `DESIGN.md` first: its tokens, components and decisions are what "follows the file" means. Its Accessibility line (or else the design brief's `accessibility`) sets the contrast level for every contrast check: AA is 4.5:1 and 3:1 large; AAA is 7:1 and 4.5:1 large (`contrast.mjs --level AAA`, `screen-contrast.mjs --min 7 --large 4.5`). Its Motion line, and the design brief's `motion` picks behind it, are checked too: motion beyond the picks (a trigger, a feel or a moment not picked, or more than the pick for how much), a pick not built, or any motion without a reduced-motion fallback, is a soft finding.
 
 ## Frame mode
 
@@ -67,6 +67,7 @@ After `implement-spec` builds a UI spec. Input: the running app's URL for each s
    - tokens: colours, type and spacing are `DESIGN.md`'s values (`scripts/contrast.mjs` for any pair that looks off)
    - copy: the frame's words, not placeholders or new ones
    - states: each frame state exists and says the same thing
+   - stand-ins: nothing under Still to supply in `DESIGN.md` reaches the build as it stands (its picture, or its assumed price, hour, number or name). One that does is a hard finding under rule 0, with the screen and the item; it clears when they supply the real one or take the item off the list.
    A difference from the frame is a finding, hard when it breaks a hard rule or changes structure or copy. The rules' glue line holds: a mismatch with the frame is a bug.
 4. **Check the rules** on the build shots, in the order above.
 5. **Fix pass.** Hard findings get one fresh fix pass (a new agent or a clean context, with the findings as its brief), then one re-check.

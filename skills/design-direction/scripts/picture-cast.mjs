@@ -7,7 +7,9 @@
 // dependencies.
 //
 //   node picture-cast.mjs .longbeard/design/subject/loaf.jpg pictures/*.jpg
-//   node picture-cast.mjs .longbeard/design/direction/grid/3.png
+//
+// It runs on the product's own pictures, not on a capture of a screen: a screen
+// is mostly page ground and type, and says nothing about a picture's colour.
 //
 // How: each picture is drawn at most 512 px wide and read in OKLab. The cast
 // is the mean tint of its near-neutral mid-tones (chroma under 0.045,
@@ -17,13 +19,21 @@
 // mean tint is reported, marked "from mid-tones": the subject's own colour
 // is in it, so it is never a fault on its own: look at the picture.
 //
+// A picture on a plain white or black ground (a product on a studio sweep, a
+// cut-out) is not blown or crushed for its ground: when most of the picture's
+// edge is one white or one black, that ground, the part of it that reaches the
+// edge, is left out of every count, and blown and crushed are the share of the
+// subject. A white highlight inside the subject still counts.
+//
 // Prints JSON, one entry per picture: { file, cast: "none|warm|red|magenta|
 // cool|green", strength (OKLab distance from neutral, x100), toned (most of
 // the picture in one hue at low chroma: a sepia, a duotone, black and
 // white), mono, blown (share of pixels near white), crushed (share near
-// black), from: "neutrals|mid-tones", fault }. fault is true for a cast of
-// strength 3 or more, read from neutrals, on a picture that is not toned, or blown or crushed
-// over 8%. Exit 0; 2 on a usage error.
+// black), ground: "white|black|none", from: "neutrals|mid-tones", fault }.
+// fault is true for a cast of strength 3 or more, read from neutrals, on a
+// picture that is not toned, or blown or crushed over 8%. A picture that
+// cannot be read, or has nothing visible in it (all transparent), is
+// { file, error }. Exit 0; 1 if any picture has an error; 2 on a usage error.
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -68,14 +78,23 @@ const exe = findChrome();
 if (!exe) fail("No Chrome/Edge/Chromium found. Install one or set CHROME_PATH.");
 const dir = mkdtempSync(join(tmpdir(), "picture-cast-"));
 const proc = spawn(exe, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${dir}`, "--no-first-run", "--force-color-profile=srgb", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
-process.once("exit", () => {
+const drop = () => {
   try {
     proc.kill("SIGKILL");
   } catch {}
   try {
     rmSync(dir, { recursive: true, force: true });
   } catch {}
-});
+};
+process.once("exit", drop);
+// An interrupt or a harness timeout must not leave Chrome or its profile behind.
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+  process.once(sig, () => {
+    drop();
+    process.exit(code);
+  });
+}
+proc.on("error", (e) => fail(`could not start ${exe}: ${e.message}`));
 let buf = "";
 const wsUrl = await new Promise((done, no) => {
   const t = setTimeout(() => no(new Error("Chrome did not start")), 20000);
@@ -83,20 +102,44 @@ const wsUrl = await new Promise((done, no) => {
     const m = (buf += d).match(/DevTools listening on (ws:\/\/\S+)/);
     if (m) done(m[1], clearTimeout(t));
   });
+  proc.on("exit", (code) => no(new Error(`Chrome exited ${code}`)));
 }).catch((e) => fail(e.message));
 const ws = new WebSocket(wsUrl);
-await new Promise((done) => (ws.onopen = done));
+await new Promise((done, no) => {
+  const t = setTimeout(() => no(new Error("CDP socket did not open")), 10000);
+  ws.onopen = () => done(clearTimeout(t));
+  ws.onerror = () => no(new Error("CDP socket failed"));
+}).catch((e) => fail(e.message));
 let nextId = 0;
 const pending = new Map();
 ws.onmessage = (ev) => {
   const msg = JSON.parse(String(ev.data));
   if (pending.has(msg.id)) pending.get(msg.id)(msg), pending.delete(msg.id);
 };
-const send = (method, params = {}, sessionId) => new Promise((done) => (pending.set(++nextId, done), ws.send(JSON.stringify({ id: nextId, method, params, sessionId }))));
-const { result: target } = await send("Target.createTarget", { url: "about:blank" });
-const { result: att } = await send("Target.attachToTarget", { targetId: target.targetId, flatten: true });
+// If Chrome goes away, every call waiting on it fails now, not at its time limit.
+ws.onclose = () => {
+  for (const done of [...pending.values()]) done({ error: { message: "Chrome closed the connection" } });
+  pending.clear();
+};
+// Every call has a time limit, so a picture that hangs the page fails alone.
+const send = (method, params = {}, sessionId, timeoutMs = 30000) =>
+  new Promise((done, no) => {
+    const id = ++nextId;
+    const timer = setTimeout(() => (pending.delete(id), no(new Error(`Chrome did not answer ${method} in ${timeoutMs / 1000} s`))), timeoutMs);
+    pending.set(id, (msg) => done((clearTimeout(timer), msg)));
+    try {
+      ws.send(JSON.stringify({ id, method, params, sessionId }));
+    } catch (e) {
+      clearTimeout(timer);
+      pending.delete(id);
+      no(e);
+    }
+  });
+const { result: target } = await send("Target.createTarget", { url: "about:blank" }).catch((e) => fail(e.message));
+const { result: att } = await send("Target.attachToTarget", { targetId: target.targetId, flatten: true }).catch((e) => fail(e.message));
 const evaluate = async (expression) => {
   const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }, att.sessionId);
+  if (r.error) throw new Error(r.error.message);
   if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || "the page threw");
   return r.result?.result?.value;
 };
@@ -111,11 +154,54 @@ const read = (src) => `(async () => {
   const g = Object.assign(document.createElement("canvas"), { width: w, height: h }).getContext("2d", { willReadFrequently: true });
   g.drawImage(img, 0, 0, w, h);
   const d = g.getImageData(0, 0, w, h).data;
+  // A plain white or black ground: most of the edge is one of them. The ground is
+  // what reaches the edge in that colour (or in nothing, a transparent edge), not
+  // a highlight inside the subject.
+  const white = (i) => d[i] >= 235 && d[i + 1] >= 235 && d[i + 2] >= 235;
+  const black = (i) => d[i] <= 20 && d[i + 1] <= 20 && d[i + 2] <= 20;
+  let edge = 0, edgeWhite = 0, edgeBlack = 0;
+  const walk = (x, y) => {
+    const i = 4 * (y * w + x);
+    if (d[i + 3] < 128) return;
+    edge++;
+    if (white(i)) edgeWhite++;
+    else if (black(i)) edgeBlack++;
+  };
+  for (let x = 0; x < w; x++) walk(x, 0), walk(x, h - 1);
+  for (let y = 1; y < h - 1; y++) walk(0, y), walk(w - 1, y);
+  const ground = edge && edgeWhite >= edge * 0.7 ? "white" : edge && edgeBlack >= edge * 0.7 ? "black" : "none";
+  const isGround = new Uint8Array(w * h);
+  let groundCount = 0, visible = 0;
+  for (let i = 3; i < d.length; i += 4) if (d[i] >= 128) visible++;
+  if (ground !== "none") {
+    const same = ground === "white" ? white : black;
+    const stack = [];
+    const push = (x, y) => {
+      const at = y * w + x;
+      if (isGround[at]) return;
+      if (d[4 * at + 3] >= 128 && !same(4 * at)) return;
+      isGround[at] = 1;
+      if (d[4 * at + 3] >= 128) groundCount++;
+      stack.push(at);
+    };
+    for (let x = 0; x < w; x++) push(x, 0), push(x, h - 1);
+    for (let y = 0; y < h; y++) push(0, y), push(w - 1, y);
+    while (stack.length) {
+      const at = stack.pop(), x = at % w, y = (at - x) / w;
+      if (x > 0) push(x - 1, y);
+      if (x < w - 1) push(x + 1, y);
+      if (y > 0) push(x, y - 1);
+      if (y < h - 1) push(x, y + 1);
+    }
+  }
+  // With almost nothing but ground there is no subject to judge: the picture is judged whole.
+  const leave = ground !== "none" && visible - groundCount >= visible * 0.02;
   const lin = (c) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
   let n = 0, blown = 0, crushed = 0, nn = 0, na = 0, nb = 0, mn = 0, ma = 0, mb = 0, chromaSum = 0;
   const hues = new Array(36).fill(0);
   for (let i = 0; i < d.length; i += 4) {
     if (d[i + 3] < 128) continue;
+    if (leave && isGround[i / 4]) continue;
     n++;
     const r = lin(d[i]), gg = lin(d[i + 1]), b = lin(d[i + 2]);
     const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * gg + 0.0514459929 * b);
@@ -133,7 +219,7 @@ const read = (src) => `(async () => {
     mn++, (ma += A), (mb += B);
     if (C < 0.045) nn++, (na += A), (nb += B);
   }
-  return { n, blown, crushed, nn, na, nb, mn, ma, mb, chroma: chromaSum / Math.max(1, n), hues };
+  return { n, visible, ground: leave ? ground : "none", blown, crushed, nn, na, nb, mn, ma, mb, chroma: chromaSum / Math.max(1, n), hues };
 })()`;
 
 const results = [];
@@ -144,6 +230,10 @@ for (const file of files) {
     r = await evaluate(read(src));
   } catch (e) {
     results.push({ file, error: `could not read: ${e.message.split("\n")[0]}` });
+    continue;
+  }
+  if (!r.visible) {
+    results.push({ file, error: "nothing visible: the picture is all transparent" });
     continue;
   }
   const fromNeutrals = r.nn >= r.n * 0.03;
@@ -167,10 +257,12 @@ for (const file of files) {
     mono,
     blown,
     crushed,
+    ground: r.ground,
     from: fromNeutrals ? "neutrals" : "mid-tones",
     fault: (fromNeutrals && strength >= 3 && !toned) || blown > 8 || crushed > 8,
   });
 }
 ws.close();
 console.log(JSON.stringify(results, null, 1));
-process.exit(0);
+for (const r of results) if (r.error) console.error(`picture-cast: ${r.file}: ${r.error}`);
+process.exit(results.some((r) => r.error) ? 1 : 0);
