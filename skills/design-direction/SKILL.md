@@ -1,13 +1,13 @@
 ---
 name: design-direction
 description: >
-  Find the direction: eight first screens, each one of their references rebuilt
-  faithfully with the product's real content and pictures, then changed by one
-  or two things borrowed from their other references, so each keeps what made
-  its reference work and the round offers several directions. Nothing on a
-  screen that is not on their board. They pick on a rendered sheet, ask for
-  more of one or a mix; then a light touch-up pass fixes contrast, anything
-  missing and anything plainly broken, never the composition. Writes
+  Find the direction: a quick first round of eight screens, each one of their
+  references rebuilt faithfully with the product's real content and pictures,
+  then changed by one or two things borrowed from their other references, so
+  the round offers several directions. Nothing on a screen that is not on
+  their board. They pick on a rendered sheet, ask for more of one or a mix;
+  what they pick is built in full, then a light touch-up pass fixes contrast,
+  anything missing and anything plainly broken, never the composition. Writes
   docs/design/design-direction.md. Runs after design-brief and
   design-moodboard; design-identity then refines its type and colour.
 ---
@@ -18,7 +18,7 @@ description: >
 **Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
-The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references (a palette, an element, a face, a picture treatment, the layout turned), and is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like in each reference is what the screens borrow. The agent's craft is making a borrowed move fit its base so it still works. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a reference on their board, and a fresh agent checks that. They choose on rendered screens; the agent never ranks them. After the choice, a light touch-up repairs what is broken and never redesigns.
+The rule here: **work from the references the way a designer works from a board.** Each reference is a finished design: its sizes, spacing, type and colours were chosen together, and that is why it works. So a screen starts as one reference rebuilt faithfully with the product's own content, then takes one or two things from other references (a palette, an element, a face, a picture treatment, the layout turned), and, once they pick it, is checked until what made the reference work still works. **They are the designer.** They pick the references, say what they like in each, and choose the result; what they like in each reference is what the screens borrow. The agent's craft is making a borrowed move fit its base so it still works. Its own taste adds nothing: every face, colour, element and effect on a screen comes from a reference on their board, and a fresh agent checks that. They choose on rendered screens; the agent never ranks them. After the choice, a light touch-up repairs what is broken and never redesigns.
 
 Comes out:
 
@@ -30,7 +30,7 @@ Comes out:
 1. No `docs/design/design-brief.md` → `design-brief`. No moodboard → `design-moodboard`. Stop, and say which.
 2. A direction exists → a change: show it, ask what changes, build new screens only if the composition does.
 
-**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, never a rougher screen.
+**At `pace: quick`** (the design brief): one round of eight; more, a mix or another round only when they ask, never pressed. The pictures, the touch-up and the five-second check are as usual: quick is fewer choices, and what they pick is still built in full.
 
 ## 0. Pictures of the subject
 
@@ -73,36 +73,33 @@ Open the lead and every like at full size and write `.longbeard/design/direction
 
 ## 3. Build the screens
 
-Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base and its moves:
+Eight screens, each `.longbeard/design/direction/screens/<n>.html` from [screen-template.html](references/screen-template.html), recorded in `screens.json` with its base, its moves, its `build` (`quick` or `full`) and its `state`.
 
-Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board. Each screen is made by fresh agents with one job each:
+Five principles decide every case: the base stands unless a move names it; every measure is a share of the screen and is kept; a borrowed thing keeps its geometry and its why; a move changes only what it names; nothing from outside the board.
 
-1. **Plan** (you): the bases and moves for the eight, and a brief per screen.
-2. **Build:** translate the base faithfully, measured against it (`layout-diff.mjs`) until it matches, then make the moves.
-3. **Critique:** with only the pictures (the reference, the screen, an overlay of the two), every spot where the screen is less finished than its reference, each shown in the reference.
-4. **Fix:** only those spots, toward the reference, each fix a new version, every version kept; then a fresh critic again, at most three times. What is left is shown as a known fault.
+**The first round is quick.** Fidelity costs time, so it is spent where they look. Each screen is its base and its moves, built once by a fresh agent at the right proportions, faces, colours and pictures: no critic loop, no device close-ups. It reaches them in minutes, so they see many directions before choosing. **The full build** (plan, build, critique, fix, every version kept) runs only on what they pick (step 4).
 
-Wait for every helper. Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet), faults.
+Then the round: not a copy, as varied as the board, contrast (a failure blocks the sheet, rough or not), faults. **The round is done when every screen in `screens.json` has ended in a `state`** (`built`, `critiqued`, `fixed`, or `failed` with why). Wait for each helper. Draw the sheet only then; a screen that failed is shown as failed, never left out. With no fresh agents, do each job yourself in turn and say the round is weaker.
 
-How, with the list of moves and the checks: [grid.md](references/grid.md).
+How, with the list of moves, the states and the checks: [grid.md](references/grid.md).
 
-Show the sheet, the sheet of each screen beside its base, and a table: each number, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), so nothing on a screen is a mystery to them, and any fault you could not fix. Never say which you prefer.
+Show the sheet, marked rough or full for each screen, the sheet of each screen beside its base, and a table: each number, rough or full, its base and its moves in plain words, every visible choice that came from their likes (with the like: "black and white photos: your like for <reference>"), so nothing on a screen is a mystery to them, and any fault you could not fix. Never say which you prefer.
 
 **Against the brief,** one column of the table, facts only: what sits against the design brief's never, its three words, its personality (a cool palette for a warm brief), and apart from (a screen that could be mistaken for the kind of product named there, at distance 4–5). It is there so they choose knowingly, not to steer them. Taken, it goes under **Changes** in the design brief, with why.
 
-> Which would you take further? Any number, or none. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
+> Which would you take further? Any number, or none: a pick is built in full. Or roll again: "more" for a fresh round of eight, "more of 3" for three more on 3's base, "3 with 6's colours" for a mix.
 
 ## 4. More, mix, choose
 
-- **More of some:** for each pick, three more screens on the same base with other moves (another palette, another face, another element), built and checked the same way. Capture, sheet with `--cols 4`, show.
-- **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built the same way.
-- **More, or none:** a fresh round of eight, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
+- **More of some:** each pick, if still rough, is built in full, and gets three more screens on the same base with other moves (another palette, another face, another element), also built in full. Capture, sheet with `--cols 4`, show.
+- **A mix:** "4 with the colours of 7", "6 with the disc from 2": the base of one with the move of another, built in full.
+- **More, or none:** a fresh round of eight, quick like the first, as often as they ask: other pairings of bases and moves from what they liked, none shown before. A round can surprise them, and that is the point of the step. After two rounds with nothing taken, ask once what is missing; a search for it is `design-moodboard`.
 
 **Before showing a screen again** (more of it, a mix, a fix), put it beside the version they last saw and list what got worse; a change that breaks something they liked is undone. Any earlier version stays theirs to take.
 
 **The pick decides, the why guides.** When they pick a screen that breaks a why they gave, record it and ask once whether the why still holds; the screen is never blocked by it.
 
-**Their favourite, alone.** Before the yes, show the one they lean to at full size on its own, as a visitor meets it: a sheet rewards what stands out beside its neighbours. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`).
+**Their favourite, alone.** Before the yes, build in full the one they lean to if it is still rough, then show it at full size on its own, as a visitor meets it: a sheet rewards what stands out beside its neighbours. Iterate until one screen is theirs, read it back in one line, and on their yes copy it to `.longbeard/design/direction/prototype/first.html` and note its number in `screens.json` (`"chosen": n`). A rough screen never becomes `first.html`.
 
 **The other width, before the yes, without a stop.** Render the one they settled on at the other size yourself (`screens/<n>.html?size=390x844`, or the desktop for phone screens) and look. Say one line only when the composition's core depends on the width ("on a phone the headline breaks into five lines"); the phone is designed properly in `design-prototype`. When the design brief's `decides` names someone else, say the choice is theirs to confirm with that person, and give the sheet's path to send; go on only once they say it holds.
 
@@ -173,6 +170,7 @@ Yes → `design-identity`.
 ## Do not
 
 - Rank the screens, or say which you prefer.
+- Show a rough screen as finished, or draw the sheet while a screen has no final state.
 - Add anything no reference has: a gradient, a shadow, a default button, a pill, a decoration, a colour, an effect.
 - Fit more content onto a screen than its base carries. The rest waits for the prototype.
 - Polish the screens beyond their references. Detail and states wait for `design-prototype`.

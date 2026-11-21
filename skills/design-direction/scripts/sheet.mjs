@@ -6,7 +6,11 @@
 //   node sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png .longbeard/design/direction/grid/2.png …
 //   node sheet.mjs .longbeard/design/direction/grid/vary.html --cols 5 .longbeard/design/direction/grid/v*.png
 //   node capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
+//   node sheet.mjs <out.html> --rough 1,2,4 --note "built without fresh agents: weaker" <shots…>
 //
+// --rough 1,2,4 (or none) labels those tiles "rough" and the rest "full", so a quick screen is never
+// read as a finished one. --note prints a line under the sheet.
+
 // Tiles are numbered in the order given, left to right, top to bottom, which
 // is the recipe's number when the shots are passed in order.
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -15,9 +19,16 @@ import { dirname, relative, resolve } from "node:path";
 const args = process.argv.slice(2);
 const at = args.indexOf("--cols");
 const cols = at === -1 ? 2 : Number(args.splice(at, 2)[1]);
+const take = (name) => {
+  const i = args.indexOf(name);
+  return i === -1 ? null : (args.splice(i, 2)[1] ?? "");
+};
+const roughArg = take("--rough");
+const note = take("--note");
+const rough = new Set((roughArg ?? "").split(",").filter((n) => n && n !== "none").map(Number));
 const [outArg, ...shots] = args;
-if (!outArg || !/\.html$/.test(outArg) || !shots.length || !Number.isInteger(cols) || cols < 1 || cols > 8) {
-  console.error("usage: node sheet.mjs <out.html> [--cols 2] <shot.png> …");
+if (!outArg || [...rough].some((n) => !Number.isInteger(n) || n < 1) || roughArg === "" || note === "" || !/\.html$/.test(outArg) || !shots.length || !Number.isInteger(cols) || cols < 1 || cols > 8) {
+  console.error('usage: node sheet.mjs <out.html> [--cols 2] [--rough 1,2|none] [--note "text"] <shot.png> …');
   process.exit(2);
 }
 const out = resolve(outArg);
@@ -31,7 +42,7 @@ const escape = (text) => text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&
 // A local path in a src: each part encoded, so # ? % and spaces stay in the name.
 const urlPath = (path) => path.split("/").map(encodeURIComponent).join("/");
 const tiles = shots
-  .map((shot, i) => `<figure><img src="${escape(urlPath(relative(dirname(out), resolve(shot)).split("\\").join("/")))}" alt="Screen ${i + 1}"><figcaption>${i + 1}</figcaption></figure>`)
+  .map((shot, i) => `<figure><img src="${escape(urlPath(relative(dirname(out), resolve(shot)).split("\\").join("/")))}" alt="Screen ${i + 1}"><figcaption>${i + 1}${roughArg === null ? "" : rough.has(i + 1) ? " · rough" : " · full"}</figcaption></figure>`)
   .join("\n");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(
@@ -45,11 +56,12 @@ writeFileSync(
   figure { margin: 0; display: flex; flex-direction: column-reverse; gap: 8px; }
   img { display: block; width: 720px; height: auto; }
   /* The number sits above the screen, never on it: a corner of a screen is where its name or menu is. */
+  p { margin: 24px 0 0; max-width: 1200px; font-weight: 400; font-size: 20px; line-height: 1.4; color: #fff; }
   figcaption { align-self: flex-start; min-width: 44px; padding: 8px 10px; text-align: center; background: #111; color: #fff; }
 </style>
 <main>
 ${tiles}
 </main>
-`,
+${note ? `<p>${escape(note)}</p>\n` : ""}`,
 );
 console.log(`${shots.length} screens, ${cols} across: ${outArg}`);

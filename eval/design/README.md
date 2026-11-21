@@ -34,8 +34,11 @@ To change only how the direction's screens are built, `--from <finished run>` ta
 - the identity's json block parses; `DESIGN.md` records the brief's accessibility level, and every contrast pair on its colour tokens passes at it;
 - rendered (skipped with `--no-browser`): the chosen screen and every prototype page pass contrast; the prototype's links lead somewhere from the first page;
 - the round's screens (`screens.mjs`): no text under 12px at 1440, no clipped text, contrast on every screen; no more text blocks than the base carries and one more (soft);
+- every screen has a `build` (quick or full) and a `state` in `screens.json`, a failed one with its why (soft);
 - the tells of a generic page in each screen's source (soft): gradient text, gradients of two hues, frosted glass, soft drop shadows, pills, a default face, a violet accent, tracked caps labels, emoji, stock marketing words. Facts, not verdicts: a reference may use one on purpose;
 - `eval-log.md` reports nothing the agent could not follow (soft).
+
+It also tells, outside the score, the time to the first sheet: from `run.mjs --agent`'s start (`.longbeard/eval/started.txt`; for a run by hand, `date +%s000 > .longbeard/eval/started.txt` before the agent starts) to `grid/sheet.png`. Read it on `--from` runs, which stop at the first sheet; an end-to-end run may draw later sheets over it. The first round is quick and should arrive in minutes.
 
 It prints `score: passed/checked` and exits 1 on any hard fail. What it cannot judge: whether the screens are good. That is the owner's, below.
 
