@@ -1381,6 +1381,17 @@ async function readMotion() {
         load.push(take());
         pixels.push(canvases.map(grab));
       }
+      // Something that moved and then held for the last step has either ended or the tab drew no frame
+      // in that step (a slow machine). One more look, a little later, tells the two apart.
+      const held = tracked.some((el, i) => {
+        const rows = load.map((s) => s[i]);
+        return !rows.some((r) => !r) && KEYS.some((key, k) => !rows.every((r) => r[k] === rows[0][k]) && rows[3][k] === rows[2][k]);
+      });
+      if (held && !late()) {
+        await pause(250);
+        await frame();
+        load.push(take());
+      }
       const looping = new Set();
       tracked.forEach((el, i) => {
         const rows = load.map((s) => s[i]);
@@ -1388,7 +1399,7 @@ async function readMotion() {
         KEYS.forEach((key, k) => {
           if (rows.every((r) => r[k] === rows[0][k]) || isCovered(el, key)) return;
           if (key === "box" && layoutMoves) return;
-          const loop = rows[3][k] !== rows[2][k];
+          const loop = rows[3][k] !== rows[2][k] || (rows[4] !== undefined && rows[4][k] !== rows[3][k]);
           if (loop) looping.add(i + ":" + k);
           emit(script(key, loop ? "loop" : "once", "load"), el);
         });
@@ -1421,7 +1432,7 @@ async function readMotion() {
         // A thing fixed or sticky changes its place by design: only what it does besides counts.
         const OWN = ["transform", "opacity", "translate", "rotate", "scale", "clip-path", "filter"];
         tracked.forEach((el, i) => {
-          const was = load[3][i], base = still[i];
+          const was = load[load.length - 1][i], base = still[i];
           if (!was || !base) return;
           KEYS.forEach((key, k) => {
             if (was[k] !== base[k] || looping.has(i + ":" + k) || isCovered(el, key)) return;
