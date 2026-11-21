@@ -13,7 +13,13 @@
 // source "seed" starts liked; its image may be a path in the project instead
 // of a URL. A row it cannot show is skipped, and stderr says how many and why.
 //
+// --families families.json (from group.mjs) shows the tiles in groups, each
+// headed by its name and size, the biggest first. A row in no group follows,
+// last. Ids and marks are the same with or without it, and without it the
+// page is one grid, as before.
+//
 //   node picker.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/picker.html
+//   node picker.mjs .longbeard/design/moodboard/candidates.tsv --families .longbeard/design/moodboard/families.json --out .longbeard/design/moodboard/picker.html
 //   node picker.mjs .longbeard/design/moodboard/candidates-2.tsv --round 2 --out .longbeard/design/moodboard/picker-2.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -26,11 +32,12 @@ const flag = (name) => {
 };
 const outArg = flag("out");
 const roundArg = flag("round") || "1";
+const familiesArg = flag("families");
 const round = Number(roundArg);
 const tsvArg = args[0];
 if (!tsvArg || !outArg || args.length !== 1 || !Number.isInteger(round) || round < 1 || round > 26) {
   console.error(
-    "usage: node picker.mjs .longbeard/design/<step>/candidates.tsv --out .longbeard/design/<step>/picker.html [--round 2]",
+    "usage: node picker.mjs .longbeard/design/<step>/candidates.tsv --out .longbeard/design/<step>/picker.html [--round 2] [--families families.json]",
   );
   process.exit(2);
 }
@@ -78,7 +85,19 @@ const rows = readFileSync(tsvPath, "utf8")
     return true;
   });
 
+let groups = null;
+if (familiesArg) {
+  try {
+    groups = JSON.parse(readFileSync(resolvePath(familiesArg), "utf8")).families;
+    if (!Array.isArray(groups)) throw new Error("no families list");
+  } catch (error) {
+    console.error(`picker: cannot read families at ${familiesArg}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
 const tiles = [];
+const tileById = new Map();
 const seenImages = new Set();
 const skipped = new Map();
 const skip = (why) => skipped.set(why, (skipped.get(why) ?? 0) + 1);
@@ -109,20 +128,64 @@ rows.forEach((line, i) => {
       ? `<a class="name" href="${esc(link)}" title="${esc(name)}" target="_blank" rel="noopener noreferrer">${esc(name)}</a>`
       : `<span class="name" title="${esc(name)}">${esc(name)}</span>`) +
     (meta ? `<span class="meta">${esc(meta)}</span>` : "");
-  tiles.push(`<figure class="tile" data-id="${esc(id)}" data-title="${esc(name)}"${seed ? ' data-seed="1"' : ""}>
+  const tile = `<figure class="tile" data-id="${esc(id)}" data-title="${esc(name)}"${seed ? ' data-seed="1"' : ""}>
       <button type="button" class="frame" aria-pressed="false" aria-label="${esc(`${id} ${name}: mark like, no, or clear`)}">
         <img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer">
         <span class="id">${esc(id)}</span>${source ? `<span class="src">${esc(source)}</span>` : ""}
         <span class="mark"></span>
       </button>
       <figcaption>${caption}</figcaption>
-    </figure>`);
+    </figure>`;
+  tiles.push(tile);
+  tileById.set(id, tile);
 });
 
 if (!tiles.length) {
   console.error("picker: no row has an image");
   process.exit(1);
 }
+
+// Without groups, one grid. With them, a section per family, each tile once.
+const grid = (list) => `<div class="grid">
+    ${list.join("\n    ")}
+  </div>`;
+let body = grid(tiles);
+if (groups) {
+  const placed = new Set();
+  const sections = [];
+  const section = (title, ids, stray) => {
+    const own = ids.filter((id) => tileById.has(id) && !placed.has(id));
+    own.forEach((id) => placed.add(id));
+    if (own.length) sections.push(`<section class="group"${stray ? ' data-stray="1"' : ""}>
+    <h2>${esc(title)} <span class="n">${own.length}</span> <span class="liked"></span></h2>
+    ${grid(own.map((id) => tileById.get(id)))}
+  </section>`);
+  };
+  let k = 0;
+  for (const g of groups) {
+    if (g.stray) section("Unlike the rest", g.members || [], true);
+    else section(String(g.name || "").trim() || `Group ${++k}`, g.members || [], false);
+  }
+  const rest = [...tileById.keys()].filter((id) => !placed.has(id));
+  if (rest.length) {
+    section("Not grouped", rest, true);
+    console.error(`picker: ${rest.length} rows are in no group`);
+  }
+  body = sections.join("\n  ");
+}
+
+const groupCss = `  .group { margin: 0 0 32px; }
+  .group h2 { margin: 0 0 12px 2px; font-size: 15px; font-weight: 600; }
+  .group h2 .n, .group h2 .liked { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .group[hidden] { display: none; }
+`;
+const groupJs = `    for (const g of document.querySelectorAll(".group")) {
+      const own = [...g.querySelectorAll(".tile")];
+      g.hidden = own.every((t) => t.hidden);
+      const n = own.filter((t) => t.dataset.state === "like").length;
+      g.querySelector(".liked").textContent = n ? "· " + n + " liked" : "";
+    }
+`;
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -141,7 +204,7 @@ const html = `<!DOCTYPE html>
   .filters { margin: 0 0 18px 2px; display: flex; gap: 8px; }
   .filters button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid #c8c8c4; background: var(--paper); color: var(--ink); cursor: pointer; }
   .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .tile { margin: 0; display: flex; flex-direction: column; background: var(--paper); border-radius: 16px; overflow: hidden; outline: 3px solid transparent; outline-offset: -3px; }
   .tile[data-state="like"] { outline-color: var(--like); }
   .tile[data-state="no"] .frame img { opacity: 0.3; filter: grayscale(1); }
@@ -184,9 +247,7 @@ const html = `<!DOCTYPE html>
     <button type="button" data-show="like" aria-pressed="false">Likes</button>
     <button type="button" data-show="no" aria-pressed="false">Noes</button>
   </div>
-  <div class="grid">
-    ${tiles.join("\n    ")}
-  </div>
+  ${body}
 </main>
 <div class="bar">
   <div class="bar-in">
@@ -228,7 +289,7 @@ const html = `<!DOCTYPE html>
       t.querySelector(".frame").setAttribute("aria-pressed", s ? "true" : "false");
       t.hidden = !(show === "all" || (show === "open" ? !s : s === show));
     }
-    const keep = {};
+${groups ? groupJs : ""}    const keep = {};
     for (const t of tiles) if (t.dataset.state || t.dataset.seed) keep[tag(t)] = t.dataset.state || "";
     try { localStorage.setItem(key, JSON.stringify({ states: keep, note: note.value })); } catch (e) {}
   }

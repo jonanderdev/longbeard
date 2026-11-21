@@ -30,7 +30,7 @@ It chooses no look and ranks nothing. It gathers what they like and says what it
 3. A board given in the design brief, or now → **Their board**.
 4. Otherwise → **Search**.
 
-**At `pace: quick`** (the design brief): their board as it is, with three or more references, and no gap search. With none, one search: a pool of about 30 across the key screens, steered by the design brief as below, shown as one contact sheet (`contact-sheet.mjs`); they name six to ten by number, and those are the keeps. No picker, no round two. The board and the doc are written as usual.
+**At `pace: quick`** (the design brief): their board as it is, with three or more references, and no gap search. With none, one search: a pool of about 30 across the key screens, steered by the design brief as below, grouped first (step 2 below, `--sheet` for the order) and shown as one contact sheet (`contact-sheet.mjs`), group by group; they name six to ten by number, and those are the keeps. No picker, no round two. The board and the doc are written as usual.
 
 ## The parts
 
@@ -83,11 +83,17 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 - **Never:** a candidate that is plainly the never ("a dark neon dashboard" when never says neon) is not a candidate. Anything less plain stays: they say no on the picker, not you.
 
 1. **A wide pool:** 150 to 250 candidates, across every part. Query the form, not the word ("editorial article layout", not "writing app"). Before calling a field thin, try three more forms and the brief's identity nouns. Cut only what is not a candidate (off-form, broken, under the source's floor); never cut for taste. The Dribbble script's default drop list holds only what is never a screen for any product (merch, CVs, worksheets, seasonal cards, stickers, mockups). A kind of product or a look is a candidate for some brief, so you pass it with `--drop` only when this brief rules it out, and the script says on stderr what it cut. One row per candidate in `.longbeard/design/moodboard/candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
-2. **Check it on contact sheets** (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`): drop non-screens and broken thumbnails only. Thin after that → search again for what is thin.
-3. **The picker:**
+2. **Check it on contact sheets** (`contact-sheet.mjs candidates.tsv --out <scratch>/sheets`): drop non-screens and broken thumbnails only. Then **group it**, before anyone picks:
 
    ```
-   node <skill>/scripts/picker.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/picker.html
+   node <skill>/scripts/group.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/families.json
+   ```
+
+   Taste only steers when there are real choices. It measures each thumbnail from its URL and sorts them with `families.mjs`. Nothing is saved: each is read from a scratch folder outside the project, deleted when the script ends. Name each group for what is seen (`name` in the file). **The floor:** with fewer than four groups of real size (a twentieth of the pool, three at least), it says `floor: not met`. Say which looks the pool holds and which it lacks, and search again in other forms and sources, twice at most; then go on and say it is thin. Round one only.
+3. **The picker**, grouped, each group headed by its size:
+
+   ```
+   node <skill>/scripts/picker.mjs .longbeard/design/moodboard/candidates.tsv --families .longbeard/design/moodboard/families.json --out .longbeard/design/moodboard/picker.html
    ```
 
    Look at it yourself first, replace broken rows, then give the path:

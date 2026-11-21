@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `design-moodboard` groups a search's candidates into measured families before the picker opens (`group.mjs`, using `measure.mjs` and `families.mjs` on thumbnails read from their URLs and never saved), the picker shows them grouped with each group's size (`picker.mjs --families`; without it the page is unchanged), and a search with fewer than four families of real size is widened before anyone picks.
+
 - **Design only** (new): `npx longbeard init --design`, or the question "Design only, or the whole pipeline?" on a first `init` in a terminal, installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, with an `AGENTS.md` block that has just the Idea and Design stages. `beard-lock.json` records the choice and `update` keeps to it. `init --full` or `update --full` adds the rest, and leaves your design docs as they are. `design-check`'s build mode says it needs the build stage.
 
 - `design-check` gains `rules.mjs`, shared with `design-prototype`: it opens a page headless at desktop and phone width and prints the hard rules a browser can measure in the findings table, each tied to its rule (sideways scroll, small targets, inputs without a visible label, a focus that shows nothing, placeholder copy, clipped text). Text cut on purpose carries `data-crop` and is skipped; it never checks overlap, collision, alignment or empty space. A check that could not run is "not checked".
