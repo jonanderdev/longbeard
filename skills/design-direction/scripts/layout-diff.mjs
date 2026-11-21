@@ -16,7 +16,13 @@
 //                so a box that moved, a gap that closed or a size that drifted shows.
 // --mirror compares against the reference flipped, for a screen whose layout turned.
 // Sizes are shares of the screen; "off" is more than 15% apart, or a box more
-// than 3% of the screen away. Exit 0 always: it reports, the critic decides.
+// than 3% of the screen away. Exit 0 whenever both pictures were read, whatever is
+// off: it reports, the critic decides. Exit 1 when a picture could not be read,
+// 2 when called wrong. A picture that could not be drawn is said on stderr and
+// leaves the exit alone; diff.json is already written.
+// A tall capture is read on its first screen only, and the pictures show that
+// first screen and nothing below it. --out may be relative: it is taken from
+// where this is run, and the pictures land beside diff.json.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -39,7 +45,8 @@ if (args.length !== 2 || !out) {
   process.exit(2);
 }
 const [refFile, screenFile] = args.map((f) => resolve(f));
-mkdirSync(out, { recursive: true });
+const outDir = resolve(out);
+mkdirSync(outDir, { recursive: true });
 
 function read(file) {
   const r = spawnSync(process.execPath, [join(here, "measure.mjs"), file, "--lines"], { encoding: "utf8", maxBuffer: 1 << 26 });
@@ -92,19 +99,20 @@ const matched = S.map((s) => {
 
 const off = rows.filter((r) => r.off).map((r) => r.what);
 const report = { reference: refFile, screen: screenFile, mirror, off, measures: rows, lines: matched, unread: "pictures' boxes and the gaps between them are not measured here: the critic judges them on side.png and overlay.png" };
-writeFileSync(join(out, "diff.json"), JSON.stringify(report, null, 1));
+writeFileSync(join(outDir, "diff.json"), JSON.stringify(report, null, 1));
 
-// The pictures: the reference cropped to its screen, both at 1440 wide.
-const [fx, fy, fw, fh] = ref.frame?.box || [0, 0, ref.width, ref.height];
+// The pictures: the reference cropped to the screen measure.mjs read, both at 1440 wide.
+// That is the frame it found, else (a tall capture, firstScreen) the top 1440 by 900 share, else the whole.
+const [fx, fy, fw, fh] = ref.frame?.box || [0, 0, ref.width, ref.firstScreen ? Math.round((ref.width * 900) / 1440) : ref.height];
 const W = 1440, H = Math.round((W * fh) / fw);
 const refLayer = (opacity) => `<div style="position:absolute;inset:0;overflow:hidden;opacity:${opacity}"><img src="${pathToFileURL(refFile)}" style="position:absolute;left:${(-fx * W) / fw}px;top:${(-fy * W) / fw}px;width:${(ref.width * W) / fw}px;${mirror ? "transform:scaleX(-1);transform-origin:" + ((fx + fw / 2) * W) / fw + "px 0;" : ""}"></div>`;
 const shot = `<img src="${pathToFileURL(screenFile)}" style="position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;object-position:top">`;
 const page = (body, w) => `<!doctype html><html><head><title>ready</title><style>*{margin:0}body{width:${w}px;background:#777}.f{position:relative;width:${W}px;height:${H}px;overflow:hidden;display:inline-block;vertical-align:top}</style></head><body>${body}</body></html>`;
-writeFileSync(join(out, "side.html"), page(`<div class="f">${refLayer(1)}</div><div class="f" style="margin-left:20px">${shot}</div>`, W * 2 + 20));
-writeFileSync(join(out, "overlay.html"), page(`<div class="f">${shot}${refLayer(0.4)}</div>`, W));
+writeFileSync(join(outDir, "side.html"), page(`<div class="f">${refLayer(1)}</div><div class="f" style="margin-left:20px">${shot}</div>`, W * 2 + 20));
+writeFileSync(join(outDir, "overlay.html"), page(`<div class="f">${shot}${refLayer(0.4)}</div>`, W));
 for (const [name, w] of [["side", W * 2 + 20], ["overlay", W]]) {
-  const c = spawnSync(process.execPath, [join(here, "capture.mjs"), pathToFileURL(join(resolve(out), `${name}.html`)).href, "--out", join(out, `${name}.png`), "--width", String(w), "--clip", `0,0,${w},${H}`], { encoding: "utf8" });
+  const c = spawnSync(process.execPath, [join(here, "capture.mjs"), pathToFileURL(join(outDir, `${name}.html`)).href, "--out", join(outDir, `${name}.png`), "--width", String(w), "--clip", `0,0,${w},${H}`], { encoding: "utf8" });
   if (c.status !== 0) console.error(`layout-diff: ${name}.png not drawn: ${c.stderr.trim()}`);
 }
 console.log(off.length ? `off: ${off.join("; ")}` : "nothing measured is off");
-console.log(`lines off: ${matched.filter((m) => m.off).length} of ${matched.length}. ${join(out, "diff.json")}, side.png, overlay.png`);
+console.log(`lines off: ${matched.filter((m) => m.off).length} of ${matched.length}. ${join(outDir, "diff.json")}, side.png, overlay.png`);

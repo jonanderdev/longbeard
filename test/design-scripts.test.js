@@ -401,9 +401,9 @@ test("links: walks a prototype and says what breaks a flow", (t) => {
 
 // A picture with type in it, drawn by rule: hollow letters (an "o" a block) on a light ground, a
 // headline of five tall ones, a body line of small ones, and a patch of noise standing for a photo.
-function typePicture() {
+function typePicture(flipped = false) {
   const W = 400, H = 300, rgb = new Array(W * H * 3).fill(244);
-  const dot = (x, y, v) => { const i = (y * W + x) * 3; rgb[i] = v[0]; rgb[i + 1] = v[1]; rgb[i + 2] = v[2]; };
+  const dot = (x, y, v) => { const i = (y * W + (flipped ? W - 1 - x : x)) * 3; rgb[i] = v[0]; rgb[i + 1] = v[1]; rgb[i + 2] = v[2]; };
   const letter = (x0, y0, w, h, s, ink) => {
     for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if (x < x0 + s || x >= x0 + w - s || y < y0 + s || y >= y0 + h - s) dot(x, y, ink);
   };
@@ -476,4 +476,51 @@ test("layout-diff: a reference and a screen are both required, and --out", () =>
   assert.equal(r.status, 2);
   assert.match(r.stderr, /usage: node layout-diff\.mjs <reference picture> <screen capture> --out <folder>/);
   assert.equal(spawnSync(process.execPath, [script, "a.png", "b.png"], { encoding: "utf8" }).status, 2, "no --out");
+});
+
+// A picture's width and height, read from its PNG header.
+const sizeOf = (file) => {
+  const b = readFileSync(file);
+  return [b.readUInt32BE(16), b.readUInt32BE(20)];
+};
+
+test("layout-diff: a tall reference is drawn on its first screen, and the pictures land beside diff.json from any folder", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-layout-diff-"));
+  const elsewhere = join(dir, "elsewhere");
+  mkdirSync(elsewhere);
+  // A full page 1440 by 2700, a white first screen and red below it, against a 1440 by 900 screen.
+  const W = 1440, H = 2700;
+  const tall = new Uint8Array(W * H * 3);
+  for (let y = 900; y < H; y++) for (let x = 0; x < W; x++) tall.set([255, 0, 0], (y * W + x) * 3);
+  tall.fill(255, 0, W * 900 * 3);
+  writeFileSync(join(dir, "tall.png"), png(W, H, tall));
+  writeFileSync(join(dir, "screen.png"), png(W, 900, new Uint8Array(W * 900 * 3).fill(255)));
+  // Run from another folder with a relative --out: the pictures must still sit with diff.json.
+  const result = spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/layout-diff.mjs"), join(dir, "tall.png"), join(dir, "screen.png"), "--out", "result"], { encoding: "utf8", cwd: elsewhere });
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 0, result.stderr);
+  const report = JSON.parse(readFileSync(join(elsewhere, "result/diff.json"), "utf8"));
+  assert.equal(report.mirror, false);
+  assert.deepEqual(report.off, [], "the red below the first screen is not measured");
+  // The reference is cut to the first screen, so both pictures are 900 tall, not 2700.
+  assert.deepEqual(sizeOf(join(elsewhere, "result/side.png")), [W * 2 + 20, 900]);
+  assert.deepEqual(sizeOf(join(elsewhere, "result/overlay.png")), [W, 900]);
+});
+
+test("layout-diff: --mirror compares against the reference flipped", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-layout-diff-mirror-"));
+  writeFileSync(join(dir, "reference.png"), typePicture());
+  writeFileSync(join(dir, "turned.png"), typePicture(true));
+  const run = (...extra) => spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/layout-diff.mjs"), join(dir, "reference.png"), join(dir, "turned.png"), "--out", join(dir, extra.length ? "mirrored" : "plain"), ...extra], { encoding: "utf8" });
+  const plain = run();
+  if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
+  assert.equal(plain.status, 0, plain.stderr);
+  const mirrored = run("--mirror");
+  assert.equal(mirrored.status, 0, mirrored.stderr);
+  const read = (name) => JSON.parse(readFileSync(join(dir, name, "diff.json"), "utf8"));
+  assert.equal(read("plain").mirror, false);
+  assert.equal(read("mirrored").mirror, true);
+  assert.ok(read("plain").off.includes("headline box [x, y, w, h]"), "turned, its headline is far from the reference's");
+  assert.ok(!read("mirrored").off.includes("headline box [x, y, w, h]"), "against the flipped reference it is where it should be");
+  assert.ok(read("mirrored").off.length < read("plain").off.length);
 });
