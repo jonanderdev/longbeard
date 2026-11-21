@@ -15,8 +15,11 @@ if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
   exit 1
 fi
 
+# A tag cut elsewhere is not known here until fetched. The number in package.json
+# must be a new one: update only refreshes skills when it moves.
+git fetch --tags --quiet origin
 if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
-  echo "tag v$VERSION already exists" >&2
+  echo "tag v$VERSION already exists. Bump package.json to a new version first." >&2
   exit 1
 fi
 

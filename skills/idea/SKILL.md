@@ -11,9 +11,9 @@ description: >
 
 # Idea
 
-One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: `design-direction` for the people, surface, position and identity nouns, `design` for the key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
+One file comes out: `docs/brief.md`, about 500 words, one page. Every later stage reads it: the design-* skills for the people, surface, position, identity nouns and key screens, `to-spec` for the flows. No stage asks for these again, so the brief has to settle them.
 
-The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's.
+The brief says what and for whom, never how. No framework, database, host or library. Those are Architecture's. And never how it looks: no layout, colour, typeface, named style or page furniture. Those are chosen in Design, on rendered screens, and a brief that describes a look decides it before anyone has seen it.
 
 ## Gate
 
@@ -23,6 +23,8 @@ Look at the repo. Do not ask what is there.
 2. `docs/brief.md` exists and the product itself changes (new people, new surface, a flow dropped) → **Change**.
 3. No brief, and the repo has code or a README → **Existing project**.
 4. Otherwise → **New idea**.
+
+The idea is a piece to look at, not a product to use (a poster, a card, a social post): read [graphic.md](references/graphic.md) first.
 
 ## New idea
 
@@ -68,7 +70,7 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 <2–4. The screens design prototypes first. No UI: "none".>
 
 ## Surface
-<site | app | no UI (CLI, API, library)>. <One line why. A site is the page a person lands on to understand or choose; an app is the tool they come back to.>
+<site | app | graphic | no UI (CLI, API, library)>. <One line why. A site is the page a person lands on to understand or choose; an app is the tool they come back to.>
 
 ## V1 and later
 - v1: <what ships first, as flows from above>
@@ -92,22 +94,26 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 - Every section has content. "None" is an answer. A guess is not.
 - **Changes** is added under Out of scope by the first Change, never before.
 - Position is concrete. "Fast, simple, trustworthy" says nothing every rival would not say. `remembered for` is a thing you could point at on a screen or in a sentence; `against` names real products or habits.
-- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design` uses them as copy.
+- Content is real: the longest names the people will type, the likely numbers, the real empty case. `design-prototype` uses them as copy.
+- A screen is described by what is on it and what it is for, never by how it is arranged or styled. `remembered for` is a thing the product has or does, in the product's own words. If they describe a look while being grilled, keep it out of the brief and tell them it belongs in `design-brief`, which asks it next.
 - Over a page means a flow is really two products, or a section is doing Architecture's job. Cut it.
 
 ## After writing
 
-Offer the next stage in one line. A stage whose file already exists is done, so go past it:
+Offer the next stage in one line, from the stages the router lists. A stage whose file already exists is done, so go past it:
 
-- Site or app, no `DESIGN.md` → `design-direction`.
-- No UI, or `DESIGN.md` exists → stages 2 and 3 are skipped. Next is Architecture: they type `/grill-with-docs`.
+- Site, app or graphic, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
+- No UI, or `DESIGN.md` exists → Design is skipped. Next is Architecture: they type `/grill-with-docs`.
 - `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
+
+With no Architecture stage in the router (a design-only install), the next stage is `design` for a site or app. Otherwise the brief is the result.
 
 Do not start it until they say so.
 
 ## Do not
 
 - Pick a stack, or write a requirement as one ("uses Postgres").
+- Describe a look: a layout, a colour, a typeface, a style by name.
 - Ask a question the repo or the idea already answers.
 - Write the brief before they confirm the seven-line summary.
 - Edit the brief for a feature. Features get specs.

@@ -2,10 +2,10 @@
 // Full-page capture. Unsticks fixed/sticky chrome first so Chrome does not
 // repeat the same fold. Node 22+. Uses an installed Chrome/Edge/Chromium.
 //
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --review /tmp/name-review.jpg
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name.jpg --clip-selector "main"
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --review /tmp/name-review.jpg
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name.jpg --clip-selector "main"
 //   node capture.mjs <url> --out /tmp/mobile.png --width 390
 //   node capture.mjs http://localhost:3000/app --out /tmp/app.png --cookie "session=abc; theme=dark" --strict
 //
@@ -13,7 +13,7 @@
 // www) is named on stderr. With --strict that is exit 1, so a 0 means the
 // shot is of the page asked for.
 //   node capture.mjs file:///abs/path/moodboard.html --out /tmp/moodboard.jpg
-//   node capture.mjs file:///abs/path/shot.jpg --out design-exploration/<slug>/refs/name.jpg --clip x,y,w,h
+//   node capture.mjs file:///abs/path/shot.jpg --out .longbeard/design/moodboard/refs/name.jpg --clip x,y,w,h
 //
 // Before the shot it waits out loaders: until no loader covers the screen and
 // the screen is not one flat colour and the network is quiet, for at most --wait ms (15 s on the web,
@@ -27,19 +27,20 @@
 // start as the page opens, so the loader and the intro are in them. With
 // --scroll they start once it has loaded, and each frame scrolls half a
 // screen by the wheel, so scroll-driven motion plays.
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-intro --frames 12
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-scroll --frames 12 --every 400 --scroll
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-intro --frames 12
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-scroll --frames 12 --every 400 --scroll
 //
 // --click "css" clicks that element once the page has loaded, as a person
 // would. Alone it keeps the screen after the click (an open menu). With
 // --frames the first frame is before the click and the rest record what the
 // click does (a menu opening, a page transition).
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu.jpg --click "button[aria-label*=menu i]"
-//   node capture.mjs <url> --out design-exploration/<slug>/refs/name-menu-open --frames 10 --every 150 --click "header button"
-import { spawn, execSync } from "node:child_process";
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu.jpg --click "button[aria-label*=menu i]"
+//   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu-open --frames 10 --every 150 --click "header button"
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
 
 const args = process.argv.slice(2);
@@ -47,6 +48,11 @@ const flag = (name, def) => {
   const i = args.indexOf(`--${name}`);
   if (i === -1) return def;
   const v = args[i + 1];
+  // A flag that needs a value and has none is a usage error, not a plain shot.
+  if (v === undefined || /^--[a-z]/.test(v)) {
+    console.error(`--${name} needs a value`);
+    process.exit(2);
+  }
   args.splice(i, 2);
   return v;
 };
@@ -73,7 +79,7 @@ const waitArg = flag("wait", "") || "";
 const width = Math.round(Number(flag("width", "1440")));
 if (!url || !/^(https?|file):\/\//.test(url) || !outArg) {
   console.error(
-    'usage: node capture.mjs <https://url | file:///path> --out design-exploration/<slug>/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--click "css"] [--frames N [--every ms] [--scroll]]',
+    'usage: node capture.mjs <https://url | file:///path> --out .longbeard/design/moodboard/refs/name.jpg [--review /tmp/name-review.jpg] [--clip x,y,w,h | --clip-selector "css"] [--width 390] [--cookie "name=value; …"] [--strict] [--wait ms] [--click "css"] [--frames N [--every ms] [--scroll]]',
   );
   process.exit(2);
 }
@@ -104,7 +110,8 @@ if ((frames || clickArg) && (reviewArg || clipArg || clipSelector)) {
   process.exit(2);
 }
 // A local page has no loader worth waiting for, so a sparse screen costs little.
-// A full page stops at 14000 px; our own files (a picker, a moodboard) can run longer.
+// A full page stops at 14000 px; our own files (a picker, a moodboard) run to 30000 px a part,
+// and a longer one is kept in parts (see below).
 const tallest = /^file:/.test(url) ? 30000 : 14000;
 const local = /^file:/.test(url) || /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url);
 const maxWait = waitArg ? Number(waitArg) : local ? 2000 : 15000;
@@ -119,22 +126,25 @@ if (clipArg && clipSelector) {
   process.exit(2);
 }
 
-function projectRoot() {
-  try {
-    return execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
-  } catch {
-    return process.cwd();
-  }
-}
-
+// A relative path is relative to the folder the command runs in.
 function resolveOut(path) {
-  if (!path) return "";
-  if (isAbsolute(path)) return path;
-  return resolve(projectRoot(), path);
+  return path ? resolve(path) : "";
 }
 
 const out = resolveOut(outArg);
 const reviewOut = resolveOut(reviewArg);
+
+// A page that is not there would otherwise be a black shot that looks like a result.
+if (/^file:/.test(url)) {
+  let file = "";
+  try {
+    file = fileURLToPath(url.replace(/[?#].*$/, ""));
+  } catch {}
+  if (!file || !existsSync(file)) {
+    console.error(`no such file: ${file || url}`);
+    process.exit(1);
+  }
+}
 
 function parseClip(s) {
   if (!s) return null;
@@ -155,6 +165,8 @@ const clip = parseClip(clipArg);
 
 function findChrome() {
   const env = process.env.CHROME_PATH;
+  // CHROME_PATH=none: run as if no browser were installed (a quick test run).
+  if (env === "none") return null;
   if (env && existsSync(env)) return env;
   const home = process.env.HOME || process.env.USERPROFILE || "";
   const local = process.env.LOCALAPPDATA || "";
@@ -200,6 +212,13 @@ const drop = () => {
   } catch {}
 };
 process.once("exit", drop);
+// An interrupt or a harness timeout must not leave Chrome or its profile behind.
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+  process.once(sig, () => {
+    drop();
+    process.exit(code);
+  });
+}
 
 proc = spawn(
   exe,
@@ -218,6 +237,10 @@ proc = spawn(
   ],
   { stdio: ["ignore", "ignore", "pipe"] },
 );
+proc.on("error", (e) => {
+  console.error(`could not start ${exe}: ${e.message}`);
+  process.exit(1);
+});
 
 let buf = "";
 const wsUrl = await new Promise((resolveWs, reject) => {
@@ -238,8 +261,15 @@ const wsUrl = await new Promise((resolveWs, reject) => {
 
 const ws = new WebSocket(wsUrl);
 await new Promise((res, rej) => {
-  ws.onopen = res;
-  ws.onerror = () => rej(new Error("CDP socket failed"));
+  const t = setTimeout(() => rej(new Error("CDP socket did not open")), 10000);
+  ws.onopen = () => {
+    clearTimeout(t);
+    res();
+  };
+  ws.onerror = () => {
+    clearTimeout(t);
+    rej(new Error("CDP socket failed"));
+  };
 });
 let nextId = 1;
 const pending = new Map();
@@ -257,12 +287,20 @@ ws.onmessage = (ev) => {
     inflight.delete(msg.params.requestId);
     lastNetwork = Date.now();
   }
+  // An alert, confirm or beforeunload prompt holds the page until it is answered.
+  if (msg.method === "Page.javascriptDialogOpening") {
+    send("Page.handleJavaScriptDialog", { accept: false }, msg.sessionId).catch(() => {});
+  }
   if (msg.id && pending.has(msg.id)) {
     const { resolve: ok, reject: bad } = pending.get(msg.id);
     pending.delete(msg.id);
     if (msg.error) bad(new Error(msg.error.message));
     else ok(msg.result);
   }
+};
+// If Chrome goes away, every call waiting on it fails now, not at its time limit.
+ws.onclose = () => {
+  for (const { reject: bad } of [...pending.values()]) bad(new Error("Chrome closed the connection"));
 };
 const send = (method, params = {}, sessionId, timeoutMs = 30000) => {
   const id = nextId++;
@@ -455,18 +493,41 @@ async function settle() {
 // Clicks a consent button, which can be any element, or else strips a short
 // privacy notice. Rejecting comes first: a script has no use for tracking,
 // and accepting can start scripts that redraw the page.
-// A local page is a state someone set up on purpose, so it is left as it is.
+// A local page is a state someone set up on purpose, so it is left as it is, and
+// so is a record of motion (--frames): nothing there is cleaned up.
 const dismissConsent = () =>
   local ? Promise.resolve(false) : evalValue(`(() => {
-    const accept = /^(accept( all)?( cookies)?|accept (and|&) close|agree|i agree|ok|okay|got it|allow( all)?( cookies)?|i understand|acepto|aceptar)$/i;
-    const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?)$/i;
+    // The common consent tools first, by their own ids: reject, then accept.
+    const known = [
+      "#onetrust-reject-all-handler", "#CybotCookiebotDialogBodyButtonDecline", "#didomi-notice-disagree-button",
+      ".cky-btn-reject", "#cmplz-deny, .cmplz-deny", "[data-cookiefirst-action=reject]", ".iubenda-cs-reject-btn",
+      "#onetrust-accept-btn-handler", "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll", "#didomi-notice-agree-button",
+      ".cky-btn-accept", ".cmplz-accept", "[data-cookiefirst-action=accept]", ".iubenda-cs-accept-btn",
+    ];
+    for (const sel of known) {
+      const el = document.querySelector(sel);
+      if (el && el.getClientRects().length) {
+        el.click();
+        return true;
+      }
+    }
+    const accept = /^(accept( all)?( cookies)?|accept (and|&) (close|continue)|agree|i agree|ok|okay|got it|allow( all)?( cookies)?|i understand|acepto|aceptar( todas?| todo| cookies)?|aceptar y (cerrar|continuar)|onartu( guztiak)?|accepter( tout)?|tout accepter|j'accepte|alle akzeptieren|akzeptieren|accetta( tutti)?|accetto|aceitar( todos)?)$/i;
+    const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?|rechazar( todas?| todo| cookies)?|denegar|ukatu( guztiak)?|refuser( tout)?|tout refuser|continuer sans accepter|alle ablehnen|ablehnen|rifiuta( tutti)?|rejeitar( todos)?)$/i;
     const clickable = [...document.querySelectorAll("button, [role=button], a, input[type=button], input[type=submit], [onclick], div, span")]
       .filter((el) => el.childElementCount <= 2 && el.getClientRects().length);
-    // Only inside a notice about cookies or privacy, so a menu or a gate is never clicked.
+    // Only inside something that looks like a notice about cookies or privacy: a
+    // dialog, a layer fixed or sticky over the page, or one named like a banner.
+    // Never the page itself, so a short page that mentions privacy is not a notice.
+    const about = /cookie|consent|privacy|gdpr|datenschutz|privacidad|consentimiento|confidentialit|privacit/i;
+    const named = /cookie|consent|gdpr|privacy|banner|notice|popup|modal|dialog/i;
     const notice = (el) => {
-      for (let up = el, i = 0; up && i < 8; up = up.parentElement, i++) {
+      for (let up = el, i = 0; up && up !== document.body && up !== document.documentElement && i < 8; up = up.parentElement, i++) {
         const t = up.innerText || "";
-        if (t.length < 1500 && /cookie|consent|privacy|gdpr|datenschutz/i.test(t)) return true;
+        if (t.length >= 1500 || !about.test(t)) continue;
+        const pos = getComputedStyle(up).position;
+        const label = (typeof up.className === "string" ? up.className : "") + " " + up.id;
+        if (up.tagName === "DIALOG" || /^(dialog|alertdialog)$/.test(up.getAttribute("role") || "") ||
+            up.getAttribute("aria-modal") === "true" || pos === "fixed" || pos === "sticky" || named.test(label)) return true;
       }
       return false;
     };
@@ -513,7 +574,14 @@ async function clickOn(selector) {
 }
 
 const navigateStarted = Date.now();
-await page("Page.navigate", { url: target }, 40000);
+// A page that cannot be reached comes back as Chrome's own error page, which would be saved as if
+// it were the site: say so and stop.
+const nav = await page("Page.navigate", { url: target }, 40000);
+if (nav?.errorText && nav.errorText !== "net::ERR_ABORTED") {
+  console.error(`could not reach ${target}: ${nav.errorText}`);
+  drop();
+  process.exit(1);
+}
 
 if (frames) {
   // The frames are the record of motion, so nothing is paused, unstuck or cleaned up.
@@ -523,10 +591,6 @@ if (frames) {
   if (scrollFrames || clickArg) {
     const why = await settle();
     if (why) console.error(`waited ${maxWait} ms: ${why}`);
-    if (await dismissConsent()) {
-      await sleep(800);
-      await settle();
-    }
     await sleep(600);
     t0 = Date.now();
   }
@@ -744,6 +808,26 @@ if (!clipBox && firstFlat < FLAT && (await screenFlat(true).catch(() => 0)) >= F
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, Buffer.from(data, "base64"));
 console.log(out);
+
+// A local page longer than one shot (a families board of hundreds) is kept whole, in parts:
+// <out>-2, <out>-3 … each up to the same height, so nothing below the first part is lost.
+const realHeight = Math.ceil(size.height || height);
+if (clipBox && (shotClip.height < clipBox.height || shotClip.width < clipBox.width)) {
+  console.error(`the clip reaches past the page (${fullWidth}x${realHeight} px): kept ${shotClip.width}x${shotClip.height} px of ${clipBox.width}x${clipBox.height}`);
+} else if (!clipBox && !/^file:/.test(url) && realHeight > fullHeight) {
+  console.error(`the page is ${realHeight} px, over the ${tallest} px limit: kept the first ${fullHeight} px`);
+}
+if (!clipBox && /^file:/.test(url) && realHeight > fullHeight) {
+  const parts = Math.min(10, Math.ceil(realHeight / tallest));
+  for (let i = 1; i < parts; i++) {
+    const y = i * tallest;
+    const { data: part } = await page("Page.captureScreenshot", { format, ...(format === "png" ? {} : { quality: 70 }), captureBeyondViewport: true, clip: { x: 0, y, width: fullWidth, height: Math.min(tallest, realHeight - y), scale: 1 } }, 60000);
+    const partOut = out.replace(/(\.[a-z]+)?$/i, (ext) => `-${i + 1}${ext || ".jpg"}`);
+    writeFileSync(partOut, Buffer.from(part, "base64"));
+    console.log(partOut);
+  }
+  if (realHeight > parts * tallest) console.error(`the page is ${realHeight} px: kept the first ${parts * tallest} px in ${parts} parts`);
+}
 
 if (reviewOut) {
   // Side-by-side columns ~2800 px tall so a tall capture stays readable.

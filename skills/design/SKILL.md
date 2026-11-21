@@ -1,153 +1,78 @@
 ---
 name: design
 description: >
-  Turn a direction into the product's look: prototype the brief's key screens
-  in plain HTML, let them pick and iterate, then on approval write DESIGN.md
-  in one go, lay the look out as a bento board in Figma, and build the
-  screens from it. Colour, type, spacing and
-  copy are chosen here, on rendered screens. Runs when
-  design-exploration/<slug>/direction.md exists and there is no approved
-  DESIGN.md, or for a feature that needs screens. Figma is required.
+  The way into the design-* skills. Reads what the project already has and
+  says which design skill to run next, and why, in a few lines. It suggests;
+  they choose, and any design-* skill can be called directly instead. Runs when
+  docs/brief.md exists, the brief is a site, an app or a graphic, and there is no approved DESIGN.md,
+  or when they ask what to do next on the look.
 ---
 
 # Design
 
-Four things come out, in order: a prototype they approved, `DESIGN.md` (the official look, committed), a bento board of that look in Figma, and the screens in Figma marked **Ready**. Figma is the truth for screens. `DESIGN.md` is the written summary of the rules behind them.
+The design work is a family of small skills. Each does one job, reads what it needs from files, writes one doc, and ends by naming what could come next. None depends on the chat before it, so each can start in a fresh session. This skill only reads the project and suggests.
 
-Read [design-rules.md](references/design-rules.md) before the first prototype. It is the checklist for every screen here and in `design-check`.
+## Where it ends
 
-## Gate
+This is a designer's process, a few short steps with their choice at each, and never one prompt to a finished page. It ends in work they can deliver: `DESIGN.md`, and a Figma file of their own (variables, styles, the identity board, components, every key screen with its states) that they keep changing by hand or with their agent. Say so in one line the first time you suggest a step in a project with no design docs. Never again after that.
 
-Look at the repo. Do not ask what is there.
+## The family
 
-1. No `docs/brief.md` → `idea` first. Stop.
-2. The brief says no UI → nothing to design. Stop.
-3. No `design-exploration/identity*/direction.md` and no `DESIGN.md` → `design-direction` first. Stop.
-4. `DESIGN.md` exists and an identity `direction.md` is newer than it → a rebrand: **First pass**. On approval its `DESIGN.md` replaces the old one.
-5. `DESIGN.md` exists → **Feature loop**.
-6. Otherwise → **First pass**.
+Each skill says at its top what it **Needs**, what it **Uses if there**, and what it **Writes**. Read those lines, not this table, to see what a skill is missing before you suggest it.
 
-The first pass reads the newest `design-exploration/identity*/direction.md` (`identity/`, `identity-2/`), never a one-piece direction.
+| Skill | Job |
+|---|---|
+| `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed |
+| `design-moodboard` | Find references, or read their board and fill its gaps |
+| `design-families` | Optional. Sort a big board or search into looks; they take one or two |
+| `design-direction` | Three or four pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two borrowed from the others; nothing that is not on the board. They choose; a light touch-up pass |
+| `design-identity` | The type pairing and colours of the chosen screen, refined on it from close, rendered options; ends in the identity board |
+| `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
+| `design-figma` | Tokens, the identity board, components and Ready frames |
+| `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
+| `design-wordmark` | Optional, after the identity. A mark made from the chosen type, judged in the chosen screen |
+| `design-check` | Checks a screen against the rules and `DESIGN.md` |
 
-No Figma connection → say Figma is required for UI projects, and stop before the Figma step. The prototype and `DESIGN.md` can still be done.
+## Where things go
 
-## First pass
+- **`docs/design/`** is committed and kept up to date: the design docs above. They describe the style ("a condensed grotesk at a fifth of the width, cropped at the right edge"), never a source: no brand, site, studio, designer or person, no link, and no path into `.longbeard/`. A doc that needs a reference to make sense is written again until it does not.
+- **`.longbeard/design/`** is the agents' working folder, gitignored: captured references, Figma crops, pickers, contact sheets, profiles, direction screens, sketches, prototypes. Nobody needs to open it; when there is something to look at, the skill gives the path. It may not survive (a cloud session, a clean checkout): the docs carry the meaning, and a skill that needs a reference again captures it again or says it cannot.
 
-### 1. Ask first
+On the first write of either, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line. A project with an older `design-exploration/` folder keeps it: nothing writes there any more.
 
-The direction settles the idea, not the values. Colour, type and the rest of the look are chosen here, so they get a say before anything is drawn. Read the brief and `direction.md`, then send one message and wait. Always ask, however the run was set up. Only they can say "go".
+## What to suggest
 
-```
-Before I prototype, a few choices. Skip any with "go" and I'll bring options to react to.
+Look at the repo. Do not ask what is there. Read the design brief's `pace` first: with `quick`, skip what the steps below mark optional, and say so in the suggestion. Then say, in up to four lines, where the project stands and what to run next, with the reason. Name one next step, and the optional ones only when they earn it.
 
-1. Colour: light, dark or both? Any colours you already have, want, or refuse?
-2. Type: what should it feel like to read? Any faces you love or refuse?
-3. Anything else you already see: shapes, density, imagery, how it moves?
-```
+1. No `docs/brief.md` → `idea` first. The brief says no UI → there is nothing to design; say so.
+2. No `docs/design/design-brief.md` → `design-brief`. Every other skill needs it.
+3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is built from it, so it is not skipped.
+4. **The board's size decides families.**
+   - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?" (Not at `pace: quick`.)
+   - About 8 to 60 → no sorting. A board this size is already chosen.
+   - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only. At `pace: quick`, three or more references are enough: go on.
+5. No `design-direction.md` → `design-direction`.
+6. No `design-identity.md` → `design-identity`.
+7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
+8. `DESIGN.md` and no Ready frames → `design-figma`.
+9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
 
-Propose from the direction, so they react rather than start from nothing: for each question, offer two or three concrete options that fit it.
+A graphic (the brief's surface) takes the same steps and ends at its exported Figma frame, so never offer Architecture; its other pieces are `design-prototype`.
 
-### 2. Prototype the key screens
+**Offered once, never pushed** (and not at `pace: quick`):
+- `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.
+- `design-wordmark`, once the identity is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
 
-Read the brief's key screens (2–4) and `direction.md`. Prototype only those, with their main states. Other screens are composed later in Figma from the components.
+Example:
 
-Open the shots `direction.md` lists under References, the anchor or leads first, and keep them open while you prototype. Text carries a direction's structure. The pictures carry its finish: the type's character, the spacing's rhythm, the texture. Take the move, never the design: they rank below design-rules, and nothing in the prototype is lifted from one reference whole.
+> You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens built from them. Your board is small enough to skip sorting.
 
-A reference that moves is felt again, not remembered. A still and a caption cannot carry timing. Before prototyping the part it inspires, play its recorded frames, and open its live link again: record it with `capture.mjs <url> --out design-exploration/<slug>/refs/<name>-replay --frames 12`, with `--scroll` or `--click` for what moves on scroll or on a click. Note what moves, in what order, how fast, and how it eases. Then build that kind of motion into the variants in CSS, with the same feel and none of its content, and say in chat which reference it came from. A link that no longer loads: work from the frames, and say so.
+Then stop. They type the skill, or say yes and you load it.
 
-Load Matt's `prototype`, UI branch, and tell it:
-
-- **No app.** Sub-shape B, in `design-exploration/<slug>/prototype/`: one `index.html` per key screen, plain HTML and CSS, no build step, no router, no NODE_ENV gate. It runs by opening the file.
-- **2–3 variants per screen** behind `?variant=`, structurally different as its rules say. Build their answers in. Where they left a choice open, variants differ on it: this is where colour and type get chosen.
-- **Hide the switcher when the URL has `capture`** (`?variant=B&capture`), so screenshots show only the design.
-- **Real content, not polish skipped.** Real copy in the voice from `direction.md`, real or properly chosen imagery (local files in `prototype/img/`), the longest real names. No lorem, no grey boxes.
-- **No throwaway branch.** The folder is gitignored. The winner goes into `DESIGN.md`, not into git.
-
-The default state is not enough. Each key screen also gets the empty, loading and error states a person can reach, as frames in the same file (`?variant=B&state=empty`). A product with more than one theme shows each one, so they approve every theme, not only the first.
-
-### 3. Self-check, then show
-
-Screenshot each variant at desktop and mobile:
-
-```
-node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/today.html?variant=B&capture" --out <scratch>/today-b.png
-node <skill>/scripts/capture.mjs "file://$PWD/design-exploration/<slug>/prototype/today.html?variant=B&capture" --out <scratch>/today-b-mobile.png --width 390
-```
-
-Shoot every state of every variant, in every theme, not only the default. Check them against the rules: Idea first, then hard, then soft. That includes the hard rules about controls: every input has a visible label, focus and pressed exist, and what looks tappable has a stated result. A hard finding after approval reopens an approved screen. Fix what fails before they see it. Then give the paths and the `?variant=` keys, name the colours and faces each variant uses, and ask which leads, what to take from the others, and whether the colour and type are right. Expect "the header from B with the list from C": that is the design. Iterate on the prototype until they say it is right.
-
-A pattern can bring a feature the brief does not have. Name it when you show it. If they keep it, that is a product change: `idea`, Change, before `DESIGN.md`.
-
-An `ownable` from `direction.md` is unconfirmed until they have seen it rendered. Confirm it or replace it here.
-
-A gap no reference covers (a screen, a control) → `design-direction` one-piece mode with its own slug, then back here.
-
-### 4. Approve: write `DESIGN.md` in one go
-
-Only on their yes to a rendered prototype. Write the whole file from [design-md-template.md](references/design-md-template.md): idea, voice, colour, type, spacing, components, decisions. Write it once, from what was approved. Do not draft it during iteration.
-
-- **Contrast first.** Every text and background pair, and every control colour against its ground, goes through `scripts/contrast.mjs` before it is written: 4.5:1 for body text, 3:1 for large text and non-text marks. A failing pair is fixed in the prototype, shown again, then written. Never write a failing pair.
-  ```
-  node <skill>/scripts/contrast.mjs "#1b1b1f on #fafaf7" "#c2410c on #fafaf7:mark"
-  ```
-- **Themes.** A product with more than one theme lists each colour token once, with a value per theme, and every pair passes the contrast check in each theme.
-- **Ideas, not sources.** References live only in `design-exploration/` on this machine, and only for this step. Nothing that outlives it names one: not `DESIGN.md`, not Figma (layers, descriptions, comments), not code or its comments, not a commit, PR, spec or ticket. No product, site, studio, designer or link from the exploration, and no `design-exploration/` path. Turn each into the idea: "a quiet reading page", not whose. Which reference a move came from is said in chat only.
-- **Write down what makes it this design.** Whatever someone would need to rebuild it without the prototype open goes under Components, with values, not adjectives.
-- **Tokens are code names.** Name each colour, type and spacing token as it will be named in code (`color/ink`, `space/md`). Figma variables use the same names, with code syntax `var(--color-ink)`.
-- **Soft rules overridden on purpose** go under Decisions with the reason. Hard rules cannot be overridden.
-
-### 5. Figma
-
-Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and follow them. This skill adds only what they do not decide.
-
-- **One file per product.** A new one if the project has none (`figma-create-new-file`). Put its URL in `DESIGN.md`.
-- **Our tokens, not a kit.** Variables and styles come from `DESIGN.md`. New files may come with community kits attached (Material, Apple, Simple Design System). Their discovery steps tell you to reuse them. Do not: search the file only (no `includeLibraryKeys`), and build what is missing from `DESIGN.md`.
-- **Build, do not capture.** Compose screens from the tokens and components. Do not run `generate_figma_design` on the prototype. It is a throwaway with a switcher. For pictures, create the image frames, then `upload_assets` the prototype's own files with those `nodeIds`.
-- **Themes are modes.** One colour collection with a mode per theme. Each screen is built once and switches with the mode, never a colour set or a frame per theme. If Figma refuses the modes, stop and ask. Never fall back to separate sets.
-- **Pages:** Cover (the board), Foundations, Components; one `Screens — <flow>` page per flow from the brief; `Explorations` for anything kept for later, by date.
-- **Order:** tokens and styles from `DESIGN.md` → the board → only the components the key screens need → the key screens → their states. The library grows with features. It is not built ahead.
-- **States:** every screen has a frame for each of empty, loading and error that a person can reach, next to the default. A state nobody can reach gets no frame: add the screen, the state and the reason under Decisions in `DESIGN.md`.
-- **Names:** `<screen> — <state>`. When a screen's layout differs by device, `<screen> · <device> — <state>`. The state can describe itself. Theme is never in the name.
-- **Components have their states too:** focus and pressed for every control, before a screen uses it.
-- **One text style per weight used.** Changing a font on styled text detaches it. A weight `DESIGN.md` does not list is a new style, and a new row there.
-- **Trust the file, not the picture.** Take a screenshot only after the edit has returned, and read text back from the nodes. A cloned variant loses its text property links: wire them again. Swapping an instance can keep old overrides: replace it with a fresh one.
-- **Be faithful to the approved prototype.** It is what they said yes to, and Figma is that design, not a new reading of it. Tokens carry the values, not the whole design, so work with the approved variant open and match it. If something cannot be built the same way, say so and ask. Never simplify it silently.
-- **Check each screen** with `design-check` frame mode before showing it, passing the prototype shot. Fix its hard findings.
-- **Ready:** when they approve a frame, add `— Ready` to its name. Tickets link Ready frames, and build is checked against them.
-
-### The board
-
-Before any component, lay the whole look out on one frame, `Board`, on the Cover page: a bento of tiles in different sizes that shows the identity at a glance, the way a studio presents a brand. It is where they see colour, type, imagery and voice working together, and where a weak look shows before a screen is built on it.
-
-- **What it holds**, each its own tile: the product's name set in the display face; the type, each text style named and shown in use; the colours, each token as a swatch with its name, and every theme; two or three of the prototype's real pictures, cropped hard; one line in the voice, set large; a crop of an approved key screen in a device frame; the `ownable`; and, if the brief has one, a number or fact about the product set very large. Add a tile for anything else that makes this look this look (a mark, a shape, an illustration). Leave out a tile that would be empty.
-- **Composed, not listed.** One tile leads and is the largest; the rest vary in size and in which colour they sit on. Tiles share one gap and one radius from `DESIGN.md`. Text sits on its tile's colour at the contrast `DESIGN.md` checked.
-- **Real, and bound.** Every fill, text and radius is bound to a variable or style: the board is the tokens in use, and changes when they change. Copy comes from the brief and the prototype, pictures from `prototype/img/`. No placeholder, no reference's name or picture.
-- **Their yes.** Screenshot it, read the text back from the nodes, and show it. Ask whether this is the product. A no is a change to `DESIGN.md` and the prototype first, then the board again. It is not marked Ready: it is not a screen, and nothing is built from it but the feeling.
-
-If a Figma decision changes a rule (a new token, a component variant, a spacing step), update `DESIGN.md` in the same turn and say what changed.
-
-### 6. Clean up
-
-Offer to delete `design-exploration/<slug>/`. `DESIGN.md` and Figma now carry the result. On no, leave it. It is gitignored either way.
-
-Then offer the next stage: architecture. They start it by typing `/grill-with-docs`. When it runs, seed `GLOSSARY.md` from the brief and the copy in the Figma screens, and ask before renaming a term the screens show.
-
-## Feature loop
-
-A feature with screens, once `DESIGN.md` exists.
-
-- **Only existing parts?** Compose the screens in Figma from the library, with their states, and skip the prototype and `design-direction`.
-- **New parts?** Prototype only the new parts, on the real screens around them, in `design-exploration/<feature>/prototype/`, then as above.
-- New page `Screens — <feature>`. Reuse components. New ones are added to Components.
-- `DESIGN.md` gets entries (a token, a component, a decision with date and reason). It is never rewritten in a feature.
-- **Identity changes need their own yes.** A new colour role, a typeface, a change to the idea or the voice: ask for each one separately, after showing it rendered. Two such changes are approved one at a time, never bundled. An approved one goes on the board too.
-- A rebrand is not a feature: that is `design-direction` again, then a first pass.
-- **A screen with no Ready frame.** A project that joined with its screens already in Figma has frames nobody marked. When a feature touches one, run `design-check` frame mode on it, add what it lacks, and mark it Ready on their yes. A screen with a copy per theme becomes one frame on modes. Only the screens the feature touches, never the whole file.
+**A `DESIGN.md` they bring** has no token tables of ours (rows like `color/ink`), and may carry its tokens at the top in the published DESIGN.md format. Until `design-prototype` writes ours, steps 7 to 9 treat it as no `DESIGN.md`: say so once, and offer it as the identity's starting point, every value in it their choice, kept unless they change it.
 
 ## Do not
 
-- Write `DESIGN.md` before they approve a rendered prototype, or rewrite it during a feature. Only a rebrand's first pass replaces it.
-- Name a reference, its link, its author or a `design-exploration/` path in anything that outlives the exploration: `DESIGN.md`, Figma, code, comments, commits, PRs, specs, tickets.
-- Use a community kit's components or variables in Figma.
-- Build the whole component library before the screens need it.
-- Mark a frame Ready that lacks a state a person can reach, or that has open hard findings.
+- Run a skill for them without their yes, or run two at once.
+- Suggest `design-families` for a board they already curated to a few dozen.
+- Write any doc yourself. Each belongs to its skill.

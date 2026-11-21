@@ -13,22 +13,14 @@
       "writes": "docs/brief.md"
     },
     {
-      "name": "Direction",
-      "when": "A brief with UI, no DESIGN.md",
-      "skills": [
-        "design-direction"
-      ],
-      "writes": "design-exploration/<slug>/direction.md"
-    },
-    {
       "name": "Design",
-      "when": "A direction, no DESIGN.md",
+      "when": "A site, app or graphic brief, no DESIGN.md",
       "skills": [
         "design",
         "figma-generate-library",
         "figma-generate-design"
       ],
-      "writes": "DESIGN.md, Ready Figma frames"
+      "writes": "docs/design/, DESIGN.md, Ready Figma frames"
     },
     {
       "name": "Architecture",
@@ -60,6 +52,38 @@
       "writes": "one PR per spec"
     }
   ],
+  "shapes": {
+    "design": {
+      "label": "Design only",
+      "hint": "the brief, the design skills, design-check and Figma frames, with no planning or code",
+      "items": [
+        "idea",
+        "design",
+        "design-check",
+        "figma-use",
+        "figma-generate-library",
+        "figma-generate-design"
+      ],
+      "addons": [
+        "jury"
+      ],
+      "stages": {
+        "Idea": [
+          "idea"
+        ],
+        "Design": [
+          "design",
+          "figma-generate-library",
+          "figma-generate-design",
+          "design-check"
+        ]
+      },
+      "notes": [
+        "Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. Nothing here builds code: design-check runs on Figma frames and the design docs, and checking built UI needs the build stage.",
+        "UI work follows DESIGN.md and its Ready Figma frames; a mismatch is a bug."
+      ]
+    }
+  },
   "items": [
     {
       "name": "idea",
@@ -67,23 +91,96 @@
       "license": "MIT",
       "source": "local",
       "when": "An idea, or a repo with no docs/brief.md",
-      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope."
-    },
-    {
-      "name": "design-direction",
-      "author": "Long Beard",
-      "license": "MIT",
-      "source": "local",
-      "when": "A brief with UI and no direction yet, or one piece to find",
-      "why": "References and patterns from what you like, picked on a moodboard. Writes design-exploration/<slug>/direction.md, a proposal."
+      "why": "Grill it into docs/brief.md: problem, people, core flows, key screens, surface, v1, out of scope. A poster, card or social post gets a short brief of its facts and format."
     },
     {
       "name": "design",
       "author": "Long Beard",
       "license": "MIT",
       "source": "local",
-      "when": "A direction to turn into screens",
-      "why": "Prototype the key screens, approve, write DESIGN.md, then build them in Figma."
+      "when": "A site, app or graphic brief, no DESIGN.md, or what next on the look",
+      "why": "Reads the project and suggests the next design skill. The way in."
+    },
+    {
+      "name": "design-brief",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "Before any other design skill",
+      "why": "The designer's questions: feel, never, apart from, fixed. Writes docs/design/design-brief.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-moodboard",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A design brief and no references, or a gap",
+      "why": "Read their board or search; they mark likes. Writes docs/design/design-moodboard.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-families",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A board over about 60 references",
+      "why": "Optional. Sort it into looks; they take one or two. Writes docs/design/design-families.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-direction",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A moodboard, no direction",
+      "why": "A few pictures of the subject, then eight first screens, each one of your references rebuilt with your content and changed by a move or two borrowed from others; they pick; a light touch-up pass. Writes docs/design/design-direction.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-identity",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A direction, no identity",
+      "why": "The chosen screen's type and colours refined on it from rendered options; the identity board. Writes docs/design/design-identity.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-prototype",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "A direction, no DESIGN.md, or a feature with screens",
+      "why": "The key screens and states, approved, then DESIGN.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-figma",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "DESIGN.md, no Ready frames",
+      "why": "Tokens, the identity board, components and Ready frames in Figma.",
+      "via": "design"
+    },
+    {
+      "name": "design-content",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "Copy or pictures to plan, or no pictures yet",
+      "why": "Optional. What each screen says and shows, stand-in pictures. Writes docs/design/design-content.md.",
+      "via": "design"
+    },
+    {
+      "name": "design-wordmark",
+      "author": "Long Beard",
+      "license": "MIT",
+      "source": "local",
+      "when": "An identity, and a mark wanted",
+      "why": "Optional, after the identity. A mark from its type, judged in the chosen screen.",
+      "via": "design"
     },
     {
       "name": "design-check",
@@ -199,16 +296,6 @@
       "when": "A security review you asked for",
       "why": "Look for a broken trust boundary. The full audit runs only when you ask for an audit or a pen-test.",
       "optional": true
-    },
-    {
-      "name": "image-to-code",
-      "author": "Leonxlnx",
-      "license": "MIT",
-      "source": "https://github.com/Leonxlnx/imagegen-skills",
-      "when": "A picture you already have",
-      "why": "Build the page from that picture.",
-      "optional": true,
-      "hint": "from a picture"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Design rules
 
-How a screen is checked. Read by `design` before it prototypes and by `design-check` on every frame and build.
+How a screen is checked. Read by `design-direction` and `design-prototype` before they prototype and by `design-check` on every frame and build.
 
 These rules decide execution, never the look. The direction and `DESIGN.md` decide the look. A rule that seems to ask for a colour, a typeface or a style is misread. It asks only that whatever was chosen is used with intent.
 
@@ -8,10 +8,10 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 - Check from a screenshot. Every check below can be passed or failed by looking at a rendered screen at its real size. When a check needs a state you cannot see (focus, error, empty), it needs that state's frame, and a missing frame fails rule 8.
 - Go in order: **Idea** first, then every **hard** check, then **soft**.
-- **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it.
+- **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it, with one exception: a colour the person liked by name and kept under the contrast level, marked `WARN liked, kept` in `DESIGN.md`, is reported as a warning, not a block.
 - **Soft** is a default. `DESIGN.md` may override a soft check on purpose, with a written reason. A soft finding with no reason in `DESIGN.md` is reported, not blocked.
 - A finding is four things: the rule (number and check), hard or soft, where on the screen, and the fix.
-- The shared core applies to everything. Then add the site list or the app list, whichever the brief's surface says.
+- The shared core applies to everything, except where the Graphics list says it does not. Then add the site, app or graphics list, whichever the brief's surface says.
 
 ## 0. Idea
 
@@ -70,7 +70,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 **Principle:** colour carries meaning, and the meaning stays the same everywhere.
 
-- [hard] Body text has a contrast ratio of at least 4.5:1 against its background. Large text (24px, or 18.66px bold, and up) and the visible parts of controls and icons have at least 3:1.
+- [hard] Body text has a contrast ratio of at least 4.5:1 against its background. Large text (24px, or 18.66px bold, and up) and the visible parts of controls and icons have at least 3:1. When `DESIGN.md` or the design brief sets the level to AAA: 7:1 for body text and 4.5:1 for large text.
 - [hard] Colour is never the only signal. An error, a selected item or a required field also changes shape, weight, an icon or text.
 - [soft] Every colour on the screen is a token in `DESIGN.md`. Pick three at random: each maps to a named token.
 - [hard] A product with more than one theme has one set of colour tokens, with a value for each theme, and passes every check here in each theme. A colour that stays the same when the theme changes, and should not, fails.
@@ -117,13 +117,18 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 ## 11. Copy
 
-**Principle:** words do the job of the screen in the product's own voice.
+**Principle:** words do the job of the screen in the product's own voice, made from facts it has.
+
+**Dated 2026-11-21. Reviewed each release.**
 
 - [hard] No placeholder copy: no lorem ipsum, no "Title", no "Button", no "User Name".
 - [soft] Buttons say what happens: "Send invoice", not "Submit", "OK", "Get started" or "Learn more".
 - [soft] Headings are short. A heading that runs over two lines at its size is a sentence that belongs in the body.
 - [soft] The voice matches `DESIGN.md`. Read three strings aloud: they sound like one product.
-- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y".
+- [soft] No genre filler: unlock, supercharge, seamless, elevate, effortless, all-in-one, and "not just X, it's Y". Sincerity is shown, not claimed ("honest", "simply").
+- [soft] A rhetorical device (a heading in two fragments, "X, not Y", a row of three figures) appears once on a screen, where it lands hardest.
+- [soft] No detail is invented. Every number, name and quote traces to the brief, or is marked as assumed (see the prototype's stand-in marks). A section with nothing true to say is shorter or gone.
+- [soft] Voice test: would this voice suit a product in another trade? If yes, it is not this product's yet.
 
 ## 12. Imagery
 
@@ -147,7 +152,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 **Dated 2026-11-03. Reviewed each release.** Add new tells, retire ones that stopped being defaults.
 
-A tell is a device that makes a screen look produced by default rather than designed for this product. Most began as good ideas. They are tells because they arrive without a reason. Every check here is **soft**: present, and `DESIGN.md` gives no reason for it. This list never says what to use instead. That comes from the direction.
+A tell is a device that makes a screen look produced by default rather than designed for this product. Most began as good ideas. They are tells because they arrive without a reason. Every check here is **soft**: present, and `DESIGN.md` gives no reason for it. This list never says what to use instead. That comes from the direction. A device that came with a look they chose on rendered screens is there on purpose: `DESIGN.md` says under Decisions what it does for this product.
 
 - [soft] Purple-to-blue gradients on backgrounds, buttons, glows or headline text.
 - [soft] Translucent blurred panels used on two or more surfaces.
@@ -183,6 +188,15 @@ Add these when the brief's surface is an app: the tool a person comes back to.
 - [soft] Density fits repeated use. Lists and tables show enough rows to work, not marketing-sized cards.
 - [soft] Navigation keeps the same place and shape on every screen of the flow.
 - [soft] Frequent actions are one step away. Rare and destructive ones may be further.
+
+## Graphics
+
+Add these when the brief's surface is a graphic: a poster, a card, a social post, a piece to look at. A piece counts as a screen.
+
+- **Applies:** rules 0 to 3, 5, 6, 11, 12 and 14. Rule 4 holds for the margin and the gaps between groups. Rule 7 holds across the pieces of a set.
+- **Does not apply:** rule 8 (states), rule 9 (affordance), the targets, focus and label checks of rule 10, and rule 13 (responsive). A missing state frame is not a finding.
+- [hard] Readable at its distance. Scale the shot to how the piece is seen (a poster read across a street, about 400 px on its long side; a feed post at phone width). The headline and every fact the brief gives still read.
+- [hard] Nothing important in the trim. On a print piece, no word, fact or logo sits in the trim or the safe margin. A picture or a crop that runs off the edge on purpose is not a finding.
 
 ## Sources
 
