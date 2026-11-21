@@ -149,7 +149,7 @@ Record the result in `first.html` itself, its `LOOK` and its CSS, never as a que
 
 - navigation: <one sentence>
 - zones: <hero, side, band: one line each>
-- holds across screens: <the family's ranges: how empty, type scale, picture share, margin, radius, edges, density>
+- holds across screens: <what the other screens keep from this one: how empty, type scale, picture share, margin, radius, edges, density>
 - pictures: <how they are treated>
 
 ## Hierarchy
