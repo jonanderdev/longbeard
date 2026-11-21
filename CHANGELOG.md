@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Design only** (new): `npx longbeard init --design`, or the question "Design only, or the whole pipeline?" on a first `init` in a terminal, installs `idea`, the `design-*` skills, `design-check` and the Figma skills the design stage uses, with an `AGENTS.md` block that has just the Idea and Design stages. `beard-lock.json` records the choice and `update` keeps to it. `init --full` or `update --full` adds the rest, and leaves your design docs as they are. `design-check`'s build mode says it needs the build stage.
+
 - Copy is made from facts the product has: `design-content` fills a fact sheet from the brief and the design brief before any sentence (an empty field shrinks or drops its section, and the doc lists what you must supply), `design-prototype` does the same when it drafts without that doc, and rule 11 gains checks for one use of each device per screen, no invented numbers, names or quotes, claimed sincerity, and a voice that would not suit another trade.
 
 Design is now a family of small skills, each with one job and one doc, instead of two long ones. You run only what you need, each step asks little, and a long run no longer drifts. [How it flows](assets/design-flow.png).
