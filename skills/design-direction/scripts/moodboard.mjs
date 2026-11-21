@@ -7,7 +7,9 @@
 //
 // A card's fields in board.md: link, shot, frames (a folder that
 // capture.mjs --frames wrote, played on hover), topic (or part), pattern (or move), measured
-// (its traits from measure.mjs, shown small under the pattern), why.
+// (its traits from measure.mjs, shown small under the pattern), why, like (the
+// person's own words from the picker: what they like in it, and why; shown on
+// the card and put in its note until they change it).
 //
 //   node moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/moodboard/moodboard.html
 //   node moodboard.mjs .longbeard/design/pricing/board.md --out .longbeard/design/pricing/moodboard.html
@@ -156,11 +158,12 @@ for (const card of cards) {
   const name = /^https?:\/\//i.test(url)
     ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
     : `<span class="name">${esc(card.name)}</span>`;
-  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "");
+  const like = (card.like || "").trim();
+  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "") + (like ? `<p class="liked">You liked: ${esc(like)}</p>` : "");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
-  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${
+  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${like ? ` data-like="${esc(like)}"` : ""}${
     frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
   }>
         <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
@@ -253,6 +256,8 @@ const html = `<!DOCTYPE html>
   a.name:hover { text-decoration: underline; }
   .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
   .measured { margin: -6px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .liked { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--like); }
+  [data-overview] .liked { display: none; }
   .marks { display: flex; gap: 6px; margin-top: auto; }
   .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
@@ -322,7 +327,8 @@ const html = `<!DOCTYPE html>
   for (const t of tiles) {
     const mark = read(marks, t);
     if (mark) t.dataset.state = mark;
-    t.querySelector(".why").value = read(notes, t);
+    // Their words from the picker fill the note until they change it; a note they cleared stays cleared.
+    t.querySelector(".why").value = tag(t) in notes || old(t) in notes ? read(notes, t) : t.dataset.like || "";
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
@@ -372,7 +378,7 @@ const html = `<!DOCTYPE html>
       t.hidden = !(show === "all" || (show === "open" ? !s : !!s));
       if (s) keepMarks[tag(t)] = s;
       const w = t.querySelector(".why").value;
-      if (w.trim()) keepNotes[tag(t)] = w;
+      if (w.trim() || t.dataset.like) keepNotes[tag(t)] = w;
     }
     for (const sec of document.querySelectorAll("section")) sec.hidden = ![...sec.querySelectorAll(".tile")].some((t) => !t.hidden);
     try { localStorage.setItem(key, JSON.stringify({ marks: keepMarks, notes: keepNotes, note: note.value })); } catch (e) {}

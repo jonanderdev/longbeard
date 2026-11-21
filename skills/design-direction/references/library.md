@@ -49,7 +49,7 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast` f
 
 ## What each part is for
 
-- **`likes`:** their words from the board's note: what they like, and why. What they like is what the designs borrow; why is how it is used, and where it would be wrong.
+- **`likes`:** their words from the board's note (or the card's `like:`): what they like, and why. What they like is what the designs borrow; why is how it is used, and where it would be wrong.
 - **`concept` and `move`:** what must survive every change. The critic and the not-a-copy check judge a screen on them.
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. The type's sizes are the reference's sizes against its screen: a 96 px headline on a 1440 screen stays 96 px.
 - **`palette`:** the colours as they work together. A palette is borrowed whole, or one colour they did not name is swapped for another of the same role. Never one colour picked out of it by itself.

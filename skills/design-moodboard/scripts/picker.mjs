@@ -2,7 +2,9 @@
 // A picker: a wide pool of candidates from any source, as one page where the
 // person marks each like or no. It hotlinks each listing's own thumbnail and
 // saves nothing, so it is a view, not a capture. Their picks come back as
-// text they copy into the chat.
+// text they copy into the chat. A liked tile opens a small note, "what you like
+// in it, and why", kept with the mark and copied out beside that pick; no note
+// is fine, and a no needs none.
 //
 // The TSV has one row per candidate: title, image, link, source, meta (a
 // short line such as the designer and likes). Columns after the image may be
@@ -135,6 +137,7 @@ rows.forEach((line, i) => {
         <span class="mark"></span>
       </button>
       <figcaption>${caption}</figcaption>
+      <input class="why" type="text" placeholder="What you like in it, and why (optional)" aria-label="${esc(`${id} ${name}: what you like in it, and why`)}">
     </figure>`;
   tiles.push(tile);
   tileById.set(id, tile);
@@ -209,6 +212,9 @@ ${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(
   .tile[data-state="like"] { outline-color: var(--like); }
   .tile[data-state="no"] .frame img { opacity: 0.3; filter: grayscale(1); }
   .tile[hidden] { display: none; }
+  .why { display: none; margin: 0 12px 12px; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid #c8c8c4; border-radius: 8px; }
+  .tile[data-state="like"] .why { display: block; }
+  .why:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
   .frame { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; overflow: hidden; background: #141414; cursor: pointer; }
   .frame:focus-visible { outline: 3px solid #2f6fdb; outline-offset: -3px; }
   .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -240,7 +246,7 @@ ${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(
 <body>
 <main>
   <h1>Pick, round ${round}</h1>
-  <p class="how">Click a picture: once for like, twice for no, three times to clear. Leave anything you have no view on. The name opens the source.</p>
+  <p class="how">Click a picture: once for like, twice for no, three times to clear. A liked picture opens a note: say what you like in it, and why, if you can. Leave anything you have no view on. The name opens the source.</p>
   <div class="filters" role="group" aria-label="Show">
     <button type="button" data-show="all" aria-pressed="true">All</button>
     <button type="button" data-show="open" aria-pressed="false">Not marked</button>
@@ -266,6 +272,7 @@ ${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { saved = {}; }
   const states = saved.states || {};
+  const whys = saved.whys || {};
   note.value = saved.note || "";
   // A mark is saved with its title, so a row dropped and the page rebuilt
   // never moves a mark onto another picture. A cleared seed stays cleared.
@@ -273,14 +280,22 @@ ${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(
   for (const t of tiles) {
     const s = tag(t) in states ? states[tag(t)] : t.dataset.seed ? "like" : "";
     if (s) t.dataset.state = s;
+    t.querySelector(".why").value = whys[tag(t)] || "";
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
+  const why = (t) => t.querySelector(".why").value.trim().replace(/\\s+/g, " ");
   const list = (state) => tiles.filter((t) => t.dataset.state === state).map((t) => t.dataset.id + " " + short(t.dataset.title));
   function render() {
     const like = list("like");
     const no = list("no");
-    const lines = ["Picks, round ${round} (${letter})", "like: " + (like.join("; ") || "none"), "no: " + (no.join("; ") || "none")];
+    const said = tiles.filter((t) => t.dataset.state === "like" && why(t));
+    const lines = ["Picks, round ${round} (${letter})", "like: " + (like.join("; ") || "none")];
+    if (said.length) {
+      lines.push("like, in their words:");
+      for (const t of said) lines.push("- " + t.dataset.id + " " + short(t.dataset.title) + ": " + why(t));
+    }
+    lines.push("no: " + (no.join("; ") || "none"));
     if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
     out.value = lines.join("\\n");
     count.textContent = like.length + " like · " + no.length + " no · " + tiles.length + " shown";
@@ -291,7 +306,9 @@ ${groups ? groupCss : ""}  .grid { display: grid; grid-template-columns: repeat(
     }
 ${groups ? groupJs : ""}    const keep = {};
     for (const t of tiles) if (t.dataset.state || t.dataset.seed) keep[tag(t)] = t.dataset.state || "";
-    try { localStorage.setItem(key, JSON.stringify({ states: keep, note: note.value })); } catch (e) {}
+    const keepWhys = {};
+    for (const t of tiles) if (why(t)) keepWhys[tag(t)] = t.querySelector(".why").value;
+    try { localStorage.setItem(key, JSON.stringify({ states: keep, whys: keepWhys, note: note.value })); } catch (e) {}
   }
   const next = { "": "like", like: "no", no: "" };
   for (const t of tiles) {
@@ -309,6 +326,7 @@ ${groups ? groupJs : ""}    const keep = {};
     });
   }
   note.addEventListener("input", render);
+  for (const t of tiles) t.querySelector(".why").addEventListener("input", render);
   // The text box is the real path: the clipboard API can be refused on a file:// page.
   document.getElementById("copy").addEventListener("click", async (e) => {
     out.focus();

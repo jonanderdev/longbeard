@@ -54,6 +54,8 @@ Before the grid: three or four pictures of what the product is about, not other 
 node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --out .longbeard/design/direction/board.html
 ```
 
+A card with a `like:` line already holds their like and why: the board shows it in its note to correct, so do not ask again.
+
 Then one message:
 
 > Filled in this order: <primary> · <status> · <what it shows>; the rest waits for the prototype: <list>. Headline: 1 "…" · 2 "…" · 3 "…". Ownable: <…>. Pick one or rewrite.

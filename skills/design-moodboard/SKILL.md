@@ -101,7 +101,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 
    Look at it yourself first, replace broken rows, then give the path:
 
-   > Open the picker: like what pulls you, no what feels wrong, a why where you have one, then paste the picks here.
+   > Open the picker: like what pulls you and, in its note, say what you like in it and why while you feel it; no what feels wrong, which needs none. Then paste the picks here.
 
 4. **Read the picks back** in up to three lines (what the likes share, what the noes share, the next search) and wait.
 5. **Round two, once:** sharper, from the corrected read: the forms the likes share, the same designers, the pattern on other sources. 60 to 100 rows, `picker.mjs … --round 2`. Skip it when they say the likes cover it. Never a third.
@@ -131,11 +131,12 @@ Write `.longbeard/design/moodboard/board.md`, one card per keep:
 - shot: .longbeard/design/moodboard/refs/<file>
 - frames: <for motion, the folder; else leave out>
 - screen: <yes | no>
+- like: <their words from the picker's note, as written: what they like in it, and why; leave out when none>
 - move: <what it does, as a move, about ten words: "headline fills the width, cropped at the right edge">
 - why: <why it fits the design brief, one line, in its words or personality: "dense and serious, as asked">
 ```
 
-`move` is the heart of it: the composition, picture treatment or type move that made them like it, written so a person could draw it with the picture closed. Never a brand ("like <studio>'s purple").
+`like` is theirs, copied as written, and is never reworded; `move` and `why` are your reading. `move` is the heart of it: the composition, picture treatment or type move that made them like it, written so a person could draw it with the picture closed. Never a brand ("like <studio>'s purple").
 
 Build the page to look through, and check it yourself:
 
