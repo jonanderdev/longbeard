@@ -24,7 +24,7 @@ const good = {
 - apart from: supermarket bakery counters · distance 4
 - fixed: new brand; light only; no pictures yet; English
 - accessibility: AA
-- motion: quiet · driven by time · feel smooth on everything
+- motion: quiet · driven by time · character smooth on everything
 - voice: plain and warm, "Back on Thursday."
 - decides: only them
 `,
@@ -113,7 +113,7 @@ test("eval score: a project with nothing in it fails, and says what is missing",
 });
 
 test("eval score: a motion line must be none or a how-much pick, not the old one word", () => {
-  for (const [motion, status] of [["none", "PASS"], ["leading · driven by scroll, cursor · feel physics on scroll", "PASS"], ["subtle", "FAIL"], ["driven by time", "FAIL"]]) {
+  for (const [motion, status] of [["none", "PASS"], ["leading · driven by scroll, cursor · character physics on scroll", "PASS"], ["subtle", "FAIL"], ["driven by time", "FAIL"]]) {
     const brief = good["docs/design/design-brief.md"].replace(/- motion: .*\n/, `- motion: ${motion}\n`);
     const results = byId(run(project({ ...good, "docs/design/design-brief.md": brief })).stdout);
     assert.equal(results["design brief complete"].status, status, motion);

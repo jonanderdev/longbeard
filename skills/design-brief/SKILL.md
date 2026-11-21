@@ -50,7 +50,7 @@ Before any design, a few questions. Each has my suggestion in brackets: "yes" ta
 8. Motion: pick what fits, or "none" (state changes only):
    how much, one: quiet (fades only) · present (moves that guide the eye) · leading (motion is part of the identity)
    driven by, any: scroll (reveals, pinned sections) · cursor (things that follow or react) · time (on load, on change)
-   feel, with where it applies: physics (inertia, springs, weight) · smooth (eased, calm) · snappy (fast, crisp); e.g. physics on scroll, snappy on buttons
+   character, with where it applies: physics (inertia, springs, weight) · smooth (eased, calm) · snappy (fast, crisp); e.g. physics on scroll, snappy on buttons
    moments, any: page transitions · type that splits and assembles · pictures that move on scroll
    A site whose motion you love? Paste the link, if any.
    [<a pick for each, or none, from the personality scales>]
@@ -66,7 +66,7 @@ Never search, open references or propose a look in this turn.
 
 Two lines, then their yes or a correction. The second is the voice: how the product talks, drafted from the brief and their words, with one sample line in it. They have not been asked about the voice, so this is where they correct it; every headline and every piece of copy is written in it.
 
-> Leads with <takeaway>, first seen on <phone | desktop>; <pace>; <three words>, never <word>; loud 2, picture-led 4, cool 2, playful 1, new 4, dense 2; never <…>; apart from <kind of product>, 4 of 5 from the category; fixed: <…>, AA; motion present, driven by scroll, smooth; a moodboard in Figma.
+> Leads with <takeaway>, first seen on <phone | desktop>; <pace>; <three words>, never <word>; loud 2, picture-led 4, cool 2, playful 1, new 4, dense 2; never <…>; apart from <kind of product>, 4 of 5 from the category; fixed: <…>, AA; motion present, driven by scroll, smooth character; a moodboard in Figma.
 > Voice: <how it talks>, e.g. "<one sample line>". Right?
 
 Give each number as the scale's right end (loud 2 is fairly quiet), so the read-back says what the doc will. A correction is one more line, not a second round. Several 3s left after the read-back: ask once which way they lean on those, in the same line. Answers that contradict the product brief are `grilling`, not this skill.
@@ -86,7 +86,7 @@ Give each number as the scale's right end (loud 2 is fairly quiet), so the read-
 - apart from: <the kind of product it must not be mistaken for, described> · distance <n> (1 familiar to its users, 5 nothing like the category)
 - fixed: <new brand, or a refresh and what stays; owned or refused colours and faces as values; light/dark/both; pictures: theirs or none yet; languages>
 - accessibility: <AA or AAA>
-- motion: <none | quiet, present or leading> · driven by <scroll, cursor, time: any of them> · feel <physics, smooth or snappy, each with where it applies> · moments <page transitions, split type, pictures that move on scroll> · loves: <what moves in the site they pasted, and why, in their words> (a pick they left out is left out of the line; "none" is the whole line)
+- motion: <none | quiet, present or leading> · driven by <scroll, cursor, time: any of them> · character <physics, smooth or snappy, each with where it applies> · moments <page transitions, split type, pictures that move on scroll> · loves: <what moves in the site they pasted, and why, in their words> (how much, or none, is always there; a pick they left out is left out of the rest of the line)
 - voice: <how it talks, as confirmed in the read-back, and one sample line>
 - decides: <who else says yes, or "only them">
 
