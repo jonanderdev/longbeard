@@ -19,6 +19,18 @@
 // is not the real site (an error status, a maintenance or bot-check page, nothing on it) is
 // flagged with the reason, in "flag": families.mjs leaves its numbers out.
 //
+// A live page also lists its motion and its finish, read from what the page states. "motion" is
+// read before any animation is ended: each transition and animation (property, ms, delay, easing,
+// once or loop, what it is on, how many times it is used), the twelve most used, with its trigger:
+// load, scroll (animation-timeline), hover (a :hover rule that changes the property), or state
+// when no readable rule says. "finish" is what shows on the first screen, each value with the
+// share of the screen its elements cover: shadow, textShadow, filter, backdrop, blend and
+// texture (an feTurbulence filter, or a small picture tiled over a quarter of the screen or
+// more), six of each at most. "unread" counts the stylesheets the page does not allow reading
+// (another origin): nothing is guessed from them, so a hover rule in one reads as "state". Not
+// read: animations a script drives, a hover that is set up in script, and texture inside a
+// picture file. Neither is in --tsv; both are in the profile's page.
+//
 // Traits are what families are sorted by and what a family shares, so every
 // keep is measured the same way before anyone judges it by eye.
 //   node measure.mjs https://example.com
@@ -1008,6 +1020,348 @@ const readPage = `(() => {
   return out;
 })()`;
 
+// Motion: each transition and animation a page declares on an element that has a box, read from
+// computed style, so one that has already ended (a fill-mode fade) is still seen. It is read before
+// animations are ended, so a running one gives its keyframes' properties. Runs in the page (it is
+// sent as text, so it holds nothing from this file). Stylesheets the page does not allow reading
+// are counted in "unread" and never guessed at: a hover is named only from rules that were read.
+function readMotion() {
+  const W = innerWidth, LIMIT = 6000, CAP = 12;
+  // A list of CSS values, split at the commas that are not inside brackets or quotes.
+  const split = (v) => {
+    const parts = [];
+    let depth = 0, quote = "", at = 0;
+    for (let i = 0; i < v.length; i++) {
+      const c = v[i];
+      if (quote) {
+        if (c === "\\") i++;
+        else if (c === quote) quote = "";
+      } else if (c === '"' || c === "'") quote = c;
+      else if (c === "(" || c === "[") depth++;
+      else if (c === ")" || c === "]") depth--;
+      else if (c === "," && depth === 0) (parts.push(v.slice(at, i).trim()), (at = i + 1));
+    }
+    parts.push(v.slice(at).trim());
+    return parts.filter(Boolean);
+  };
+  const ms = (v) => {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? Math.round(/ms$/.test(v) ? n : n * 1000) : null;
+  };
+  // What the stylesheets say: hover rules (by the selector of what they change) and keyframes.
+  let unread = 0;
+  const hovers = [], keyframes = new Map(), seen = new Set();
+  const walk = (rules, parent) => {
+    for (const r of rules) {
+      if (typeof CSSImportRule !== "undefined" && r instanceof CSSImportRule) {
+        if (r.styleSheet) readSheet(r.styleSheet);
+        else unread++;
+      } else if (typeof CSSKeyframesRule !== "undefined" && r instanceof CSSKeyframesRule) {
+        const props = keyframes.get(r.name) || new Set();
+        for (const k of r.cssRules) for (let i = 0; i < (k.style?.length || 0); i++) if (!/^animation-/.test(k.style[i])) props.add(k.style[i]);
+        keyframes.set(r.name, props);
+      } else if (typeof CSSMediaRule !== "undefined" && r instanceof CSSMediaRule) {
+        if (matchMedia(r.media.mediaText).matches) walk(r.cssRules, parent);
+      } else if (typeof CSSStyleRule !== "undefined" && r instanceof CSSStyleRule) {
+        let sel = r.selectorText;
+        if (parent) sel = sel.includes("&") ? sel.replace(/&/g, ":is(" + parent + ")") : ":is(" + parent + ") " + sel;
+        if (sel.includes(":hover") && hovers.length < 4000) {
+          const props = new Set();
+          for (let i = 0; i < r.style.length; i++) if (!/^(transition|animation)/.test(r.style[i])) props.add(r.style[i]);
+          for (const s of split(sel)) {
+            if (!s.includes(":hover") || /:not\([^)]*:hover/.test(s)) continue;
+            // The selector of what is hovered, without the hover: ".card:hover .title" is read as ".card .title".
+            hovers.push({ sel: s.replace(/(^|[\s>+~(])(:hover)/g, "$1*").replace(/:hover/g, ""), props });
+          }
+        }
+        if (r.cssRules?.length) walk(r.cssRules, sel);
+      } else if (r.cssRules) walk(r.cssRules, parent);
+    }
+  };
+  const readSheet = (sheet) => {
+    if (seen.has(sheet) || sheet.disabled) return;
+    seen.add(sheet);
+    if (sheet.media?.mediaText && !matchMedia(sheet.media.mediaText).matches) return;
+    let rules = null;
+    try {
+      rules = sheet.cssRules;
+    } catch {}
+    if (!rules) return void unread++;
+    walk(rules, "");
+  };
+  for (const sheet of [...document.styleSheets, ...(document.adoptedStyleSheets || [])]) readSheet(sheet);
+  // What is running now: a keyframes' properties are read from the animation itself, which works
+  // even when its stylesheet could not be read.
+  const running = new Map();
+  for (const a of document.getAnimations()) {
+    const target = a.effect?.target;
+    if (!target || a.effect.pseudoElement) continue;
+    const here = running.get(target) || { names: new Map(), moves: new Set() };
+    running.set(target, here);
+    if (typeof CSSTransition !== "undefined" && a instanceof CSSTransition) here.moves.add(a.transitionProperty);
+    else if (typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation) {
+      try {
+        const props = new Set();
+        for (const k of a.effect.getKeyframes()) for (const p of Object.keys(k)) if (!["offset", "computedOffset", "easing", "composite"].includes(p)) props.add(p);
+        here.names.set(a.animationName, props);
+      } catch {}
+    }
+  }
+  const dash = (p) => p.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase());
+  const words = (t) => {
+    const w = (t || "").trim().replace(/\s+/g, " ").split(" ").slice(0, 3).join(" ");
+    return w.length > 24 ? w.slice(0, 24) : w;
+  };
+  // What a thing is, in a few words and no class names: its tag or role, and for a button or a link a few of its words.
+  const describe = (el) => {
+    const tag = el.tagName.toLowerCase(), role = el.getAttribute("role");
+    const say = (t) => (words(t) ? ` "${words(t)}"` : "");
+    if (tag === "h1") return "the headline";
+    if (/^h[2-6]$/.test(tag)) return "a heading";
+    if (tag === "button" || role === "button") return "a button" + say(el.textContent);
+    if (tag === "a") return (el.closest("nav") ? "a nav link" : "a link") + say(el.textContent);
+    if (tag === "img" || tag === "picture") return "a picture";
+    if (tag === "video" || tag === "canvas") return "a " + tag;
+    if (/^(svg|path|circle|rect)$/.test(tag)) return el.closest("a, button") || el.getBoundingClientRect().width <= 72 ? "an icon" : "a drawing";
+    if (/^(input|select|textarea)$/.test(tag)) return "a field";
+    if (/^(nav|header|footer|main)$/.test(tag)) return "the " + (tag === "nav" ? "navigation" : tag);
+    if (tag === "body" || tag === "html") return "the page";
+    if (tag === "li") return "a list item";
+    if (tag === "p") return "a paragraph";
+    if (/^(span|em|strong)$/.test(tag)) return "a run of text";
+    const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+    const looks = cs.boxShadow !== "none" || cs.borderTopWidth !== "0px" || cs.backgroundColor !== "rgba(0, 0, 0, 0)";
+    const kin = [...(el.parentElement?.children || [])].filter((s) => s.tagName === el.tagName && Math.abs(s.getBoundingClientRect().width - r.width) < 0.2 * r.width).length;
+    if (looks && kin >= 2 && r.width >= 100 && r.width <= 0.6 * W) return "a card";
+    return r.width >= 0.5 * W && r.height >= 200 ? "a section" : "a block";
+  };
+  // What a hover changes on this element: the properties of every readable hover rule that reaches it.
+  const hoverProps = (el) => {
+    const props = new Set();
+    for (const h of hovers) {
+      try {
+        if (el.matches(h.sel)) for (const p of h.props) props.add(p);
+      } catch {}
+    }
+    return props;
+  };
+  const found = new Map();
+  const note = (item, on) => {
+    const sig = [item.kind, item.name || "", item.property, item.ms, item.delay, item.easing, item.iteration, item.trigger].join("|");
+    const old = found.get(sig);
+    if (old) old.uses++;
+    else found.set(sig, { ...item, on, uses: 1 });
+  };
+  const cycle = (list, i) => list[i % list.length];
+  const read = (el, pseudo) => {
+    const cs = pseudo ? getComputedStyle(el, pseudo) : getComputedStyle(el);
+    if (pseudo && (cs.display === "none" || cs.content === "none" || cs.content === "normal")) return;
+    const tp = split(cs.transitionProperty), ad = split(cs.animationName);
+    const moves = tp.length && !(tp.length === 1 && tp[0] === "none") && split(cs.transitionDuration).some((d) => ms(d) > 0);
+    const animates = ad.length && !(ad.length === 1 && ad[0] === "none");
+    if (!moves && !animates) return;
+    // A thing that cannot be seen is left out. A fade-in starts at no opacity, so an animation keeps its element.
+    if (!el.checkVisibility || !el.checkVisibility({ visibilityProperty: true })) return;
+    const box = el.getBoundingClientRect();
+    if (!pseudo && box.width < 2 && box.height < 2) return;
+    const on = describe(el) + (pseudo ? " (" + pseudo + ")" : "");
+    if (moves && (pseudo || (Number(cs.opacity) > 0 && el.checkVisibility({ opacityProperty: true, visibilityProperty: true })))) {
+      const durs = split(cs.transitionDuration), delays = split(cs.transitionDelay), eases = split(cs.transitionTimingFunction);
+      let hover = null;
+      tp.forEach((property, i) => {
+        const ends = ms(cycle(durs, i));
+        if (property === "none" || !(ends > 0)) return;
+        const now = running.get(el)?.moves;
+        let trigger = "state";
+        if (!pseudo && now && (now.has(property) || property === "all")) trigger = "load";
+        else if (!pseudo) {
+          hover ||= hoverProps(el);
+          if ([...hover].some((p) => property === "all" || p === property || p.startsWith(property + "-"))) trigger = "hover";
+        }
+        note({ kind: "transition", property, ms: ends, delay: ms(cycle(delays, i)), easing: cycle(eases, i), iteration: "once", trigger }, on);
+      });
+    }
+    if (animates) {
+      const durs = split(cs.animationDuration), delays = split(cs.animationDelay), eases = split(cs.animationTimingFunction), counts = split(cs.animationIterationCount), lines = split(cs.animationTimeline || "auto");
+      ad.forEach((name, i) => {
+        const line = cycle(lines, i), ends = ms(cycle(durs, i));
+        if (name === "none" || line === "none") return;
+        const scroll = line !== "auto";
+        if (!scroll && !(ends > 0)) return;
+        const count = cycle(counts, i);
+        const props = running.get(el)?.names.get(name) || keyframes.get(name);
+        note(
+          { kind: "animation", name, property: props?.size ? [...props].map(dash).join(", ") : null, ms: scroll ? null : ends, delay: ms(cycle(delays, i)), easing: cycle(eases, i), iteration: count === "infinite" ? "loop" : count === "1" ? "once" : count + " times", trigger: scroll ? "scroll" : "load" },
+          on,
+        );
+      });
+    }
+  };
+  let n = 0;
+  for (const el of [document.body, ...document.body.querySelectorAll("*")]) {
+    if (++n > LIMIT) break;
+    read(el, "");
+    read(el, "::before");
+    read(el, "::after");
+  }
+  const items = [...found.values()].sort((a, b) => b.uses - a.uses).slice(0, CAP);
+  return { items, unread };
+}
+
+// Finish: shadows, filters, blend modes and textures of what shows on the first screen, each with
+// the share of the screen its elements cover (counted on the same 20 px grid as the pictures, so
+// overlaps count once). A pseudo-element is read only where its box can be worked out (positioned
+// absolutely or fixed). A noise or a tiled picture is a texture: an SVG filter made of feTurbulence,
+// or a small picture repeated over a quarter of the screen or more. Runs in the page.
+async function readFinish() {
+  const W = innerWidth, H = innerHeight, LIMIT = 6000, CAP = 6;
+  const CW = Math.ceil(W / 20), CH = Math.ceil(H / 20);
+  const split = (v) => {
+    const parts = [];
+    let depth = 0, quote = "", at = 0;
+    for (let i = 0; i < v.length; i++) {
+      const c = v[i];
+      if (quote) {
+        if (c === "\\") i++;
+        else if (c === quote) quote = "";
+      } else if (c === '"' || c === "'") quote = c;
+      else if (c === "(" || c === "[") depth++;
+      else if (c === ")" || c === "]") depth--;
+      else if (c === "," && depth === 0) (parts.push(v.slice(at, i).trim()), (at = i + 1));
+    }
+    parts.push(v.slice(at).trim());
+    return parts.filter(Boolean);
+  };
+  const kinds = { shadow: new Map(), textShadow: new Map(), filter: new Map(), backdrop: new Map(), blend: new Map(), texture: new Map() };
+  const mark = (kind, css, box, extra = {}) => {
+    const g = kinds[kind].get(css) || { css, ...extra, cells: new Set(), uses: 0 };
+    const [x, y, w, h] = box;
+    for (let gx = Math.max(0, Math.floor(x / 20)); gx < Math.min(CW, Math.ceil((x + w) / 20)); gx++)
+      for (let gy = Math.max(0, Math.floor(y / 20)); gy < Math.min(CH, Math.ceil((y + h) / 20)); gy++) g.cells.add(gx + "," + gy);
+    g.uses++;
+    kinds[kind].set(css, g);
+  };
+  const turbulent = (text) => /feTurbulence/i.test(text);
+  const unpack = (data) => {
+    try {
+      return /;base64,/.test(data) ? atob(data.slice(data.indexOf(",") + 1)) : decodeURIComponent(data.slice(data.indexOf(",") + 1));
+    } catch {
+      return "";
+    }
+  };
+  // A picture's address, short, and with no page words in it.
+  const plain = (url) => (url.startsWith("data:") ? "url(data:" + url.slice(5, url.search(/[;,]/)) + ", " + url.length + " characters)" : "url(" + url.split(/[?#]/)[0].split("/").pop() + ")");
+  const tiles = [];
+  // What a box carries on its own: shadow, filter, backdrop filter, blend modes.
+  const finish = (cs, box) => {
+    if (cs.boxShadow !== "none") mark("shadow", cs.boxShadow, box);
+    if (cs.filter !== "none") {
+      const id = cs.filter.match(/url\(["']?[^"')]*#([^"')]+)/)?.[1];
+      const shape = id && document.getElementById(id);
+      if (shape && turbulent(shape.outerHTML)) mark("texture", "filter: url(#" + id + ")", box, { kind: "feTurbulence" });
+      else mark("filter", cs.filter, box);
+    }
+    if (cs.backdropFilter && cs.backdropFilter !== "none") mark("backdrop", cs.backdropFilter, box);
+    if (cs.mixBlendMode !== "normal") mark("blend", "mix-blend-mode: " + cs.mixBlendMode, box);
+    if (cs.backgroundImage !== "none" && split(cs.backgroundBlendMode).some((m) => m !== "normal")) mark("blend", "background-blend-mode: " + cs.backgroundBlendMode, box);
+  };
+  // What its background pictures make: noise drawn as an SVG, or a small tile repeated over a wide box.
+  const layers = (cs, box) => {
+    const repeats = split(cs.backgroundRepeat), sizes = split(cs.backgroundSize);
+    split(cs.backgroundImage).forEach((layer, i) => {
+      const url = layer.match(/^url\((["']?)([\s\S]*)\1\)$/)?.[2];
+      if (!url) return;
+      const src = url.replace(/\\(.)/g, "$1");
+      if (src.startsWith("data:") && turbulent(unpack(src))) return mark("texture", "background-image: " + plain(src), box, { kind: "feTurbulence" });
+      if (/^no-repeat( no-repeat)?$/.test(repeats[i % repeats.length]) || box[2] * box[3] < 0.25 * W * H) return;
+      tiles.push({ src, box, size: sizes[i % sizes.length], css: "background-image: " + plain(src) });
+    });
+  };
+  // The first screen only, as the rest of the page is read: a box that is in it, that shows.
+  const onScreen = (r) => r.width >= 2 && r.height >= 2 && r.top < H && r.bottom > 0 && r.left < W && r.right > 0;
+  const shows = (el, cs) => cs.visibility !== "hidden" && cs.display !== "none" && Number(cs.opacity) > 0 && (!el.checkVisibility || el.checkVisibility({ opacityProperty: true, visibilityProperty: true }));
+  const bare = (cs) => cs.backgroundImage === "none" && cs.backgroundColor === "rgba(0, 0, 0, 0)";
+  const root = getComputedStyle(document.documentElement);
+  let n = 0;
+  for (const el of [document.body, ...document.body.querySelectorAll("*")]) {
+    if (++n > LIMIT) break;
+    const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+    if (onScreen(r) && shows(el, cs)) {
+      const box = [r.left, r.top, r.width, r.height];
+      finish(cs, box);
+      // The body's own background paints the whole canvas when the root has none.
+      if (el !== document.body) layers(cs, box);
+      else layers(cs, bare(root) ? [0, 0, W, H] : box);
+      if (cs.textShadow !== "none") {
+        const own = [...el.childNodes].filter((c) => c.nodeType === 3 && c.textContent.trim());
+        if (own.length) {
+          const range = document.createRange();
+          range.setStartBefore(own[0]);
+          range.setEndAfter(own.at(-1));
+          const t = range.getBoundingClientRect();
+          if (t.width >= 2) mark("textShadow", cs.textShadow, [t.left, t.top, t.width, t.height]);
+        }
+      }
+    }
+    // A pseudo-element has no box to ask for: where it is placed, its computed offsets and size are its box.
+    for (const pseudo of ["::before", "::after"]) {
+      const ps = getComputedStyle(el, pseudo);
+      if (ps.display === "none" || ps.content === "none" || ps.content === "normal" || !/^(absolute|fixed)$/.test(ps.position) || Number(ps.opacity) === 0 || ps.visibility === "hidden") continue;
+      const [left, top, w, h] = [ps.left, ps.top, ps.width, ps.height].map(parseFloat);
+      if (![left, top, w, h].every(Number.isFinite) || !shows(el, cs)) continue;
+      let ox = 0, oy = 0;
+      if (ps.position === "absolute") {
+        const home = cs.position !== "static" ? el : el.offsetParent;
+        if (home && getComputedStyle(home).position !== "static") {
+          const hr = home.getBoundingClientRect();
+          [ox, oy] = [hr.left + home.clientLeft, hr.top + home.clientTop];
+        }
+      }
+      const box = [ox + left, oy + top, w, h];
+      if (!onScreen({ left: box[0], right: box[0] + w, top: box[1], bottom: box[1] + h, width: w, height: h })) continue;
+      finish(ps, box);
+      layers(ps, box);
+    }
+  }
+  // The canvas takes the background of the root, or of the body when the root has none: a tile there covers the screen.
+  layers(root, [0, 0, W, H]);
+  // A tile is small if its size is given in px, or its picture is: asked of the page, with a time limit.
+  const natural = new Map();
+  await Promise.all(
+    [...new Set(tiles.map((t) => t.src))].slice(0, 8).map(
+      (src) =>
+        new Promise((done) => {
+          const img = new Image();
+          const timer = setTimeout(done, 1200);
+          img.onload = img.onerror = () => (clearTimeout(timer), natural.set(src, [img.naturalWidth, img.naturalHeight]), done());
+          img.src = src;
+        }),
+    ),
+  );
+  for (const t of tiles) {
+    const px = t.size.split(/\s+/).filter((v) => /px$/.test(v)).map(parseFloat);
+    const [nw, nh] = natural.get(t.src) || [0, 0];
+    const wide = px.length ? Math.max(...px) : Math.max(nw, nh);
+    if (!(wide > 0 && wide <= 256)) continue;
+    mark("texture", t.css, t.box, { kind: "tile", size: px.length ? t.size : nw + "x" + nh });
+  }
+  const out = {};
+  for (const [kind, map] of Object.entries(kinds)) {
+    out[kind] = [...map.values()]
+      .map(({ css, kind: how, size, cells, uses }) => ({ css, ...(how ? { kind: how } : {}), ...(size ? { size } : {}), cover: Math.round((1000 * cells.size) / (CW * CH)) / 10, uses }))
+      .sort((a, b) => b.cover - a.cover || b.uses - a.uses)
+      .slice(0, CAP);
+  }
+  return out;
+}
+// A reading that fails (a page that blocks it) leaves its key null, never fails the page's other numbers.
+async function readOr(tab, fn) {
+  try {
+    return await tab.evaluate(`(${fn})()`);
+  } catch {
+    return null;
+  }
+}
 
 // An image is read in the tab as a data URL, so its pixels can be read back. No navigation per image.
 async function measureImage(tab, path) {
@@ -1031,6 +1385,8 @@ async function measurePage(tab, url) {
   await tab.call("Page.navigate", { url }, 40000);
   for (let i = 0; i < 100 && (await tab.evaluate("document.readyState")) !== "complete"; i++) await sleep(200);
   await sleep(wait);
+  // The motion is read first, while its animations still run: what ends is ended just below.
+  let motion = await readOr(tab, readMotion);
   // Animations that end (a headline that fades or slides in) are read as they end, never mid-way.
   // Ones that loop, and ones a script drives, are read as they are after the wait.
   await tab.evaluate(`(() => { for (const a of document.getAnimations()) { try { if (a.effect?.getComputedTiming().endTime !== Infinity) a.finish(); } catch {} } })()`);
@@ -1040,7 +1396,11 @@ async function measurePage(tab, url) {
   if (!out.words && !(out.traits.pictures > 5)) {
     await sleep(Math.max(3000, wait / 2));
     out = await tab.evaluate(readPage);
+    motion = (await readOr(tab, readMotion)) || motion;
   }
+  out.motion = motion ? motion.items : null;
+  out.unread = motion ? motion.unread : null;
+  out.finish = await readOr(tab, readFinish);
   out.flag = notTheSite({ status: out.status, words: out.words, said: out.said, pictures: out.traits.pictures });
   delete out.said;
   return out;
@@ -1083,7 +1443,7 @@ if (swatches) {
   const byTarget = new Map(results.filter((r) => !r.error).map((r) => [r.target, r]));
   const pageOf = (r) => {
     const texts = [...r.text].sort((a, b) => parseFloat(b.size) - parseFloat(a.size)).slice(0, 8);
-    return { url: r.target, flag: r.flag || "", status: r.status, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts };
+    return { url: r.target, flag: r.flag || "", status: r.status, traits: r.traits, media: r.media, fonts: r.fonts, gradients: r.gradients, patterns: r.patterns, ground: r.ground, texts, motion: r.motion, finish: r.finish, unread: r.unread };
   };
   for (const t of targets.filter((x) => !isUrl(x))) {
     const r = byTarget.get(t);

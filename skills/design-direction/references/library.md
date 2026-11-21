@@ -30,7 +30,7 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
 
 ## Measure first, then look
 
-**A live page:** `measure.mjs <link>` lists its fonts, sizes, weights, colours and gradients (`by: page`).
+**A live page:** `measure.mjs <link>` lists its fonts, sizes, weights, colours and gradients (`by: page`). It also lists the page's motion (each transition and animation with its property, time, easing and trigger) and its finish (shadows, filters, blends and textures with the share of the screen they cover), read before anything is judged by eye.
 
 **A reference that is only a picture** (a shot, a poster, a presentation frame):
 

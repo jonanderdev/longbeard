@@ -184,6 +184,7 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
     assert.equal(p.page.traits.icons, 5);
     assert.ok(p.page.traits.blocks > 15 && p.page.traits.blocks < 25, `blocks ${p.page.traits.blocks}`);
     assert.equal(p.page.texts[0].text, "Kiln");
+    assert.ok(Array.isArray(p.page.motion) && p.page.finish && p.page.unread === 0, "the profile's page carries motion, finish and unread");
     assert.deepEqual([p.tags.picture, p.note], [["lettering"], "kept"]);
   } finally {
     server.close();
@@ -339,6 +340,73 @@ test("measure: ordinary pages read right (alignment, ground, gradients, patterns
     assert.equal(at["/soon"].flag, "", "a real page may say coming soon");
   } finally {
     server.close();
+  }
+});
+
+test("measure: motion and finish are read from the page before anything is ended, and a sheet it cannot read is counted", async (t) => {
+  const noise = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><filter id="n"><feTurbulence baseFrequency=".9"/></filter><rect width="64" height="64" filter="url(#n)"/></svg>`);
+  const tile = `data:image/png;base64,${png(2, 2, [200, 200, 200, 180, 180, 180, 180, 180, 180, 200, 200, 200]).toString("base64")}`;
+  const page = `<!doctype html><meta charset="utf-8"><style>
+    @keyframes spin { to { transform: rotate(360deg) } }
+    @keyframes grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+    body { margin: 0; font-family: Georgia }
+    h1 { margin: 0; font-size: 48px; transition: color 300ms ease-in 50ms; text-shadow: 0 2px 4px #000 }
+    .card { display: inline-block; width: 200px; height: 120px; margin: 10px; background: #eee; box-shadow: 0 8px 24px rgba(0,0,0,.2); transition: transform .25s cubic-bezier(.4,0,.2,1) }
+    .card:hover { transform: translateY(-4px) }
+    .plain { width: 100px; height: 40px; background: #ccc; transition: opacity .5s linear }
+    .spin { width: 40px; height: 40px; background: red; animation: spin 2s linear infinite }
+    .bar { height: 6px; background: blue; animation: grow linear both; animation-timeline: scroll() }
+    .glass { width: 300px; height: 100px; background: #9cf; backdrop-filter: blur(12px); filter: saturate(1.4); mix-blend-mode: multiply }
+    .ink { width: 300px; height: 100px; background: url(${tile}) #fff; background-blend-mode: multiply }
+    .remote { width: 50px; height: 50px; transition: background-color .4s }
+  </style><link rel="stylesheet" href="CROSS/other.css">
+  <h1>Hello</h1><div class="card"></div><div class="card"></div><div class="card"></div><div class="plain"></div><div class="spin"></div><div class="bar"></div><div class="glass"></div><div class="ink"></div><div class="remote"></div>
+  <div style="position:fixed;inset:0;background:url('${noise}');opacity:.1;pointer-events:none"></div>
+  <div style="position:fixed;left:0;top:0;width:60%;height:60%;background-image:url(${tile});background-size:8px 8px;opacity:.9;pointer-events:none"></div>`;
+  const other = await new Promise((done) => {
+    const s = createServer((req, res) => (res.setHeader("content-type", "text/css"), res.end(".remote:hover { background-color: red }")));
+    s.listen(0, "127.0.0.1", () => done(s));
+  });
+  const server = await new Promise((done) => {
+    const s = createServer((req, res) => res.end(page.replace("CROSS", `http://127.0.0.1:${other.address().port}`)));
+    s.listen(0, () => done(s));
+  });
+  try {
+    const result = await measured([`http://localhost:${server.address().port}/`, "--wait", "0"]);
+    if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+    assert.equal(result.status, 0, result.stderr);
+    const out = JSON.parse(result.stdout);
+    const by = (property) => out.motion.find((m) => m.property === property);
+    // A transition: its property, time, delay and easing as written, where it is, and its trigger.
+    assert.deepEqual([by("color").ms, by("color").delay, by("color").easing, by("color").on, by("color").trigger], [300, 50, "ease-in", "the headline", "state"]);
+    // A hover rule that changes the transitioned property, read from a stylesheet the page allows reading; the card is used three times.
+    assert.deepEqual([by("transform").trigger, by("transform").easing, by("transform").uses, by("transform").on], ["hover", "cubic-bezier(0.4, 0, 0.2, 1)", 3, "a card"]);
+    assert.equal(by("opacity").trigger, "state");
+    // A hover rule in a sheet that cannot be read is never guessed: its transition has no trigger to name, and the sheet is counted.
+    assert.deepEqual([by("background-color").trigger, out.unread], ["state", 1]);
+    // A keyframe animation that loops, and one tied to scroll.
+    const spin = out.motion.find((m) => m.name === "spin");
+    assert.deepEqual([spin.property, spin.ms, spin.iteration, spin.trigger], ["transform", 2000, "loop", "load"]);
+    assert.deepEqual([out.motion.find((m) => m.name === "grow").trigger, out.motion.find((m) => m.name === "grow").iteration], ["scroll", "once"]);
+    assert.ok(out.motion.length <= 12);
+    // Finish: each value with the share of the screen it covers.
+    const card = out.finish.shadow.find((s) => /24px/.test(s.css));
+    assert.equal(card.uses, 3);
+    assert.ok(card.cover > 5 && card.cover < 20, `shadow cover ${card.cover}`);
+    assert.match(out.finish.textShadow[0].css, /0px 2px 4px/);
+    assert.match(out.finish.filter[0].css, /saturate\(1\.4\)/);
+    assert.match(out.finish.backdrop[0].css, /blur\(12px\)/);
+    assert.deepEqual(out.finish.blend.map((b) => b.css).sort(), ["background-blend-mode: multiply", "mix-blend-mode: multiply"]);
+    // Texture: a noise drawn by feTurbulence over the screen, and a small tile repeated over a third of it.
+    const noisy = out.finish.texture.find((x) => x.kind === "feTurbulence");
+    assert.ok(noisy && noisy.cover > 90, JSON.stringify(out.finish.texture));
+    const tiled = out.finish.texture.find((x) => x.kind === "tile");
+    assert.ok(tiled && tiled.cover > 30 && tiled.cover < 40 && tiled.size === "8px 8px", JSON.stringify(out.finish.texture));
+    // Nothing is named after the page's own words beyond a few.
+    for (const m of out.motion) assert.ok(m.on.length < 40, m.on);
+  } finally {
+    server.close();
+    other.close();
   }
 });
 
