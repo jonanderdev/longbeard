@@ -36,10 +36,11 @@
 // click does (a menu opening, a page transition).
 //   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu.jpg --click "button[aria-label*=menu i]"
 //   node capture.mjs <url> --out .longbeard/design/moodboard/refs/name-menu-open --frames 10 --every 150 --click "header button"
-import { spawn, execSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
 
 const args = process.argv.slice(2);
@@ -47,6 +48,11 @@ const flag = (name, def) => {
   const i = args.indexOf(`--${name}`);
   if (i === -1) return def;
   const v = args[i + 1];
+  // A flag that needs a value and has none is a usage error, not a plain shot.
+  if (v === undefined || /^--[a-z]/.test(v)) {
+    console.error(`--${name} needs a value`);
+    process.exit(2);
+  }
   args.splice(i, 2);
   return v;
 };
@@ -120,22 +126,25 @@ if (clipArg && clipSelector) {
   process.exit(2);
 }
 
-function projectRoot() {
-  try {
-    return execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
-  } catch {
-    return process.cwd();
-  }
-}
-
+// A relative path is relative to the folder the command runs in.
 function resolveOut(path) {
-  if (!path) return "";
-  if (isAbsolute(path)) return path;
-  return resolve(projectRoot(), path);
+  return path ? resolve(path) : "";
 }
 
 const out = resolveOut(outArg);
 const reviewOut = resolveOut(reviewArg);
+
+// A page that is not there would otherwise be a black shot that looks like a result.
+if (/^file:/.test(url)) {
+  let file = "";
+  try {
+    file = fileURLToPath(url.replace(/[?#].*$/, ""));
+  } catch {}
+  if (!file || !existsSync(file)) {
+    console.error(`no such file: ${file || url}`);
+    process.exit(1);
+  }
+}
 
 function parseClip(s) {
   if (!s) return null;
@@ -201,6 +210,13 @@ const drop = () => {
   } catch {}
 };
 process.once("exit", drop);
+// An interrupt or a harness timeout must not leave Chrome or its profile behind.
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+  process.once(sig, () => {
+    drop();
+    process.exit(code);
+  });
+}
 
 proc = spawn(
   exe,
@@ -219,6 +235,10 @@ proc = spawn(
   ],
   { stdio: ["ignore", "ignore", "pipe"] },
 );
+proc.on("error", (e) => {
+  console.error(`could not start ${exe}: ${e.message}`);
+  process.exit(1);
+});
 
 let buf = "";
 const wsUrl = await new Promise((resolveWs, reject) => {
@@ -239,8 +259,15 @@ const wsUrl = await new Promise((resolveWs, reject) => {
 
 const ws = new WebSocket(wsUrl);
 await new Promise((res, rej) => {
-  ws.onopen = res;
-  ws.onerror = () => rej(new Error("CDP socket failed"));
+  const t = setTimeout(() => rej(new Error("CDP socket did not open")), 10000);
+  ws.onopen = () => {
+    clearTimeout(t);
+    res();
+  };
+  ws.onerror = () => {
+    clearTimeout(t);
+    rej(new Error("CDP socket failed"));
+  };
 });
 let nextId = 1;
 const pending = new Map();
@@ -258,12 +285,20 @@ ws.onmessage = (ev) => {
     inflight.delete(msg.params.requestId);
     lastNetwork = Date.now();
   }
+  // An alert, confirm or beforeunload prompt holds the page until it is answered.
+  if (msg.method === "Page.javascriptDialogOpening") {
+    send("Page.handleJavaScriptDialog", { accept: false }, msg.sessionId).catch(() => {});
+  }
   if (msg.id && pending.has(msg.id)) {
     const { resolve: ok, reject: bad } = pending.get(msg.id);
     pending.delete(msg.id);
     if (msg.error) bad(new Error(msg.error.message));
     else ok(msg.result);
   }
+};
+// If Chrome goes away, every call waiting on it fails now, not at its time limit.
+ws.onclose = () => {
+  for (const { reject: bad } of [...pending.values()]) bad(new Error("Chrome closed the connection"));
 };
 const send = (method, params = {}, sessionId, timeoutMs = 30000) => {
   const id = nextId++;
@@ -456,7 +491,8 @@ async function settle() {
 // Clicks a consent button, which can be any element, or else strips a short
 // privacy notice. Rejecting comes first: a script has no use for tracking,
 // and accepting can start scripts that redraw the page.
-// A local page is a state someone set up on purpose, so it is left as it is.
+// A local page is a state someone set up on purpose, so it is left as it is, and
+// so is a record of motion (--frames): nothing there is cleaned up.
 const dismissConsent = () =>
   local ? Promise.resolve(false) : evalValue(`(() => {
     // The common consent tools first, by their own ids: reject, then accept.
@@ -477,11 +513,19 @@ const dismissConsent = () =>
     const reject = /^(reject( all)?( cookies)?|decline( all)?|deny|only (essential|necessary)( cookies)?|rechazar( todas?| todo| cookies)?|denegar|ukatu( guztiak)?|refuser( tout)?|tout refuser|continuer sans accepter|alle ablehnen|ablehnen|rifiuta( tutti)?|rejeitar( todos)?)$/i;
     const clickable = [...document.querySelectorAll("button, [role=button], a, input[type=button], input[type=submit], [onclick], div, span")]
       .filter((el) => el.childElementCount <= 2 && el.getClientRects().length);
-    // Only inside a notice about cookies or privacy, so a menu or a gate is never clicked.
+    // Only inside something that looks like a notice about cookies or privacy: a
+    // dialog, a layer fixed or sticky over the page, or one named like a banner.
+    // Never the page itself, so a short page that mentions privacy is not a notice.
+    const about = /cookie|consent|privacy|gdpr|datenschutz|privacidad|consentimiento|confidentialit|privacit/i;
+    const named = /cookie|consent|gdpr|privacy|banner|notice|popup|modal|dialog/i;
     const notice = (el) => {
-      for (let up = el, i = 0; up && i < 8; up = up.parentElement, i++) {
+      for (let up = el, i = 0; up && up !== document.body && up !== document.documentElement && i < 8; up = up.parentElement, i++) {
         const t = up.innerText || "";
-        if (t.length < 1500 && /cookie|consent|privacy|gdpr|datenschutz|privacidad|consentimiento|confidentialit|privacit/i.test(t)) return true;
+        if (t.length >= 1500 || !about.test(t)) continue;
+        const pos = getComputedStyle(up).position;
+        const label = (typeof up.className === "string" ? up.className : "") + " " + up.id;
+        if (up.tagName === "DIALOG" || /^(dialog|alertdialog)$/.test(up.getAttribute("role") || "") ||
+            up.getAttribute("aria-modal") === "true" || pos === "fixed" || pos === "sticky" || named.test(label)) return true;
       }
       return false;
     };
@@ -545,10 +589,6 @@ if (frames) {
   if (scrollFrames || clickArg) {
     const why = await settle();
     if (why) console.error(`waited ${maxWait} ms: ${why}`);
-    if (await dismissConsent()) {
-      await sleep(800);
-      await settle();
-    }
     await sleep(600);
     t0 = Date.now();
   }
@@ -770,6 +810,11 @@ console.log(out);
 // A local page longer than one shot (a families board of hundreds) is kept whole, in parts:
 // <out>-2, <out>-3 … each up to the same height, so nothing below the first part is lost.
 const realHeight = Math.ceil(size.height || height);
+if (clipBox && (shotClip.height < clipBox.height || shotClip.width < clipBox.width)) {
+  console.error(`the clip reaches past the page (${fullWidth}x${realHeight} px): kept ${shotClip.width}x${shotClip.height} px of ${clipBox.width}x${clipBox.height}`);
+} else if (!clipBox && !/^file:/.test(url) && realHeight > fullHeight) {
+  console.error(`the page is ${realHeight} px, over the ${tallest} px limit: kept the first ${fullHeight} px`);
+}
 if (!clipBox && /^file:/.test(url) && realHeight > fullHeight) {
   const parts = Math.min(10, Math.ceil(realHeight / tallest));
   for (let i = 1; i < parts; i++) {
