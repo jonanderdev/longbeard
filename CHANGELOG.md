@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `measure.mjs` lists a live page's motion (each transition and animation with its property, time, delay, easing, loop or once, what it is on and its trigger, read before animations are ended) and its finish (shadows, filters, blends and textures with the share of the screen they cover), and says how many stylesheets it could not read, in new `motion`, `finish` and `unread` keys that leave the rest of the output as it was.
 - **The reason is caught when it is felt:** a liked tile on the picker opens a small note for what you like in it and why, copied out beside that pick, then written on the keep's card as a `like:` line, shown and pre-filled on the board, and not asked again at `design-direction`.
 - **`DESIGN.md` carries its tokens in the published DESIGN.md format** (new): `tokens.mjs` writes them as front matter from the tables, which stay the source, so another tool can take the design without Long Beard; `--check` and `design-check` docs mode say when they disagree.
 - `tokens.mjs` also reads an older `DESIGN.md`'s spacing and radius bullets (and says which line it cannot name), writes a `primary` inside each theme group, and `eval/design/score.mjs` checks that the token block agrees with the tables and that a finished run lists its stand-ins.
