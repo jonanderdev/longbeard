@@ -477,3 +477,17 @@ test("layout-diff: a reference and a screen are both required, and --out", () =>
   assert.match(r.stderr, /usage: node layout-diff\.mjs <reference picture> <screen capture> --out <folder>/);
   assert.equal(spawnSync(process.execPath, [script, "a.png", "b.png"], { encoding: "utf8" }).status, 2, "no --out");
 });
+
+test("measure: --profiles makes its folder, keeps what it measured when an input fails, and exits non-zero", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-profiles-"));
+  const shots = join(dir, "shots");
+  mkdirSync(shots);
+  writeFileSync(join(shots, "good.png"), png(2, 1, [255, 0, 0, 255, 255, 255]));
+  writeFileSync(join(shots, "broken.png"), "not a picture");
+  const profiles = join(dir, "not", "yet", "profiles.json");
+  const result = await measured([shots, "--profiles", profiles]);
+  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /broken\.png/);
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(profiles, "utf8")).refs), ["good"]);
+});
