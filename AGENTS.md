@@ -20,6 +20,6 @@ UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that fram
 - Before any use_figma call: figma-use
 - A Figma link to build: figma-design-to-code
 
-Add-ons, offered once when needed (`npx longbeard update --skill <name>`): animate (motion), jury (scored review), web-design-guidelines, security-audit, image-to-code (from a picture). At Architecture, a framework skill.
+Add-ons, offered once when needed (`npx longbeard update --skill <name>`): animate (motion), jury (scored review), web-design-guidelines, security-audit. At Architecture, a framework skill.
 
 Write so a person can use the reply in one read. End with what you did not check.

@@ -71,7 +71,6 @@ Add-ons are your choice: `init` lets you tick them, and the agent offers one whe
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | Reviews UI and accessibility when you ask | Vercel |
 | [modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/modern-web-guidance) | Current browser APIs instead of legacy patterns. Ticked at `init`; needs the network | Google Chrome |
 | [security-audit](https://github.com/cloudflare/security-audit-skill/tree/main/skills/security-audit) | Reviews a trust boundary when you ask | Cloudflare |
-| [image-to-code](https://github.com/Leonxlnx/imagegen-skills/tree/main/skills/image-to-code) | Builds a page from a picture you have | Leonxlnx |
 
 - **A kit** is an author's whole flow, as they publish it. `update` follows what they add and retire, unless you edited a skill.
 - **The list** `init` installs is [`beard.json`](beard.json). Don't copy it into your project: that forks the kit. A skill for one stack belongs in the project that uses it.
