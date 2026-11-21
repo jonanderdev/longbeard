@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
+import vm from "node:vm";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -198,6 +199,103 @@ test("screen template: its script parses, marks what a run writes, and takes the
   assert.equal(check.status, 0, check.stderr);
   for (const part of ["the look", "provenance", "the screen's CSS", "the screen's HTML"]) assert.match(html, new RegExp(`WRITE: ${part}`));
   for (const hook of ["const LOOK", "const PROVENANCE", 'document.title = "ready"', '["face", "body", "ground", "ink"]', 'q.get("weight")', 'q.get("accent")', 'q.get("size")']) assert.ok(html.includes(hook), hook);
+  // The live controls: ranges written when the screen is chosen, a panel only with ?controls and never in a capture.
+  assert.match(html, /WRITE when the screen is chosen: the board's ranges/);
+  for (const hook of ["const CONTROLS", "function mountControls", 'q.has("controls") && !q.has("capture")']) assert.ok(html.includes(hook), hook);
+  for (const key of ["type", "leading", "radius", "controls"]) assert.ok(!html.includes(`q.get("${key}")`), `${key} is never read from the address`);
+  const C = vm.runInNewContext(`${js.match(/const Controls = \{[\s\S]*?\n\};/)[0]}; Controls`);
+  // A range needs two values that differ; a screen's own value is always inside it.
+  const plain = (v) => JSON.parse(JSON.stringify(v));
+  assert.deepEqual(plain(C.range([5.2, 9, 7])), [5.2, 9]);
+  assert.equal(C.range([6]), null);
+  assert.equal(C.range([6, 6]), null);
+  assert.equal(C.range(undefined), null);
+  assert.deepEqual(plain(C.span([5, 9], 4.5)), [4.5, 9]);
+  assert.deepEqual(plain(C.span([5, 9], 7)), [5, 9]);
+  // The accent's strength is its contrast against the ground, read from each pair on the board.
+  assert.deepEqual(plain(C.accentRatios([["#ffffff", "#000000"], ["#ffffff", "#777777"], [null, "#000"], ["#fff"]])), [21, 4.5]);
+  assert.equal(C.range(C.accentRatios([["#ffffff", "#777777"]])), null, "one reference gives no range");
+  const stronger = C.accentAt("#f4f1ea", "#e2501c", 5), weaker = C.accentAt("#f4f1ea", "#e2501c", 2);
+  assert.ok(stronger.ratio > C.contrast("#e2501c", "#f4f1ea") && weaker.ratio < C.contrast("#e2501c", "#f4f1ea"));
+  assert.ok(Math.abs(stronger.ratio - 5) < 0.2 && Math.abs(weaker.ratio - 2) < 0.2, JSON.stringify([stronger, weaker]));
+  // The copy-out lists only what moved, and says where it goes.
+  assert.match(C.copy(["line spacing: 1.1 to 0.9"]), /LOOK and CSS, not in the address:\nline spacing: 1\.1 to 0\.9$/);
+  assert.match(C.copy([]), /Nothing moved/);
+});
+
+test("screen template: the controls move measures inside the board's ranges, keep every zone, and are absent from a capture", async (t) => {
+  const template = readFileSync(join(root, "skills/design-direction/references/screen-template.html"), "utf8");
+  const dir = mkdtempSync(join(tmpdir(), "longbeard-controls-"));
+  const css = ".h{position:absolute;left:100px;top:100px;width:900px;font-size:100px;line-height:1.1}.p{position:absolute;left:100px;top:500px;font-size:20px}.card{position:absolute;left:100px;top:600px;width:300px;height:200px;border-radius:16px;background:var(--accent)}.disc{position:absolute;left:800px;top:600px;width:100px;height:100px;border-radius:50%;background:var(--ink)}";
+  const body = '<h1 class="display h">Fresh bread</h1><p class="p">Baked every morning.</p><div class="card"></div><div class="disc"></div>';
+  // Drives the panel the way a person does, and writes what it finds where a DOM dump can read it.
+  const driver = `<script>
+    const rects = () => Object.fromEntries([".h", ".p", ".card", ".disc"].map((s) => { const r = document.querySelector(s).getBoundingClientRect(); return [s, [r.left, r.top]]; }));
+    let tries = 0;
+    const wait = setInterval(() => {
+      const panel = document.getElementById("lb-controls");
+      if (!panel && ++tries < 30) return;
+      clearInterval(wait);
+      const out = { panel: !!panel };
+      if (panel) {
+        const inputs = [...panel.querySelectorAll("input")];
+        const cs = (s) => getComputedStyle(document.querySelector(s));
+        const seen = () => ({ rects: rects(), size: cs(".h").fontSize, radius: cs(".card").borderTopLeftRadius, disc: cs(".disc").borderTopLeftRadius, accent: document.documentElement.style.getPropertyValue("--accent") });
+        out.count = inputs.length;
+        out.ranges = inputs.map((i) => [i.min, i.max, i.value]);
+        out.before = seen();
+        inputs.forEach((i) => { i.value = i.max; i.dispatchEvent(new Event("input")); });
+        out.after = seen();
+        out.copy = panel.querySelector("textarea").value;
+      }
+      document.body.insertAdjacentHTML("beforeend", "<pre id=result></pre>");
+      document.getElementById("result").textContent = JSON.stringify(out);
+    }, 100);
+  </script>`;
+  const controls = `const CONTROLS = { type: [4, 8], leading: [0.9, 1.3], accent: [["#f4f1ea", "#e2501c"], ["#f4f1ea", "#141414"]], radius: [8, 24] };`;
+  const page = template
+    .replace(/const CONTROLS = \{[\s\S]*?\n\};/, controls)
+    .replace(/\/\* WRITE: the screen's CSS[^*]*\*\//, css)
+    .replace(/<!-- WRITE: the screen's HTML[^>]*-->/, body)
+    .replace("</body>", `${driver}</body>`);
+  writeFileSync(join(dir, "first.html"), page);
+  const url = `file://${join(dir, "first.html")}`;
+  const shot = (query, name) => new Promise((done) => {
+    const child = spawn(process.execPath, [join(root, "skills/design-moodboard/scripts/capture.mjs"), url + query, "--out", join(dir, name), "--clip", "0,0,1440,900"]);
+    let stderr = "";
+    child.stderr.on("data", (d) => (stderr += d));
+    child.on("exit", (status) => done({ status, stderr }));
+  });
+  const plain = await shot("", "plain.png");
+  if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
+  assert.equal(plain.status, 0, plain.stderr);
+  // A capture never shows the panel: asked for with ?capture it is the plain screen, byte for byte.
+  assert.equal((await shot("?controls&capture", "capture.png")).status, 0);
+  assert.ok(readFileSync(join(dir, "capture.png")).equals(readFileSync(join(dir, "plain.png"))), "?capture shows the screen as it is");
+  const chrome = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find((p) => p && existsSync(p));
+  const dump = (query) => {
+    const r = spawnSync(chrome, ["--headless=new", "--disable-gpu", "--no-sandbox", `--user-data-dir=${join(dir, "profile")}`, "--virtual-time-budget=20000", "--dump-dom", url + query], { encoding: "utf8", timeout: 60000 });
+    return JSON.parse(r.stdout.match(/<pre id="result">([\s\S]*?)<\/pre>/)[1].replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
+  };
+  assert.equal(dump("").panel, false, "no panel without ?controls");
+  assert.equal(dump("?controls&capture").panel, false, "no panel in a capture");
+  const r = dump("?controls");
+  assert.equal(r.panel, true);
+  assert.equal(r.count, 4, "type, line spacing, accent, corner radius");
+  // The screen's own value is inside each range (type 100/20 = 5 in 4 to 8; leading 1.1; radius 16).
+  assert.deepEqual(r.ranges.map(([min, max]) => [Number(min), Number(max)]).slice(0, 2), [[4, 8], [0.9, 1.3]]);
+  assert.deepEqual(r.ranges[3], ["8", "24", "16"]);
+  // Moved to the board's most: bigger type, rounder cards, a stronger accent; discs and every zone stay.
+  assert.equal(r.before.size, "100px");
+  assert.equal(r.after.size, "160px");
+  assert.equal(r.before.radius, "16px");
+  assert.equal(r.after.radius, "24px");
+  assert.equal(r.after.disc, r.before.disc, "a disc is not a rounded corner");
+  assert.notEqual(r.after.accent, r.before.accent);
+  assert.deepEqual(r.after.rects, r.before.rects, "no zone moved");
+  assert.match(r.copy, /type scale: 5 to 8 .*x 1\.6/);
+  assert.match(r.copy, /corner radius: 16px to 24px/);
+  assert.match(r.copy, /accent: #e2501c to #/);
 });
 
 test("measure: ordinary pages read right (alignment, ground, gradients, patterns, lettering, icons, scale)", async (t) => {

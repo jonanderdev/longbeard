@@ -20,7 +20,7 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
     "pictures": "<how pictures are treated: crop, tone (black and white, a duotone, as shot), frame (an arch, a rounded window, full bleed), how many, how big>",
     "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
     "devices": ["<each element that is not content: a disc, a ruled line, a word band, a ring of text>"],
-    "measured": { "empty": 62, "pictures": 28 }
+    "measured": { "empty": 62, "pictures": 28, "radius": 12 }
   }]
 }
 ```
