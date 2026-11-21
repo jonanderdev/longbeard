@@ -31,8 +31,8 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 ## Type
 | Token | Face, weight | Size / line height | Tracking | Use |
 |---|---|---|---|---|
-| type/heading | Fraunces, 600 | 48 / 1.1 | -0.02em | screen titles |
-| type/body | Inter, 400 | 18 / 1.5 | | body, lists |
+| type/heading | <face>, <weight> | <size> / <line height> | <tracking, or blank> | screen titles |
+| type/body | … | …/… | | body, lists |
 
 - Licence: <covers how this ships: web, app bundle>
 
@@ -42,9 +42,8 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 
 | Token | Value | Use |
 |---|---|---|
-| space/sm | 8 | inside a control |
-| space/md | 16 | between items |
-| radius/md | 8 | cards and controls: where, and where not |
+| space/<step> | <px> | <where it is used> |
+| radius/<step> | <px> | <where, and where not> |
 
 ## Components
 - <component>: <what it is for, its variants, its states>
@@ -54,8 +53,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 
 | Token | Duration | Easing | Use |
 |---|---|---|---|
-| motion/state-change | 100ms | ease-out | hover, focus, press |
-| motion/enter | 250ms | cubic-bezier(0.2, 0, 0, 1) | a surface coming on |
+| motion/<purpose> | <ms> | <easing> | <what moves> |
 
 ## Accessibility
 - Level: <AA | AAA, from the design brief>. Every contrast pair above meets it; design-check checks against it.

@@ -22,8 +22,8 @@ Read [design-rules.md](references/design-rules.md) before the first screen: it i
 ## Gate
 
 1. No `docs/design/design-direction.md` → `design-direction`. No `docs/design/design-identity.md` → `design-identity`. Stop, and say which.
-2. `DESIGN.md` exists → **Feature loop**.
-3. Otherwise → **First pass**.
+2. `DESIGN.md` exists with token tables (rows like `color/ink`) → **Feature loop**.
+3. Otherwise → **First pass**. A `DESIGN.md` with no token tables is one they brought: say that this writes ours, and ask before it replaces theirs.
 
 A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 

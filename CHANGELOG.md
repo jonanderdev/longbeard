@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **`DESIGN.md` carries its tokens in the published DESIGN.md format** (new): `tokens.mjs`, in `design-prototype`, writes the colours, type, radius, spacing and motion from the tables as front matter, so another tool can take the design without Long Beard. The tables stay the source a person reads, our token names stay as they are (`color/ink` is `colors.ink`), themes become `light` and `dark` groups, and `primary`, the one name the format expects, points at the accent. `--check` exits 1 when the two disagree, `design-check` docs mode reports it, and a `DESIGN.md` brought from outside is offered as the identity's starting point. The format's own linter is optional.
+- **`DESIGN.md` carries its tokens in the published DESIGN.md format** (new): `tokens.mjs` writes them as front matter from the tables, which stay the source, so another tool can take the design without Long Beard; `--check` and `design-check` docs mode say when they disagree.
 
 - **`design-direction`: the critic loop can end, and the text is about 400 words shorter.** The loop stops when only small spots are left or after three passes, and the rest goes on the sheet as known faults. The critic also asks what on the screen exists only because of this product (an empty answer is a fault), "not a copy" is a yes or no, and pictures, tones and moves are spread when the round is planned. The subject is a card on the board, liked with a why, and what they like in it may return in another form. `design-moodboard` asks for one far reference when the board is only screens.
 
