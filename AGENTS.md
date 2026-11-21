@@ -6,7 +6,7 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 |---|---|---|---|
 | Idea | No docs/brief.md, or the product changes | idea | docs/brief.md |
 | Design | A site, app or graphic brief, no DESIGN.md | design → figma-generate-library → figma-generate-design | docs/design/, DESIGN.md, Ready Figma frames |
-| Architecture | No GLOSSARY.md | grill-with-docs | GLOSSARY.md, ADRs |
+| Architecture | No GLOSSARY.md, or new stack | grill-with-docs → framework-skills | GLOSSARY.md, ADRs |
 | Plan | A flow or feature | setup-matt-pocock-skills → to-spec → to-tickets | specs, tickets |
 | Build | Tickets | implement-spec → design-check → pr | one PR per spec |
 
@@ -20,6 +20,6 @@ UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that fram
 - Before any use_figma call: figma-use
 - A Figma link to build: figma-design-to-code
 
-Add-ons, offered once when needed (`npx longbeard update --skill <name>`): animate (motion), jury (scored review), web-design-guidelines, security-audit. At Architecture, a framework skill.
+Add-ons, offered once when needed (`npx longbeard update --skill <name>`): animate (motion), jury (scored review), web-design-guidelines, security-audit.
 
 Write so a person can use the reply in one read. End with what you did not check.

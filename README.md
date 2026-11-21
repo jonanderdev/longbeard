@@ -17,7 +17,7 @@ It is not an agent runtime or a marketplace, and it does not turn one prompt int
 |---|---|---|
 | 1. Idea | The agent grills the idea, each question with its recommendation | `docs/brief.md` |
 | 2. Design | A short brief and your moodboard, then you pick a direction and variants of it. Type, colour and the other screens follow, each on your yes. [How it flows](assets/design-flow.png) | `DESIGN.md` and Figma screens marked Ready |
-| 3. Architecture | The stack and the words the product uses | `GLOSSARY.md`, decisions |
+| 3. Architecture | The stack and the words the product uses, then skills for that stack, on your yes | `GLOSSARY.md`, decisions |
 | 4. Plan | Each flow becomes a spec, each spec tickets | specs and tickets |
 | 5. Build | One agent per ticket, test-first, reviewed, checked against its Figma frame | one pull request per spec |
 
@@ -58,6 +58,7 @@ Long Beard's own skills live in [`skills/`](skills/). The others are installed f
 | &nbsp;&nbsp;&nbsp;↳ [design-content](skills/design-content/SKILL.md) | Optional: copy and the picture list | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-wordmark](skills/design-wordmark/SKILL.md) | Optional: a mark made from your type | Long Beard |
 | [design-check](skills/design-check/SKILL.md) | Checks a Figma or built screen against the rules and its Ready frame. Reports; never redesigns | Long Beard |
+| [framework-skills](skills/framework-skills/SKILL.md) | Finds skills for your stack (the framework's own first, else the most installed), reads them, and installs the ones you say yes to | Long Beard |
 | [Matt Pocock's skills](https://github.com/mattpocock/skills) | Grilling, specs, tickets, test-first building, review, pull requests, debugging, handoff | Matt Pocock |
 | [figma-use](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-use), [figma-generate-library](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-library), [figma-generate-design](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design) | How `design-figma` writes tokens, components and screens in Figma | Figma |
 | [figma-design-to-code](https://github.com/figma/mcp-server-guide/tree/main/skills/figma-design-to-code) | Builds from a Figma file a designer handed over | Figma |
