@@ -9,7 +9,7 @@ The parts are the pieces of the set. For a single piece there is one part, the p
 ## What a keep is
 
 - **A piece of the same kind is a reference, not the exception.** A poster is a `screen: yes` card for a poster brief, and so are a card for a card and a social post for a post. A page of a site, an app screen or a type specimen is `screen: no`: it lends colour, type or picture treatment, not an arrangement.
-- **Their board:** the cards that are the piece's kind count as the screens in "is it enough". At least six are enough to compose from. With a set, each piece's format has at least one keep.
+- **Their board:** the cards that are the piece's kind count as the screens in "is it enough". Where a card carries a `format` tag (their own, or from `design-families`), that tag says its kind: a `poster` card for a poster, a `social-post` card for a post. Only a card with no such tag is judged by eye. At least six are enough to compose from. With a set, each piece's format has at least one keep.
 - **Keep the size in `move` when it matters:** "tall, headline across the top third, picture below".
 
 ## Search
