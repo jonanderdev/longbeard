@@ -4,13 +4,15 @@ Read by `design-direction` (the chosen screen, after the touch-up) and `design-p
 
 ## With fresh agents
 
-Three agents that have seen nothing: a new agent or a clean session each, given only the capture (`capture.mjs … --clip 0,0,1440,900`, or the device size for an app; for a site most people open on their phone, the 390 capture too). Never the brief, the design brief, the product's name from anywhere but the screen, or this conversation. Each gets exactly:
+Three agents that have seen nothing: a new agent or a clean session each, on a small model where you can choose one, given only the capture (`capture.mjs … --clip 0,0,1440,900`, or the device size for an app; for a site most people open on their phone, the 390 capture too). Never the brief, the design brief, the product's name from anywhere but the screen, or this conversation. Each gets exactly:
 
 > You glance at this screen for five seconds. Answer in one short line each, from what you see, not what you guess:
 > 1. What is this?
 > 2. Who is it for?
 > 3. What would you do first?
 > 4. One word for how it feels.
+
+Several screens (the prototype's key screens): the same three agents see all of them, one at a time, each in its own order, and answer the four questions for each. Never three new agents per screen.
 
 No agent can be started clean (no subagents, no second session): say "five-second check: not run" and offer the people version. Never answer the questions yourself: you know too much.
 

@@ -117,6 +117,21 @@ test("rules: a run on a changed page is a round, and the rounds end", async (t) 
   assert.equal(state.r.round, 2);
 });
 
+test("rules: another state of the same screen is the same round, and a fix to it is the next", async (t) => {
+  const cwd = sandbox();
+  const url = page(`<h1>Title</h1><p>draft</p>`, cwd, "s.html");
+  const args = (u) => [u, "--widths", "390", "--screen", "s", "--rounds", "2"];
+  const one = await run(args(url), cwd);
+  if (/No Chrome/.test(one.stderr)) return t.skip("no Chrome installed");
+  assert.match(one.stdout, /round 1 of 2/);
+  const open = await run(args(`${url}?menu=open`), cwd);
+  assert.match(open.stdout, /round 1 of 2 \(another state of this screen: same round\)/);
+  assert.doesNotMatch(open.stdout, /rounds used up/);
+  page(`<h1>Title</h1><p>fixed</p>`, cwd, "s.html");
+  const fixed = await run(args(url), cwd);
+  assert.match(fixed.stdout, /round 2 of 2/);
+});
+
 test("rules: a waiver needs a reason, names an open finding, and keeps the finding listed", async (t) => {
   const cwd = sandbox();
   const url = page("<h1>Title</h1>", cwd, "w.html");

@@ -27,6 +27,7 @@ Figma: <file URL>. Figma is the truth for screens. This file is the rules behind
 Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - color/ink on color/bg: <ratio> <AA | AAA>
 - <every text, control and focus pair>
+- <a colour they liked and kept under the level: its pair, its ratio, then `WARN liked, kept`>
 
 ## Type
 | Token | Face, weight | Size / line height | Tracking | Use |
@@ -56,7 +57,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 | motion/<purpose> | <ms> | <easing> | <what moves> |
 
 ## Accessibility
-- Level: <AA | AAA, from the design brief>. Every contrast pair above meets it; design-check checks against it.
+- Level: <AA | AAA, from the design brief>. Every contrast pair above meets it, except a pair marked `WARN liked, kept`; design-check checks against it and reports those as warnings.
 
 ## Imagery
 - <what the pictures are and how they are treated, or "none">
@@ -76,6 +77,6 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - Every token name is its code name, and the same name in Figma. A token is `group/name`: `color/`, `type/`, `space/`, `radius/`, `motion/`.
 - Values are plain: a hex or a css colour for colour, a number (px) or a unit for sizes, a weight as a number or its name, a line height under 4 as a multiplier, durations in ms. A table with no tokens of a kind (a design with no motion) leaves that kind out.
 - `tokens.mjs` reads every table row whose Token starts with one of those groups, and writes the block: `colors`, `typography`, `rounded`, `spacing` and `motion`, with `version` and `name`. It adds `primary`, the one name the format expects, pointing at `color/primary` if the table has it, else `color/accent`, else `color/ink`. Our names stay as they are. `--check` exits 1 when the block and the tables disagree.
-- Every colour pair in the table has been through `scripts/contrast.mjs`. No FAIL is written.
+- Every colour pair in the table has been through `scripts/contrast.mjs`. No FAIL is written. A colour they liked by name and kept under the level is written `WARN liked, kept`, with its why under Decisions.
 - More than one theme: one row per token, with a value column per theme, headed by its name (Light, Dark). Every pair is checked in each theme. The block groups them under `colors.light` and `colors.dark`, each with its own `primary`.
 - A section with nothing to say is left out, not filled with a guess. Still to supply is the one that stays: its "nothing" says it was checked.

@@ -146,6 +146,15 @@ test("eval score: a DESIGN.md with front matter is read as before, and a failing
   assert.equal(failing["DESIGN.md: contrast pairs pass"].status, "FAIL");
 });
 
+test("eval score: a liked colour kept under the level is a soft warning, not a hard fail", () => {
+  const design = bad["DESIGN.md"].replace("- color/ink on color/bg: 13.1:1 AAA", "- color/ink on color/bg: 2.0:1 WARN liked, kept");
+  const r = byId(run(project({ ...good, "DESIGN.md": design }), "--no-browser").stdout);
+  assert.equal(r["DESIGN.md: contrast pairs pass"].status, "PASS");
+  assert.equal(r["DESIGN.md: liked colours kept under the level"].status, "FAIL");
+  assert.match(r["DESIGN.md: liked colours kept under the level"].detail, /color\/ink on color\/bg/);
+  assert.equal(r["DESIGN.md: liked colours kept under the level"].hard, false);
+});
+
 test("eval score: the token block must agree with the tables: no block, a block that differs and a table that cannot be read are each told apart", () => {
   const id = "DESIGN.md: token block agrees with its tables";
   const withDesign = (design) => byId(run(project({ ...good, "DESIGN.md": design }), "--no-browser").stdout)[id];

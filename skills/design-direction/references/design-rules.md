@@ -8,7 +8,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 - Check from a screenshot. Every check below can be passed or failed by looking at a rendered screen at its real size. When a check needs a state you cannot see (focus, error, empty), it needs that state's frame, and a missing frame fails rule 8.
 - Go in order: **Idea** first, then every **hard** check, then **soft**.
-- **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it.
+- **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it, with one exception: a colour the person liked by name and kept under the contrast level, marked `WARN liked, kept` in `DESIGN.md`, is reported as a warning, not a block.
 - **Soft** is a default. `DESIGN.md` may override a soft check on purpose, with a written reason. A soft finding with no reason in `DESIGN.md` is reported, not blocked.
 - A finding is four things: the rule (number and check), hard or soft, where on the screen, and the fix.
 - The shared core applies to everything, except where the Graphics list says it does not. Then add the site, app or graphics list, whichever the brief's surface says.
