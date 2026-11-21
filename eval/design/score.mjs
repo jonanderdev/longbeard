@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Score a design run by what it left in the project, the way PRODUCT.md says to
 // judge one: each doc there, the design brief complete, no source named in a
-// committed doc, every dealt screen from three references, contrast at the
-// brief's level, and a prototype a person can click through.
+// committed doc, every screen built from the board, contrast at the brief's
+// level, and a prototype a person can click through.
 //
 //   node eval/design/score.mjs <project> [--json] [--no-browser] [--plain <baseline>] [--other <run on another board>]
 //
@@ -102,17 +102,10 @@ for (const f of committed) {
 }
 check("no source in the docs", true, !leaks.length, leaks.slice(0, 6).join("; ") + (leaks.length > 6 ? ` … ${leaks.length} in all` : ""));
 
-// ------------------------------------------------------------------ the deal
+// ------------------------------------------------------------------ the screens
 const lib = (() => {
   try {
     return JSON.parse(read(".longbeard/design/direction/library.json") || "null");
-  } catch {
-    return null;
-  }
-})();
-const deal = (() => {
-  try {
-    return JSON.parse(read(".longbeard/design/direction/deal.json") || "null");
   } catch {
     return null;
   }
@@ -126,7 +119,8 @@ const built = (() => {
     return null;
   }
 })();
-if (built) {
+if (!built) check("screens: a base and moves from the board", true, false, "no .longbeard/design/direction/screens.json");
+else {
   const board = new Set([...(lib?.references || []).map((r) => r.name), ...boardNames]);
   // A source may carry a note after its name ("04-still-life (turned)", "subject (the brief: light only)").
   const known = (from) => [...board, "subject", "theirs"].some((name) => String(from || "").trim().startsWith(name));
@@ -135,40 +129,7 @@ if (built) {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
-  check("deal: a screen chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
-} else if (!lib || !deal) check("deal: three sources a screen", true, false, `no ${!lib ? "library.json" : "deal.json"} in .longbeard/design/direction/`);
-else {
-  const lists = { arrangement: "arrangements", type: "type", ground: "grounds" };
-  const notRefs = new Set(["theirs", "identity", "subject"]);
-  const refsOf = (list, id) => {
-    const e = (lib[list] || []).find((x) => x.id === id);
-    return e ? (e.from || []).filter((r) => !notRefs.has(r)) : null;
-  };
-  const noFrom = Object.values({ ...lists, n: "navigation", a: "accents" }).flatMap((list) => (lib[list] || []).filter((e) => !Array.isArray(e.from) || !e.from.length).map((e) => `${list}/${e.id}`));
-  check("library: every entry has its references", true, !noFrom.length, noFrom.join(", "));
-  const bad = [];
-  let judged = 0, unknown = 0;
-  for (const round of deal.rounds || []) {
-    if (round.kind !== "deal") continue; // a mix may break the rule on their word, with a warning
-    for (const r of round.recipes) {
-      // The sources deal.mjs recorded when it dealt; else the library as it is now.
-      let a = r.sources?.arrangement, t = r.sources?.type, g = r.sources?.ground;
-      if (!a || !t || !g) {
-        a = refsOf("arrangements", r.arrangement);
-        t = refsOf("type", r.type);
-        g = refsOf("grounds", r.ground);
-        if (!a || !t || !g) {
-          unknown++; // an entry the identity later replaced, dealt before sources were recorded
-          continue;
-        }
-        for (const z of Object.values(r.zones || {})) if (z !== "none") a.push(...(refsOf("arrangements", z) || []));
-      }
-      judged++;
-      if (a.some((x) => t.includes(x) || g.includes(x)) || t.some((x) => g.includes(x))) bad.push(`round ${round.round} #${r.n}`);
-    }
-  }
-  check("deal: three sources a screen", true, judged ? !bad.length : null, bad.length ? `from fewer than three: ${bad.join(", ")}` : `${judged} screens${unknown ? `, ${unknown} not judged (entries since replaced)` : ""}`);
-  check("deal: a screen chosen", true, Boolean(deal.chosen), deal.chosen ? `round ${deal.chosen.round} #${deal.chosen.n}` : "no --choose");
+  check("screens: one chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
 }
 
 // ------------------------------------------------------------------ the direction and identity docs
@@ -257,14 +218,10 @@ else {
   if (ran) check("prototype: contrast where text sits", true, !failing.length, failing.slice(0, 4).join("; ") || `${ran} pages at ${level}`);
 }
 
-// ------------------------------------------------------------------ rendered: the dealt screens (screens.mjs)
-// Each screen of the first dealt round: no tiny or clipped text, contrast where text sits, no more
-// text than its reference carries and one more, a ground of a tone the references use; and measured
-// against its references, with the odd-one-out rate when the judges have run (odd-one-out.mjs).
-// A run of this flow, or one from before it (design-exploration/<slug>/), which screens.mjs reads too.
-const gridPage = [at(".longbeard/design/direction/screens.json"), at(".longbeard/design/direction/prototype/grid.html"), ...(existsSync(at("design-exploration")) ? readdirSync(at("design-exploration")).map((d) => at("design-exploration", d, "prototype/grid.html")) : [])].find(existsSync);
-const gridIds = ["grid: no text under 12px", "grid: no clipped text", "grid: contrast on every screen", "grid: text within the reference's slots", "grid: grounds in the board's tones", "grid: measured against the references", "grid: odd one out"];
-if (!gridPage) for (const id of gridIds) check(id, id.includes("12px") || id.includes("clipped") || id.includes("contrast"), null, "no grid page or deal");
+// ------------------------------------------------------------------ rendered: the round's screens (screens.mjs)
+// Each screen of the first round: no tiny or clipped text, contrast where text sits, and no more text than its base carries and one more.
+const gridIds = ["screens: no text under 12px", "screens: no clipped text", "screens: contrast on every screen", "screens: text within the base's slots"];
+if (!built?.list.length) for (const id of gridIds) check(id, !id.includes("slots"), null, "no screens");
 else {
   const r = browser(gridIds[0], true, () => spawnSync(process.execPath, [join(here, "screens.mjs"), dir, "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
   if (!r) for (const id of gridIds.slice(1)) check(id, false, null, results.at(-1).detail);
@@ -281,13 +238,6 @@ else {
       check(gridIds[1], true, !g.clipped.length, list(g.clipped));
       check(gridIds[2], true, !g.contrast.length, g.contrast.length ? list(g.contrast) : `${g.screens} screens`);
       check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
-      check(gridIds[4], false, !g.offBoard.length, list(g.offBoard));
-      const rates = ["arrangement", "type", "role", "colour"].filter((k) => g[k]);
-      const say = rates.map((k) => `${k} ${g[k].within}/${g[k].of}`).join(" · ");
-      check(gridIds[5], false, rates.length ? rates.every((k) => g[k].within * 2 >= g[k].of) : null, say || "nothing measured");
-      // Picked as least finished at chance (1 in 6) or less: the screens hold up beside the references.
-      const odd = g.oddOneOut;
-      check(gridIds[6], false, odd ? odd.rate <= 1 / 6 + 1e-9 : null, odd ? `${odd.picked}/${odd.judged} picks were a dealt screen (chance ${(odd.judged / 6).toFixed(1)})` : "not judged: run odd-one-out.mjs");
     }
   }
 }

@@ -52,14 +52,10 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 ## Accessibility
 - Level: AA. Every contrast pair above meets it.
 `,
-  ".longbeard/design/direction/library.json": JSON.stringify({
-    arrangements: [{ id: "stack", from: ["a"] }],
-    navigation: [{ id: "top", from: ["b"] }],
-    type: [{ id: "serif", from: ["b"] }],
-    grounds: [{ id: "cream", ground: "#f6f1e7", from: ["c"] }],
-    accents: [{ id: "none", colour: null, from: ["c"] }],
-  }),
-  ".longbeard/design/direction/deal.json": JSON.stringify({ rounds: [{ round: 1, kind: "deal", recipes: [{ n: 1, arrangement: "stack", navigation: "top", type: "serif", ground: "cream", accent: "none" }] }], chosen: { round: 1, n: 1 } }),
+  ".longbeard/design/direction/library.json": JSON.stringify({ references: [{ name: "a", slots: { small: 1 } }, { name: "b", slots: { small: 2 } }] }),
+  ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }] }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }] }], chosen: 1 }),
+  ".longbeard/design/direction/screens/1.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Bread, still warm</h1><p>Order a loaf</p><script>document.title="ready"</script></body>',
+  ".longbeard/design/direction/screens/2.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Today\'s bread</h1><script>document.title="ready"</script></body>',
   ".longbeard/design/direction/prototype/first.html": '<body style="background:#f6f1e7;color:#2c2824"><h1>Bread, still warm</h1><script>document.title="ready"</script></body>',
   ".longbeard/design/prototype/home.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="menu.html">Menu</a></body>',
   ".longbeard/design/prototype/menu.html": '<body style="background:#f6f1e7;color:#2c2824"><a href="home.html">Home</a></body>',
@@ -86,13 +82,13 @@ test("eval score: a good run passes every hard check", () => {
   assert.match(results["eval log: skills followed as written"].detail, /1 uncovered answer/);
 });
 
-test("eval score: a leaked source, a gap in the brief, a failing pair, a one-source screen and a dead link each fail", () => {
+test("eval score: a leaked source, a gap in the brief, a failing pair, a screen with no move and a dead link each fail", () => {
   const bad = {
     ...good,
     "docs/design/design-moodboard.md": "# Moodboard\n\nLike Halden Design Week's poster; see .longbeard/design/moodboard/refs/01-arch-poster.png\n",
     "docs/design/design-brief.md": good["docs/design/design-brief.md"].replace("- accessibility: AA\n", "").replace("playful 2 · ", ""),
     "DESIGN.md": good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | #b8b2a8 |"),
-    ".longbeard/design/direction/library.json": good[".longbeard/design/direction/library.json"].replace('{"id":"serif","from":["b"]}', '{"id":"serif","from":["a"]}'),
+    ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [] }], chosen: 1 }),
     ".longbeard/design/prototype/menu.html": '<a href="#">Order</a>',
   };
   const result = run(project(bad));
@@ -103,7 +99,7 @@ test("eval score: a leaked source, a gap in the brief, a failing pair, a one-sou
   assert.equal(results["design brief complete"].status, "FAIL");
   assert.match(results["design brief complete"].detail, /no accessibility.*personality lacks playful/);
   assert.equal(results["DESIGN.md: contrast pairs pass"].status, "FAIL");
-  assert.equal(results["deal: three sources a screen"].status, "FAIL");
+  assert.equal(results["screens: a base and moves from the board"].status, "FAIL");
   if (results["prototype: links"].status !== "SKIP") {
     assert.equal(results["prototype: links"].status, "FAIL");
     assert.match(results["prototype: links"].detail, /nowhere menu|dead end menu/);
@@ -114,20 +110,6 @@ test("eval score: a project with nothing in it fails, and says what is missing",
   const result = run(project({ "docs/brief.md": "# x\n" }));
   assert.equal(result.status, 1);
   assert.match(byId(result.stdout).docs.detail, /missing: docs\/design\/design-brief\.md/);
-});
-
-test("eval score: screens dealt before the identity are judged by the sources deal.mjs recorded", () => {
-  const recipe = { n: 1, arrangement: "stack", navigation: "top", type: "serif", ground: "cream", accent: "none" };
-  const after = {
-    ...good,
-    // The identity replaced type and grounds in the library: "serif" and "cream" are gone.
-    ".longbeard/design/direction/library.json": JSON.stringify({ arrangements: [{ id: "stack", from: ["a"] }], navigation: [{ id: "top", from: ["b"] }], type: [{ id: "identity", from: ["identity"] }], grounds: [{ id: "Linen", from: ["identity"] }], accents: [{ id: "none", colour: null, from: ["identity"] }] }),
-    ".longbeard/design/direction/deal.json": JSON.stringify({ rounds: [{ round: 1, kind: "deal", recipes: [{ ...recipe, sources: { arrangement: ["a"], type: ["b"], ground: ["c"] } }, { ...recipe, n: 2, sources: { arrangement: ["a"], type: ["a"], ground: ["c"] } }] }], chosen: { round: 1, n: 1 } }),
-  };
-  const check = byId(run(project(after)).stdout)["deal: three sources a screen"];
-  assert.equal(check.status, "FAIL");
-  assert.match(check.detail, /round 1 #2/);
-  assert.doesNotMatch(check.detail, /#1\b/);
 });
 
 // A round of two built screens, and a baseline of two, each with a capture.

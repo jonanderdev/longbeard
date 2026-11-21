@@ -10,7 +10,7 @@
 //   node eval/design/run.mjs --out ../longbeard-eval --fixture eval/design/fixture-2
 //                                   another board: the fixture folder's board/, and its docs/ and
 //                                   answers.md where it has its own (else fixture/'s). The project
-//                                   records it, so score.mjs and odd-one-out.mjs use the same one.
+//                                   records it, so score.mjs uses the same one.
 //   node eval/design/run.mjs --out ../longbeard-eval-2 --from ../longbeard-eval
 //                                   only the build: the design brief, the moodboard, the readings
 //                                   (library.json) and the pictures are taken from a finished run, and the
@@ -142,7 +142,7 @@ if (from) {
   cpSync(join(src, "docs"), join(dir, "docs"), { recursive: true });
   cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !/\/design\/tools(\/|$)|\/design\/direction\/(screens|grid|prototype|checks|fix-check|briefs|build)(\/|$)|\/screens\.json$|\/eval\/|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/.test(p) });
 }
-// Which fixture this project was built from, for score.mjs and odd-one-out.mjs.
+// Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
 writeFileSync(join(dir, ".longbeard/eval/fixture.txt"), `${fixture}\n`);
 const prompt = from ? [
