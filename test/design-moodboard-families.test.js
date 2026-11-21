@@ -364,3 +364,45 @@ test("families: a bin far bigger than the other families is sorted again on its 
   assert.equal(real.length, 3);
   for (const f of real) assert.equal(new Set(f.members.map((m) => m.match(/refs\/([a-c])/)[1])).size, 1, JSON.stringify(f.members.slice(0, 5)));
 });
+
+test("families --assign: new references join the families there are, the rest are seeds or strays, and families.json is left as it was", () => {
+  const refs = {};
+  const photo = (name, i) => profile(name, { lum: 0.02, empty: 60 + i, picture: "photo", layout: "full-bleed", colours: 150, soft: 30, sharp: 35, grid: 70 });
+  const type = (name, i) => profile(name, { lum: 0.02, empty: 62 + i, picture: "none", layout: "left", colours: 6, soft: 2, sharp: 60, grid: 10 });
+  for (let i = 0; i < 5; i++) refs[`photo${i}`] = photo(`photo${i}`, i);
+  for (let i = 0; i < 4; i++) refs[`type${i}`] = type(`type${i}`, i);
+  const dir = project({ "profiles.json": JSON.stringify({ refs }) });
+  run("families.mjs", dir, ["profiles.json"]);
+  const before = readFileSync(join(dir, "families.json"), "utf8");
+  const sorted = JSON.parse(before).families.filter((f) => !f.stray);
+  assert.equal(sorted.length, 2, before);
+  const familyOf = (word) => sorted.find((f) => f.members.every((m) => m.includes(word))).id;
+  // The library grows: one more photo, one more type page, and three renders unlike either.
+  refs.photo5 = photo("photo5", 2.5);
+  refs.type4 = type("type4", 1.5);
+  for (let i = 0; i < 3; i++) refs[`render${i}`] = profile(`render${i}`, { lum: 0.95, empty: 30 + i, loud: 50, picture: "render", layout: "scattered", colours: 300, soft: 50, sharp: 20, grid: 35 });
+  writeFileSync(join(dir, "profiles.json"), JSON.stringify({ refs }));
+  const result = run("families.mjs", dir, ["profiles.json", "--assign", "families.json"]);
+  assert.match(result.stdout, /^5 new of 14 references: 2 join a family, 1 new families proposed \(3 references\), 0 strays, spread 0.52$/m);
+  assert.match(result.stdout, /^assign: assign\.json$/m);
+  const out = JSON.parse(readFileSync(join(dir, "assign.json"), "utf8"));
+  const joined = Object.fromEntries(out.assigned.map((a) => [a.name, a]));
+  assert.equal(joined.photo5.family, familyOf("photo"));
+  assert.equal(joined.type4.family, familyOf("type"));
+  for (const a of out.assigned) {
+    assert.ok(a.confidence > 0 && a.confidence <= 1, JSON.stringify(a));
+    assert.equal(a.nearest.length, 5);
+    assert.ok(a.second.distance >= a.distance);
+  }
+  assert.deepEqual(out.seeds.map((s) => [...s.members].sort()), [["render0", "render1", "render2"]]);
+  assert.equal(out.strays.length, 0);
+  assert.equal(readFileSync(join(dir, "families.json"), "utf8"), before);
+  // It needs profiles.json, and goes with none of --only, --board or --sliders.
+  const clash = spawnSync(process.execPath, [script("families.mjs"), "profiles.json", "--assign", "families.json", "--board", "b.md"], { cwd: dir, encoding: "utf8" });
+  assert.equal(clash.status, 1);
+  assert.match(clash.stderr, /--assign does not go with --board/);
+  writeFileSync(join(dir, "other.json"), JSON.stringify({ families: [{ id: "x", members: ["nobody"] }] }));
+  const empty = spawnSync(process.execPath, [script("families.mjs"), "profiles.json", "--assign", "other.json"], { cwd: dir, encoding: "utf8" });
+  assert.equal(empty.status, 1);
+  assert.match(empty.stderr, /no family whose members are in profiles.json/);
+});
