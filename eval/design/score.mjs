@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Score a design run by what it left in the project, the way PRODUCT.md says to
+// Score a design run by what it left in the project, the way CONTRIBUTING.md says to
 // judge one: each doc there, the design brief complete, no source named in a
 // committed doc, every screen built from the board, contrast at the brief's
 // level, and a prototype a person can click through.
