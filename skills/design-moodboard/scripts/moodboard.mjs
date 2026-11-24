@@ -13,6 +13,11 @@
 // avoid (their words: what they do not want from a reference they otherwise
 // like; shown on the card and put in its leave-out box).
 //
+// --topics .longbeard/design/families/board.md: each card takes its family from
+// that board, matched by name, so the moodboard's own cards (with their like,
+// avoid and move lines) are shown under the families design-families found.
+// A card in no family keeps its part. Every card stays.
+//
 // --one-lead: one Lead on the whole board, not one per group. The direction's
 // board is grouped by family, and its lead is one reference across them all.
 //
@@ -38,6 +43,8 @@ if (overAt !== -1 && !(Number.isInteger(overview) && overview >= 1 && overview <
   console.error("moodboard: --overview takes how many tiles to show per family, 1 to 24");
   process.exit(2);
 }
+const topicsAt = args.indexOf("--topics");
+const topicsArg = topicsAt === -1 ? "" : (args.splice(topicsAt, 2)[1] ?? "");
 const leadAt = args.indexOf("--one-lead");
 const oneLead = leadAt !== -1;
 if (oneLead) args.splice(leadAt, 1);
@@ -124,9 +131,22 @@ function framesOf(folder) {
 }
 
 const md = readFileSync(boardPath, "utf8");
+const topicsMd = topicsArg ? (existsSync(resolvePath(topicsArg)) ? readFileSync(resolvePath(topicsArg), "utf8") : null) : "";
+if (topicsMd === null) {
+  console.error(`moodboard: no board at ${topicsArg}`);
+  process.exit(1);
+}
+// name → family, from the sorted board.
+const familyOf = new Map();
+for (const chunk of topicsMd.split(/^### /m).slice(1)) {
+  const nl = chunk.indexOf("\n");
+  const name = (nl === -1 ? chunk : chunk.slice(0, nl)).trim();
+  const topic = fieldsOf(nl === -1 ? "" : chunk.slice(nl + 1)).topic;
+  if (topic && !familyOf.has(name)) familyOf.set(name, topic);
+}
 // Ranges per family, from board.md's header: "Families: f1 (light · empty 55–70%) — 42; f2 (…) — 18".
 const ranges = new Map();
-const familiesLine = md.match(/^Families:\s*(.*)$/m)?.[1] || "";
+const familiesLine = (topicsMd || md).match(/^Families:\s*(.*)$/m)?.[1] || "";
 for (const part of familiesLine.split(";")) {
   const m = part.trim().match(/^(.+?)\s*\((.+)\)/);
   if (m) ranges.set(m[1].trim().toLowerCase(), m[2].trim());
@@ -162,7 +182,7 @@ for (const card of cards) {
   const seenName = (names.get(card.name) ?? 0) + 1;
   names.set(card.name, seenName);
   const markKey = seenName > 1 ? `${card.name} #${seenName}` : card.name;
-  const topic = topicOf(card.topic || card.part);
+  const topic = topicOf(familyOf.get(card.name) || card.topic || card.part);
   // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
   const name = /^https?:\/\//i.test(url)
@@ -234,16 +254,19 @@ const html = `<!DOCTYPE html>
 <style>
   :root { --canvas: #e4e4e2; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6f6a; --line: #c8c8c4; --lead: #8a5a00; --like: #1f7a3a; --no: #b3261e; }
   * { box-sizing: border-box; }
-  html { color-scheme: light; scroll-padding-top: 64px; }
+  html { color-scheme: light; scroll-padding-top: 76px; }
   body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 1400px; margin: 0 auto; padding: 0 24px 300px; }
-  header { position: sticky; top: 0; z-index: 2; background: var(--canvas); padding: 20px 2px 12px; }
+  header { padding: 20px 2px 4px; }
+  /* Only the jump bar sticks, on one line that scrolls sideways, so thirty families never eat the screen. */
+  .sticky { position: sticky; top: 0; z-index: 2; background: var(--canvas); display: flex; align-items: center; gap: 12px; padding: 10px 2px; margin: 0 -2px; }
   h1 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
   .how { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
-  nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  nav { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; flex: 1 1 auto; min-width: 0; scrollbar-width: thin; padding-bottom: 2px; }
+  nav a { white-space: nowrap; flex: none; }
   nav a, .filters button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-family: inherit; }
   nav a span, h2 span { color: var(--muted); }
-  .filters { display: flex; gap: 8px; margin-top: 8px; }
+  .filters { display: flex; gap: 8px; flex: none; }
   .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   section { margin-top: 28px; }
   section[hidden] { display: none; }
@@ -292,7 +315,7 @@ const html = `<!DOCTYPE html>
   .fam-note { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
   .more { font-size: 13px; color: var(--muted); }
   #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
-  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } header { position: static; } }
+  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } .sticky { flex-wrap: wrap; } nav { flex-basis: 100%; } }
 </style>
 </head>
 <body${overview ? " data-overview" : ""}>
@@ -301,13 +324,15 @@ const html = `<!DOCTYPE html>
     <h1>${overview ? "Families" : "Moodboard"}</h1>
     ${overview ? `<p class="how">Each family shows its most typical ${overview}. Every family stays on your board; this only checks the sorting. Note a family that looks like two, or that belongs with another.</p>` : ""}
     <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone (${oneLead ? "one on the whole board" : "one per group: a part, or a direction"}), Like what belongs, No what feels wrong. In each like, say what you like and why, and what to leave out of it, if anything; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+  </header>
+  <div class="sticky">
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>
       <button type="button" data-show="open" aria-pressed="false">Not marked</button>
       <button type="button" data-show="marked" aria-pressed="false">Marked</button>
     </div>
-  </header>
+  </div>
   ${body}
 </main>
 <div class="bar">
@@ -481,5 +506,5 @@ const html = `<!DOCTYPE html>
 
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, html);
-console.error(`moodboard: ${n} tiles in ${ordered.length} parts`);
+console.error(`moodboard: ${n} tiles in ${ordered.length} parts${cards.length > n ? `, ${cards.length - n} of ${cards.length} cards left out for a missing shot` : ""}`);
 console.log(outArg);

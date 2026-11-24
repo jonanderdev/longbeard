@@ -48,11 +48,13 @@ Before the grid: three or four pictures of what the product is about, not other 
 
 **The headline and the ownable.** Three or four headlines that say the takeaway outright, in the voice. With them, the ownable: one thing from the product's own world only it would show (a stamp, a live count, a mark). Say the fill order in one line.
 
-**The lead and the likes.** Build their board with every reference on it: a copy of the moodboard's `board.md` as `.longbeard/design/direction/board.md` (or, when the board was sorted, `.longbeard/design/families/board.md`, every card, each in its family), plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`). A family is a heading on the board, never a filter: a reference they like can come from any family, and a screen can borrow across them.
+**The lead and the likes.** Build their board with every reference on it: a copy of the moodboard's `board.md` as `.longbeard/design/direction/board.md`, every card, plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`). When the board was sorted, `--topics` puts each card under its family; a family is a heading, never a filter: a reference they like can come from any family, and a screen can borrow across them.
 
 ```
-node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --one-lead --out .longbeard/design/direction/board.html
+node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --one-lead [--topics .longbeard/design/families/board.md] --out .longbeard/design/direction/board.html
 ```
+
+It says how many tiles it drew; one fewer than the cards is a missing shot, named on its own line: capture it again before showing the board.
 
 **Likes are asked once.** A card with a `like:` line already holds their like and why: it starts liked, with their words in its note, so they only correct it. Ask only for what is not there yet.
 

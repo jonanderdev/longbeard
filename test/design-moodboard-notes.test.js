@@ -247,3 +247,29 @@ test("moodboard --one-lead: one lead on the whole board, across groups", () => {
   assert.match(readFileSync(join(dir, "one.html"), "utf8"), /one on the whole board/);
   assert.match(readFileSync(join(dir, "each.html"), "utf8"), /const oneLead = false;/);
 });
+
+test("moodboard --topics: every card stays, each under its family from the sorted board, its like kept", () => {
+  const dir = project({ "b.md": likeCards, "refs/a.jpg": "jpg", "refs/b.jpg": "jpg", "fam.md": "Families: f1 (light) — 1; f2 (dark) — 1\n\n### Orange dot\n- topic: f2\n- shot: refs/a.jpg\n" });
+  const result = spawnSync(process.execPath, [script("moodboard.mjs"), "b.md", "--topics", "fam.md", "--out", "t.html"], { cwd: dir, encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /2 tiles in 2 parts/);
+  const html = readFileSync(join(dir, "t.html"), "utf8");
+  assert.equal(html.match(/<figure class="tile"/g).length, 2);
+  assert.match(html, /data-topic="F2" data-key="Orange dot" data-like=/);
+  assert.match(html, /data-title="Plain" data-topic="Other"/);
+});
+
+test("moodboard: only the jump bar sticks, on one line that scrolls sideways", () => {
+  const html = board(likeCards);
+  assert.match(html, /\.sticky \{ position: sticky;/);
+  assert.match(html, /nav \{ display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto;/);
+  assert.doesNotMatch(html, /header \{ position: sticky/);
+});
+
+test("moodboard: a card left out for a missing shot is counted", () => {
+  const dir = project({ "b.md": likeCards, "refs/a.jpg": "jpg" });
+  const result = spawnSync(process.execPath, [script("moodboard.mjs"), "b.md", "--out", "t.html"], { cwd: dir, encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /missing shot refs\/b\.jpg/);
+  assert.match(result.stderr, /1 of 2 cards left out for a missing shot/);
+});
