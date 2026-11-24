@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Galleries for single parts of a site:** Footer Design and CTA Gallery for a footer or a call to action, and Recent's motion listing, launch videos and Codrops demos for motion, only when the brief asks for motion examples. Recent's other listings too: interface, app screenshots and app icons for an app; branding, posters and print for the far reference and for graphics; social images for a post; illustration for imagery. `sources.md` says how to read each one's cards and what to keep. Behance stays out of the picker: it refuses scripts.
+
 ## 0.12.2 — 2026-11-21
 
 - **A shot can be a picture's URL.** `moodboard.mjs` shows an `https://` shot from that address instead of dropping it as missing, and `families.mjs --board` writes it into `board.md` as it is (it was turned into `https:/…`). A library exported with its pins' addresses makes a moodboard with no pictures copied.
