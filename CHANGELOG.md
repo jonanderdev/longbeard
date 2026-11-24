@@ -9,7 +9,7 @@
 - **Far fewer agents in the direction.** Every round is quick, "more of" and mixes included: one agent per screen and one judge per round. The full build runs once, on the screen you settle on, with one critic and one fixer. A "more of 3" used to start about 24 agents; it now starts 4.
 - **The five-second check runs once,** in `design-prototype`, where the same three strangers see the first screen and every key screen. `DESIGN.md` records the first screen's result as its `five seconds:` line.
 - **The live controls moved to `design-identity`,** into its one refinement round, on the pairing and palette you picked. A stop fewer in the direction.
-- The `design` skill is about a quarter shorter.
+- **Shorter skills and shorter stops.** `design-direction` (with its `grid.md`), `design-prototype` and `design-moodboard` are 35 to 40% shorter, with the same rules, and `design` is a quarter shorter. Every design step says what is new and its one question in up to five lines, and the direction's sheet gets one line per screen instead of a table.
 
 If you already ran `init`: run `npx longbeard update`. A direction in progress keeps working: a run that already took families simply shows every card next time its board is built.
 

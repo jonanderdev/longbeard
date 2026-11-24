@@ -17,6 +17,8 @@ description: >
 
 One doc comes out, `docs/design/design-brief.md`, committed. Every other design skill reads it, so nobody is asked the same question twice. It records what they want the look to do, in words. It chooses no look: no layout, colour, typeface or style name.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `docs/brief.md` → `idea` first. Stop.

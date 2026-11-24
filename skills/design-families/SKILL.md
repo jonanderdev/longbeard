@@ -25,6 +25,8 @@ Comes out:
 - **In Figma**, for a Figma board: a new page, `Families`, with one section per family holding copies of its cards. Their own pages are never moved or changed.
 - **`.longbeard/design/families/`**, gitignored: `profiles.json`, `tags.tsv`, one TSV per family, the families page.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No board → `design-moodboard` first, or they give one now (a Figma link, a folder, a list of links).

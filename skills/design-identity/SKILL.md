@@ -27,6 +27,8 @@ Options and captures live in `.longbeard/design/identity/`, gitignored.
 
 Three stops, no more: options, one refinement, the board.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `docs/design/design-brief.md` → `design-brief`. No `docs/design/design-direction.md` → `design-direction`. Stop, and say which.

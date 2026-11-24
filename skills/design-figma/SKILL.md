@@ -17,6 +17,8 @@ Figma is the truth for screens. `DESIGN.md` is the written summary of the rules 
 
 Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and follow them. This skill adds only what they do not decide.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `DESIGN.md` → `design-prototype` first. Stop.
