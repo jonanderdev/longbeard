@@ -23,7 +23,7 @@ no UI. An installer and a set of agent skills. The pages a person clicks (the pi
 
 ## V1 and later
 - v1: all five flows, already shipped.
-- later: a faster direction round; a taste library (the references' ideas in words, with no sources).
+- later: none decided.
 
 ## Constraints
 - Works with several agents, and on projects that join partway.
