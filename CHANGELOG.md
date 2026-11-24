@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **Galleries for single parts of a site:** Footer Design and CTA Gallery for a footer or a call to action, and Recent's motion listing and Codrops demos for motion, only when the brief asks for motion examples. `sources.md` says how to read each one's cards and what to keep. Behance stays out of the picker: it refuses scripts.
+- **Galleries for single parts of a site:** Footer Design and CTA Gallery for a footer or a call to action, and Recent's motion listing, launch videos and Codrops demos for motion, only when the brief asks for motion examples. Recent's other listings too: interface, app screenshots and app icons for an app; branding, posters and print for the far reference and for graphics; social images for a post; illustration for imagery. `sources.md` says how to read each one's cards and what to keep. Behance stays out of the picker: it refuses scripts.
 
 ## 0.12.2 — 2026-11-21
 

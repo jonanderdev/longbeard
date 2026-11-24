@@ -77,7 +77,7 @@ All met → say so in one line ("34 fits, every part covered") and write the doc
 
 ## Search
 
-Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens; Minimal Gallery and httpster when a kind of site or a look needs more (they browse by tag, not search). For one part: Footer Design and CTA Gallery for a footer or a call to action, Recent's motion listing and Codrops demos for motion. The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
+Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards (this year's and older winners), Recent, and Dribbble for screens; Minimal Gallery and httpster when a kind of site or a look needs more (they browse by tag, not search). For one part: Footer Design and CTA Gallery for a footer or a call to action; Recent's motion and launch videos, and Codrops demos, for motion; Recent's interface, app screenshot and app icon listings for an app; its branding, posters and print for the far reference. The sites they love (in `.longbeard/design/brief-loves.md`) are seeds: captured, and searched from ("more like this").
 
 **The design brief steers the pool, not the picks.** Read its words, personality, never, apart from and distance before the first query:
 
