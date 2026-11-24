@@ -4,8 +4,9 @@ description: >
   Optional. Sort a big or messy moodboard (a large Figma board, a folder, a
   wide search) into families: groups of references that look alike from across
   a room. Every reference is measured and tagged, sorted by script, checked by
-  eye, and named for what is seen. They take one or two families, and those
-  become the references the next skills work from. Call it by hand, or when
+  eye, and named for what is seen. The families become the headings of the
+  board design-direction shows; nothing is dropped, since a reference they
+  like can come from any family. Call it by hand, or when
   design or design-moodboard offers it for a board over about 60 references.
   Never worth it for a board someone already curated to a few dozen.
 ---
@@ -16,11 +17,11 @@ description: >
 **Uses if there:** `docs/design/design-brief.md`  
 **Writes:** `docs/design/design-families.md`
 
-One job: sort a board into looks so choosing is easy. It reads and sorts the board; it builds no screens.
+One job: sort a board into looks so choosing is easy. It reads and sorts the board; it builds no screens, and it never narrows it: every family stays on the board `design-direction` shows, as its headings.
 
 Comes out:
 
-- **`docs/design/design-families.md`**, committed: each family named, what it shares, how big it is, and which they took.
+- **`docs/design/design-families.md`**, committed: each family named, what it shares, and how big it is.
 - **In Figma**, for a Figma board: a new page, `Families`, with one section per family holding copies of its cards. Their own pages are never moved or changed.
 - **`.longbeard/design/families/`**, gitignored: `profiles.json`, `tags.tsv`, one TSV per family, the families page.
 
@@ -85,13 +86,12 @@ node <skill>/scripts/moodboard.mjs .longbeard/design/families/board.md --overvie
 
 For a Figma board, also build the `Families` page with `use_figma` (load `figma-use` first): a section per family, named, with copies of its cards, most typical first. Read the names back from the nodes.
 
-In the same message, one line per family: its name, what the eye changed from the numbers, and, as hints only, which fit the design brief's personality, which look like its "never", and which rely on pictures they do not have. Where what they chose sits far from what they said ("you said quiet; your board is loud"), ask which to go by. Then:
+In the same message, one line per family: its name, what the eye changed from the numbers, and, as hints only, which fit the design brief's personality, which look like its "never", and which rely on pictures they do not have. Where what they chose sits far from what they said ("you said quiet; your board is loud"), say it once. Then:
 
-> Take the families you want to work from, one or two. Note any that look like two, or belong together.
+> These are the headings of your board from here on; every reference stays on it. Note any family that looks like two, or belongs with another, or say go.
 
 - **A split or merge note:** apply it, show the page again. `families.mjs` will not overwrite a board: remove `.longbeard/design/families/board.md` before sorting again.
-- **None taken:** ask in one line what is missing, and offer `design-moodboard` for a search sized to it.
-- **Two taken:** two looks. Ask which comes first; the other waits.
+- **Go:** write the doc.
 
 ## Write `docs/design/design-families.md`
 
@@ -100,15 +100,14 @@ In the same message, one line per family: its name, what the eye changed from th
 
 <n> references sorted into <n> families and <n> strays.
 
-## Taken
-### <family name>
+## <family name>
 <what its members share, in one or two lines: how much type against picture, how empty, how loud, how pictures are treated> · <n> references
 
-## Also on the board
-- <family name> — <what it shares> · <n>
+## <family name>
+…
 ```
 
-No names, links or paths. The members of each family are in `.longbeard/design/families/families/f<n>.tsv`; the taken ones are the references `design-direction` and `design-identity` work from.
+No names, links or paths. The members of each family are in `.longbeard/design/families/families/f<n>.tsv`, and `.longbeard/design/families/board.md` holds every card under its family: the board `design-direction` shows.
 
 Then the next step in one line: `design-direction`.
 
@@ -125,7 +124,7 @@ Every reference in no family is new. Each joins the nearest family when it sits 
 - Check each join by eye on a contact sheet beside its family, low confidence first. Move one that does not belong.
 - Name each seed for what is seen, as in step 3, or fold it into a family by eye.
 - Place each stray as in step 3.
-- Show only what changed: which family each new reference went to, and any new family. Then update `docs/design/design-families.md`: sizes, and any new family under **Also on the board**.
+- Show only what changed: which family each new reference went to, and any new family. Then update `docs/design/design-families.md`: sizes, and any new family.
 
 Sort the whole pool again only when they ask, or when the new references outnumber the ones already sorted.
 
@@ -133,6 +132,6 @@ Sort the whole pool again only when they ask, or when the new references outnumb
 
 - Run on a curated board of a few dozen without being asked.
 - Move, rename or delete anything on their own Figma pages.
-- Pick the family for them, or hide one because it looks like their "never".
+- Pick a family for them, ask them to take one, or hide one because it looks like their "never". Every family stays on the board.
 - Sort before every keep is measured and tagged, or read profiles into the chat.
 - Sort a named pool from scratch to add a few new references: use `--assign`.

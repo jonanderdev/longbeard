@@ -73,7 +73,7 @@ All met → say so in one line ("34 fits, every part covered") and write the doc
 - **Too thin for six screens:** the full **Search**, with their board's fits as seeds.
 - **"Go":** what it lacks goes under `Missing`.
 
-**Big boards.** Over about 60 keeps, say once: "That's 240 references. `design-families` can sort them into looks before you choose." Their call.
+**Big boards.** Over about 60 keeps, say once: "That's 240 references. `design-families` can sort them into looks, as headings on the board you choose from; none is dropped." Their call.
 
 ## Search
 

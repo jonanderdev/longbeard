@@ -125,7 +125,7 @@
       "license": "MIT",
       "source": "local",
       "when": "A board over about 60 references",
-      "why": "Optional. Sort it into looks; they take one or two. Writes docs/design/design-families.md.",
+      "why": "Optional. Sort it into looks, as headings; every reference stays. Writes docs/design/design-families.md.",
       "via": "design"
     },
     {

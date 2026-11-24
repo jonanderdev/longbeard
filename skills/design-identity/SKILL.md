@@ -84,7 +84,9 @@ One sheet of pairings (each on the screen's colours) and one of palettes (each o
 
 On what they picked, one row of nearby choices, rendered on the screen the same way: the display face's nearest neighbours, each colour's even steps. Or build what they asked for in words, and show it before it counts.
 
-> Keep this, or take any from the row?
+In the same message, the screen with their pick and a few live controls (type scale, line spacing, accent strength, corner radius), each limited to what their references measure, so they judge a value by seeing it. How: [controls.md](references/controls.md).
+
+> Keep this, or take any from the row? Or open the screen, press Adjust, and paste the copy-out.
 
 "Go" keeps what they picked.
 
@@ -109,6 +111,9 @@ A note reopens only that row, then the board again. A yes is the identity. When 
 | Name | Value | Role | Reads on |
 |---|---|---|---|
 | <name> | #… | ground | ink 17.0:1 |
+
+## Adjusted
+<one line per control they moved, "headline 96 to 110 px"; or "none">
 
 ## Board
 docs/design/design-identity.html

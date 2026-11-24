@@ -1,6 +1,6 @@
 # The five-second check
 
-Read by `design-direction` (the chosen screen, after the touch-up) and `design-prototype` (the first screen and each key screen, before `DESIGN.md`). The design brief's takeaway says what someone should think and do in five seconds. This checks it on eyes that know nothing about the product. Every other check asks whether the screen follows the rules; this one asks whether it works.
+Read by `design-prototype`: the first screen and each key screen, before `DESIGN.md`. It runs once in the design work, here, so the same three strangers see every key screen. The design brief's takeaway says what someone should think and do in five seconds. This checks it on eyes that know nothing about the product. Every other check asks whether the screen follows the rules; this one asks whether it works.
 
 ## With fresh agents
 
@@ -34,8 +34,7 @@ One table: the takeaway's think and do, then each agent's answers, then a verdic
 
 A miss is a fact for them, not a redesign for you.
 
-- **In the direction:** a miss on what to do, or what it is, is fixed only with the touch-up's own means: the headline says the takeaway outright, the primary action is present and findable, rank put right. Shown before and after, run again once. A miss only a different composition would fix is said in one line, and the choice stays theirs: keep it, or go back to the grid.
-- **In the prototype:** the same on each key screen, where "what to do" is that screen's own job (a basket: check out). Fixed inside the identity and the direction.
+- **What it is, or what to do,** on each key screen ("what to do" is that screen's own job: a basket, check out): fixed only with the touch-up's means, inside the identity and the direction. The headline says the takeaway outright, the primary action is present and findable, rank is put right. Shown before and after, run again once. A miss on the first screen that only a different composition would fix is said in one line, and the choice stays theirs: keep it, or go back to `design-direction`.
 - **The feel** is never fixed here. A never word in the answers is said with the screens; changing the look is `design-identity` or the direction again, on their word.
 
 ## People, offered once

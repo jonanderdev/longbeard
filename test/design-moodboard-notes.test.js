@@ -215,3 +215,35 @@ test("moodboard: a card with no like line is as before", () => {
   const html = board(likeCards.replace(/- like:.*\n/, ""));
   assert.doesNotMatch(html, /data-like=|<p class="liked">/);
 });
+
+test("moodboard: a card with a like starts liked, and one they unmarked stays unmarked", () => {
+  const html = board(likeCards);
+  const first = page(html);
+  assert.equal(first.tiles[0].dataset.state, "like");
+  assert.equal(first.tiles[1].dataset.state, undefined);
+  assert.match(first.out(), /like: m1 Orange dot/);
+  const unmarked = page(html, { marks: { "Orange dot": "" }, notes: {}, note: "" });
+  assert.equal(unmarked.tiles[0].dataset.state, undefined);
+});
+
+test("moodboard: a leave-out per tile, filled from the card's avoid line, copied out beside its pick", () => {
+  const html = board(likeCards.replace(/(- like:.*\n)/, '$1- avoid: the <b>drop</b> shadow\n'));
+  assert.equal(html.match(/<input class="avoid"/g)?.length, 2);
+  assert.match(html, /<p class="avoided">Leave out: the &lt;b&gt;drop&lt;\/b&gt; shadow<\/p>/);
+  const p = page(html);
+  assert.equal(p.tiles[0].querySelector(".avoid").value, "the <b>drop</b> shadow");
+  const box = p.tiles[1].querySelector(".avoid");
+  box.value = "the   tracked\ncaps";
+  box.on.input();
+  assert.match(p.out(), /leave out:\n- m1 Orange dot: the <b>drop<\/b> shadow\n- m2 Plain: the tracked caps/);
+  assert.deepEqual(p.saved().avoids, { "Orange dot": "the <b>drop</b> shadow", Plain: "the   tracked\ncaps" });
+});
+
+test("moodboard --one-lead: one lead on the whole board, across groups", () => {
+  const dir = project({ "b.md": likeCards.replace("- link: https://example.com/a", "- topic: f1\n- link: https://example.com/a").replace("- link: https://example.com/b", "- topic: f2\n- link: https://example.com/b"), "refs/a.jpg": "jpg", "refs/b.jpg": "jpg" });
+  run(script("moodboard.mjs"), dir, ["b.md", "--out", "one.html", "--one-lead"]);
+  run(script("moodboard.mjs"), dir, ["b.md", "--out", "each.html"]);
+  assert.match(readFileSync(join(dir, "one.html"), "utf8"), /const oneLead = true;/);
+  assert.match(readFileSync(join(dir, "one.html"), "utf8"), /one on the whole board/);
+  assert.match(readFileSync(join(dir, "each.html"), "utf8"), /const oneLead = false;/);
+});

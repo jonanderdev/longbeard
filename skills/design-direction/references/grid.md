@@ -15,7 +15,7 @@ One file for all eight, `.longbeard/design/direction/screens.json`:
 `build` is `quick` or `full`. `state` is where the screen ended, written by whoever finishes it, and nothing else is final:
 
 - **A quick screen:** `built`.
-- **A full screen:** `built` while its loop runs; `critiqued` when the loop stopped with only small spots left; `fixed` when the third pass ended with larger spots still listed. What is left goes on the sheet as known faults.
+- **A full screen** (only the one they settle on): `built` while it runs; `critiqued` when the critic found only small spots and nothing was fixed; `fixed` after the fix pass. What is left goes beside it as known faults.
 - **Failed:** from any job, `"failure": "<why>"`.
 - **The round is done** when every screen has ended: a full screen still at `built` is not done. The sheet is drawn only then.
 
@@ -28,6 +28,7 @@ Everything below is one of these; decide a case not listed by them.
 A screen is its base, measured, until a move changes one named thing. What no move names stays as the base has it: layout (zones, proportions, margins, where headline, pictures and small text sit), anchors (a centred picture, a full-bleed panel, a headline on the axis), balance, alignments, devices and picture treatment.
 
 - The layout always comes from a reference. A move may turn it or take another reference's, never invent one.
+- What they said to leave out of the base is not kept: it is dropped, or, when the composition needs what it did (a ground, a frame, a face), that role is filled from another reference on the board, the nearest in kind. Never filled by the agent's own choice.
 - What they said they like in the base is kept exactly ("this red" stays this red). That holds against contrast too: a liked colour is never stepped lighter or darker to pass. Text on it that fails is fixed with what else the screen has (the other colour of the pair, a size or weight that makes it large text, another crop, the liked colour moved from the text to a fill behind it); when none fits, the colour stays and the screen carries a warning, on the sheet and in the table, with the pair and its ratio ("liked terracotta under the button label: 3.9:1, AA asks 4.5"). What they never named is kept by its role: "a punchy accent over a quarter of the page" may become a punchy orange from another reference, at the same strength and share.
 - A borrowed thing fits around the base's anchors, or goes to a base with room for it.
 - Text on a picture sits on a calm area, as light or dark as the source's. The picture is chosen and cropped to the text, never the text moved off it. With no such picture, say so on the sheet and offer one that has it.
@@ -45,6 +46,8 @@ Sizes, gaps and fills are measured in the source as a share of its width and hei
 ### 3. A borrowed thing keeps its geometry and its why
 
 Before placing a borrowed thing, measure how it sits in its source (its size against the screen, what it overlaps and how far, the room around it) and keep those relations.
+
+**What they left out of a reference is never borrowed from it,** whatever the move.
 
 **The why they gave is the rule for using it.** "The orange dot, the only contrast on a quiet page" goes only on a quiet base, alone. A why that describes an arrangement ("black-and-white photos at different heights, like a contact sheet") goes only where the arrangement is, never onto one framed picture. Read each why against the base; if it would not be true there, the move goes to another base. A like belongs to its reference, never a house style across the round.
 
@@ -76,7 +79,7 @@ Every reference they liked is the base of at least one screen, the lead of two. 
 
 Each screen is built once and not judged: no critic, no fixer, no device close-ups.
 
-**1. Plan (you).** Pair bases and moves for the eight (principles 3 and 4), write `screens.json` (`build: quick`), check its spread, and only then write each screen's brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path; each move in words with its source picture's path, its like and its why; the content in the base's slots, in the fill order; the product's pictures for this base (principle 1); the five principles, as written. Nothing else from this file or the session.
+**1. Plan (you).** Pair bases and moves for the eight (principles 3 and 4), write `screens.json` (`build: quick`), check its spread, and only then write each screen's brief, `.longbeard/design/direction/briefs/<n>.md`: the base's reading from `library.json` and its picture's path, with what they wrote to leave out of it; each move in words with its source picture's path, its like and its why; the content in the base's slots, in the fill order; the product's pictures for this base (principle 1); the five principles, as written. Nothing else from this file or the session.
 
 **2. Build (a fresh agent per screen, from its brief only).**
 - Translate the base into `screens/<n>-base.html` from [screen-template.html](screen-template.html), with the product's content and pictures, treated only as the reference treats its own. Capture it, then measure it against the reference:

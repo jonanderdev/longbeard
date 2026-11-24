@@ -235,7 +235,7 @@ test("families: numbers far apart split even when the tags agree, an untagged re
   assert.match(result.stdout, /untagged, compared on their numbers only.*bare/);
 });
 
-test("moodboard --overview: a few tiles per family, its ranges, and one Take per family", () => {
+test("moodboard --overview: a few tiles per family, its ranges, and a note per family, never a Take", () => {
   const cards = [];
   for (let i = 0; i < 9; i++) cards.push(card(`Paper ${i}`, "- topic: f1\n"));
   for (let i = 0; i < 3; i++) cards.push(card(`Night ${i}`, "- topic: f2\n"));
@@ -246,7 +246,8 @@ test("moodboard --overview: a few tiles per family, its ranges, and one Take per
   const html = readFileSync(join(dir, "f.html"), "utf8");
   assert.match(html, /<body data-overview>/);
   assert.equal(html.match(/<figure class="tile"/g).length, 9);
-  assert.equal(html.match(/class="fam"/g).length, 2);
+  assert.equal(html.match(/class="fam-note"/g).length, 2);
+  assert.doesNotMatch(html, /Take this family|class="fam"/);
   assert.match(html, /<p class="ranges">light · empty 80–88%<\/p>/);
   assert.match(html, /\+3 more not shown/);
 });

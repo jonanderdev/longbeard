@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Every reference is on the direction's board.** Families are headings, never a filter: a reference you like can come from any family, and `design-families` no longer asks you to take one or two. The board allows one Lead on the whole board (`moodboard.mjs --one-lead`).
+- **Leave out.** Each card on the board has a Leave out box for what you don't want from a reference you otherwise like (the drop shadow, the all-caps menu). It is never on a screen built on that reference, never borrowed from it, and its role is filled from another of your references when the composition needs it. A card's `avoid:` line fills it.
+- **Likes are asked once.** A card you liked on the picker starts liked on the direction's board, with your words; the direction asks only for the Lead and anything new.
+- **Far fewer agents in the direction.** Every round is quick, "more of" and mixes included: one agent per screen and one judge per round. The full build runs once, on the screen you settle on, with one critic and one fixer. A "more of 3" used to start about 24 agents; it now starts 4.
+- **The five-second check runs once,** in `design-prototype`, where the same three strangers see the first screen and every key screen. `DESIGN.md` records the first screen's result as its `five seconds:` line.
+- **The live controls moved to `design-identity`,** into its one refinement round, on the pairing and palette you picked. A stop fewer in the direction.
+- The `design` skill is about a quarter shorter.
+
+If you already ran `init`: run `npx longbeard update`. A direction in progress keeps working: a run that already took families simply shows every card next time its board is built.
+
 ## 0.12.2 — 2026-11-21
 
 - **A shot can be a picture's URL.** `moodboard.mjs` shows an `https://` shot from that address instead of dropping it as missing, and `families.mjs --board` writes it into `board.md` as it is (it was turned into `https:/…`). A library exported with its pins' addresses makes a moodboard with no pictures copied.
