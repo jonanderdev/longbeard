@@ -10,6 +10,7 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
   "references": [{
     "name": "<card name>",
     "likes": [{ "what": "<what they like in it, in their words>", "why": "<what it does for them: the rule for using it>" }],
+    "avoid": ["<what they wrote to leave out of it, in their words>"],
     "concept": "<what makes it, in one or two sentences: the idea a designer would defend>",
     "move": "<the one move a person would point at: the disc cutting into the title, one word filling the width>",
     "layout": "<where everything sits, as a share of the screen: margins, columns, the picture's box, the headline's box, the small text's places, what overlaps or runs off an edge, how much is empty>",
@@ -53,6 +54,7 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast`).
 ## What each part is for
 
 - **`likes`:** their words from the board's note (or the card's `like:`). What they like is what the designs borrow; why is how it is used, and where it would be wrong.
+- **`avoid`:** their words from the board's Leave out box (or the card's `avoid:`). Never on a screen built on it, never borrowed from it; the reading still records it (in `devices`, `palette`, wherever it sits), so the rebuild knows what to drop. Empty when they wrote nothing.
 - **`concept` and `move`:** what must survive every change; the critic and the not-a-copy check judge on them.
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. Type sizes are the reference's against its screen: a 96 px headline on a 1440 screen stays 96 px.
 - **`palette`:** the colours as they work together. A palette is borrowed whole, or one colour they did not name is swapped for another of the same role. Never one colour picked out of it by itself.

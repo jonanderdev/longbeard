@@ -24,6 +24,8 @@ Comes out:
 - **`docs/design/design-content.md`**, committed: per key screen, what it says and shows.
 - New stand-ins join `.longbeard/design/pictures/` (gitignored), with `credits.tsv`.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `docs/design/design-brief.md` → `design-brief` first. Stop.

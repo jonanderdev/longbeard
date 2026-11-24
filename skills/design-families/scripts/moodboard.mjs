@@ -1,24 +1,34 @@
 #!/usr/bin/env node
 // A moodboard of the references, built to be marked: every card with a shot
 // or recorded frames, grouped by its topic (the family it looks like, or the
-// one piece it is for), with Lead, Like and No, a note per tile, and a
-// copy-out for the chat. The
+// one piece it is for), with Lead, Like and No, a note per tile, a "leave out"
+// per tile, and a copy-out for the chat. The
 // layout is this file. It shows what we saw. It does not paint a brand.
 //
 // A card's fields in board.md: link, shot, frames (a folder that
 // capture.mjs --frames wrote, played on hover), topic (or part), pattern (or move), measured
 // (its traits from measure.mjs, shown small under the pattern), why, like (the
 // person's own words from the picker: what they like in it, and why; shown on
-// the card and put in its note until they change it).
+// the card, put in its note until they change it, and the card starts liked),
+// avoid (their words: what they do not want from a reference they otherwise
+// like; shown on the card and put in its leave-out box).
+//
+// --topics .longbeard/design/families/board.md: each card takes its family from
+// that board, matched by name, so the moodboard's own cards (with their like,
+// avoid and move lines) are shown under the families design-families found.
+// A card in no family keeps its part. Every card stays.
+//
+// --one-lead: one Lead on the whole board, not one per group. The direction's
+// board is grouped by family, and its lead is one reference across them all.
 //
 //   node moodboard.mjs .longbeard/design/moodboard/board.md --out .longbeard/design/moodboard/moodboard.html
 //   node moodboard.mjs .longbeard/design/pricing/board.md --out .longbeard/design/pricing/moodboard.html
 //
-// A big pool is chosen in two steps. --overview 6 shows each family as its
-// first six tiles (families.mjs writes the most typical first), how many more
-// it has, and its measured ranges from a "Families:" header line, with one
-// Take button and a note per family. The copy-out lists the families taken.
-// Then a board of only those families is marked as usual.
+// --overview 6 shows each family as its first six tiles (families.mjs writes
+// the most typical first), how many more it has, and its measured ranges from a
+// "Families:" header line, with a note per family (two looks in one, belongs
+// with another). It checks the sorting; it never chooses: every family stays on
+// the board that is marked next.
 //   node moodboard.mjs .longbeard/design/moodboard/board.md --overview 6 --out .longbeard/design/families/families.html
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -33,6 +43,11 @@ if (overAt !== -1 && !(Number.isInteger(overview) && overview >= 1 && overview <
   console.error("moodboard: --overview takes how many tiles to show per family, 1 to 24");
   process.exit(2);
 }
+const topicsAt = args.indexOf("--topics");
+const topicsArg = topicsAt === -1 ? "" : (args.splice(topicsAt, 2)[1] ?? "");
+const leadAt = args.indexOf("--one-lead");
+const oneLead = leadAt !== -1;
+if (oneLead) args.splice(leadAt, 1);
 const boardArg = args[0];
 if (!boardArg || !outArg || args.length !== 1) {
   console.error("usage: node moodboard.mjs .longbeard/design/<step>/board.md --out .longbeard/design/<step>/moodboard.html");
@@ -116,9 +131,22 @@ function framesOf(folder) {
 }
 
 const md = readFileSync(boardPath, "utf8");
+const topicsMd = topicsArg ? (existsSync(resolvePath(topicsArg)) ? readFileSync(resolvePath(topicsArg), "utf8") : null) : "";
+if (topicsMd === null) {
+  console.error(`moodboard: no board at ${topicsArg}`);
+  process.exit(1);
+}
+// name → family, from the sorted board.
+const familyOf = new Map();
+for (const chunk of topicsMd.split(/^### /m).slice(1)) {
+  const nl = chunk.indexOf("\n");
+  const name = (nl === -1 ? chunk : chunk.slice(0, nl)).trim();
+  const topic = fieldsOf(nl === -1 ? "" : chunk.slice(nl + 1)).topic;
+  if (topic && !familyOf.has(name)) familyOf.set(name, topic);
+}
 // Ranges per family, from board.md's header: "Families: f1 (light · empty 55–70%) — 42; f2 (…) — 18".
 const ranges = new Map();
-const familiesLine = md.match(/^Families:\s*(.*)$/m)?.[1] || "";
+const familiesLine = (topicsMd || md).match(/^Families:\s*(.*)$/m)?.[1] || "";
 for (const part of familiesLine.split(";")) {
   const m = part.trim().match(/^(.+?)\s*\((.+)\)/);
   if (m) ranges.set(m[1].trim().toLowerCase(), m[2].trim());
@@ -154,18 +182,19 @@ for (const card of cards) {
   const seenName = (names.get(card.name) ?? 0) + 1;
   names.set(card.name, seenName);
   const markKey = seenName > 1 ? `${card.name} #${seenName}` : card.name;
-  const topic = topicOf(card.topic || card.part);
+  const topic = topicOf(familyOf.get(card.name) || card.topic || card.part);
   // A seed shared in chat has no URL, so its name is not a link.
   const url = (card.link || "").trim().split(/\s+/)[0];
   const name = /^https?:\/\//i.test(url)
     ? `<a class="name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(card.name)}</a>`
     : `<span class="name">${esc(card.name)}</span>`;
   const like = (card.like || "").trim();
-  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "") + (like ? `<p class="liked">You liked: ${esc(like)}</p>` : "");
+  const avoid = (card.avoid || "").trim();
+  const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "") + (like ? `<p class="liked">You liked: ${esc(like)}</p>` : "") + (avoid ? `<p class="avoided">Leave out: ${esc(avoid)}</p>` : "");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
-  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${like ? ` data-like="${esc(like)}"` : ""}${
+  const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${like ? ` data-like="${esc(like)}"` : ""}${avoid ? ` data-avoid="${esc(avoid)}"` : ""}${
     frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
   }>
         <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
@@ -176,7 +205,8 @@ for (const card of cards) {
             <button type="button" data-mark="like" aria-pressed="false">Like</button>
             <button type="button" data-mark="no" aria-pressed="false">No</button>
           </div>
-          <input class="why" type="text" placeholder="Note (optional)" aria-label="Note on ${esc(card.name)}">
+          <input class="why" type="text" placeholder="What you like in it, and why (optional)" aria-label="What you like in ${esc(card.name)}, and why">
+          <input class="avoid" type="text" placeholder="Leave out: what you don't want from it (optional)" aria-label="What to leave out of ${esc(card.name)}">
         </figcaption>
       </figure>`;
   // In the overview each family is its own section, named by its id as written (f1, not F1), so the
@@ -204,7 +234,7 @@ const body = ordered
     const head = overview
       ? `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>
     ${ranges.has(key) ? `<p class="ranges">${esc(ranges.get(key))}</p>` : ""}
-    <div class="take"><button type="button" class="fam" data-family="${esc(key || label)}" aria-pressed="false">Take this family</button><input class="fam-note" type="text" data-family="${esc(key || label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
+    <div class="take"><input class="fam-note" type="text" data-family="${esc(key || label)}" placeholder="Note (optional): two looks in one, belongs with another…" aria-label="Note on ${esc(label)}">${more ? `<span class="more">+${more} more not shown</span>` : ""}</div>`
       : `<h2>${esc(label)} <span>${s.tiles.length}</span></h2>`;
     return `<section id="${slug(at)}">
     ${head}
@@ -224,16 +254,19 @@ const html = `<!DOCTYPE html>
 <style>
   :root { --canvas: #e4e4e2; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6f6a; --line: #c8c8c4; --lead: #8a5a00; --like: #1f7a3a; --no: #b3261e; }
   * { box-sizing: border-box; }
-  html { color-scheme: light; scroll-padding-top: 64px; }
+  html { color-scheme: light; scroll-padding-top: 76px; }
   body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 1400px; margin: 0 auto; padding: 0 24px 300px; }
-  header { position: sticky; top: 0; z-index: 2; background: var(--canvas); padding: 20px 2px 12px; }
+  header { padding: 20px 2px 4px; }
+  /* Only the jump bar sticks, on one line that scrolls sideways, so thirty families never eat the screen. */
+  .sticky { position: sticky; top: 0; z-index: 2; background: var(--canvas); display: flex; align-items: center; gap: 12px; padding: 10px 2px; margin: 0 -2px; }
   h1 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
   .how { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
-  nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  nav { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; flex: 1 1 auto; min-width: 0; scrollbar-width: thin; padding-bottom: 2px; }
+  nav a { white-space: nowrap; flex: none; }
   nav a, .filters button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-family: inherit; }
   nav a span, h2 span { color: var(--muted); }
-  .filters { display: flex; gap: 8px; margin-top: 8px; }
+  .filters { display: flex; gap: 8px; flex: none; }
   .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   section { margin-top: 28px; }
   section[hidden] { display: none; }
@@ -259,14 +292,15 @@ const html = `<!DOCTYPE html>
   .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
   .measured { margin: -6px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
   .liked { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--like); }
-  [data-overview] .liked { display: none; }
+  .avoided { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--no); }
+  [data-overview] .liked, [data-overview] .avoided { display: none; }
   .marks { display: flex; gap: 6px; margin-top: auto; }
   .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
   .marks button[data-mark="like"][aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
   .marks button[data-mark="no"][aria-pressed="true"] { background: var(--no); border-color: var(--no); color: #fff; }
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
-  .why { font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; width: 100%; }
+  .why, .avoid { font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; width: 100%; }
   .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,0.08); }
   .bar-in { max-width: 1400px; margin: 0 auto; padding: 14px 24px 16px; display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 14px; align-items: start; }
   .bar label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
@@ -275,30 +309,30 @@ const html = `<!DOCTYPE html>
   #out { background: #f6f6f4; }
   .side { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; min-width: 150px; }
   #count { font-size: 13px; color: var(--muted); }
-  [data-overview] .marks, [data-overview] .why, [data-overview] .filters { display: none; }
+  [data-overview] .marks, [data-overview] .why, [data-overview] .avoid, [data-overview] .filters { display: none; }
   .ranges { margin: -6px 0 10px 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .take { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px 2px; }
-  .fam { font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
-  .fam[aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
   .fam-note { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
   .more { font-size: 13px; color: var(--muted); }
   #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
-  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } header { position: static; } }
+  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } .sticky { flex-wrap: wrap; } nav { flex-basis: 100%; } }
 </style>
 </head>
 <body${overview ? " data-overview" : ""}>
 <main>
   <header>
     <h1>${overview ? "Families" : "Moodboard"}</h1>
-    ${overview ? `<p class="how">Each family shows its most typical ${overview}. Take the ones you want to see in full, any number. Note a family that looks like two, or that belongs with another.</p>` : ""}
-    <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone for its group (one per group: a part, or a direction), Like what belongs, No what feels wrong. Add a note where you have one; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    ${overview ? `<p class="how">Each family shows its most typical ${overview}. Every family stays on your board; this only checks the sorting. Note a family that looks like two, or that belongs with another.</p>` : ""}
+    <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone (${oneLead ? "one on the whole board" : "one per group: a part, or a direction"}), Like what belongs, No what feels wrong. In each like, say what you like and why, and what to leave out of it, if anything; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+  </header>
+  <div class="sticky">
     <nav aria-label="Parts">${jump}</nav>
     <div class="filters" role="group" aria-label="Show">
       <button type="button" data-show="all" aria-pressed="true">All</button>
       <button type="button" data-show="open" aria-pressed="false">Not marked</button>
       <button type="button" data-show="marked" aria-pressed="false">Marked</button>
     </div>
-  </header>
+  </div>
   ${body}
 </main>
 <div class="bar">
@@ -324,49 +358,51 @@ const html = `<!DOCTYPE html>
   const old = (t) => t.dataset.id + "|" + t.dataset.title;
   const marks = saved.marks || {};
   const notes = saved.notes || {};
+  const avoids = saved.avoids || {};
+  const oneLead = ${oneLead};
   const read = (from, t) => (tag(t) in from ? from[tag(t)] : from[old(t)]) || "";
   note.value = saved.note || "";
+  const has = (from, t) => tag(t) in from || old(t) in from;
   for (const t of tiles) {
     const mark = read(marks, t);
+    // A like from the picker is already a like: it starts marked, until they change it.
     if (mark) t.dataset.state = mark;
+    else if (t.dataset.like && !has(marks, t)) t.dataset.state = "like";
     // Their words from the picker fill the note until they change it; a note they cleared stays cleared.
-    t.querySelector(".why").value = tag(t) in notes || old(t) in notes ? read(notes, t) : t.dataset.like || "";
+    t.querySelector(".why").value = has(notes, t) ? read(notes, t) : t.dataset.like || "";
+    t.querySelector(".avoid").value = has(avoids, t) ? read(avoids, t) : t.dataset.avoid || "";
   }
   let show = "all";
   const short = (s) => (s.length > 48 ? s.slice(0, 47) + "…" : s);
   const label = (t) => t.dataset.id + " " + short(t.dataset.title) + " (" + t.dataset.topic + ")";
   const list = (state) => tiles.filter((t) => t.dataset.state === state).map(label);
-  const fams = [...document.querySelectorAll(".fam")];
   const famNotes = [...document.querySelectorAll(".fam-note")];
-  if (fams.length) {
-    const taken = new Set(saved.taken || []);
-    for (const b of fams) if (taken.has(b.dataset.family)) b.setAttribute("aria-pressed", "true");
-    for (const i of famNotes) i.value = (saved.famNotes || {})[i.dataset.family] || "";
-  }
+  for (const i of famNotes) i.value = (saved.famNotes || {})[i.dataset.family] || "";
   function renderFamilies() {
-    const taken = fams.filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.family);
-    const lines = ["Family picks", "take: " + (taken.join("; ") || "none")];
+    const lines = ["Family notes"];
     const written = famNotes.filter((i) => i.value.trim());
-    if (written.length) {
-      lines.push("notes:");
-      for (const i of written) lines.push("- " + i.dataset.family + ": " + i.value.trim().replace(/\\s+/g, " "));
-    }
+    for (const i of written) lines.push("- " + i.dataset.family + ": " + i.value.trim().replace(/\\s+/g, " "));
+    if (!written.length) lines.push("none: the sorting holds");
     if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
     out.value = lines.join("\\n");
-    count.textContent = taken.length + " of " + fams.length + " families taken";
+    count.textContent = famNotes.length + " families · " + written.length + " noted";
     const keep = {};
     for (const i of written) keep[i.dataset.family] = i.value;
-    try { localStorage.setItem(key, JSON.stringify({ taken, famNotes: keep, note: note.value })); } catch (e) {}
+    try { localStorage.setItem(key, JSON.stringify({ famNotes: keep, note: note.value })); } catch (e) {}
   }
-  for (const b of fams) b.addEventListener("click", () => { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); render(); });
   for (const i of famNotes) i.addEventListener("input", () => render());
   function render() {
-    if (fams.length) return renderFamilies();
+    if (famNotes.length) return renderFamilies();
     const lines = ["Moodboard picks", "lead: " + (list("lead").join("; ") || "none"), "like: " + (list("like").join("; ") || "none"), "no: " + (list("no").join("; ") || "none")];
     const written = tiles.filter((t) => t.querySelector(".why").value.trim());
     if (written.length) {
       lines.push("notes:");
       for (const t of written) lines.push("- " + t.dataset.id + " " + short(t.dataset.title) + ": " + t.querySelector(".why").value.trim().replace(/\\s+/g, " "));
+    }
+    const left = tiles.filter((t) => t.querySelector(".avoid").value.trim());
+    if (left.length) {
+      lines.push("leave out:");
+      for (const t of left) lines.push("- " + t.dataset.id + " " + short(t.dataset.title) + ": " + t.querySelector(".avoid").value.trim().replace(/\\s+/g, " "));
     }
     if (note.value.trim()) lines.push("note: " + note.value.trim().replace(/\\s+/g, " "));
     out.value = lines.join("\\n");
@@ -374,16 +410,20 @@ const html = `<!DOCTYPE html>
     count.textContent = list("lead").length + " lead · " + list("like").length + " like · " + list("no").length + " no · " + (tiles.length - marked) + " open";
     const keepMarks = {};
     const keepNotes = {};
+    const keepAvoids = {};
     for (const t of tiles) {
       const s = t.dataset.state || "";
       for (const b of t.querySelectorAll(".marks button")) b.setAttribute("aria-pressed", b.dataset.mark === s ? "true" : "false");
       t.hidden = !(show === "all" || (show === "open" ? !s : !!s));
-      if (s) keepMarks[tag(t)] = s;
+      // A like from the picker that they unmarked is saved as unmarked, so it does not come back.
+      if (s || t.dataset.like) keepMarks[tag(t)] = s;
       const w = t.querySelector(".why").value;
       if (w.trim() || t.dataset.like) keepNotes[tag(t)] = w;
+      const a = t.querySelector(".avoid").value;
+      if (a.trim() || t.dataset.avoid) keepAvoids[tag(t)] = a;
     }
     for (const sec of document.querySelectorAll("section")) sec.hidden = ![...sec.querySelectorAll(".tile")].some((t) => !t.hidden);
-    try { localStorage.setItem(key, JSON.stringify({ marks: keepMarks, notes: keepNotes, note: note.value })); } catch (e) {}
+    try { localStorage.setItem(key, JSON.stringify({ marks: keepMarks, notes: keepNotes, avoids: keepAvoids, note: note.value })); } catch (e) {}
   }
   for (const t of tiles) {
     for (const b of t.querySelectorAll(".marks button")) {
@@ -391,14 +431,15 @@ const html = `<!DOCTYPE html>
         const mark = b.dataset.mark;
         if (t.dataset.state === mark) delete t.dataset.state;
         else {
-          // One lead per group (a family, or a piece): a new lead turns the old one into a like.
-          if (mark === "lead") for (const o of tiles) if (o !== t && o.dataset.topic === t.dataset.topic && o.dataset.state === "lead") o.dataset.state = "like";
+          // One lead per group (a piece), or on the whole board with --one-lead: a new lead turns the old one into a like.
+          if (mark === "lead") for (const o of tiles) if (o !== t && (oneLead || o.dataset.topic === t.dataset.topic) && o.dataset.state === "lead") o.dataset.state = "like";
           t.dataset.state = mark;
         }
         render();
       });
     }
     t.querySelector(".why").addEventListener("input", render);
+    t.querySelector(".avoid").addEventListener("input", render);
   }
   for (const b of document.querySelectorAll(".filters button")) {
     b.addEventListener("click", () => {
@@ -465,5 +506,5 @@ const html = `<!DOCTYPE html>
 
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, html);
-console.error(`moodboard: ${n} tiles in ${ordered.length} parts`);
+console.error(`moodboard: ${n} tiles in ${ordered.length} parts${cards.length > n ? `, ${cards.length - n} of ${cards.length} cards left out for a missing shot` : ""}`);
 console.log(outArg);

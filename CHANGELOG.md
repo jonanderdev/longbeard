@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+- **Every reference is on the direction's board.** Families are headings, never a filter: a reference you like can come from any family, and `design-families` no longer asks you to take one or two. The board is the moodboard's own cards, so your likes and notes come with them, each placed under its family (`moodboard.mjs --topics`), with one Lead on the whole board (`--one-lead`). It says how many cards it left out for a missing shot.
+- **The board's top bar stays one line.** Only the jump bar sticks, and with many families it scrolls sideways instead of wrapping into rows that pushed the board down.
+- **Leave out.** Each card on the board has a Leave out box for what you don't want from a reference you otherwise like (the drop shadow, the all-caps menu). It is never on a screen built on that reference, never borrowed from it, and its role is filled from another of your references when the composition needs it. A card's `avoid:` line fills it.
+- **Likes are asked once.** A card you liked on the picker starts liked on the direction's board, with your words; the direction asks only for the Lead and anything new.
+- **Far fewer agents in the direction.** Every round is quick, "more of" and mixes included: one agent per screen and one judge per round. The full build runs once, on the screen you settle on, with one critic and one fixer. A "more of 3" used to start about 24 agents; it now starts 4.
+- **The five-second check runs once,** in `design-prototype`, where the same three strangers see the first screen and every key screen. `DESIGN.md` records the first screen's result as its `five seconds:` line.
+- **The live controls moved to `design-identity`,** into its one refinement round, on the pairing and palette you picked. A stop fewer in the direction.
+- **Shorter skills and shorter stops.** `design-direction` (with its `grid.md`), `design-prototype` and `design-moodboard` are 35 to 40% shorter, with the same rules, and `design` is a quarter shorter. Every design step says what is new and its one question in up to five lines, and the direction's sheet gets one line per screen instead of a table.
 - **Galleries for single parts of a site:** Footer Design and CTA Gallery for a footer or a call to action, and Recent's motion listing, launch videos and Codrops demos for motion, only when the brief asks for motion examples. Recent's other listings too: interface, app screenshots and app icons for an app; branding, posters and print for the far reference and for graphics; social images for a post; illustration for imagery. `sources.md` says how to read each one's cards and what to keep. Behance stays out of the picker: it refuses scripts.
+
+If you already ran `init`: run `npx longbeard update`. A direction in progress keeps working: a run that already took families simply shows every card next time its board is built.
 
 ## 0.12.2 — 2026-11-21
 

@@ -10,69 +10,55 @@ description: >
 
 # Design
 
-The design work is a family of small skills. Each does one job, reads what it needs from files, writes one doc, and ends by naming what could come next. None depends on the chat before it, so each can start in a fresh session. This skill only reads the project and suggests.
+The design work is a family of small skills. Each does one job, reads its inputs from files, writes one doc, and ends by naming the next step, so each can start in a fresh session. This skill only reads the project and suggests.
 
-## Where it ends
-
-This is a designer's process, a few short steps with their choice at each, and never one prompt to a finished page. It ends in work they can deliver: `DESIGN.md`, and a Figma file of their own (variables, styles, the identity board, components, every key screen with its states) that they keep changing by hand or with their agent. Say so in one line the first time you suggest a step in a project with no design docs. Never again after that.
+It ends in work they can deliver: `DESIGN.md`, and a Figma file of their own (variables, styles, the identity board, components, every key screen with its states). Say so in one line the first time you suggest a step in a project with no design docs, never again.
 
 ## The family
 
-Each skill says at its top what it **Needs**, what it **Uses if there**, and what it **Writes**. Read those lines, not this table, to see what a skill is missing before you suggest it.
+Each skill's top lines say what it **Needs**, **Uses if there** and **Writes**: read those, not this table, to see what a skill is missing.
 
 | Skill | Job |
 |---|---|
-| `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, yes and no, who to stand apart from, what is fixed |
-| `design-moodboard` | Find references, or read their board and fill its gaps |
-| `design-families` | Optional. Sort a big board or search into looks; they take one or two |
-| `design-direction` | Three or four pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two borrowed from the others; nothing that is not on the board. They choose; a light touch-up pass |
-| `design-identity` | The type pairing and colours of the chosen screen, refined on it from close, rendered options; ends in the identity board |
-| `design-prototype` | The key screens and their states in that direction; approved → `DESIGN.md` |
+| `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, who to stand apart from, what is fixed |
+| `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no |
+| `design-families` | Optional. Sort a big board into looks, the headings the direction's board shows |
+| `design-direction` | Pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two from the others; nothing off the board, nothing they said to leave out. They choose; a light touch-up |
+| `design-identity` | The chosen screen's type and colours, refined on it from rendered options and a few bounded controls; the identity board |
+| `design-prototype` | The key screens and their states, and the five-second check; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
 | `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
-| `design-wordmark` | Optional, after the identity. A mark made from the chosen type, judged in the chosen screen |
+| `design-wordmark` | Optional, after the identity. A mark made from the chosen type |
 | `design-check` | Checks a screen against the rules and `DESIGN.md` |
 
-## Where things go
-
-- **`docs/design/`** is committed and kept up to date: the design docs above. They describe the style ("a condensed grotesk at a fifth of the width, cropped at the right edge"), never a source: no brand, site, studio, designer or person, no link, and no path into `.longbeard/`. A doc that needs a reference to make sense is written again until it does not.
-- **`.longbeard/design/`** is the agents' working folder, gitignored: captured references, Figma crops, pickers, contact sheets, profiles, direction screens, sketches, prototypes. Nobody needs to open it; when there is something to look at, the skill gives the path. It may not survive (a cloud session, a clean checkout): the docs carry the meaning, and a skill that needs a reference again captures it again or says it cannot.
-
-On the first write of either, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line. A project with an older `design-exploration/` folder keeps it: nothing writes there any more.
+**Two folders.** `docs/design/` is committed: the docs describe the style, never a source (no brand, site, person, link, or path into `.longbeard/`). `.longbeard/design/` is the agents' working folder, gitignored, and may not survive; the docs carry the meaning. On the first write of either, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line. An older `design-exploration/` folder is left alone.
 
 ## What to suggest
 
-Look at the repo. Do not ask what is there. Read the design brief's `pace` first: with `quick`, skip what the steps below mark optional, and say so in the suggestion. Then say, in up to four lines, where the project stands and what to run next, with the reason. Name one next step, and the optional ones only when they earn it.
+Look at the repo; do not ask what is there. Read the design brief's `pace` first: at `quick`, skip what is marked optional and say so. Then say in up to four lines where the project stands and the one next step, with the reason.
 
-1. No `docs/brief.md` → `idea` first. The brief says no UI → there is nothing to design; say so.
-2. No `docs/design/design-brief.md` → `design-brief`. Every other skill needs it.
-3. No moodboard (no `design-moodboard.md`, and they have not named a board or a folder) → `design-moodboard`. The direction is built from it, so it is not skipped.
-4. **The board's size decides families.**
-   - Over about 60 references, or a search that came back that big, unsorted → offer `design-families` once: "Your board has 240 references. Sort it into families before choosing?" (Not at `pace: quick`.)
-   - About 8 to 60 → no sorting. A board this size is already chosen.
-   - Under about 8, or a key screen nothing on the board shows → `design-moodboard` for the gap only. At `pace: quick`, three or more references are enough: go on.
+1. No `docs/brief.md` → `idea`. The brief says no UI → nothing to design; say so.
+2. No `docs/design/design-brief.md` → `design-brief`.
+3. No moodboard (no `design-moodboard.md`, and no board or folder named) → `design-moodboard`. Never skipped.
+4. **The board's size:** over about 60 references, unsorted → offer `design-families` once ("Your board has 240 references. Sort it into families, so the board you choose from has headings?"; not at `quick`). About 8 to 60 → no sorting. Under about 8, or a key screen nothing shows → `design-moodboard` for the gap only (at `quick`, three are enough).
 5. No `design-direction.md` → `design-direction`.
 6. No `design-identity.md` → `design-identity`.
-7. A direction and an identity, and no `DESIGN.md` → `design-prototype`.
+7. No `DESIGN.md` → `design-prototype`.
 8. `DESIGN.md` and no Ready frames → `design-figma`.
-9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`, and `DESIGN.md` stays until a new one is approved.
+9. `DESIGN.md` exists → a feature: `design-prototype` (feature loop). A rebrand starts again at `design-direction`.
 
-A graphic (the brief's surface) takes the same steps and ends at its exported Figma frame, so never offer Architecture; its other pieces are `design-prototype`.
+A graphic takes the same steps and ends at its exported Figma frame; never offer Architecture.
 
-**Offered once, never pushed** (and not at `pace: quick`):
-- `design-content`, when they ask about copy or imagery, or the key screens need more pictures than the three or four `design-direction` found.
-- `design-wordmark`, once the identity is chosen and the name is only set in the display face. Offered once; a no stands. No mark is a fine answer: the name in the right face is often the brand, and not every screen needs to show it.
-
-Example:
+Offered once, never pushed, not at `quick`: `design-content` when they ask about copy or imagery or need more pictures than the direction found; `design-wordmark` once the identity is chosen and the name is only set in the display face. A no stands.
 
 > You have a brief, a design brief and a moodboard of 34 references. Next: **design-direction**, eight first screens built from them. Your board is small enough to skip sorting.
 
 Then stop. They type the skill, or say yes and you load it.
 
-**A `DESIGN.md` they bring** has no token tables of ours (rows like `color/ink`), and may carry its tokens at the top in the published DESIGN.md format. Until `design-prototype` writes ours, steps 7 to 9 treat it as no `DESIGN.md`: say so once, and offer it as the identity's starting point, every value in it their choice, kept unless they change it.
+**A `DESIGN.md` they bring** has no token tables of ours (rows like `color/ink`). Until `design-prototype` writes ours, steps 7 to 9 treat it as none: say so once, and offer it as the identity's starting point, every value in it kept unless they change it.
 
 ## Do not
 
-- Run a skill for them without their yes, or run two at once.
+- Run a skill without their yes, or two at once.
 - Suggest `design-families` for a board they already curated to a few dozen.
 - Write any doc yourself. Each belongs to its skill.

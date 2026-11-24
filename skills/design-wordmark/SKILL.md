@@ -19,6 +19,8 @@ A product does not need a mark to be designed: until then, the name is set in th
 
 Comes out: the chosen mark as SVG in `docs/design/wordmark.svg`, a section in `design-identity.md`, and the mark on the identity board. Options live in `.longbeard/design/wordmark/`.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `docs/design/design-direction.md` → `design-direction` first: a mark is judged where the name actually sits. No `docs/design/design-identity.md` → `design-identity`. Stop.

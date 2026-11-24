@@ -169,10 +169,10 @@ else {
 }
 
 // ------------------------------------------------------------------ the direction and identity docs
-const direction = read("docs/design/design-direction.md");
-if (direction) {
-  const five = direction.match(/^- five seconds:\s*(.+)$/m)?.[1] || "";
-  check("five-second check run", false, Boolean(five) && !/not run/i.test(five), five || "no five seconds line");
+// The five-second check runs once, in design-prototype, and DESIGN.md records it. An older run kept it in the direction doc.
+{
+  const five = (read("DESIGN.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || (read("docs/design/design-direction.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || "";
+  if (read("DESIGN.md") || five) check("five-second check run", false, Boolean(five) && !/not run/i.test(five), five || "no five seconds line in DESIGN.md");
 }
 const identity = read("docs/design/design-identity.md");
 if (identity) {

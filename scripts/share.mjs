@@ -18,7 +18,6 @@ export const shared = [
   ["skills/design-check/scripts/rules.mjs", ["design-prototype/scripts"]],
   ["skills/design-prototype/scripts/tokens.mjs", ["design-check/scripts"]],
   ["skills/design-direction/scripts/pictures.mjs", ["design-content/scripts", "design-prototype/scripts", "design-moodboard/scripts"]],
-  ["skills/design-direction/references/five-second.md", ["design-prototype/references"]],
   ["skills/design-direction/scripts/subject-colours.mjs", ["design-identity/scripts"]],
   ["skills/design-identity/scripts/fonts.mjs", ["design-direction/scripts"]],
 ];

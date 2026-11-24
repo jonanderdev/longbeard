@@ -1,14 +1,14 @@
 # Live controls on the chosen screen
 
-Read by `design-direction`, step 4, once their favourite is shown alone. They judge a value by seeing it, so a few measures are theirs to move in the browser, and the board bounds each one: a control runs only between values their own references use. It never produces a look no reference has, and it never adds taste that is not theirs.
+Read by `design-identity`, step 2, the one refinement, on the chosen screen. They judge a value by seeing it, so a few measures are theirs to move in the browser, and the board bounds each one: a control runs only between values their own references use. It never produces a look no reference has, and it never adds taste that is not theirs.
 
-It moves measures. It never moves a zone, changes the layout, or adds a device; those stay with the round (more, mix).
+It moves measures. It never moves a zone, changes the layout, or adds a device; those stay with `design-direction`.
 
 ## The controls
 
-The screen's page (from [screen-template.html](screen-template.html)) carries them. Each one is read from the screen as it is, so its own value is marked, and each is shown only when the board gives it a range.
+The chosen screen, `.longbeard/design/direction/prototype/first.html` (made from the direction's screen template), carries them. Each one is read from the screen as it is, so its own value is marked, and each is shown only when the board gives it a range.
 
-| Control | What it moves | Its range, from `library.json` |
+| Control | What it moves | Its range, from the direction's `library.json` |
 |---|---|---|
 | Type scale | Every display size, against the text size. The text stays. | `type.scale` of each reading. |
 | Line spacing | The display's line height. | `type.display.leading` of each reading. |
@@ -21,7 +21,7 @@ A range needs two readings that differ. Fewer, or all alike, and the control is 
 
 ## Fill the ranges
 
-Before they open it, write the board's ranges into the page's `CONTROLS`, in the page that becomes `first.html`. Only from `library.json`, only the lead and the likes:
+Before they open it, write the board's ranges into `first.html`'s `CONTROLS`. Only from `.longbeard/design/direction/library.json`, only the lead and the likes:
 
 ```js
 const CONTROLS = {
@@ -36,23 +36,23 @@ Leave out a line when fewer than two readings have it. Do not compute a contrast
 
 ## Open it
 
-Give them the link, and say the button "Adjust" is at the bottom right:
+Give them the link with the pairing and palette they picked as overrides, and say the button "Adjust" is at the bottom right:
 
 ```
-file://<path>/.longbeard/design/direction/screens/<n>.html?controls
+file://<path>/.longbeard/design/direction/prototype/first.html?face=<display>&body=<text>&ground=%23…&ink=%23…&accent=%23…&controls
 ```
 
 The panel appears only with `?controls`, and never with `?capture`. No capture, sheet or identity option is made with either, so none shows it. It sits over the screen and moves nothing under it. Each slider's tick is the screen's own value; Reset puts the screen back.
 
 ## Read the copy-out
 
-They press Copy and paste the text back. It lists only what moved, as own to chosen, each with its factor. Record it in the screen's own `LOOK` and CSS, never as a query string, because `design-identity` and `design-prototype` open the page as it is:
+They press Copy and paste the text back. It lists only what moved, as own to chosen, each with its factor. Record it in the screen's own CSS, never as a query string, because `design-prototype` opens the page as it is:
 
 - **Type scale:** multiply every display size by the factor, to the nearest px. The text size stays.
 - **Line spacing:** multiply each display line height by the factor.
-- **Accent strength:** set `LOOK.accent` to the colour given.
+- **Accent strength:** the colour given becomes the palette's accent in the identity (checked like any other: 3:1 on a ground at AA).
 - **Corner radius:** multiply each rounded corner by the factor.
 
-Nothing else changes. Keep the screen before, capture before and after side by side, and list each change in one line ("headline 96 to 110 px"), as the touch-up does. Add one line under "Look, as built" in `design-direction.md`: `adjusted: <the lines>`.
+Nothing else changes. Keep the screen before, capture before and after side by side, and list each change in one line ("headline 96 to 110 px"). Add the lines to `design-identity.md` under **Adjusted**, so `design-prototype` builds with them.
 
 When a value breaks something (a headline past the edge), say so once and leave the choice with them. `CONTROLS` stays in the page; with the new values recorded, each control starts at the screen's new own value.

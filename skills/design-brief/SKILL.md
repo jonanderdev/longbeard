@@ -17,6 +17,8 @@ description: >
 
 One doc comes out, `docs/design/design-brief.md`, committed. Every other design skill reads it, so nobody is asked the same question twice. It records what they want the look to do, in words. It chooses no look: no layout, colour, typeface or style name.
 
+**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+
 ## Gate
 
 1. No `docs/brief.md` → `idea` first. Stop.
@@ -106,7 +108,7 @@ So nobody asks again, and so each answer changes something:
 
 | Line | Read by |
 |---|---|
-| takeaway | `design-direction` (what the screens carry, headlines, the five-second check), `design-prototype` (the five-second check), `design-content` |
+| takeaway | `design-direction` (what the screens carry, headlines), `design-prototype` (the five-second check), `design-content` |
 | first seen on | `design-direction` (the size the screens are built at) |
 | pace | `design` and every design skill: quick drops the optional stops |
 | words, personality, feel, never | `design-moodboard` (queries and picks), `design-families` (the sliders), `design-direction` (the against-the-brief column), `design-identity` (options and their notes) |
