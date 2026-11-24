@@ -6,7 +6,7 @@ A pipeline for the coding agents you already use: it takes an idea to a design y
 An agent jumps from one prompt to code. The look is an average of what it has seen, and the decisions stay in the chat and get lost. The result is generic, and hard to keep building on.
 
 ## For
-Jon first: a designer-developer who ships products with agents and wants work worth delivering. Today they prompt an agent straight to a page, or collect skills by hand. Later: anyone who designs, or cares how their product looks, and will give it some time.
+An engineer-designer who ships products with agents and wants work worth delivering. Today they prompt an agent straight to a page, or collect skills by hand. Later: anyone who designs, or cares how their product looks, and will give it some time.
 
 ## Flows
 1. Start from an idea: install in an empty folder, say what to make, and have a one-page brief that was grilled and agreed.
