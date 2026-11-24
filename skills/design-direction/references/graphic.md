@@ -9,7 +9,7 @@ The size is the format in `docs/brief.md`, never phone or desktop. The design br
 - **On screen:** the pixels the format gives.
 - **In print:** the paper's ratio, at a working width of 1200 px (A3 portrait is 1200 × 1697). Figma carries the real size later.
 - **Build at it:** each screen is built at `?size=<width>x<height>`, and the page's own default size is set to the format, so every later capture is the whole piece. `grid.md`'s "px at 1440" means px at this working width, and every measure stays a share of the piece's width and height.
-- **Capture at it.** Every `--clip 0,0,1440,900` in `grid.md` is `--width <w> --clip 0,0,<w>,<h>` at this size, whole piece, never its top half. On the sheet, a tall piece takes more columns (`--cols 4`). Whether `sheet.mjs` lays out portrait tiles well is not checked: look at the sheet before showing it.
+- **Capture at it.** Every `--clip 0,0,1440,900` in `grid.md` is `--width <w> --clip 0,0,<w>,<h>` at this size, whole piece, never its top half. On the canvas a tall piece shows whole, at its own proportions; look at it before showing it.
 - **A reference of another proportion** (a wide poster for a tall brief) is a base only if its layout survives at the format's ratio, with each measure kept as a share of its own sides. Otherwise it lends moves and is never a base.
 
 ## What the pieces carry

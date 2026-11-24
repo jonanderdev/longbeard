@@ -11,7 +11,12 @@
 // person's own words from the picker: what they like in it, and why; shown on
 // the card, put in its note until they change it, and the card starts liked),
 // avoid (their words: what they do not want from a reference they otherwise
-// like; shown on the card and put in its leave-out box).
+// like; shown on the card and put in its leave-out box), also (one line per
+// other screen of the same product, "<part>: <shot>", shown with the card).
+//
+// The pictures are the page: a masonry of shots at their own proportions, a
+// small badge for a mark, and the notes of only the card they open, in a side
+// panel. Keys: L lead, K like, N no, arrows to move, Esc to close.
 //
 // --topics .longbeard/design/families/board.md: each card takes its family from
 // that board, matched by name, so the moodboard's own cards (with their like,
@@ -93,7 +98,10 @@ function fieldsOf(text) {
   const fields = {};
   for (const line of text.split(/\r?\n/)) {
     const m = line.match(/^- ([a-z][a-z /-]*):\s*(.*)$/i);
-    if (m) fields[m[1].toLowerCase()] = m[2].trim();
+    if (!m) continue;
+    const k = m[1].toLowerCase();
+    if (k === "also") (fields.also ||= []).push(m[2].trim());
+    else fields[k] = m[2].trim();
   }
   return fields;
 }
@@ -191,14 +199,27 @@ for (const card of cards) {
   const like = (card.like || "").trim();
   const avoid = (card.avoid || "").trim();
   const line = ((card.pattern || card.move) ? `<p class="line">${esc(card.pattern || card.move)}</p>` : "") + (card.measured ? `<p class="measured">${esc(card.measured)}</p>` : "") + (like ? `<p class="liked">You liked: ${esc(like)}</p>` : "") + (avoid ? `<p class="avoided">Leave out: ${esc(avoid)}</p>` : "");
+  // Other screens of the same product: "<part>: <shot>", each shown small with the card.
+  const also = (card.also || [])
+    .map((line) => {
+      const m = line.match(/^(.*?):\s*(\S.*)$/);
+      const [part, shot] = m ? [m[1].trim(), m[2].trim()] : ["", line.trim()];
+      const src = /^https?:\/\//i.test(shot) ? shot : existsSync(resolvePath(shot)) ? href(resolvePath(shot)) : "";
+      if (!src) console.error(`moodboard: missing shot ${shot} (also, on ${card.name})`);
+      return src ? `<a class="sib" href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="${esc(card.name)}: ${esc(part || "another screen")}" loading="lazy"><span>${esc(part || "screen")}</span></a>` : "";
+    })
+    .join("");
   const play = frames
     ? `<button type="button" class="play" aria-label="Play ${esc(card.name)}">Play</button><span class="clock"></span>`
     : "";
   const tile = `<figure class="tile" data-id="${id}" data-title="${esc(card.name)}" data-topic="${esc(topic.label)}" data-key="${esc(markKey)}"${like ? ` data-like="${esc(like)}"` : ""}${avoid ? ` data-avoid="${esc(avoid)}"` : ""}${
     frames ? ` data-frames="${esc(JSON.stringify(frames))}"` : ""
   }>
-        <div class="frame"><a class="open" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"></a><span class="id">${id}</span>${play}</div>
+        <div class="frame" tabindex="0" role="button" aria-label="Open ${esc(card.name)}"><img src="${esc(poster)}" alt="${esc(card.name)}" loading="lazy"><span class="id">${id}</span><span class="badge" aria-hidden="true"></span>${play}</div>
         <figcaption>
+          <button type="button" class="close" aria-label="Close">Close</button>
+          <a class="big" href="${esc(poster)}" target="_blank" rel="noopener" aria-label="Open the shot of ${esc(card.name)} at full size"><img data-src="${esc(poster)}" alt=""></a>
+          ${also ? `<div class="also" aria-label="Other screens of the same product">${also}</div>` : ""}
           ${name}${line}
           <div class="marks" role="group" aria-label="Mark ${esc(card.name)}">
             <button type="button" data-mark="lead" aria-pressed="false">Lead</button>
@@ -245,6 +266,9 @@ const body = ordered
   })
   .join("\n  ");
 
+// The Long Beard beard, small and one ink: it marks the page as the tool's and adds no colour.
+const LOGO = "iVBORw0KGgoAAAANSUhEUgAAACoAAABYBAMAAABxB3iiAAAAMFBMVEWfn59ubm7Z2dn+/v7+/v7////+/v4AAAACAgIXFxcnJyfp6enX19c3NzdXV1dGRkbPaZsJAAAAEHRSTlP///AgWZ/+AP////7/////SdcINAAABTtJREFUeNpdlWtUVFUUx3/3zB1AZhhu4AO1hVOCj8yYKLKHyaiEq5eOS9DoQ2IFPj6UtSyVamm1AC2ttFUIZo6GikU6mrrMVTFoargsxzFTU2kkKN/OyENgHrcPd5jBzrfzW/+77/7vc/Y+0kLCK1Cf2jfgSwNAjkB35vPjEzeWWgFED90/fFfDtktd5tu0P415O+uDxwZ7tZ1ubPj7uhGHUp8/uUITh+nxiv5/UNCQ/9clcyTuD8FBv26GDUXfb7iTHhpsbap5JnftXse4u5fNdPZQdyB+cckqtcm0ZMh6773hHAKDdo9eesRUDHvGLRhjfsOq/W3ajfsfeGoaoDv4Ys399SmgG4uzPKBL0hINfv/gAedlMzIoV84fbg6biUlvnhDSvA1OapzfY/zLiSfr+1llwP+6swfiLzndMRVBcFBthyNCeWStoiCz/8TWa/Oj1NBefAsRGFauKlFI90yxHyElT/dFA8RUMXCizynqq1o2Odi7CQD9tpXsmOJUhNRS0aTf9/YxO+ipOxCsnGo4qYj0jSHa5yUOOA15RYesZZdlQ7pLbjcA04ZeGCrtmrJT4XKFMyU+oOt88nxSZanx95yJY7aNGJtzzGANxJyRx9v2heo2Fbda/l1+rGqhKv3pi/UiwCgNCS1yGd6Mrbz1UtJsz1ZLBgIPsXaJOR+1SqXMaLArSsnmNlG3b5u0yIsv9Io0S3rVZc5+vTPXqHs6eVJocJ/WB4suX2gZuMA2uWlv17m/xK3OE+/J9zDLOMVMKOtgYHZheuo62TQst92+sfGPornzJ/VfYunz68qOoCxL5LW7PqwuP2yqJFixTO813jQEdN6RCbNaLq5+y/vV1h9S+pU5qUzJdki5a5Z1391McRXfVV9yAqOOZ7jJHHH1xaXDYopTj8ZdNBoMhcZ34/6ZIS24+nDS3wvaT6Wb6lz32pKq6+LiTrp1j5/1VWYdqE1f935trX/UECXO23g9UzD65mTdqZwsvg7s2anf/I5VBNPQjRWJvuSjqyosB48MzHk0w53S5otHgBSvCneD3VPyAfHPTvDGTQUB0gs205ZHEIvzXi0cdbDPxxr90TrBp3rMvLzL6TE36b1BJwJk5R8T+63Jc5f6vPZrenNfrQM8h9bTwuoLw3Z9vmE7n3hABmVHwgMmNeBuwd8unZ38aaqCAL3PgR9VBTV2PVbJBQLuaEVVpS2DIca2RHLgBQFtAuj65C3AQqxd67eA6yZGBa8CFOgfQo1Mgm4rMVZAP86OTQEB49VushatBGBtPokWkCGBbwsKeq719PzC63chQMIVbYAuPFdBIIWk+ihVbcoBKwKCRm+UpjlW3QABU/ytUZqtb9sOAlR6N5Z0U8tXzOL/S6DuXNhbrYYAgXzmdl2CFuE+J1ATafreEzExok3UTpPxAo5HaEYvrS5CzQ6NJsRDMEK9No1KQHKEWqRohHmaMzugRKkfAFPEW3RVfxboTTu0QfJV6czwCJOj0lsnpk6eBOH7EC3lmdcAVzjf1tAmAHlkYxngUzXqxKe56rQBP4f/pkrVMB2yy4CYsFbONAH5/FJeiN7RFj4huuKvQx0l5dA+TxLhHK5kB2x6J2k2wPRcWptGA5aQzb+CKkDqzi4MayfuQOEpAIxJq7eH34Dg0Zr3WzQfdd8c98drjmXPE2GI87fa5r7h12nAud2HLfuGQvf5BtejPTWTMzaWcNEONfk3cqL1Dc1JKXEt/2Jr6bnmXpWU+w6v6VxTxvKEvN71fbziSEzeYkOB+7aqy42Z7jNFaqNV2/4HUzT8HOE538sAAAAASUVORK5CYII=";
+
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -252,78 +276,99 @@ const html = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moodboard</title>
 <style>
-  :root { --canvas: #e4e4e2; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6f6a; --line: #c8c8c4; --lead: #8a5a00; --like: #1f7a3a; --no: #b3261e; }
+  /* Quiet chrome: the references are the only colour on the page. */
+  :root { --canvas: #f3f2ef; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6c65; --line: #dedbd4; --soft: #e9e7e2; --panel: 380px; }
   * { box-sizing: border-box; }
   html { color-scheme: light; scroll-padding-top: 76px; }
-  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-  main { max-width: 1400px; margin: 0 auto; padding: 0 24px 300px; }
-  header { padding: 20px 2px 4px; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1680px; margin: 0 auto; padding: 0 28px 160px; }
+  body[data-open] main { margin-right: calc(var(--panel) + 28px); }
+  header { padding: 22px 2px 2px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .brand img { height: 44px; width: auto; display: block; }
+  .brand span { font-size: 16px; font-weight: 600; }
+  h1 { margin: 0; font-size: 16px; font-weight: 400; color: var(--muted); }
+  h1::before { content: "/"; margin-right: 10px; color: var(--line); }
+  .how { margin: 0 0 6px; max-width: 900px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .keys { white-space: nowrap; margin-left: 4px; }
+  kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--paper); color: var(--ink); }
   /* Only the jump bar sticks, on one line that scrolls sideways, so thirty families never eat the screen. */
   .sticky { position: sticky; top: 0; z-index: 2; background: var(--canvas); display: flex; align-items: center; gap: 12px; padding: 10px 2px; margin: 0 -2px; }
-  h1 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
-  .how { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
   nav { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; flex: 1 1 auto; min-width: 0; scrollbar-width: thin; padding-bottom: 2px; }
   nav a { white-space: nowrap; flex: none; }
-  nav a, .filters button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-family: inherit; }
+  nav a, .filters button { font-size: 13px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-family: inherit; }
   nav a span, h2 span { color: var(--muted); }
-  .filters { display: flex; gap: 8px; flex: none; }
+  .filters { display: flex; gap: 6px; flex: none; }
   .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  section { margin-top: 28px; }
+  section { margin-top: 26px; }
   section[hidden] { display: none; }
-  h2 { margin: 0 0 12px 2px; font-size: 18px; font-weight: 600; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-  .tile { margin: 0; display: flex; flex-direction: column; background: var(--paper); border-radius: 18px; overflow: hidden; outline: 3px solid transparent; outline-offset: -3px; }
+  h2 { margin: 0 0 12px 2px; font-size: 15px; font-weight: 600; }
+  /* A masonry: every shot at its own proportions, a tall page cut at its top. */
+  .grid { columns: 4 260px; column-gap: 14px; }
+  .tile { margin: 0 0 14px; break-inside: avoid; display: block; }
   .tile[hidden] { display: none; }
-  .tile[data-state="lead"] { outline-color: var(--lead); }
-  .tile[data-state="like"] { outline-color: var(--like); }
-  .tile[data-state="no"] .frame img { opacity: 0.3; filter: grayscale(1); }
-  /* A tall page shows its top, where a person starts; the picture opens in full. */
-  .frame { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #141414; }
-  .frame .open { position: absolute; inset: 0; display: block; }
-  .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-  .id, .clock, .play { position: absolute; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: rgba(0,0,0,0.65); color: #fff; }
-  .id { top: 8px; left: 8px; pointer-events: none; }
-  .play { bottom: 8px; left: 8px; border: 0; cursor: pointer; font-family: inherit; }
-  .clock { bottom: 8px; right: 8px; pointer-events: none; }
+  .frame { position: relative; border-radius: 6px; overflow: hidden; background: var(--soft); cursor: zoom-in; outline: 2px solid transparent; outline-offset: 2px; }
+  .frame img { width: 100%; height: auto; max-height: 640px; object-fit: cover; object-position: top center; display: block; }
+  .tile[aria-current="true"] .frame { outline-color: var(--ink); }
+  .tile[data-state="no"] .frame img { opacity: 0.25; filter: grayscale(1); }
+  .id, .clock, .play, .badge { position: absolute; font-size: 11px; line-height: 1.5; padding: 1px 7px; border-radius: 4px; }
+  .id { top: 8px; left: 8px; font-family: ui-monospace, Menlo, monospace; background: rgba(255,255,255,0.88); color: var(--ink); pointer-events: none; }
+  .badge { top: 8px; right: 8px; font-weight: 600; border-radius: 999px; pointer-events: none; }
+  .badge:empty { display: none; }
+  .tile[data-state="lead"] .badge { background: var(--ink); color: var(--paper); }
+  .tile[data-state="like"] .badge { background: var(--paper); color: var(--ink); }
+  .tile[data-state="no"] .badge { background: var(--soft); color: var(--muted); }
+  .play { bottom: 8px; left: 8px; border: 0; cursor: pointer; font-family: inherit; font-weight: 600; background: rgba(0,0,0,0.65); color: #fff; }
+  .clock { bottom: 8px; right: 8px; pointer-events: none; background: rgba(0,0,0,0.65); color: #fff; }
   .clock:empty { display: none; }
-  figcaption { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 14px; }
-  .name { font-size: 15px; line-height: 1.3; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+  /* The notes of the open card only, in a side panel. */
+  figcaption { display: none; }
+  .tile[aria-current="true"] figcaption { display: flex; flex-direction: column; gap: 10px; position: fixed; z-index: 4; top: 16px; right: 16px; bottom: 96px; width: var(--panel); overflow-y: auto; padding: 16px; background: var(--paper); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08); }
+  .big { display: block; border-radius: 4px; overflow: hidden; background: var(--soft); cursor: zoom-in; }
+  .big img { width: 100%; max-height: 52vh; object-fit: contain; display: block; }
+  .close { align-self: flex-end; font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; margin-bottom: -4px; }
+  .also { display: flex; gap: 6px; overflow-x: auto; }
+  .sib { flex: none; width: 76px; text-decoration: none; color: var(--muted); font-size: 11px; }
+  .sib img { width: 76px; height: 54px; object-fit: cover; object-position: top; border-radius: 3px; display: block; border: 1px solid var(--line); }
+  .name { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
   a.name:hover { text-decoration: underline; }
-  .line { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .line { margin: -4px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
   .measured { margin: -6px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .liked { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--like); }
-  .avoided { margin: -4px 0 0; font-size: 13px; line-height: 1.4; color: var(--no); }
+  .liked, .avoided { margin: -4px 0 0; font-size: 13px; line-height: 1.45; color: var(--ink); }
   [data-overview] .liked, [data-overview] .avoided { display: none; }
-  .marks { display: flex; gap: 6px; margin-top: auto; }
-  .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
-  .marks button[data-mark="lead"][aria-pressed="true"] { background: var(--lead); border-color: var(--lead); color: #fff; }
-  .marks button[data-mark="like"][aria-pressed="true"] { background: var(--like); border-color: var(--like); color: #fff; }
-  .marks button[data-mark="no"][aria-pressed="true"] { background: var(--no); border-color: var(--no); color: #fff; }
-  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
-  .why, .avoid { font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; width: 100%; }
-  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,0.08); }
-  .bar-in { max-width: 1400px; margin: 0 auto; padding: 14px 24px 16px; display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 14px; align-items: start; }
-  .bar label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .bar textarea { width: 100%; font: 13px/1.4 ui-monospace, Menlo, monospace; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; resize: vertical; height: 96px; }
-  #note { font-family: inherit; font-size: 14px; }
-  #out { background: #f6f6f4; }
-  .side { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; min-width: 150px; }
-  #count { font-size: 13px; color: var(--muted); }
+  .marks { display: flex; gap: 6px; }
+  .marks button { flex: 1; font: inherit; font-size: 13px; font-weight: 500; padding: 7px 0; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .marks button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, .frame:focus-visible { outline: 2px solid #2f6fdb; outline-offset: 2px; }
+  .why, .avoid { font: inherit; font-size: 13px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 6px; width: 100%; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; background: var(--paper); border-top: 1px solid var(--line); }
+  .bar-in { max-width: 1680px; margin: 0 auto; padding: 10px 28px; display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 12px; align-items: end; }
+  .bar label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .bar textarea { width: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; resize: vertical; height: 46px; }
+  #note { font-family: inherit; font-size: 13px; }
+  #out { background: var(--canvas); }
+  .side { display: flex; align-items: center; gap: 12px; }
+  #count { font-size: 13px; color: var(--muted); white-space: nowrap; }
   [data-overview] .marks, [data-overview] .why, [data-overview] .avoid, [data-overview] .filters { display: none; }
   .ranges { margin: -6px 0 10px 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .take { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px 2px; }
-  .fam-note { flex: 1 1 260px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  .fam-note { flex: 1 1 260px; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; }
   .more { font-size: 13px; color: var(--muted); }
-  #copy { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
-  @media (max-width: 800px) { .bar-in { grid-template-columns: 1fr; } .side { padding-top: 0; } main { padding-bottom: 480px; } .sticky { flex-wrap: wrap; } nav { flex-basis: 100%; } }
+  #copy { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 6px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap; }
+  @media (max-width: 900px) {
+    body[data-open] main { margin-right: auto; }
+    main { padding: 0 16px 220px; }
+    .tile[aria-current="true"] figcaption { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 72vh; border-radius: 12px 12px 0 0; }
+    .bar-in { grid-template-columns: 1fr; padding: 10px 16px; } .sticky { flex-wrap: wrap; } nav { flex-basis: 100%; }
+  }
 </style>
 </head>
 <body${overview ? " data-overview" : ""}>
 <main>
   <header>
-    <h1>${overview ? "Families" : "Moodboard"}</h1>
+    <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${overview ? "Families" : "Moodboard"}</h1></div>
     ${overview ? `<p class="how">Each family shows its most typical ${overview}. Every family stays on your board; this only checks the sorting. Note a family that looks like two, or that belongs with another.</p>` : ""}
-    <p class="how"${overview ? " hidden" : ""}>Lead what should set the tone (${oneLead ? "one on the whole board" : "one per group: a part, or a direction"}), Like what belongs, No what feels wrong. In each like, say what you like and why, and what to leave out of it, if anything; a tile in the wrong group gets the note "move to" and the group's name. The picture opens the shot, the name opens the source, and Play runs recorded motion.</p>
+    <p class="how"${overview ? " hidden" : ""}>Open a picture to mark it: Lead what should set the tone (${oneLead ? "one on the whole board" : "one per group: a part, or a direction"}), Like what belongs, No what feels wrong. In each like, say what you like and why, and what to leave out of it. A tile in the wrong group gets the note "move to" and the group's name. <span class="keys"><kbd>L</kbd> lead <kbd>K</kbd> like <kbd>N</kbd> no <kbd>←</kbd><kbd>→</kbd> move <kbd>Esc</kbd> close</span></p>
   </header>
   <div class="sticky">
     <nav aria-label="Parts">${jump}</nav>
@@ -414,6 +459,7 @@ const html = `<!DOCTYPE html>
     for (const t of tiles) {
       const s = t.dataset.state || "";
       for (const b of t.querySelectorAll(".marks button")) b.setAttribute("aria-pressed", b.dataset.mark === s ? "true" : "false");
+      t.querySelector(".badge").textContent = s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
       t.hidden = !(show === "all" || (show === "open" ? !s : !!s));
       // A like from the picker that they unmarked is saved as unmarked, so it does not come back.
       if (s || t.dataset.like) keepMarks[tag(t)] = s;
@@ -486,6 +532,59 @@ const html = `<!DOCTYPE html>
       t.querySelector(".frame").addEventListener("mouseenter", start);
       t.querySelector(".frame").addEventListener("mouseleave", stop);
     }
+  }
+  // One card open at a time: its notes in the side panel, its shot loaded large only then.
+  let current = null;
+  const body = document.body;
+  function open(t) {
+    if (current) current.setAttribute("aria-current", "false");
+    current = t || null;
+    if (!current) {
+      if (body) delete body.dataset.open;
+      return;
+    }
+    current.setAttribute("aria-current", "true");
+    const big = current.querySelector(".big img");
+    if (big && big.dataset && big.dataset.src && !big.getAttribute("src")) big.setAttribute("src", big.dataset.src);
+    if (body) body.dataset.open = "";
+    if (current.scrollIntoView) current.scrollIntoView({ block: "nearest" });
+  }
+  for (const t of tiles) {
+    t.querySelector(".frame").addEventListener("click", (e) => {
+      if (e && e.target && e.target.closest && e.target.closest(".play")) return;
+      open(current === t ? null : t);
+    });
+    t.querySelector(".close").addEventListener("click", () => open(null));
+  }
+  if (document.addEventListener) {
+    document.addEventListener("keydown", (e) => {
+      const typing = e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+      if (e.key === "Escape") {
+        if (typing) e.target.blur();
+        open(null);
+        return;
+      }
+      if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if ((k === "enter" || k === " ") && e.target && e.target.classList && e.target.classList.contains("frame")) {
+        e.preventDefault();
+        e.target.click();
+        return;
+      }
+      if (k === "arrowright" || k === "arrowleft") {
+        const shown = tiles.filter((t) => !t.hidden);
+        if (!shown.length) return;
+        const at = shown.indexOf(current);
+        e.preventDefault();
+        open(shown[at === -1 ? 0 : (at + (k === "arrowright" ? 1 : -1) + shown.length) % shown.length]);
+        return;
+      }
+      const mark = { l: "lead", k: "like", n: "no" }[k];
+      if (mark && current && body && !body.hasAttribute("data-overview")) {
+        e.preventDefault();
+        current.querySelector('.marks [data-mark="' + mark + '"]').click();
+      }
+    });
   }
   // The text box is the real path: the clipboard API can be refused on a file:// page.
   document.getElementById("copy").addEventListener("click", async (e) => {

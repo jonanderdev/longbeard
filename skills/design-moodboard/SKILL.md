@@ -48,6 +48,10 @@ Their board already holds their taste: it is the pool, with no search and no pic
   node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --sheets <scratch>/sheets --out .longbeard/design/moodboard/refs
   ```
 
+**Screens of one product** (a section or a group of cards from the same site or app): the one they starred or captioned is the keep, and the others are its `also:` lines.
+
+A keep with a live link to a site or app gets its other screens as in **Search**, step 7.
+
 **Keep every card that fits;** drop only what plainly fails (off-topic, broken, a duplicate) and say how many in one line. A poster, specimen, packaging or illustration is kept as `screen: no`.
 
 **Is it enough?** At least six screens; every key screen in the brief shown by at least one keep; and, when every keep is a screen, one far reference (print, signage, packaging; Fonts In Use has these, [sources.md](references/sources.md)). All met: say so in one line. Otherwise say what it lacks in up to three lines:
@@ -79,6 +83,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 4. **Read the picks back** in up to three lines (what the likes share, what the noes share, the next search) and wait.
 5. **Round two, once:** sharper, from the corrected read, 60 to 100 rows (`--round 2`). Skip it when they say the likes cover it.
 6. **Capture every like** (`capture.mjs <url> --out refs/<name>.jpg`; `--click` for a menu, `--frames 12` for motion, judged from frames, never a still). Up to four at a time; open each file and capture again if blank. Drop only a dead page or a gate, and say so.
+7. **Its other screens.** A like is one screen of a product designed whole. When it is a live site or app with more pages, capture up to four of its pages that show the brief's other key screens (an index, an article, the menu open, a form) as `also:` lines on its card. They are not likes and are never marked: they show how that product carried its look from screen to screen, so `design-prototype` borrows its layouts first. A shot or a poster has none.
 
 An app's Dribbble concept stays only if it survives the brief's longest names, real numbers and an empty state. For a site, live sites outweigh shots. "You choose": pick closest to the design brief, and say so.
 
@@ -92,6 +97,7 @@ An app's Dribbble concept stays only if it survives the brief's longest names, r
 - part: <home, navigation, article, …>
 - shot: .longbeard/design/moodboard/refs/<file>
 - frames: <for motion, the folder; else leave out>
+- also: <part>: .longbeard/design/moodboard/refs/<file> (one line per other screen of the same product; else leave out)
 - screen: <yes | no>
 - like: <their words from the picker's note, as written; leave out when none>
 - move: <what it does, about ten words: "headline fills the width, cropped at the right edge">
@@ -132,7 +138,7 @@ Next: `design-direction`, or `design-families` first for a board over about 60.
 
 ## One piece
 
-For one part `design-prototype` has no reference for. Read `DESIGN.md` and the design brief: the piece fits what was chosen. Ask once about style or requirements (optional). A pool of 20 to 40, including the piece in other subjects and outside software, one picker round, their likes (up to 8) captured into `.longbeard/design/<piece>/board.md`, and a short section in `design-moodboard.md`. Hand back.
+For one part, asked for by `design-direction` or `design-prototype` (they opened it and said "find more", or no reference shows it). Their own board first: the cards whose `part` or `also` shows it, and, with a library they keep (a Figma board, a folder), its cards of that part; then outside. Read `DESIGN.md` (or the direction) and the design brief: the piece fits what was chosen. Ask once about style or requirements (optional). A pool of 20 to 40, including the piece in other subjects and outside software, one picker round, their likes (up to 8) captured into `.longbeard/design/<piece>/board.md`, and a short section in `design-moodboard.md`. Hand back.
 
 ## Do not
 

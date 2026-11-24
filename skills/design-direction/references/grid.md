@@ -10,7 +10,7 @@ Each screen is `.longbeard/design/direction/screens/<n>.html` from [screen-templ
 [{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "picture": "<its main picture>", "tone": "<light or dark, warm or cool>", "why": "<one line>", "proposed": false, "build": "quick", "state": "built" }]
 ```
 
-`build` is `quick` or `full`. `state` is where it ended: a quick screen `built`; the full screen (only their favourite) `built` while it runs, then `critiqued` (only small spots, nothing fixed) or `fixed`; any job that failed twice `failed` with `"failure": "<why>"`. The sheet is drawn only when every screen has ended.
+`build` is `quick` or `full`. `state` is where it ended: a quick screen `built`; a full screen (their favourite and its hardest screen) `built` while it runs, then `critiqued` (only small spots, nothing fixed) or `fixed`; any job that failed twice `failed` with `"failure": "<why>"`. Optional: `round` (1 when left out), `of` and `part` for a part's version, `of` and `test` for the hardest screen, `fault` (one line), `shot`. The canvas is drawn only when every screen has ended.
 
 ## Five principles
 
@@ -78,21 +78,20 @@ Fix it until nothing listed is off without a reason. Then make the moves into `s
 **3. Check the round (you).**
 - **Not a copy:** one fresh judge sees every screen beside its base, as numbered thumbnails, and answers yes or no each: *can you tell them apart at a glance* (ground or accent, face, layout turned, a device added or gone, picture treatment)? A no gets another move and is rebuilt; the rebuilt ones go to one judge together.
 - **Spread** again, on what was built.
-- **Contrast,** every screen; a failure blocks the sheet, except a liked colour with its warning. Fixed with the screen's own colours or another crop:
+- **Contrast,** every screen; a failure blocks the canvas, except a liked colour with its warning. Fixed with the screen's own colours or another crop:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
 - **Faults:** a clipped word, text under 12 px at 1440, a lone last word in a heading, a sentence twice.
 - **Pictures:** `picture-cast.mjs` on the product's pictures; a cast or blown highlights the reference lacks means another picture.
 
-**Without fresh agents,** do each job yourself, one screen at a time from its brief alone; as critic, write the list from the prepared pictures before fixing anything. Say the round is weaker: `--note` on the sheet ("built and judged by one agent").
+**Without fresh agents,** do each job yourself, one screen at a time from its brief alone; as critic, write the list from the prepared pictures before fixing anything. Say the round is weaker, in each screen's `fault` ("built and judged by one agent").
 
-## Capture and sheet
+## Capture and the canvas
 
 ```
 node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
-node <skill>/scripts/sheet.mjs .longbeard/design/direction/grid/sheet.html --rough 1,2,4 .longbeard/design/direction/grid/1.png … .longbeard/design/direction/grid/8.png
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/grid/sheet.html" --out .longbeard/design/direction/grid/sheet.png
+node <skill>/scripts/canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 ```
 
-`--rough` lists the quick screens (`none` when all are full); `--note` prints a line under the sheet. A second sheet shows each screen beside its base (`grid/bases.html`, `--cols 2`). For an app, or `first seen on: phone`, build and capture at the device size (`?size=390x844`, `--width 390`).
+Every screen is captured as `grid/<n>.png` (a full build's newer version as its `shot`). The canvas shows each one with its build (`quick`, `full` or `failed`), its fault, and beside it its base and moves with their pictures and likes; "Beside its base" shows the two together. Rows: each `round`, then each favourite's parts (`of`, `part`) and its hardest screen (`of`, `test`). Without fresh agents, put the round's weakness in a screen's `fault` ("built and judged by one agent"). For an app, or `first seen on: phone`, build and capture at the device size (`?size=390x844`, `--width 390`).
