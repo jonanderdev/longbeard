@@ -60,7 +60,7 @@ A gap: search only that, 20 to 60 candidates, one picker round. Too thin: the fu
 
 ## Search
 
-Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards, then Dribbble for screens, Minimal Gallery and httpster when a look needs more. Sites they love (`.longbeard/design/brief-loves.md`) are seeds; competitors they named never are.
+Read [sources.md](references/sources.md) first. Default sources: for an app, popular Dribbble; for a site, Awwwards, Recent, then Dribbble for screens, Minimal Gallery and httpster when a look needs more. For one part: Footer Design and CTA Gallery for a footer or a call to action; Recent's motion and launch videos, and Codrops demos, for motion; Recent's interface, app screenshot and app icon listings for an app; its branding, posters and print for the far reference. Sites they love (`.longbeard/design/brief-loves.md`) are seeds; competitors they named never are.
 
 **The design brief steers the pool, not the picks.** Queries carry the personality where it leans off 3 ("bold colour-block dashboard", "minimal serif editorial homepage"), half the pool from those, half wide. At distance 4–5, leave out what looks like the kind of product in `apart from`. Drop only what is plainly the `never`; anything less plain is theirs to say no to.
 
