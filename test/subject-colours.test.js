@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const script = join(root, "skills/design-direction/scripts/subject-colours.mjs");
-const measure = join(root, "skills/design-families/scripts/measure.mjs");
+const measure = join(root, "skills/design-moodboard/scripts/measure.mjs");
 
 const toLin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const lum = (hex) => {

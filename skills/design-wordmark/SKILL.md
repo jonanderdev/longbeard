@@ -43,7 +43,7 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/wordmark/1.html"
 node <skill>/scripts/sheet.mjs .longbeard/design/wordmark/sheet.html .longbeard/design/wordmark/1.png … --cols 3
 ```
 
-Each with one line of what it does ("the A's crossbar is the accent bar"). Numbered, never ranked.
+Each with one line of what it does ("the A's crossbar is the accent bar"), and a fact when it breaks one of the direction's principles. Numbered, never ranked.
 
 > Which mark? Or one to push further ("2, but tighter").
 

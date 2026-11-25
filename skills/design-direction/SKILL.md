@@ -1,10 +1,11 @@
 ---
 name: design-direction
 description: >
-  Find the direction: eight first screens, each one of their references
-  rebuilt faithfully with the product's real content and pictures, then
-  changed by one or two things borrowed from their other references. Nothing
-  on a screen that is not on their board. One agent builds them, scripts check
+  Find the direction: eight first screens. Six rebuild one of their
+  references faithfully with the product's real content and pictures, changed
+  by one or two things borrowed from their other references; two develop a
+  liked reference's concept, redrawn for this product. Nothing on a screen
+  that is not on their board. One agent builds them, scripts check
   contrast and clipped text, and they pick on a rendered canvas, or ask for
   more or a mix. Writes docs/design/design-direction.md. Runs after
   design-brief and design-moodboard; design-identity then refines its type
@@ -14,10 +15,12 @@ description: >
 # Design direction
 
 **Needs:** `docs/design/design-brief.md`, `docs/design/design-moodboard.md`  
-**Uses if there:** `docs/design/design-families.md`, `docs/design/design-content.md`  
+**Uses if there:** `docs/design/design-content.md`  
 **Writes:** `docs/design/design-direction.md`
 
 **They are the designer; you do the craft.** Everything on a screen comes from their board. Understand what they like in each reference and why, and carry that concept onto this product. Make the craft decisions it leaves open, and add no taste of your own.
+
+**Style is theirs; structure can be yours.** Faces, colours, finishes, devices and how pictures are treated come only from their board. How this product's content is arranged (composition, hierarchy, pacing) may be your design, as long as it carries a concept they liked: what you know about design serves their taste, never replaces it.
 
 Writes `docs/design/design-direction.md` (committed) and works in `.longbeard/design/direction/` (gitignored): `library.json`, `screens/<n>.html`, `screens.json`, `prototype/first.html`, captures and the canvas.
 
@@ -40,10 +43,10 @@ Three or four pictures of what the product is about, not other designs: theirs, 
 
 **Headlines and the ownable.** Three or four headlines that say the takeaway outright, in the voice, and the ownable: one thing only this product would show (a stamp, a live count, a mark).
 
-**Their board, every reference on it.** Copy the moodboard's `board.md` to `.longbeard/design/direction/board.md`, every card, plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`). With families, `--topics` puts each card under its family: a heading, never a filter.
+**Their board, every reference on it.** Copy the moodboard's `board.md` to `.longbeard/design/direction/board.md`, every card, plus the subject as a card (its contact sheet as the shot, `part: subject`, `screen: no`). Cards with a `topic:` line show under their group: a heading, never a filter.
 
 ```
-node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --one-lead [--topics .longbeard/design/families/board.md] --out .longbeard/design/direction/board.html
+node <skill>/scripts/moodboard.mjs .longbeard/design/direction/board.md --one-lead --out .longbeard/design/direction/board.html
 ```
 
 It says how many cards it left out for a missing shot: capture those again first. **Likes are asked once:** a card with a `like:` line starts liked, with their words.
@@ -58,19 +61,20 @@ It says how many cards it left out for a missing shot: capture those again first
 
 ## 2. Read the references
 
-Read the lead and every like closely: its grid, the share of the screen each block takes, type sizes against the width, spacing, colours, faces (the closest Google Font), and what they like in it and why. Measure where you can (`measure.mjs <link>`, or `measure.mjs <picture> --lines` and `fonts.mjs --shape`). Write it to `library.json`, with the subject and its palette from `subject-colours.mjs`: [library.md](references/library.md).
+Read the lead and every like closely: its grid, the share of the screen each block takes, type sizes against the width, spacing, colours, faces (the closest Google Font), and what they like in it and why. A live page is measured (`measure.mjs <link>`): its numbers are the page's own. A picture is read by eye at full size; `measure.mjs <picture> --lines` only for a number you cannot read, and the face through `fonts.mjs --shape`. Write it to `library.json`, with the subject and its palette from `subject-colours.mjs`: [library.md](references/library.md).
 
 **Never invent a key part.** Once the readings show what each reference has: if none shows a hero or a header and menu, or their picks leave one unclear, ask once, in one message: the cards that show it, to pick from, or a search for that one part (`design-moodboard`'s one piece). **Never block on it:** build on with that part from the closest system on the board, marked `data-standin`, and put their answer in when it comes, in the next round or the prototype.
 
-**The accent** ([rule 6](references/design-rules.md#6-colour)): unless the board clearly shows one or they named it, add the options as swatches to that message, or send them alone, never waiting: `colours.mjs --harmony --primary <#> --ground <#> --family "<board's colours>" --level <AA|AAA>`, plus the subject's accent. Never pick or rank.
+**The accent** ([rule 6](references/design-floor.md#6-colour)): unless the board clearly shows one or they named it, add the options as swatches to that message, or send them alone, never waiting: `colours.mjs --harmony --primary <#> --ground <#> --family "<board's colours>" --level <AA|AAA>`, plus the subject's accent. Never pick or rank.
 
 ## 3. Eight first screens
 
-Read [Before you build](references/design-rules.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
+Read [Before you build](references/design-floor.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
-- **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, at [rule 5](references/design-rules.md#5-typography)'s size floor.
+- **On a rebuild, one reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, at [rule 5](references/design-floor.md#5-typography)'s size floor.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
-- **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
+- **Spread:** the lead is the base of two screens; four stand on one of their liked references each; two are **concepts**. With fewer than four likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
+- **A concept** develops one liked reference (the lead first, then the like with the clearest why) instead of rebuilding it. First write its `concept` in the reading as a designer would defend it: what it is, and why it works (the tension, the hierarchy, what does the work). Then redraw the arrangement for this product's content so that idea still does the work, with that reference's devices, type, colour and picture treatment. Before you check it, two questions: would a designer call it the same concept, and would they call it a copy? Either answer wrong: redraw. A screen with no concept behind it is not a concept: it is generic, and goes.
 - **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each; before the checks, go through the screen's CSS, and anything it cannot name goes.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
@@ -80,6 +84,8 @@ Record each in `.longbeard/design/direction/screens.json`:
 ```
 [{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "accent": "<#hex from the options, or null>", "state": "built" }]
 ```
+
+A concept also has `"kind": "concept"` and `"idea": "<the concept it keeps, in one line>"`; its `base` is the reference it develops.
 
 `state` is `built`, or `failed` with `"failure": "<why>"`. Optional: `round` (1 when left out), `fault` (one line), `shot`.
 
@@ -93,7 +99,7 @@ node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/
 
 Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
 
-**The floor, inside the concept** ([how they split](references/design-rules.md#how-to-use-this)). Text a person acts on must pass contrast and size, fixed with the screen's own colours or another crop, never by moving it off the picture. Display type over a picture, overlaps, crops and wide empty space are the look when a reference does them: never tidied away. A liked colour or size stays, its measure in `fault`. A finding left is theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
+**The floor, inside the concept** ([how they split](references/design-floor.md#how-to-use-this)). Text a person acts on must pass contrast and size, fixed with the screen's own colours or another crop, never by moving it off the picture. Display type over a picture, overlaps, crops and wide empty space are the look when a reference does them: never tidied away. A liked colour or size stays, its measure in `fault`. A finding left is theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
 
 **Show the canvas:**
 
@@ -114,7 +120,7 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 
-On their yes, read it back in one line, read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it to `prototype/first.html`, and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
+On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it to `prototype/first.html`, and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
 
 ## Write `docs/design/design-direction.md`
 
@@ -137,6 +143,9 @@ On their yes, read it back in one line, read its base's motion unless the brief'
 - motion: <what moves, trigger, ms, easing, within the brief's pick; or "none">
 - finish: <a pasteable recipe; or "none">
 
+## Principles
+- <three to five, as confirmed: what every screen of this design does>
+
 ## Hierarchy
 1. <first read> 2. <second> 3. <the rest>. Primary action: <what, where>.
 
@@ -157,6 +166,7 @@ No reference names, links or paths. Then the direction in up to five lines:
 
 - Rank the screens, or say which you prefer.
 - Add anything their board does not have, or anything they wrote to leave out.
+- Show a concept that drops the idea it develops, or copies its reference's layout.
 - Fit more text on a screen than its base carries.
 - Undo what they like because a check flagged it.
 - Take a reference's content, pictures or words.

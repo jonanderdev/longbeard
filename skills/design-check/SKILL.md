@@ -34,7 +34,7 @@ One line per finding, hard first:
 
 ## Order
 
-1. **Idea** (rule 0): cover the logo. Is it still this product? And, with `docs/design/design-brief.md` open: could it be mistaken for the kind of product its `apart from` names (a soft finding at distance 3, hard at 4–5, none at 1–2, where fitting in was the ask), and does it look like its `never`, or its never word (soft)?
+1. **Idea** (rule 0): cover the logo. Is it still this product? Does it keep every principle in `DESIGN.md` (the direction's, before it exists)? A broken principle comes before any soft rule: the principles are this product's, the soft rules a default. And, with `docs/design/design-brief.md` open: could it be mistaken for the kind of product its `apart from` names (a soft finding at distance 3, hard at 4–5, none at 1–2, where fitting in was the ask), and does it look like its `never`, or its never word (soft)?
 2. **Hard** checks, every section, then the site, app or graphics list from the brief's surface.
 3. **Soft** checks, then the tells (rule 14).
 

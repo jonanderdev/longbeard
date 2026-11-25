@@ -13,6 +13,9 @@ Figma: <file URL>. Figma is the truth for screens. This file is the rules behind
 <one sentence: what this product's look says>
 - ownable: <the one element made from the product's own identity, as approved on the prototype>
 
+## Principles
+- <three to five, from the direction, as the prototype proved them: what every screen of this design does>
+
 ## Voice
 - <three adjectives>
 - <one sample line, and one line it would never say>

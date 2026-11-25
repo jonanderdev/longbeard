@@ -111,7 +111,7 @@ So nobody asks again, and so each answer changes something:
 | takeaway | `design-direction` (what the screens carry, headlines), `design-content` |
 | first seen on | `design-direction` (the size the screens are built at) |
 | pace | `design` and every design skill: quick drops the optional stops |
-| words, personality, feel, never | `design-moodboard` (queries and picks), `design-families` (the sliders), `design-direction` (the against-the-brief column), `design-identity` (options and their notes) |
+| words, personality, feel, never | `design-moodboard` (queries and picks), `design-direction` (the against-the-brief column), `design-identity` (options and their notes) |
 | apart from, distance | `design-moodboard` (what to search and keep out), `design-direction` (the eye's check), `design-check` (could it be mistaken for one) |
 | fixed | the direction's library (`theirs` entries, dropped grounds), `design-identity` |
 | accessibility | every contrast check (`contrast.mjs --level`, `screen-contrast.mjs --min`), `DESIGN.md`, `design-check` |
@@ -124,7 +124,7 @@ So nobody asks again, and so each answer changes something:
 
 `pace: quick` asks the same questions (they take a minute, and everything after reads them) and changes what follows:
 
-- `design-moodboard`: their references as they are (three or more), or one search shown as one contact sheet of about 30, from which they name six to ten; no picker rounds, no gap search, no families.
+- `design-moodboard`: their references as they are (three or more), or one search shown as one contact sheet of about 30, from which they name six to ten; no picker rounds, no gap search, no grouping.
 - `design-direction`: subject pictures, one round of eight, more only if they ask.
 - `design-identity`: the chosen screen's type and colours become the identity as built, contrast-checked; no options, straight to the board.
 - `design-prototype`: as usual. Never quick on states or contrast.
