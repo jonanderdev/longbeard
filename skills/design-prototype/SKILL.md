@@ -90,7 +90,7 @@ Give the paths and every key screen on one sheet, desktop then phone (`sheet.mjs
 
 > Is this the product? Want options anywhere?
 
-**Options** only when asked: two to four layouts for that page from different references, on one sheet (`sheet.mjs`), never ranked. Iterate until it is the product.
+**Options** only when asked: two to four layouts for that page or part from different references, on the real page with its header, content and density, each a `data-variant` with `data-from` its reference, flipped with [variants.js](references/variants.js) (`?variant=<n>`, ← →); a sheet only to see them side by side. Never ranked. Iterate until it is the product.
 
 ### 5. Approve: write `DESIGN.md` in one go
 
@@ -119,7 +119,7 @@ Next: `design-figma`.
 A feature with screens, once `DESIGN.md` exists.
 
 - **Only existing parts:** compose the screens in Figma (`design-figma`) with their states; no prototype.
-- **New parts:** prototype only them, on the real screens around them, in `.longbeard/design/<feature>/`, in the frame, then the checks.
+- **New parts:** prototype only them, on the real screens around them, in `.longbeard/design/<feature>/`, in the frame, then the checks. Options for a part, when asked, are variants on that page, as in **Options** above.
 - `DESIGN.md` gets entries (a token, a component, a dated decision, an item to supply), never a rewrite; `tokens.mjs` refreshes the block.
 - **Identity changes need their own yes,** one at a time, rendered. A rebrand is `design-identity` again.
 

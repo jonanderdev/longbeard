@@ -1,10 +1,10 @@
 ---
 name: design-direction
 description: >
-  Find the direction: eight first screens. Six rebuild one of their
-  references faithfully with the product's real content and pictures, changed
-  by one or two things borrowed from their other references; two develop a
-  liked reference's concept, redrawn for this product. Nothing on a screen
+  Find the direction: eight first screens. Six adapt one of their references
+  to this product as a designer would (its essence kept, never a copy), with
+  one or two things borrowed from their other references; two develop a liked
+  reference's concept further, redrawn for this product. Nothing on a screen
   that is not on their board. One agent builds them, scripts check
   contrast and clipped text, and they pick on a rendered canvas, or ask for
   more or a mix. Writes docs/design/design-direction.md. Runs after
@@ -72,11 +72,13 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 Read [Before you build](references/design-floor.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
 - **Every screen does a first screen's job:** what this is, for whom, the one action. A reference that is not a first screen (a section from mid-page, an inner page, a poster) lends its system and its moves; what only works in its own role is left out.
-- **On a rebuild, one reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, at [rule 5](references/design-floor.md#5-typography)'s size floor.
+- **Every screen adapts its base, as a designer would, never copies it.** First its essence (the reading's `concept`: what it is, why it works). Keep that essence and its scene: the composition's logic, the proportions that make it work, the character of its type and colour. Then adapt the specifics to this client: their content and pictures, only the text its `slots` allow, and where the brief or the subject asks, a colour or face of the same character (another vibrant for a vibrant, a near cousin of the face from `fonts.mjs`). Sizes are scaled to this screen, at [rule 5](references/design-floor.md#5-typography)'s size floor. Two questions for every screen: would a designer call it the same idea (it must be yes), and would they call it a copy (it must be no)? A copy fails, and so does a screen that drifts from the idea.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
-- **Spread:** the lead is the base of two screens; four stand on one of their liked references each; two are **concepts**. With fewer than four likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
-- **A concept** develops one liked reference (the lead first, then the like with the clearest why) instead of rebuilding it. First write its `concept` in the reading as a designer would defend it: what it is, and why it works (the tension, the hierarchy, what does the work). Then redraw the arrangement for this product's content so that idea still does the work, with that reference's devices, type, colour and picture treatment. Before you check it, two questions: would a designer call it the same concept, and would they call it a copy? Either answer wrong: redraw. A screen with no concept behind it is not a concept: it is generic, and goes.
-- **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each; before the checks, go through the screen's CSS, and anything it cannot name goes.
+- **Never a collage.** A screen is its base and at most two moves, nothing more. The lead may set the round's tone, but its devices are moves like any other's: a device sits on its own reference's screens and on at most two others, so the eight stay eight different screens.
+- **Spread:** the lead is the base of two screens; four stand on one of their liked references each; two are **concepts**, each from a liked reference no other screen stands on. Eight screens, seven references: only with fewer than six likes does a reference take a second screen, the lead first, then the likes. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
+- **What they like is taken whole.** A liked reference's scene, and any device borrowed from it (a ring of text, a block of colour, prints laid on a table), keeps the form, the job and the space around it that it has there. It is never taken apart, restyled or given another job: a block of colour that is a ground does not become a button, a ring of text gets no extra line, pictures laid over each other stay far enough apart to read as separate pictures. A move changes where things sit, never what they are.
+- **A concept** goes further: it develops one liked reference that no other screen is built on (the like with the clearest why first) and redraws its arrangement. First write its `concept` in the reading as a designer would defend it: what it is, and why it works (the tension, the hierarchy, what does the work). Then redraw the arrangement for this product's content so that idea still does the work, with that reference's devices, type, colour and picture treatment. Before you check it, two questions: would a designer call it the same concept (it must be yes), and would they call it a copy (it must be no)? Either answer wrong: redraw. A screen with no concept behind it is not a concept: it is generic, and goes.
+- **Nothing off their board's character:** no face, colour, gradient, shadow, radius, button style or effect their references do not show in kind. An adapted colour or face keeps the role and energy of the one it replaces and comes from the board, the subject or the accent options. `PROVENANCE` names the reference for each, and what was adapted; before the checks, go through the screen's CSS, and anything it cannot name goes.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
 
@@ -98,7 +100,7 @@ node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/directio
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```
 
-Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
+Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself, beside the pictures of what it is made from (its base, each move's reference): as a designer would, check that every borrowed scene and device still reads as it does there, whole, with its job and its spacing. Fix what broke before you show it.
 
 **The floor, inside the concept** ([how they split](references/design-floor.md#how-to-use-this)). Text a person acts on must pass contrast and size, fixed with the screen's own colours or another crop, never by moving it off the picture. Display type over a picture, overlaps, crops and wide empty space are the look when a reference does them: never tidied away. A liked colour or size stays, its measure in `fault`. A finding left is theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
 
@@ -117,7 +119,7 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 - **More of 3:** three more on 3's base with other moves, in round 2.
 - **A mix** ("4 with 7's colours"): one screen.
 - **More:** a fresh round of eight, new pairings. After two rounds with nothing taken, ask once what is missing (`design-moodboard`).
-- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the screen with everything else kept, each from a reference that shows that part, in `screens.json` as `"of": <n>, "part": "<name>"`.
+- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the real screen, everything else kept, each from a reference that shows that part. **Options live on the page:** each version is an element with `data-variant="<n>"` and `data-from="<card name>"`, and the page loads [variants.js](references/variants.js) (copy it beside the page): `?variant=<n>` shows one, a small bar names its reference, and ← → flip between them. Capture each with `?variant=<n>&bar=0`, and record each in `screens.json` as `"of": <n>, "part": "<name>"`.
 
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 

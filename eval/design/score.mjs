@@ -159,7 +159,9 @@ else {
   const board = new Set([...(lib?.references || []).map((r) => r.name), ...boardNames]);
   // A source may carry a note after its name ("04-still-life (turned)", "subject (the brief: light only)").
   const known = (from) => [...board, "subject", "theirs"].some((name) => String(from || "").trim().startsWith(name));
-  const bad = built.list.filter((sc) => !known(sc.base) || !(sc.moves || []).length || (sc.moves || []).some((m) => !known(m.from))).map((sc) => sc.n);
+  // A concept develops its base's idea instead of adding moves: it names the idea it keeps.
+  const carries = (sc) => (sc.kind === "concept" ? Boolean(String(sc.idea || "").trim()) : (sc.moves || []).length > 0);
+  const bad = built.list.filter((sc) => !known(sc.base) || !carries(sc) || (sc.moves || []).some((m) => !known(m.from))).map((sc) => sc.n);
   check("screens: a base and moves from the board", true, built.list.length ? !bad.length : false, bad.length ? `screens ${bad.join(", ")} name no base, no move, or a source not on the board` : `${built.list.length} screens`);
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));

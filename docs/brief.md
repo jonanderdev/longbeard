@@ -36,7 +36,7 @@ no UI. An installer and a set of agent skills. The pages a person clicks (the pi
 
 ## Position
 - against: prompting an agent straight to a page; a hand-collected folder of skills
-- remembered for: you pick real references and say why you like each, and the agent rebuilds them with your content, develops the concepts you liked, and adds no style that is not on your board
+- remembered for: you pick real references and say why you like each, and the agent adapts them to your product as a designer would, never copying, develops the concepts you liked, and adds nothing off the character of your board
 - personality: wry, patient, exacting. Says: "It asks before it draws, and it draws before it codes." Never: "One prompt, a stunning page."
 
 ## Identity nouns

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Adapted, never copied.** Each first screen keeps its reference's essence and scene and adapts the specifics to your product, as a designer would: your content and pictures, the proportions they need, and where your brief or subject asks, a colour or face of the same character. Every screen must be the same idea and not a copy.
+- **Never a collage.** A screen is its base and at most two moves; the lead's devices (or any reference's) sit on at most two screens beyond its own, so the round does not paste the same pieces everywhere.
+- **Seven references in eight screens.** The two concepts come from likes no other screen stands on, so the first round spreads across your board instead of repeating a few references.
+- **Each screen beside its references.** Before the canvas, the direction looks at each screen beside the pictures it is made from, and fixes any scene or device that no longer reads as it does there.
+- **What you like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space it has there: never taken apart, restyled or given another job (a block of colour does not become a button).
+- **Options on the real page.** When you ask for versions of a part, or layouts for a page, they sit on the real screen, with its header, content and density, instead of a separate sheet. A small bar at the bottom names the reference each one comes from, and ← → flip between them; `?variant=2` links to one.
 - **Plan grills each flow first.** The Plan row is now `grilling → to-spec → to-tickets`, in one session: `to-spec` asks nothing and writes from the conversation, so a spec started cold had only the brief. `to-spec` still asks for `setup-matt-pocock-skills` when a repo has none.
 - **Build says what really runs.** The Build row is `implement-spec → design-check`: `implement-spec` already runs `tdd` on each ticket and `code-review` at the end, and `pr` writes the body whenever a PR is opened. Writes reads "red-green per slice", one test then its code, never all the tests first.
 - **Architecture ends with a stack ADR.** It starts when there is no stack ADR (not when there is no `GLOSSARY.md`, which is written only once a term is settled). `idea` and `design-figma` say what to grill when they offer `/grill-with-docs`: the stack, and the words the brief and the Figma screens use.
