@@ -24,15 +24,14 @@
 //
 // Prints one line per failing text: the text, its box, its colour, the
 // background where it is worst, the contrast (5th percentile and worst), and
-// the threshold. Then one "clipped" line per text cut off by a box that hides
-// its overflow (under 48px, not turned: a crop of display type is a device). Then one "not read" line per text it could not measure. The
+// the threshold. Then one "not read" line per text it could not measure. The
 // last line, on stderr, counts the texts and says how far down the page it looked.
 //   --size 1440x900, --wait-title ready (wait for the page to set its title),
 //   --level AA|AAA, --min 4.5, --large 3 (these two win over --level),
 //   --max-height 10000 (the most of the page, in px, to look at),
 //   --timeout 60 (seconds each browser call may take), --json
 //
-// Exit 0 when no text fails, 1 when a text fails or is clipped, 2 for a bad command line,
+// Exit 0 when no text fails, 1 when a text fails, 2 for a bad command line,
 // 3 when it could not run (no Chrome, the page would not open, a browser call
 // timed out). Chrome is closed and its profile removed on every exit, and on
 // SIGINT and SIGTERM.
@@ -279,24 +278,6 @@ async function main() {
     t.boxes.push(...boxes);
   }
   for (const [el, t] of byEl) t.cut = cut(el, t.boxes);
-  // Clipped: text cut off by a box that hides its overflow, or by the page's top. Display type (48px and up) cropped
-  // on purpose, text set on a curve or turned, and a band running off the screen's own left or right edge are devices.
-  for (const [el, t] of byEl) {
-    if (t.size >= 48) continue;
-    let turned = false, out = false;
-    for (let up = el; up && up.nodeType === 1 && !turned; up = up.parentElement) turned = /matrix|rotate/.test(getComputedStyle(up).transform) || Boolean(up.closest("svg"));
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    const rects = [...range.getClientRects()].filter((r) => r.width >= 1 && r.height >= 1);
-    for (let up = el; up && up !== document.body && !out && !turned; up = up.parentElement) {
-      const s = getComputedStyle(up);
-      if (s.overflowX === "visible" && s.overflowY === "visible") continue;
-      const b = up.getBoundingClientRect();
-      const left = b.left > 1, right = b.right < W - 1;
-      out = rects.some((r) => (left && r.left < b.left - 1) || (right && r.right > b.right + 1) || r.top < b.top - 1 || r.bottom > b.bottom + 1);
-    }
-    t.clipped = out || (!turned && rects.some((r) => r.top + scrollY < -1));
-  }
   // Kept for the mask shots below, which show one element at a time.
   window.__screenContrastEls = [...byEl.keys()];
   return [...byEl.values()];
@@ -435,15 +416,13 @@ async function main() {
   });
   const unread = texts.filter((t) => t.unread).map((t) => ({ text: said(t), box: boxOf(t), reason: t.unread }));
   const failing = rows.filter((r) => !r.pass);
-  const clippedTexts = texts.filter((t) => t.clipped).map((t) => ({ text: said(t), box: boxOf(t) }));
   const reach = looked >= total ? `all ${total} px of the page` : `the top ${looked} of ${total} px; the rest is not checked (--max-height)`;
-  if (json) console.log(JSON.stringify({ texts: rows, failing: failing.length, clipped: clippedTexts, unread, page: { height: total, looked, whole: looked >= total } }, null, 1));
+  if (json) console.log(JSON.stringify({ texts: rows, failing: failing.length, unread, page: { height: total, looked, whole: looked >= total } }, null, 1));
   else {
     for (const r of failing) console.log([`"${r.text}"`, `box ${r.box.join(",")}`, `text ${r.colour}`, `worst on ${r.background}`, `${r.p5}:1 (worst ${r.worst}:1)`, `needs ${r.need}:1${r.large ? " (large)" : ""}`].join("\t"));
-    for (const c of clippedTexts) console.log([`clipped: "${c.text}"`, `box ${c.box.join(",")}`, "cut off by its box"].join("\t"));
     for (const u of unread) console.log([`not read: "${u.text}"`, `box ${u.box.join(",")}`, u.reason].join("\t"));
   }
-  console.error(`screen-contrast: ${rows.length} texts, ${failing.length} under, ${clippedTexts.length} clipped, ${unread.length} not read; looked at ${reach}`);
-  process.exit(failing.length || clippedTexts.length ? FAILED : 0);
+  console.error(`screen-contrast: ${rows.length} texts, ${failing.length} under, ${unread.length} not read; looked at ${reach}`);
+  process.exit(failing.length ? FAILED : 0);
 }
 main().catch((e) => fail(e.message));

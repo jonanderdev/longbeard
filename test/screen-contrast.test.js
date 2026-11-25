@@ -95,7 +95,7 @@ test("screen-contrast: text filled by a clipped gradient is listed as not read, 
   if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
   assert.equal(r.status, 0, r.stderr + r.stdout);
   assert.match(r.stdout, /^not read: "Gradient name"/m);
-  assert.match(r.stderr, /1 texts, 0 under, 0 clipped, 1 not read/);
+  assert.match(r.stderr, /1 texts, 0 under, 1 not read/);
 });
 
 test("screen-contrast: the whole page is read, or the report says how far it looked", async (t) => {
@@ -165,21 +165,4 @@ test("screen-contrast: a clipped copy the colour of the disc under it still fail
   assert.equal(bad.status, 1, bad.stderr + bad.stdout);
   assert.match(bad.stdout, /"Order for pickup"\tbox [\d,]+\ttext #a9452b\tworst on #a9452b\t1:1/);
   assert.match(bad.stderr, /2 texts, 1 under/);
-});
-
-test("screen-contrast: text cut off by its box is clipped and fails; a crop of display type, or a band off the screen's edge, is not", async (t) => {
-  const [cut, crop] = await Promise.all([
-    run([page('<div style="margin:40px;width:60px;overflow:hidden;white-space:nowrap;font:16px sans-serif;color:#111">a line too long for its box</div>'), "--size", "800x400", "--json"]),
-    run([
-      page('<div style="width:300px;height:80px;overflow:hidden;font:700 120px sans-serif;color:#111">Bread</div><div style="width:800px;overflow:hidden;white-space:nowrap;font:16px sans-serif;color:#111">today today today today today today today today today today today today today today today today today today</div>'),
-      "--size",
-      "800x400",
-      "--json",
-    ]),
-  ]);
-  if (/No Chrome/.test(cut.stderr)) return t.skip("no Chrome installed");
-  assert.equal(cut.status, 1, cut.stderr);
-  assert.match(JSON.parse(cut.stdout).clipped[0].text, /a line too long/);
-  assert.equal(crop.status, 0, crop.stderr + crop.stdout);
-  assert.deepEqual(JSON.parse(crop.stdout).clipped, []);
 });

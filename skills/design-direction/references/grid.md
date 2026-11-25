@@ -78,11 +78,11 @@ Fix it until nothing listed is off without a reason. Then make the moves into `s
 **3. Check the round (you).**
 - **Not a copy:** one fresh judge sees every screen beside its base, as numbered thumbnails, and answers yes or no each: *can you tell them apart at a glance* (ground or accent, face, layout turned, a device added or gone, picture treatment)? A no gets another move and is rebuilt; the rebuilt ones go to one judge together.
 - **Spread** again, on what was built.
-- **Contrast and clipped text,** every screen; either blocks the canvas, except a liked colour kept with its warning in the screen's `fault` (the colour, "liked", and each ratio as the script printed it). Fixed with the screen's own colours, another crop, or room for the text:
+- **Contrast,** every screen; a failure blocks the canvas, except a liked colour with its warning. Fixed with the screen's own colours or another crop:
   ```
   node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
   ```
-- **Faults:** text under 12 px at 1440, a lone last word in a heading, a sentence twice.
+- **Faults:** a clipped word, text under 12 px at 1440, a lone last word in a heading, a sentence twice.
 - **Pictures:** `picture-cast.mjs` on the product's pictures; a cast or blown highlights the reference lacks means another picture.
 
 **Without fresh agents,** do each job yourself, one screen at a time from its brief alone; as critic, write the list from the prepared pictures before fixing anything. Say the round is weaker, in each screen's `fault` ("built and judged by one agent").
