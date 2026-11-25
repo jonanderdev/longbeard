@@ -23,6 +23,13 @@
 // checked, never chosen one by one: soft text, a hairline, the button's fill
 // and label, a picture tone, and status (ok, warn, error) on the ground.
 //   node colours.mjs --roles --ground "#3b2416" --ink "#d8b98c" --accent "#e8643c"
+//
+// --harmony: when the board shows no accent and they named none, the accents colour theory
+// offers from the board's primary: complementary, split-complementary (two), analogous (two),
+// each at the board's own lightness and chroma (the median of its coloured --family, else the
+// primary's), so a muted board gets a muted accent. Under 3:1 on the ground (4.5:1 at AAA) is
+// left out. Options, never a pick: they choose.
+//   node colours.mjs --harmony --primary "#2b4c7e" --ground "#f1ede4" --family "<board colours>"
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -31,6 +38,8 @@ const flag = (name) => {
 };
 const json = args.includes("--json");
 const rolesMode = args.includes("--roles");
+const harmonyMode = args.includes("--harmony");
+const primaryArg = flag("primary");
 const groundArg = flag("ground");
 const inkArg = flag("ink");
 const accentArg = flag("accent");
@@ -54,7 +63,12 @@ const hex6 = (v) => {
 const list = (v) => (v ? v.split(",").map(hex6).filter(Boolean) : []);
 const ground = hex6(groundArg);
 const ink = hex6(inkArg);
-if (!ground || !ink) {
+const primary = hex6(primaryArg);
+if (harmonyMode ? !ground || !primary : !ground || !ink) {
+  if (harmonyMode) {
+    console.error('usage: node colours.mjs --harmony --primary "#rrggbb" --ground "#rrggbb" [--family "#a,#b"] [--level AA|AAA] [--json]');
+    process.exit(2);
+  }
   console.error('usage: node colours.mjs --ground "#rrggbb" --ink "#rrggbb" [--accent "#rrggbb"] [--family "#a,#b"] [--theirs "#c"] [--level AA|AAA] [--json]');
   process.exit(2);
 }
@@ -115,6 +129,26 @@ const mix = (a, b, t) => {
   const dh = ((H2 - H1 + 540) % 360) - 180;
   return fromOklch([L1 + (L2 - L1) * t, C1 + (C2 - C1) * t, (H1 + dh * t + 360) % 360]);
 };
+if (harmonyMode) {
+  // The board's lightness and chroma: the median of its coloured colours, the primary among them.
+  const pool = [...new Set([primary, ...list(familyArg)])].map(oklch).filter(([, C]) => C >= 0.02);
+  const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor((s.length - 1) / 2)]; };
+  const [pL, pC, pH] = oklch(primary);
+  const L = pool.length ? median(pool.map((c) => c[0])) : pL;
+  const C = pool.length ? median(pool.map((c) => c[1])) : pC;
+  const kinds = [["complementary", 180], ["split-complementary", 150], ["split-complementary", 210], ["analogous", -30], ["analogous", 30]];
+  const rows = [], left = [];
+  for (const [label, turn] of kinds) {
+    const colour = fromOklch([L, C, (pH + turn + 360) % 360]);
+    const k = contrast(colour, ground);
+    if (k >= accentNeed) rows.push({ row: "accent", label, colour, contrast: cut(k) });
+    else left.push(`${label} ${colour} (${cut(k)}:1, under ${accentNeed}:1 on ${ground})`);
+  }
+  if (json) console.log(JSON.stringify({ rows, left }, null, 1));
+  else for (const r of rows) console.log([r.row, r.label, r.colour, r.contrast].join("\t"));
+  for (const l of left) console.error(`colours: left out ${l}`);
+  process.exit(0);
+}
 if (rolesMode) {
   const r1 = cut;
   const roles = [];
