@@ -36,7 +36,7 @@ Three or four pictures of what the product is about, not other designs: theirs, 
 
 ## 1. The content and the references, in one message
 
-**What a screen carries.** Only as much text as its base carries, filled in order: the headline (the takeaway), the primary action, the status (open now, in stock), the thing the product shows. The rest is listed for `design-prototype`.
+**What a screen carries.** Only as much text as its base carries (its reading's `slots`), filled in this order until they run out: the headline (the takeaway), the primary action, the status (open now, in stock), the thing the product shows. What does not fit waits for `design-prototype`, never squeezed in as one more line.
 
 **Headlines and the ownable.** Three or four headlines that say the takeaway outright, in the voice, and the ownable: one thing only this product would show (a stamp, a live count, a mark).
 
@@ -66,10 +66,10 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 
 Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
-- **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures.
+- **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, and no text is under 12px: a poster's tiny labels are not copied onto a page.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
 - **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
-- **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each.
+- **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each; before the checks, go through the screen's CSS, and anything it cannot name goes.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
 
@@ -91,7 +91,7 @@ node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/
 
 Fix a text that fails contrast with the screen's own colours or another crop, never by moving it off the picture. A liked colour stays, with its ratio in `fault`. Fix clipped text by setting it smaller within its role or cutting words. Act here only on `rules.mjs`'s clipped text and placeholder copy; targets, focus and labels are the prototype's, and a reference's small links stay. Look at each capture yourself.
 
-**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, said in `fault`, and theirs to decide.
+**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, and theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
 
 **Show the canvas:**
 

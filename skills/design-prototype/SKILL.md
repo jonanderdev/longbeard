@@ -78,7 +78,7 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 - **Drift** lists each face and colour no screen should have, and the type sizes, radii and spacing steps only one screen uses. Bring them to the frame's.
 - **Links:** every broken link, dead button and page with no way on is fixed. It also lists the stand-ins.
 
-**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them, one line each: they decide.
+**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them as a choice, one line each (what it costs, and what would fix it: keep, or change?): they decide.
 
 ### 4. Show it
 

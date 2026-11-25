@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Fixes from the pet-photographer run.** Direction screens set no text under 12px and carry only the text their base's `slots` allow (readings now count its text `blocks`). Every shadow, gradient or effect on a screen names its reference before the checks, or goes. A check that would undo the concept now reaches you as a choice ("keep, or change?") in the message, not only in the canvas. A sheet of screenshots in the prototype's folder is no longer counted as a dead-end page by `links.mjs`.
+
 ## 0.13.0 — 2026-11-25
 
 - **Build is test-first by default.** The router's Build row is now `implement-spec → tdd → design-check → pr`: each ticket's acceptance criteria become failing tests before its code. The old "Test-first, when asked" line is gone. Run `npx longbeard update` to get the new `AGENTS.md` block.
