@@ -10,15 +10,14 @@ A repeatable end-to-end run of the design skills, judged by the files it leaves 
 
 ## What is fixed
 
-- `fixture/docs/brief.md`: the product brief of a fictional bakery (Hearth Bakehouse), with key screens, flows, real content and an empty case.
-- `fixture/board/`: ten JPEGs, the person's moodboard folder. Each takes its composition, type, spacing and colour from a starred card on a real art-direction board, rebuilt with our own words, fictional names and CC0 photographs (credited in `CREDITS.md`). No original design or image is included: the pictures are the fixture.
-- `fixture/sources.json`: the fictional names on the board and the sites the person loves, which a committed doc must never carry.
+- `fixture/docs/brief.md`: the product brief of a fictional pet photographer (Ada Lund), with key screens, flows, real content and an empty case.
+- `fixture/board.json`: the person's moodboard, ten references from the owner's own taste library, each with its file name, a public picture link and its library id. The pictures are never committed: `board.mjs` fetches them once into `fixture/board/` (gitignored), from the link, else from the taste library (`LB_TASTE`, or `../longbeard-taste`). If a link dies and you have no taste library, the run says which picture is missing: put it in `fixture/board/` by hand, or run on your own board with `--fixture` (any folder with a `board/` of pictures, `docs/brief.md` and `answers.md`).
+- `fixture/sources.json`: the names that appear on the board and the sites the person loves, which a committed doc must never carry.
 - `fixture/answers.md`: the person's answer at every stop. A stop it does not cover is taken as "yes" and logged as **uncovered**.
-- `fixture/plain.md`: the content the screens carry, for the baseline.
-- `fixture/pictures/`: four CC0 photographs of the subject (credited in its `credits.tsv`). Every run's `pictures.mjs` hands these out instead of searching (`mock/pictures.mjs`), so every run designs with the same pictures and none waits on the network; `--live` runs the real search.
+- `fixture/plain.md`: the content the screens carry, for the baselines.
+- `fixture/pictures/`: five CC0 photographs of the subject, standing in for the photographer's own (credited in its `credits.tsv`). Every run's `pictures.mjs` hands these out instead of searching (`mock/pictures.mjs`), so every run designs with the same pictures and none waits on the network; `--live` runs the real search. A fixture folder with its own `pictures/` and `plain.md` uses those.
 - `fixture/readings/`: a run's design brief, moodboard, subject pictures and readings, frozen after design-direction step 2 (`freeze.mjs`): what the short run builds on. Pictures it shares with the board or `pictures/` are restored from there (`restore.json`).
 - `fixture/fonts/`: the faces those readings name, from Google Fonts, for the short run's offline Chrome.
-- `fixture-2/`: a second board of seven references, with its own `answers.md`, sharing the brief, so a run on it differs only in its references. `run.mjs --fixture eval/design/fixture-2` builds from it.
 
 ## Run
 
@@ -42,12 +41,12 @@ The agent is run with a time limit and a plain environment. `--timeout <minutes>
 `score.mjs` checks, hard unless marked soft:
 
 - every design doc and `DESIGN.md` is there; the design brief has every line, all seven scales, a distance and AA or AAA;
-- no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`. A name is matched as the board draws it (case and all) and as a whole word, so a name that is also a plain word (`calma`, `still practice`) trips only on the name itself, never on ordinary use;
+- no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`. A name is matched as the board draws it (case and all) and as a whole word, so a name that is also a plain word (`Mara` in `Marathon`) trips only on the name itself, never on ordinary use;
 - every screen has a base and moves from cards on the board, every reference is a base (soft), and a screen was chosen;
 - the identity's json block parses; `DESIGN.md` records the brief's accessibility level, and every contrast pair on its colour tokens passes at it;
 - `DESIGN.md`'s token block at the top agrees with its tables (`tokens.mjs --check`, from the project's installed skill): no block is a fail, and tables it cannot read leave the check `NOT RUN`;
 - a finished run lists its stand-ins (soft): `DESIGN.md` has a Still to supply section, and where `links.mjs` finds stand-ins in the prototype it is not the "Nothing" line. The walk needs Chrome, so with `--no-browser` only the section's being there is checked;
-- rendered (skipped with `--no-browser`): the chosen screen and every prototype page pass contrast; every prototype page has a way on and no broken link: a link, a form that submits to another page, or a button that navigates by script (`links.mjs` scans every page in the folder; whether a person reaches each key screen is the flow walks', not the score's);
+- rendered (skipped with `--no-browser`): the chosen screen and every prototype page pass contrast; every prototype page has a way on and no broken link: a link, a form that submits to another page, or a button that navigates by script (`links.mjs` scans every page in the folder; whether a person reaches each key screen is not scored);
 - the round's screens (`screens.mjs`): no text under 12px at 1440, no clipped text, contrast on every screen (a colour they liked, kept under the level with its warning and ratio in the screen's `fault`, is a soft warning, as the skill allows); no more text blocks than the base carries and one more (soft);
 - every screen has a `build` (quick or full) and a `state` in `screens.json`, a failed one with its why (soft);
 - the tells of a generic page in each screen's source (soft): gradient text, gradients of two hues, frosted glass, soft drop shadows, pills, a default face, a violet accent, tracked caps labels, emoji, stock marketing words. The colours are read as the screen renders with them: in its CSS, and in its `LOOK` object (where the template keeps them, named in the CSS as `var(--ground)` and the like). Emoji are the pictures; ©, ™, ® and arrows are not. Facts, not verdicts: a reference may use one on purpose;
@@ -69,5 +68,16 @@ node eval/design/score.mjs ../lb-eval --plain ../lb-plain
 - **The baseline:** the same product brief, design brief, pictures and content, built by an agent with no board and no skills, in a folder of its own: eight first screens. Keep one for a series of runs, so each round meets the same default.
 - **The blind sheet:** the round and the baseline shuffled into one sheet, numbered only (`.longbeard/eval/blind/sheet.png`, the key apart in `key.json`). The owner writes good, OK or bad beside each number in `marks.md`; the next score tallies the marks by set, and only then shows the baseline's tells.
 - **Sameness** (`--other <run on the other board>`, soft): faces, ground, ink, how empty, picture share and headline size, measured alike on both runs; screens from two boards should be no more alike than screens of one. `.longbeard/eval/sameness/closest.html` shows the closest pairs.
+
+## Against the same references in one prompt, blind
+
+Beating an agent with no board shows the board matters. It does not show the flow's steps do. For that, the second baseline gets everything the person gives the flow (the brief, the design-brief answers, the board with its lead, likes, whys and leave-outs, and the subject's pictures) in one prompt, with no skills, and builds every key screen.
+
+```
+node eval/design/run.mjs --out ../lb-refs --refs --agent 'claude -p {prompt}'
+node eval/design/compare.mjs --out ../lb-compare ../lb-refs ../lb-eval ../lb-quick
+```
+
+`compare.mjs` gives each run a letter at random and shows every key screen side by side, then each letter's screens as one set (`index.html`; the key apart in `key.json`). A step earns its place when leaving it out makes the result worse on the owner's blind picks: where the one-prompt baseline or a quick run comes as close as a full run, the steps between them did not earn their time.
 
 `test/eval-score.test.js` keeps the scorer honest: a hand-made good run passes every check; a leaked name, a gap in the brief, a failing pair, a screen with no move and a dead link each fail; a checker that crashes is not run and fails the run; the tells are found; the blind sheet is shuffled once and tallied by set.

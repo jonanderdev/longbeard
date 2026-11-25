@@ -802,61 +802,6 @@ test("picture-cast: a grey wall reads neutral, a pink-tinted one is a cast, a wh
   assert.equal(spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/picture-cast.mjs")], { encoding: "utf8" }).status, 2);
 });
 
-test("layout-diff: a reference and a screen are both required, and --out", () => {
-  const script = join(root, "skills/design-direction/scripts/layout-diff.mjs");
-  const r = spawnSync(process.execPath, [script, "a.png"], { encoding: "utf8" });
-  assert.equal(r.status, 2);
-  assert.match(r.stderr, /usage: node layout-diff\.mjs <reference picture> <screen capture> --out <folder>/);
-  assert.equal(spawnSync(process.execPath, [script, "a.png", "b.png"], { encoding: "utf8" }).status, 2, "no --out");
-});
-
-// A picture's width and height, read from its PNG header.
-const sizeOf = (file) => {
-  const b = readFileSync(file);
-  return [b.readUInt32BE(16), b.readUInt32BE(20)];
-};
-
-test("layout-diff: a tall reference is drawn on its first screen, and the pictures land beside diff.json from any folder", (t) => {
-  const dir = mkdtempSync(join(tmpdir(), "longbeard-layout-diff-"));
-  const elsewhere = join(dir, "elsewhere");
-  mkdirSync(elsewhere);
-  // A full page 1440 by 2700, a white first screen and red below it, against a 1440 by 900 screen.
-  const W = 1440, H = 2700;
-  const tall = new Uint8Array(W * H * 3);
-  for (let y = 900; y < H; y++) for (let x = 0; x < W; x++) tall.set([255, 0, 0], (y * W + x) * 3);
-  tall.fill(255, 0, W * 900 * 3);
-  writeFileSync(join(dir, "tall.png"), png(W, H, tall));
-  writeFileSync(join(dir, "screen.png"), png(W, 900, new Uint8Array(W * 900 * 3).fill(255)));
-  // Run from another folder with a relative --out: the pictures must still sit with diff.json.
-  const result = spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/layout-diff.mjs"), join(dir, "tall.png"), join(dir, "screen.png"), "--out", "result"], { encoding: "utf8", cwd: elsewhere });
-  if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
-  assert.equal(result.status, 0, result.stderr);
-  const report = JSON.parse(readFileSync(join(elsewhere, "result/diff.json"), "utf8"));
-  assert.equal(report.mirror, false);
-  assert.deepEqual(report.off, [], "the red below the first screen is not measured");
-  // The reference is cut to the first screen, so both pictures are 900 tall, not 2700.
-  assert.deepEqual(sizeOf(join(elsewhere, "result/side.png")), [W * 2 + 20, 900]);
-  assert.deepEqual(sizeOf(join(elsewhere, "result/overlay.png")), [W, 900]);
-});
-
-test("layout-diff: --mirror compares against the reference flipped", (t) => {
-  const dir = mkdtempSync(join(tmpdir(), "longbeard-layout-diff-mirror-"));
-  writeFileSync(join(dir, "reference.png"), typePicture());
-  writeFileSync(join(dir, "turned.png"), typePicture(true));
-  const run = (...extra) => spawnSync(process.execPath, [join(root, "skills/design-direction/scripts/layout-diff.mjs"), join(dir, "reference.png"), join(dir, "turned.png"), "--out", join(dir, extra.length ? "mirrored" : "plain"), ...extra], { encoding: "utf8" });
-  const plain = run();
-  if (/No Chrome/.test(plain.stderr)) return t.skip("no Chrome installed");
-  assert.equal(plain.status, 0, plain.stderr);
-  const mirrored = run("--mirror");
-  assert.equal(mirrored.status, 0, mirrored.stderr);
-  const read = (name) => JSON.parse(readFileSync(join(dir, name, "diff.json"), "utf8"));
-  assert.equal(read("plain").mirror, false);
-  assert.equal(read("mirrored").mirror, true);
-  assert.ok(read("plain").off.includes("headline box [x, y, w, h]"), "turned, its headline is far from the reference's");
-  assert.ok(!read("mirrored").off.includes("headline box [x, y, w, h]"), "against the flipped reference it is where it should be");
-  assert.ok(read("mirrored").off.length < read("plain").off.length);
-});
-
 test("measure: --profiles makes its folder, keeps what it measured when an input fails, and exits non-zero", async (t) => {
   const dir = mkdtempSync(join(tmpdir(), "longbeard-profiles-"));
   const shots = join(dir, "shots");

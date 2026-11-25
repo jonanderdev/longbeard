@@ -7,7 +7,7 @@
 //   node eval/design/run.mjs --out ../longbeard-eval                       builds the project, prints the command
 //   node eval/design/run.mjs --out ../longbeard-eval --agent "claude -p"   builds it and runs the agent there
 //   node eval/design/run.mjs --out ../longbeard-eval --pace quick          the quick path instead of full
-//   node eval/design/run.mjs --out ../longbeard-eval --fixture eval/design/fixture-2
+//   node eval/design/run.mjs --out ../longbeard-eval --fixture ../my-board
 //                                   another board: the fixture folder's board/, and its docs/ and
 //                                   answers.md where it has its own (else fixture/'s). The project
 //                                   records it, so score.mjs uses the same one.
@@ -24,6 +24,15 @@
 //                                   a fresh folder of its own, outside any run, so it sees nothing else; its
 //                                   screens are copied to --out/screens and captured. score.mjs --plain shuffles
 //                                   them unlabelled into a run's sheet for the owner to mark.
+//   node eval/design/run.mjs --out ../longbeard-eval --skills ../variant/skills --agent "claude -p"
+//                                   the design skills from another folder: a variant under test, beside a run of this repo's.
+//   node eval/design/run.mjs --out ../longbeard-method --refs --method --agent "claude -p"
+//                                   the same, with the flow's method in the prompt (method/METHOD.md): one agent, no skills,
+//                                   no helpers; it builds eight first screens, picks by the answers' rule, then the key screens.
+//   node eval/design/run.mjs --out ../longbeard-refs --refs --agent "claude -p"
+//                                   the baseline with references: the brief, the design-brief answers, the board
+//                                   with its lead, likes and whys, and the subject's pictures, in one prompt with no
+//                                   skills, building every key screen. compare.mjs puts it beside runs, blind.
 //
 // --agent is any shell command that works in the current folder and takes the prompt
 // where it says {prompt}, else as its last argument; quoting works. Put {prompt} first when the
@@ -42,6 +51,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { ensureBoard } from "./board.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // What --from never takes from a finished run: its screens, checks, messages, tools and eval files.
@@ -67,8 +77,19 @@ const pace = flag("pace", "full");
 const from = short ? join(here, "fixture/readings") : flag("from");
 const timeoutMinutes = Number(flag("timeout", short ? "30" : "180"));
 const extraEnv = flags("env");
+// --skills <folder>: the design skills from another folder (a variant under test) instead of this repo's.
+const skillsDir = resolve(flag("skills") || join(repo, "skills"));
 const plainAt = args.indexOf("--plain");
 const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
+const refsAt = args.indexOf("--refs");
+const refs = refsAt !== -1 && Boolean(args.splice(refsAt, 1));
+// --method: --refs, with the flow's method written into the prompt (method/METHOD.md): still one agent, no skills, no helpers.
+const methodAt = args.indexOf("--method");
+const method = methodAt !== -1 && Boolean(args.splice(methodAt, 1));
+// --lead <card>: a build-only run with another of the liked references as the lead (the old lead becomes a like).
+const leadArg = flag("lead");
+const likeAllAt = args.indexOf("--like-all");
+const likeAll = likeAllAt !== -1 && Boolean(args.splice(likeAllAt, 1));
 const liveAt = args.indexOf("--live");
 const live = liveAt !== -1 && Boolean(args.splice(liveAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
@@ -81,13 +102,16 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--plain] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
-if (!out || args.length || (short && plain) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--lead <card>] [--like-all] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || ((leadArg || likeAll) && !from) || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
 }
 const dir = resolve(out);
+ensureBoard(fixture, repo);
+// The short run builds on the default fixture's readings, whose pictures come from its board too.
+if (from) ensureBoard(join(here, "fixture"), repo);
 if (!existsSync(join(fixture, "board"))) {
   console.error(`run: ${fixture} has no board/ folder`);
   process.exit(2);
@@ -114,7 +138,7 @@ if (plain) {
   cpSync(join(src, "docs/brief.md"), join(work, "docs/brief.md"));
   cpSync(join(src, "docs/design/design-brief.md"), join(work, "docs/design-brief.md"));
   for (const f of readdirSync(pics).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(pics, f), join(work, "pictures", f));
-  cpSync(join(here, "fixture/plain.md"), join(work, "content.md"));
+  cpSync(fx("plain.md"), join(work, "content.md"));
   const brief = [
     "Design the first screen of the website for the product in docs/brief.md, following its design brief in docs/design-brief.md.",
     "Make eight different directions for that first screen, each as good as you can make it: screens/1.html to screens/8.html, each a self-contained page of plain HTML and CSS (web fonts are fine) designed for a 1440 by 900 window, using the photographs in pictures/ and exactly the content in content.md.",
@@ -136,14 +160,60 @@ if (plain) {
   process.exit(shots.length && !run.timedOut ? 0 : 1);
 }
 
+// --refs: the other baseline. Everything the person gives the flow, in one prompt and no skills: the product
+// brief, their design-brief answers, their board with the lead, likes, whys and leave-outs, and the subject's
+// pictures. It builds every key screen, so a run's prototype and this can be compared screen by screen
+// (compare.mjs). Where it comes close to the flow, the flow's extra steps did not earn their time.
+if (refs) {
+  const work = mkdtempSync(join(tmpdir(), method ? "method-" : "refs-"));
+  cpSync(fx("docs/brief.md"), join(work, "docs/brief.md"));
+  for (const f of readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg"))) cpSync(join(fixture, "board", f), join(work, "moodboard", f));
+  for (const f of readdirSync(fx("pictures")).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(fx("pictures"), f), join(work, "pictures", f));
+  const answersText = readFileSync(fx("answers.md"), "utf8");
+  const section = (name) => (answersText.split(/^## /m).find((s) => s.startsWith(`${name}\n`)) ?? "").replace(/^.*\n/, "").trim();
+  // What the person says about the look, as they would type it to an agent: the design brief's answers, then the board's notes.
+  const notes = [
+    "# What I want from the look",
+    "",
+    section("design-brief").split("\n").filter((l) => !/Pace:|Anyone else|Read-back|moodboard is the folder/.test(l)).join("\n"),
+    "",
+    "# My board (moodboard/)",
+    "",
+    section("design-direction").split("\n").filter((l) => /Lead:|What I like|^\s+- `/.test(l)).join("\n"),
+    "",
+    "Pictures of the subject (stand-ins, CC0) are in pictures/.",
+    ...(method ? ["", "# How I choose among the first screens", "", section("design-direction").split("\n").filter((l) => /The grid:/.test(l)).join("\n")] : []),
+  ].join("\n");
+  writeFileSync(join(work, "notes.md"), `${notes}\n`);
+  if (method) cpSync(join(here, "method/METHOD.md"), join(work, "METHOD.md"));
+  const keys = (readFileSync(fx("docs/brief.md"), "utf8").match(/## Key screens\n([\s\S]*?)\n## /)?.[1] ?? "").match(/^- (\w+):/gm)?.map((l) => l.slice(2, -1)) ?? [];
+  const brief = [
+    "Design the website for the product in docs/brief.md.",
+    "My references are the pictures in moodboard/, and notes.md says what I want from the look, which reference leads and what I like in each and why.",
+    `Build its key screens (${keys.join(", ")}) as screens/<name>.html, each a self-contained page of plain HTML and CSS (web fonts are fine) for a 1440-wide window, with real content from the brief and the photographs in pictures/.`,
+    method ? "Work the way METHOD.md says, step by step." : "Make it as good as you can: the screens should look like one product, built from my references.",
+    "Work alone in this folder; when every screen is written, stop.",
+  ].join(" ");
+  writeFileSync(join(work, "PROMPT.txt"), `${brief}\n`);
+  console.log(`baseline with references: ${work}\nrunning: ${agent} <prompt>`);
+  writeFileSync(join(work, "started.txt"), `${Date.now()}\n`);
+  const run = await runAgent(work, brief);
+  writeFileSync(join(work, "ended.txt"), `${Date.now()}\n`);
+  mkdirSync(dir, { recursive: true });
+  cpSync(work, dir, { recursive: true });
+  const made = keys.filter((k) => existsSync(join(dir, "screens", `${k}.html`)));
+  console.log(`agent ${run.timedOut ? `stopped after ${timeoutMinutes} minutes` : `exited ${run.status}`}; ${made.length} of ${keys.length} key screens in ${join(dir, "screens")}. Compare: node ${join(here, "compare.mjs")} --out <sheet folder> ${dir} <run> …`);
+  process.exit(made.length && !run.timedOut ? 0 : 1);
+}
+
 // The project: the brief, the answers, git, and the skills as an install would lay them out.
 mkdirSync(dir, { recursive: true });
 cpSync(fx("docs"), join(dir, "docs"), { recursive: true });
 const answers = readFileSync(fx("answers.md"), "utf8").replace(/^- 10\. Pace: full\..*$/m, `- 10. Pace: ${pace}.`);
 writeFileSync(join(dir, "answers.md"), answers);
-const skills = readdirSync(join(repo, "skills")).filter((name) => name === "design" || name.startsWith("design-"));
+const skills = readdirSync(skillsDir).filter((name) => name === "design" || name.startsWith("design-"));
 for (const folder of [".claude/skills", ".agents/skills"]) for (const name of skills) {
-  cpSync(join(repo, "skills", name), join(dir, folder, name), { recursive: true });
+  cpSync(join(skillsDir, name), join(dir, folder, name), { recursive: true });
   // The subject's pictures are the fixture's, never a search: same photographs every run, no network.
   if (!live && existsSync(join(dir, folder, name, "scripts/pictures.mjs"))) cpSync(join(here, "mock/pictures.mjs"), join(dir, folder, name, "scripts/pictures.mjs"));
 }
@@ -174,6 +244,54 @@ if (from) {
   // The fixture's readings keep no second copy of the fixture's pictures (freeze.mjs): put them back.
   if (existsSync(join(src, "restore.json"))) for (const [to, f] of Object.entries(JSON.parse(readFileSync(join(src, "restore.json"), "utf8")))) cpSync(join(here, f), join(dir, to));
 }
+// --like-all: every card on the board is liked, its own move and why as their words. --lead <card>: that card leads
+// and the old lead becomes a like. A liked card with no reading yet is read by the agent first (step 2, for it alone).
+let unread = [];
+if (leadArg || likeAll) {
+  const libPath = join(dir, ".longbeard/design/direction/library.json");
+  const lib = JSON.parse(readFileSync(libPath, "utf8"));
+  const old = lib.lead;
+  const read = new Set((lib.references ?? []).map((r) => r.name));
+  const boardPath = join(dir, ".longbeard/design/direction/board.md");
+  const text = readFileSync(boardPath, "utf8");
+  const cards = [...text.matchAll(/^### (.+)$/gm)].map((m) => m[1].trim()).filter((c) => c !== "subject");
+  const liked = new Set((text.match(/^- likes:\s*(.+)$/m)?.[1] ?? "").split(",").map((c) => c.trim()).filter(Boolean));
+  if (likeAll) for (const c of cards) if (c !== old) liked.add(c);
+  const lead = leadArg || old;
+  if (!cards.includes(lead) || (!liked.has(lead) && lead !== old)) {
+    console.error(`run: --lead ${lead} is not a liked card on the board (add --like-all to like every card)`);
+    process.exit(2);
+  }
+  liked.delete(lead);
+  if (lead !== old) liked.add(old);
+  lib.lead = lead;
+  for (const r of lib.references ?? []) r.role = r.name === lead ? "lead" : liked.has(r.name) ? "like" : r.role;
+  writeFileSync(libPath, `${JSON.stringify(lib, null, 2)}\n`);
+  unread = [lead, ...liked].filter((c) => !read.has(c));
+  const likes = [...liked].sort();
+  let card = "";
+  let hasLike = false;
+  const out = [];
+  for (const l of text.split("\n")) {
+    if (/^### /.test(l)) { card = l.slice(4).trim(); hasLike = false; }
+    if (l === "- lead: yes" || /^- not marked/.test(l)) continue;
+    if (/^- lead:/.test(l)) { out.push(`- lead: ${lead}`); continue; }
+    if (/^- likes:/.test(l)) { out.push(`- likes: ${likes.join(", ")}`); continue; }
+    if (/^- spread[^:]*:/.test(l)) { out.push(`- spread for step 3: ${lead} is the base of two screens; the other six each stand on a like; the subject lends moves, never a base.`); continue; }
+    if (/^- like:/.test(l)) hasLike = true;
+    out.push(l);
+    if (/^- part:/.test(l) && card === lead) out.push("- lead: yes");
+    // A newly liked card takes its own move and why as their words.
+    if (/^- why:/.test(l) && unread.includes(card) && !hasLike) {
+      const move = text.split(`### ${card}`)[1]?.match(/^- move:\s*(.+)$/m)?.[1];
+      if (move) out.push(`- like: ${move}`, `- why-they: ${l.replace(/^- why:\s*/, "")}`);
+    }
+  }
+  writeFileSync(boardPath, out.join("\n"));
+  const ans = readFileSync(join(dir, "answers.md"), "utf8").split("\n").map((l) => (/^- Lead:/.test(l) ? `- Lead: \`${lead}\`. Likes: ${likes.map((c) => `\`${c}\``).join(", ")}.` : l));
+  writeFileSync(join(dir, "answers.md"), ans.join("\n"));
+  console.log(`lead: ${lead} (was ${old}); likes: ${likes.join(", ")}${unread.length ? `; to read first: ${unread.join(", ")}` : ""}`);
+}
 // Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
 writeFileSync(join(dir, ".longbeard/eval/fixture.txt"), `${fixture}\n`);
@@ -196,7 +314,7 @@ if (short) {
 const helpers = "Ending your turn ends the run: wait for every helper you start to finish, and never end while one is still working.";
 const prompt = from ? [
   "This project's design flow has been run up to design-direction step 2: the design brief, the moodboard, the pictures and the readings (`.longbeard/design/direction/library.json`) are done, and the person's answers so far are in answers.md.",
-  "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
+  unread.length ? `Some liked references have no reading yet (${unread.join(", ")}): read those, and only those, as step 2 says, into library.json; then continue design-direction from step 3, following the skill exactly as written. Do not read the other references again or search for pictures.` : "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
   "Stop when you would show the person the first round's sheet of screens (after its checks): write the sheet, then end, going no further.",
@@ -231,7 +349,7 @@ function agentEnv(text) {
   // background: the prototype's workers were lost that way. Helpers run in the foreground here.
   delete env.CLAUDE_AUTO_BACKGROUND_TASKS;
   env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS = "1";
-  env.LB_EVAL_PICTURES = join(here, "fixture/pictures");
+  env.LB_EVAL_PICTURES = fx("pictures");
   env.LB_PROMPT = text;
   return env;
 }

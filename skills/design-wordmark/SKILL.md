@@ -28,9 +28,13 @@ Comes out: the chosen mark as SVG in `docs/design/wordmark.svg`, a section in `d
 
 Read the identity, the brief's name and identity nouns, and the design brief's personality.
 
+## 0. Marks they like
+
+Ask once which marks they like and why: the cards on their board that show a mark, to pick from, or, when there are none, a search for marks (`design-moodboard`'s one piece). "None, just the name" is a fine answer. A liked mark lends only the kind of device (a cut, a ligature, a case, a rule); its letterforms and shapes never.
+
 ## 1. Marks, one sheet
 
-Four to six marks, each a small HTML page in `.longbeard/design/wordmark/`, made only from the identity's faces and colours and devices that belong to them: a cut, a ligature, a case, a rule, a shape, the accent. One of them is the name set plainly in the display face, so not making a mark is a choice too. Never a stock icon, a generic symbol, or anything from a reference.
+Four to six marks, each a small HTML page in `.longbeard/design/wordmark/`, made only from the identity's faces and colours and devices that belong to them: a cut, a ligature, a case, a rule, a shape, the accent. One of them is the name set plainly in the display face, so not making a mark is a choice too. Never a stock icon, a generic symbol, or a reference's letterforms or shapes; a kind of device they liked in step 0 is fine.
 
 Each is shown where the name actually sits in the chosen screen (`.longbeard/design/direction/prototype/first.html`), at that size and on that ground, and once large on its own. Where the chosen screen does not show the name at all, that stays so: the mark is for the places that do (the navigation, the tab, the favicon). Capture them and set them on one sheet:
 

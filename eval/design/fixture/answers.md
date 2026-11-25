@@ -6,15 +6,15 @@ You are running the design flow for someone who is away. When a skill asks them 
 - Each next step it suggests: yes, run it.
 
 ## design-brief
-- 1. Think: "a real neighbourhood bakery, and today's bread is still there". Do: order a loaf for pickup. Mostly seen on a desktop.
-- 2. Warm, honest, exact. Never: fussy.
-- 3. loud 2, picture-led 4, rich 2, cool 1, playful 2, new 4, dense 2.
-- 4. Like the shop at 7am: flour in the air, the chalkboard. Never: glossy chain-store, stock-photo smiles. We tried a template site with a carousel; nobody found the order button.
-- 5. We love Field Notes Press and the Tidewater Journal. (Fictional names: they must never appear in the committed docs.)
-- 6. Apart from supermarket bakery counters and delivery apps. Distance 4.
-- 7. A new brand. We own nothing yet. Light only. No pictures of our own yet. English. AA.
-- 8. Motion: quiet; driven by time; smooth character on everything; no moments; no link.
-- 9. Our moodboard is the folder `moodboard/` in this project.
+- 1. Think: "she sees my dog the way I do". Do: book a session. Mostly seen on a desktop.
+- 2. Warm, observant, unfussy. Never: cute.
+- 3. loud 3, picture-led 5, rich 2, cool 2, playful 2, new 4, dense 2.
+- 4. Like a photo book on a coffee table: big pictures, a name, a line of text. Never: paw-print clip art, pastel pet-shop colours, studio backdrops. My old site was a template with a slider; people only ever messaged me.
+- 5. I love Søren Vik Studio and Linnea Hart's site. (Fictional names: they must never appear in the committed docs.)
+- 6. Apart from pet-shop and vet-clinic sites, and studio pet photographers. Distance 4.
+- 7. A new name. I own nothing yet but the pictures, and the ones here are stand-ins until I swap in mine. Light only. English. AA.
+- 8. Motion: quiet; on scroll; smooth character on everything; no moments; no link.
+- 9. My moodboard is the folder `moodboard/` in this project.
 - 10. Pace: full. (In a quick run, `run.mjs --pace quick` rewrites this line to quick.)
 - Anyone else: only me.
 - Read-back: yes.
@@ -24,30 +24,30 @@ You are running the design flow for someone who is away. When a skill asks them 
 - Anything wrong in how you read it: no, that's right.
 
 ## design-direction
-- Pictures: none of ours; stand-ins of our own subject are fine.
+- Pictures: none of mine in this project; stand-ins of the subject are fine.
 - Headline: take the first you offer.
-- Lead: `01-arch-poster`. Likes: `03-dot-editorial`, `04-still-life`, `05-orange-block`, `08-dark-arches`, `09-teal-window`, `10-arch-portrait`.
-- What I like in each (the board's notes):
-  - `01-arch-poster`: the photo in a tall arch with the text set around it: it frames one thing and makes the page feel like a calm room. The terracotta on stone: warm without shouting.
-  - `03-dot-editorial`: the orange disc as the only button: the one spot of contrast on a quiet page, so the eye goes straight to it. The black-and-white photos at different heights: they feel like a contact sheet, unposed.
-  - `04-still-life`: the big orange disc the tall condensed title crosses: the title and the shape fight a little, which makes it alive. The title broken top and bottom: it frames the page.
-  - `05-orange-block`: the photo straddling the seam between the light panel and the dark band: it ties two halves together. The red strip: a hard edge of colour at the side, not in the middle of things.
-  - `08-dark-arches`: the thin elegant serif in gold on deep green: it feels slow and crafted, like a shop sign.
-  - `09-teal-window`: the rounded photo window with small mono text in its four corners: the picture is the page, and the text only labels it.
-  - `10-arch-portrait`: the headline running over the arch's edge: words and picture belong together. The airy, thin, high-contrast serif: light and confident.
-- The grid: take the lowest-numbered screen on a light warm ground; if none, number 1. No more, no mix.
-- Touch-up: keep all.
-- Five-second check with people: no thanks.
+- Lead: `01-giant-serif-name`. Likes: `02-split-story`, `03-name-over-strip`, `04-face-and-orange`, `05-scattered-prints`, `06-framed-script`, `07-name-collage`, `08-thin-number`, `09-contact-grid`, `10-red-vertical-name`.
+- What I like in each:
+  - `01-giant-serif-name`: the name in a huge thin serif across the whole page, with one small picture crossing it: the name is the poster, and the picture sits on it like a print on a table.
+  - `02-split-story`: a short story in serif on a warm panel, beside a big close photo: it reads like the first page of a book.
+  - `03-name-over-strip`: the name centred in serif above a row of pictures of different widths: calm, like a gallery header.
+  - `04-face-and-orange`: a face filling the page with the name across it, and one orange block: the close-up makes it personal, the orange is the only loud thing.
+  - `05-scattered-prints`: a few prints dropped at angles over a big red serif word: playful without being cute, like photos on a desk.
+  - `06-framed-script`: one framed picture on a calm ground with a thin script line drawn through the page: quiet, and the line leads the eye.
+  - `07-name-collage`: pictures overlapping with the name set over them: lively, a whole session at a glance.
+  - `08-thin-number`: thin tall type, small pictures and one big number: airy, with a sense of order.
+  - `09-contact-grid`: black-and-white pictures in a tight grid, like a contact sheet: honest, it shows the work as it was shot.
+  - `10-red-vertical-name`: the red name running down the side, with prints scattered beside it: the name frames the page.
+- The grid: take the lowest-numbered screen on a light ground; if none, number 1. No more, no mix.
 - Change anything, or take it into the identity: take it into the identity.
 
 ## design-identity
 - Type 1, colours 1. Refinement: go. The board: yes.
 
 ## design-prototype
-- Spacing: as built.
 - The list of screens: fine as it is.
-- Options at forks: no, build what follows the first screen.
-- Five-second check with people: no thanks.
+- A part no reference shows (the booking form, the footer): take it from the chosen screen's own system; no search.
+- Options: no.
 - Is this the product: yes. Write DESIGN.md: yes.
 
 ## design-figma

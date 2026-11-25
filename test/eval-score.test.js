@@ -67,7 +67,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - Nothing: every picture and fact is theirs.
 `,
   ".longbeard/design/direction/library.json": JSON.stringify({ references: [{ name: "a", slots: { small: 1 } }, { name: "b", slots: { small: 2 } }] }),
-  ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }], build: "full", state: "fixed" }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }], build: "quick", state: "built" }], chosen: 1 }),
+  ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [{ what: "the face", from: "b" }], state: "built" }, { n: 2, base: "b", moves: [{ what: "a palette", from: "subject" }], state: "built" }], chosen: 1 }),
   ".longbeard/design/direction/screens/1.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Bread, still warm</h1><p>Order a loaf</p><script>document.title="ready"</script></body>',
   ".longbeard/design/direction/screens/2.html": '<body style="background:#f6f1e7;color:#2c2824;font:16px serif"><h1>Today\'s bread</h1><script>document.title="ready"</script></body>',
   ".longbeard/design/direction/prototype/first.html": '<body style="background:#f6f1e7;color:#2c2824"><h1>Bread, still warm</h1><script>document.title="ready"</script></body>',
@@ -121,7 +121,7 @@ test("eval score: a good run passes every hard check", async () => {
 // A run with a leaked source, a gap in the brief, a failing pair and a screen with no move.
 const bad = {
   ...good,
-  "docs/design/design-moodboard.md": "# Moodboard\n\nLike Halden Design Week's poster; see .longbeard/design/moodboard/refs/01-arch-poster.png\n",
+  "docs/design/design-moodboard.md": "# Moodboard\n\nLike Clara Nebeling's page; see .longbeard/design/moodboard/refs/01-giant-serif-name.png\n",
   "docs/design/design-brief.md": good["docs/design/design-brief.md"].replace("- accessibility: AA\n", "").replace("playful 2 · ", ""),
   "DESIGN.md": good["DESIGN.md"].replace("| color/ink | #2c2824 |", "| color/ink | #b8b2a8 |"),
   ".longbeard/design/direction/screens.json": JSON.stringify({ screens: [{ n: 1, base: "a", moves: [] }], chosen: 1 }),
@@ -133,7 +133,7 @@ test("eval score: a leaked source, a gap in the brief, a failing pair and a scre
   assert.equal(result.status, 1);
   const results = byId(result.stdout);
   assert.equal(results["no source in the docs"].status, "FAIL");
-  assert.match(results["no source in the docs"].detail, /Halden Design Week/);
+  assert.match(results["no source in the docs"].detail, /Clara Nebeling/);
   assert.match(results["no source in the docs"].detail, /\.longbeard\//);
   assert.equal(results["design brief complete"].status, "FAIL");
   assert.match(results["design brief complete"].detail, /no accessibility.*personality lacks playful/);
@@ -266,20 +266,19 @@ test("eval score: without Chrome the rendering checks are not run, and the hard 
 test("eval score: the fixture is found from any checkout, and a name that is also a plain word does not trip on plain usage", () => {
   const dir = project({
     ...good,
-    // The second board's names, written by a run made from another checkout.
-    ".longbeard/eval/fixture.txt": "/somewhere/else/longbeard/eval/design/fixture-2\n",
-    "docs/design/design-moodboard.md": "# Moodboard\n\nA quiet serif face, a calma in the layout, still practice and studio field work, in the field; the studio is still.\n",
+    // The fixture's names, written by a run made from another checkout.
+    ".longbeard/eval/fixture.txt": "/somewhere/else/longbeard/eval/design/fixture\n",
+    "docs/design/design-moodboard.md": "# Moodboard\n\nA marathon of sessions, a thin serif, the name across the page.\n",
   });
   let results = byId(run(dir, "--no-browser").stdout);
   assert.equal(results["no source in the docs"].status, "PASS", results["no source in the docs"].detail);
   // The names as the board draws them still trip, on whole words only.
-  writeFileSync(join(dir, "docs/design/design-moodboard.md"), "# Moodboard\n\nSet in Quiet Serif, as Halvora does; Calma's arch. Not Halvorak, nor Recalma.\n");
+  writeFileSync(join(dir, "docs/design/design-moodboard.md"), "# Moodboard\n\nSet like Mara's page, and Livanda's face. Not Maras, nor Livandas.\n");
   results = byId(run(dir, "--no-browser").stdout);
   assert.equal(results["no source in the docs"].status, "FAIL");
-  assert.match(results["no source in the docs"].detail, /Quiet Serif/);
-  assert.match(results["no source in the docs"].detail, /Halvora(?!k)/);
-  assert.match(results["no source in the docs"].detail, /Calma/);
-  assert.doesNotMatch(results["no source in the docs"].detail, /Halvorak|Recalma/);
+  assert.match(results["no source in the docs"].detail, /Mara(?!s)/);
+  assert.match(results["no source in the docs"].detail, /Livanda(?!s)/);
+  assert.doesNotMatch(results["no source in the docs"].detail, /Maras|Livandas/);
 });
 
 test("eval score: a fixture that cannot be found at all is a check not run, never a pass", () => {

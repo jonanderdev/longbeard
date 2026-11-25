@@ -1,6 +1,6 @@
 # Direction for a graphic
 
-Read when the product brief's surface is a graphic. Everything in `SKILL.md` and its references holds except what is said here. A piece counts as a screen wherever a skill says screen, and the eight screens are eight pieces.
+Read when the product brief's surface is a graphic. Everything in `SKILL.md` holds except what is said here. A piece counts as a screen wherever a skill says screen, and the eight screens are eight pieces.
 
 ## The size
 
@@ -8,8 +8,8 @@ The size is the format in `docs/brief.md`, never phone or desktop. The design br
 
 - **On screen:** the pixels the format gives.
 - **In print:** the paper's ratio, at a working width of 1200 px (A3 portrait is 1200 × 1697). Figma carries the real size later.
-- **Build at it:** each screen is built at `?size=<width>x<height>`, and the page's own default size is set to the format, so every later capture is the whole piece. `grid.md`'s "px at 1440" means px at this working width, and every measure stays a share of the piece's width and height.
-- **Capture at it.** Every `--clip 0,0,1440,900` in `grid.md` is `--width <w> --clip 0,0,<w>,<h>` at this size, whole piece, never its top half. On the canvas a tall piece shows whole, at its own proportions; look at it before showing it.
+- **Build at it:** each screen is built at `?size=<width>x<height>`, and the page's own default size is set to the format, so every later capture is the whole piece. "1440 by 900" means this working size, and every measure stays a share of the piece's width and height.
+- **Capture at it.** Every `--clip 0,0,1440,900` is `--width <w> --clip 0,0,<w>,<h>` at this size, whole piece, never its top half. On the canvas a tall piece shows whole, at its own proportions; look at it before showing it.
 - **A reference of another proportion** (a wide poster for a tall brief) is a base only if its layout survives at the format's ratio, with each measure kept as a share of its own sides. Otherwise it lends moves and is never a base.
 
 ## What the pieces carry
@@ -20,10 +20,9 @@ The size is the format in `docs/brief.md`, never phone or desktop. The design br
 - **No navigation.** The direction doc says `navigation: none`.
 - **The rest** (the second language, the small print, other sizes of a set) is written down for `design-prototype`.
 
-## Steps that do not run
+## Checks and the trim
 
-- **The other width, before the yes:** skipped. A set's other sizes are `design-prototype`'s.
-- **Touch-up:** the same rule, repair and never tidy. Contrast where text sits is fixed; so is a fact the brief gives that is not on the piece, added where the facts sit. Text over a picture, giant type, crops, overlaps and collisions are never faults here, and type cropped by the edge on purpose carries `data-crop`.
+- **Checks:** the same rule, a check reports and the concept wins. Contrast where text sits is fixed; so is a fact the brief gives that is not on the piece, added where the facts sit. Text over a picture, giant type, crops, overlaps and collisions are never faults here, and type cropped by the edge on purpose carries `data-crop`.
 - **Nothing important in the trim:** on a print piece, mark where the trim and a safe margin fall at the working size (3 mm each by default, theirs if they give one). A word or a fact in the trim is a fault. A crop or a picture that runs off the edge on purpose is not.
 
 ## The doc

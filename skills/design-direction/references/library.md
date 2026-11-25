@@ -55,7 +55,7 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast`).
 
 - **`likes`:** their words from the board's note (or the card's `like:`). What they like is what the designs borrow; why is how it is used, and where it would be wrong.
 - **`avoid`:** their words from the board's Leave out box (or the card's `avoid:`). Never on a screen built on it, never borrowed from it; the reading still records it (in `devices`, `palette`, wherever it sits), so the rebuild knows what to drop. Empty when they wrote nothing.
-- **`concept` and `move`:** what must survive every change; the critic and the not-a-copy check judge on them.
+- **`concept` and `move`:** what must survive every change; a screen built on it keeps them.
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. Type sizes are the reference's against its screen: a 96 px headline on a 1440 screen stays 96 px.
 - **`palette`:** the colours as they work together. A palette is borrowed whole, or one colour they did not name is swapped for another of the same role. Never one colour picked out of it by itself.
 - **`pictures`:** the treatment the product's pictures get on a screen built from it.

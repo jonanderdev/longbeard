@@ -63,7 +63,9 @@ const fixture = recorded ? (existsSync(recorded) ? recorded : join(here, recorde
 let sources = [], boardNames = [], fixtureError = "";
 try {
   sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
-  boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
+  // A fixture whose pictures are fetched (board.json) names them there, fetched or not.
+  const files = existsSync(join(fixture, "board.json")) ? JSON.parse(readFileSync(join(fixture, "board.json"), "utf8")).map((r) => r.file) : readdirSync(join(fixture, "board"));
+  boardNames = files.filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 } catch (e) {
   fixtureError = `the fixture ${recorded || fixture} could not be read: ${e.message}`;
 }
@@ -75,7 +77,7 @@ const node = (file, list) => spawnSync(process.execPath, [file, ...list], { enco
 const results = [];
 // A first-round run (run.mjs --from or --short) stops at the first sheet: what comes after it is not its to have.
 const firstRound = existsSync(at(".longbeard/eval/first-round.txt"));
-const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|five-second|still to supply)/i;
+const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|still to supply)/i;
 const skipLater = (id) => firstRound && later.test(id) && (results.push({ id, hard: false, status: "SKIP", detail: "a first-round run" }), true);
 const check = (id, hard, ok, detail = "") => skipLater(id) || results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
 // A check that could not run: not counted in the score, and a hard one fails the run.
@@ -162,8 +164,8 @@ else {
   const bases = new Set(built.list.map((sc) => sc.base));
   const missed = (lib?.references || []).map((r) => r.name).filter((n) => !bases.has(n));
   check("screens: every reference a base", false, !missed.length, missed.join(", "));
-  const unstated = built.list.filter((sc) => !/^(built|critiqued|fixed|failed)$/.test(sc.state || "") || !/^(quick|full)$/.test(sc.build || "") || (sc.state === "failed" && !sc.failure) || (sc.build === "full" && sc.state === "built")).map((sc) => sc.n);
-  check("screens: every screen has a recorded state", false, built.list.length ? !unstated.length : false, unstated.length ? `screens ${unstated.join(", ")} have no state, no build, a failure with no why, or a full build that never ended` : "");
+  const unstated = built.list.filter((sc) => !/^(built|failed)$/.test(sc.state || "") || (sc.state === "failed" && !sc.failure)).map((sc) => sc.n);
+  check("screens: every screen has a recorded state", false, built.list.length ? !unstated.length : false, unstated.length ? `screens ${unstated.join(", ")} have no state, or a failure with no why` : "");
   check("screens: one chosen", true, built.chosen != null || existsSync(at(".longbeard/design/direction/prototype/first.html")), built.chosen != null ? `#${built.chosen}` : "no chosen screen");
 }
 
@@ -175,11 +177,6 @@ else {
 }
 
 // ------------------------------------------------------------------ the direction and identity docs
-// The five-second check runs once, in design-prototype, and DESIGN.md records it. An older run kept it in the direction doc.
-{
-  const five = (read("DESIGN.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || (read("docs/design/design-direction.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || "";
-  if (read("DESIGN.md") || five) check("five-second check run", false, Boolean(five) && !/not run/i.test(five), five || "no five seconds line in DESIGN.md");
-}
 const identity = read("docs/design/design-identity.md");
 if (identity) {
   const block = identity.match(/```json identity\s*\n([\s\S]*?)```/)?.[1];

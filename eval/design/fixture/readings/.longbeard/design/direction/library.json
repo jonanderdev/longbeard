@@ -1,224 +1,233 @@
 {
-  "product": "Hearth Bakehouse",
-  "built_at": 1440,
-  "notes": [
-    "Every reference is a picture (no live page), so type and colour are measured with measure.mjs --lines and fonts.mjs --shape; raw readings in .longbeard/design/direction/measure/<name>.json. Faces were set beside their reference in .longbeard/design/direction/faces.jpg and the one plainly of its kind taken.",
-    "Presentation frames: 03, 04, 05 and 08 are mock-ups on a backdrop; measure.mjs read the backdrop as the ground for 03 (#dddddd), 04 (#2a2a2a) and 05 (#e1e3e2). The page grounds below are read by eye inside the frame.",
-    "Light only (design brief): 08-dark-arches' deep-green page and 04-still-life's black photo half are not borrowable as page grounds; the references stay.",
-    "Motion is recorded only for the lead and for references a pick is built on; every reference is a still, so motion is 'not seen' throughout."
-  ],
-  "lead": "01-arch-poster",
-  "references": [
-    {
-      "name": "01-arch-poster",
-      "role": "lead",
-      "likes": [
-        { "what": "the photo in a tall arch with the text set around it", "why": "it frames one thing and makes the page feel like a calm room" },
-        { "what": "the terracotta on stone", "why": "warm without shouting" }
-      ],
-      "avoid": [],
-      "concept": "One picture held in a tall arch at the centre of an almost empty stone-coloured page; every word is set around it in one warm terracotta, so the page reads as a calm room with one window.",
-      "move": "a photo in a tall round-topped arch, centred, with the words set around it: a paragraph above, vertical lines at both sides, small blocks below",
-      "layout": "Portrait poster (1650 x 2445). Margins about 9% each side. A centred paragraph of three lines across the top (box x 9-88%, y 6-14%), centred. The arch: x 31-71% (40% of the width), y 21-66% (45% of the height), round top, square bottom, no border. Vertical text, rotated, at x 14% (reading down) and x 85% (reading up), centred on the arch's height. Foot: three small blocks at y 85-94%: left (hours) at x 14-26%, a ring with the name at the centre x 43-57%, right (address) at x 72-90%, all centred text. 81% of the page is empty ground. Nothing overlaps or runs off. At 1440 wide (landscape) the arch keeps 40% of the height share and the surround keeps its four sides: words above, both sides vertical, small blocks below.",
-      "type": {
-        "display": { "face": "Jost", "by": "eye", "stand-in": true, "kind": "sans", "size": 41, "weight": 500, "case": "none", "tracking": "0.03em", "leading": 1.4, "lines": 3, "note": "a geometric sans with loose tracking; fonts.mjs's top three (Sono, Atkinson Hyperlegible Mono, Trispace) are monospaced, plainly not its kind, because the measured width (0.64) includes the tracking. Jost read by eye as the nearest of its kind." },
-        "vertical": { "face": "Jost", "size": 42, "weight": 300, "case": "none", "tracking": "0.02em" },
-        "small": { "face": "Jost", "size": 20, "weight": 500, "case": "none, with dates in uppercase", "tracking": "0.04em", "leading": 1.5 },
-        "mark": { "face": "a light high-contrast serif in caps inside a thin ring", "size": 26, "by": "eye" },
-        "scale": 2.1
-      },
-      "spacing": "At 1440: margin about 130px; the paragraph sits about 90px from the top; about 120px between the paragraph and the arch; the vertical lines sit about 140px clear of the arch; the foot blocks sit about 110px below the arch with 4px between their lines.",
-      "palette": { "ground": "#e7e4df", "ink": "#cf5b3d", "accent": null, "more": { "picture tone": "#cc9966" } },
-      "pictures": "One photograph, toned warm sepia (a single warm hue, no greys), cropped to a tall round-topped arch, about 18% of the page; a calm, symmetrical subject with depth.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 38, "lines": 3 }, "small": 4, "pictures": 1, "note": "the 'headline' here is a calm paragraph, not a big title; the vertical lines are the name and the date" },
-      "devices": ["round-topped arch frame", "vertical text at both sides", "thin terracotta ring holding the name", "centred symmetrical setting"],
-      "measured": { "empty": 81, "pictures": 6.3, "radius": "arch: full semicircle on top, 0 at the foot" }
-    },
-    {
-      "name": "03-dot-editorial",
-      "role": "like",
-      "likes": [
-        { "what": "the orange disc as the only button", "why": "the one spot of contrast on a quiet page, so the eye goes straight to it" },
-        { "what": "the black-and-white photos at different heights", "why": "they feel like a contact sheet, unposed" }
-      ],
-      "avoid": [],
-      "concept": "A quiet off-white page with a light serif name and black-and-white photos scattered at staggered heights; the only colour is an orange disc that is the button.",
-      "move": "an orange disc, the only colour on the page, as the button, its label running out past its edge",
-      "layout": "Page inside a frame (page x 8-92%, y 18-82% of the shot). Within the page: logotype two lines top-left (x 6%, y 6%); menu lines top-right. The name at x 6-30%, y 30-40%. The disc under it at x 6-12% (about 6% of page width, 100px at 1440), its label starting inside and running past its right edge. Photos: three, black and white, at staggered heights: x 30-50% (y 47-94%), x 54-81% (y 12-80%), x 85-100% runs off the right edge (y 33-67%). Small links bottom-right; scroll arrows bottom-left. About 54% empty.",
-      "type": {
-        "display": { "face": "Libre Caslon Display", "by": "measured", "kind": "serif", "size": 82, "weight": 300, "case": "none", "tracking": "-0.01em", "leading": 1.0, "lines": 1 },
-        "small": { "face": "Lexend Exa", "by": "measured", "stand-in": true, "size": 14, "weight": 500, "case": "none", "tracking": "0.02em" },
-        "scale": 6
-      },
-      "spacing": "At 1440: page margin about 95px; the disc sits about 60px under the name; small text 12-14px; photos about 50px apart, never aligned at top or bottom.",
-      "palette": { "ground": "#f8f8f8", "ink": "#0e0e0e", "accent": "#f26522", "more": { "photos": "black and white" } },
-      "pictures": "Three black-and-white photographs, unposed, at different sizes and heights, the last cropped by the page edge; square corners, no frame.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 2, "lines": 1 }, "small": 5, "pictures": 3 },
-      "devices": ["filled orange disc as the button, label overrunning it", "hairline menu lines", "scroll arrows with a thin circle"],
-      "measured": { "empty": 53.8, "pictures": 47.6, "radius": 0 }
-    },
-    {
-      "name": "04-still-life",
-      "role": "like",
-      "likes": [
-        { "what": "the big orange disc the tall condensed title crosses", "why": "the title and the shape fight a little, which makes it alive" },
-        { "what": "the title broken top and bottom", "why": "it frames the page" }
-      ],
-      "avoid": [],
-      "concept": "A split page: a dark still life of fruit on the left half, and on the right a warm grey panel where a big orange disc sits between a tall condensed serif title broken into a top line and a bottom line that cross it.",
-      "move": "a tall condensed serif title split into a top and a bottom line, both crossing a big orange disc",
-      "layout": "Page inside a frame (page x 8-92%, y 18-82%). Left half (x 0-50% of page): one photograph full bleed, dark ground. Right half: a warm grey panel. Small nav caps top-right. Title line 1 at y 7-25% of page, x 52-80%; the disc centred about x 67%, y 27-75%, diameter about 27% of page width (390px at 1440); title lines 2-3 at y 70-97% of page, x 52-86%, crossing the bottom of the disc. Tiny uppercase notes (6-7px measured, read as 9-10px at 1440) scattered in the right margin, x 84-90%. About 57% empty in the panel.",
-      "type": {
-        "display": { "face": "Instrument Serif", "by": "measured", "stand-in": true, "kind": "condensed", "size": 133, "weight": 400, "case": "none", "tracking": "-0.04em", "leading": 0.82, "lines": 3, "note": "fonts.mjs: nothing close (2.13); Instrument Serif set beside it is plainly its kind (tall, condensed, high-contrast)" },
-        "small": { "face": "Lexend Exa", "by": "eye", "stand-in": true, "size": 10, "weight": 500, "case": "uppercase", "tracking": "0.12em" },
-        "scale": 13
-      },
-      "spacing": "At 1440: the title's lines touch the disc; the small notes sit in a narrow right column about 60px from the edge; the panel's margin about 20px at the title (it nearly touches the seam).",
-      "palette": { "ground": "#d8d6d2", "ink": "#111111", "accent": "#ff4d17", "more": { "photo half": "#111111 (dark still life; not a page ground: light only)" } },
-      "pictures": "One still-life photograph of food on a plain cloth against black, soft focus at the back, filling half the page.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 5, "lines": 3 }, "small": 6, "pictures": 1 },
-      "devices": ["big filled orange disc behind the title", "title broken into top and bottom lines", "split page: photo half and panel half", "tiny uppercase notes in the margin"],
-      "measured": { "empty": 56.9, "pictures": 46.2, "radius": 0 }
-    },
-    {
-      "name": "05-orange-block",
-      "role": "like",
-      "likes": [
-        { "what": "the photo straddling the seam between the light panel and the dark band", "why": "it ties two halves together" },
-        { "what": "the red strip", "why": "a hard edge of colour at the side, not in the middle of things" }
-      ],
-      "avoid": [],
-      "concept": "A light panel for the words, a dark band and a red strip at the right; one toned portrait sits across the seam between the light and the dark, binding them.",
-      "move": "a photo straddling the seam between a light panel and a dark band, with a red strip at the far edge",
-      "layout": "Page inside a frame (page x 8-92%, y 26-73%). Light panel x 0-57%; dark band x 57-86%; red strip x 86-100%, full height. The photo: x 47-79%, y 13-88%, so about a third of it is over the light panel. Breadcrumb top-left (x 6%, y 10%); name at x 6-16%, y 38-45%; two lines of body under it (y 49-52%); two dots and 'Next' at the bottom (y 85%). Social links rotated in the strip. About 75% empty in the light panel.",
-      "type": {
-        "display": { "face": "Oxygen", "by": "measured", "kind": "sans", "size": 51, "weight": 700, "case": "none", "tracking": "-0.01em", "leading": 1.0, "lines": 1 },
-        "small": { "face": "Oxygen", "by": "eye", "size": 11, "weight": 400, "case": "none", "tracking": "0" },
-        "scale": 6.4
-      },
-      "spacing": "At 1440: panel margin about 80px; body 20px under the name; the dots and 'Next' about 100px from the bottom.",
-      "palette": { "ground": "#f4f4f4", "ink": "#0d0d0d", "accent": "#ff2a10", "more": { "band": "#1c1c1c", "dot": "#f0541e", "photo tone": "#6b2a10" } },
-      "pictures": "One portrait, duotoned rust-on-black, tall, square corners, straddling the seam.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 4, "pictures": 1 },
-      "devices": ["dark band", "full-height red strip at the edge", "orange dot pager", "rotated links in the strip"],
-      "measured": { "empty": 74.8, "pictures": 25.2, "radius": 0 }
-    },
-    {
-      "name": "08-dark-arches",
-      "role": "like",
-      "likes": [
-        { "what": "the thin elegant serif in gold on deep green", "why": "it feels slow and crafted, like a shop sign" }
-      ],
-      "avoid": [],
-      "brief": "light only: the deep-green page is not borrowed; the like is carried by its role: the thin high-contrast serif and the gold, on a light ground",
-      "concept": "A deep green page set in a thin, high-contrast serif in cream and gold, with arched photographs and a slow word band along the foot: a painted shop sign.",
-      "move": "a thin, high-contrast serif in cream and gold, set large and slow",
-      "layout": "Page inside a frame (page x 5-95%, y 7-100%). Ring logo top-left; centred nav; outlined bag button top-right. Headline 'Calm Ritual' two lines at x 12-32%, y 26-46%. A body line under it. Arched photo centre x 36-64%, y 26-56%, a framed panel below it. Right column: a small round photo, a gold word, 'Next' with a two-line title over a second arched photo that runs off the right edge. Word band with diamonds along the foot (y 96%). About 65% empty.",
-      "type": {
-        "display": { "face": "Kalnia", "by": "measured", "stand-in": true, "kind": "serif", "size": 126, "weight": 200, "case": "none", "tracking": "0", "leading": 1.1, "lines": 2, "note": "fonts.mjs: nothing close (2.29); Kalnia 200 set beside it is the nearest of its kind (thin, high contrast)" },
-        "small": { "face": "Jost", "by": "eye", "size": 17, "weight": 300, "case": "none", "tracking": "0.02em" },
-        "band": { "face": "Kalnia", "size": 23, "weight": 200, "case": "uppercase", "tracking": "0.08em" },
-        "scale": 7.3
-      },
-      "spacing": "At 1440: margin about 95px; headline lines 0.95 apart; body 30px under the headline; word band 20px from the foot.",
-      "palette": { "ground": "#1f3a33", "ink": "#f7efe3", "accent": "#c09464", "more": { "panel": "#2d4743" }, "borrowable": "the gold #c09464 and the cream ink as type colours only; the green ground is a dark page and is not borrowed (light only)" },
-      "pictures": "Photographs in round-topped arches and a circle, muted, soft, one per zone; one runs off the right edge.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 2, "lines": 2 }, "small": 8, "pictures": 3 },
-      "devices": ["round-topped arch frames", "thin ring logo", "outlined pill button", "word band with diamonds at the foot", "thin gold rule", "gold arrow"],
-      "measured": { "empty": 65.4, "pictures": 33.2, "radius": "arch: full semicircle; pill" }
-    },
-    {
-      "name": "09-teal-window",
-      "role": "like",
-      "likes": [
-        { "what": "the rounded photo window with small mono text in its four corners", "why": "the picture is the page, and the text only labels it" }
-      ],
-      "avoid": [],
-      "concept": "A single photograph in a rounded window at the centre of a pale page, with small spaced uppercase mono labels at the four corners and the two sides: the picture is the page, the text only labels it.",
-      "move": "a rounded photo window at the centre, small spaced mono labels in its four corners",
-      "layout": "Portrait poster (1800 x 2250). Margin about 7% each side. Window centred x 21-79% (58% of the width), y 19-70%, corner radius about 9% of its width. Six label blocks of two or three lines: top-left (x 7%, y 5%), top-right (right-aligned to x 93%), mid-left and mid-right on the window's centre line (overlapping its edge), bottom-left and bottom-right (y 81-84%). About 66% empty.",
-      "type": {
-        "display": { "face": "Overpass Mono", "by": "measured", "kind": "mono", "size": 24, "weight": 400, "case": "uppercase", "tracking": "0.14em", "leading": 1.55, "lines": 3, "note": "every text is the same size: there is no title" },
-        "small": { "face": "Overpass Mono", "size": 24, "weight": 400, "case": "uppercase", "tracking": "0.14em" },
-        "scale": 1
-      },
-      "spacing": "At 1440: margin about 100px; labels align to the margin; the mid labels sit on the window's centre line and run into it.",
-      "palette": { "ground": "#d6dee1", "ink": "#23282b", "accent": null },
-      "pictures": "One photograph, as shot, warm and soft, in a rounded rectangle window, about a third of the page.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "a very faint radial vignette on the ground: radial-gradient(ellipse at 50% 45%, #dfe6e8 0%, #d2dadd 100%)", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 0, "lines": 0 }, "small": 6, "pictures": 1 },
-      "devices": ["rounded-rectangle picture window", "label blocks at the four corners and two sides"],
-      "measured": { "empty": 66.2, "pictures": 33.2, "radius": "about 9% of the window's width" }
-    },
-    {
-      "name": "10-arch-portrait",
-      "role": "like",
-      "likes": [
-        { "what": "the headline running over the arch's edge", "why": "words and picture belong together" },
-        { "what": "the airy, thin, high-contrast serif", "why": "light and confident" }
-      ],
-      "avoid": [],
-      "concept": "A warm cream page where a tall arched photograph sits left of centre and a large thin high-contrast serif headline starts over the arch's right edge and runs out into the page, with a paragraph and side portraits around it.",
-      "move": "a big thin high-contrast serif headline that starts over the arched photo's edge and runs out across the page",
-      "layout": "Landscape (1800 x 1200). Ring monogram top-left (x 6-16%, y 6-20%). Date box top-right (x 77-100%, y 0-16%) with hairline rules. Arch x 20-48%, y 11-86%, round top. Headline two lines at x 43-85%, y 28-50%, its first letters over the arch. A feather drawing above (x 62%, y 20%). Paragraph x 52-82%, y 58-69%. Vertical small text at x 17%. Portrait crops running off both edges: left x 0-10% (y 32-72%), right x 86-100% (y 32-72%). A footer row with hairline rules at y 92-100%: 'About' left, two labels right. About 67% empty.",
-      "type": {
-        "display": { "face": "Prata", "by": "measured", "stand-in": true, "kind": "serif", "size": 90, "weight": 400, "case": "none", "tracking": "-0.01em", "leading": 1.0, "lines": 2, "note": "fonts.mjs: nothing close (2.67); Prata set beside it is plainly a high-contrast didone of its kind" },
-        "body": { "face": "Prata", "by": "eye", "size": 16, "weight": 400, "case": "none", "leading": 1.65 },
-        "small": { "face": "Jost", "by": "eye", "size": 11, "weight": 400, "case": "uppercase", "tracking": "0.24em" },
-        "scale": 5.6
-      },
-      "spacing": "At 1440: margin about 80px; the headline overlaps the arch by about 70px; paragraph 60px under the headline; footer 90px tall with a hairline above.",
-      "palette": { "ground": "#f4e9d7", "ink": "#191711", "accent": null, "more": { "picture": "#a8d4cc (sea-teal, in the photo only)", "rule": "#c9bba6" } },
-      "pictures": "One photograph in a tall round-topped arch, as shot, soft and airy; two narrow portrait crops running off the left and right edges.",
-      "motion": { "by": "not seen" },
-      "finish": { "css": "not seen", "by": "eye" },
-      "picture_kind": "photo",
-      "slots": { "headline": { "words": 4, "lines": 2 }, "small": 6, "pictures": 3 },
-      "devices": ["round-topped arch frame", "ring of text around a monogram", "hairline-ruled date box and footer", "vertical small text", "a small line drawing (feather)", "sparkle marks over the photo"],
-      "measured": { "empty": 66.6, "pictures": 31.9, "radius": "arch: full semicircle" }
-    }
-  ],
+  "lead": "01-giant-serif-name",
+  "note": "Every reference is a still inside a presentation frame. measure.mjs read the whole image, so sizes are re-read by eye against the inner screen scaled to 1440 (by: eye). Faces: fonts.mjs found nothing close for any serif display (nearest 3 to 4.5 far); the top three were rendered with each reference's words beside it and the one plainly of its kind taken. All faces are stand-ins.",
   "subject": {
-    "pictures": [
-      { "file": ".longbeard/design/pictures/sourdough-loaf.jpg", "what": "a scored sourdough loaf on a board", "crop": "crop to the loaf: the kitchen things behind it are clutter" },
-      { "file": ".longbeard/design/pictures/baguettes-on-a-rack.jpg", "what": "baguettes on a cooling rack", "crop": "tight on the crust" },
-      { "file": ".longbeard/design/pictures/dough-balls-in-flour.jpg", "what": "dough balls on a floured bench", "crop": "the floured bench, top down" },
-      { "file": ".longbeard/design/pictures/baking-trays.jpg", "what": "blackened bread tins at the bakery", "crop": "the tins' edges, dark" }
-    ],
-    "credits": ".longbeard/design/pictures/credits.tsv (all CC0; no credit required)",
-    "ground": "#f6f1e7",
-    "ink": "#19160e",
-    "accent": "#b08404",
-    "names": {
-      "#f6f1e7": "the flour (an off-white from the flour on the bench and loaf, the crust's hue added)",
-      "#19160e": "the oven's black (the tins' soot, derived at L 0.2)",
-      "#b08404": "the crust (golden, chroma raised and darkened to reach 3:1 on the flour ground)",
-      "#958462": "the crust in shade (signature, darkened to carry dark text)"
-    },
-    "dropped": ["the dark proposal (#120f08 ground): light only", "#94897c, #0b0704, #463b33, #7d7061, #261f1c, #625e60: backdrop, shadow and props, flagged as background"],
-    "likes": [
-      { "what": "the bread itself: crust, flour, the dough on the bench", "why": "the product's own world, so nothing is judged on another product's pictures (their answer: stand-ins of our own subject are fine)" }
-    ],
-    "things": ["the chalked bake list with what is left counting down (the ownable)", "the paper bag", "the proving basket", "early light"],
-    "rule": "a quiet tint or an accent, never stronger than the references set their own pages"
+    "ground": "#f9f0e8", "ink": "#1b150f", "accent": "#be7522",
+    "names": { "#f9f0e8": "the white coat, warmed", "#1b150f": "dark fur", "#be7522": "the puppy's fur, raised to read as an accent (3.2:1 on the ground: large text and blocks only)" },
+    "likes": [{ "what": "pictures of the animal at home and outside, in window light", "why": "the product's own subject; stand-ins until theirs" }],
+    "things": ["the animal's name, age and one line beside its pictures", "window light", "the walk", "contact sheet", "film border"]
   },
   "theirs": [],
-  "refused": []
+  "references": [
+    {
+      "name": "01-giant-serif-name",
+      "likes": [{ "what": "the name in a huge thin serif across the whole page, with one small picture crossing it", "why": "the name is the poster, and the picture sits on it like a print on a table" }],
+      "avoid": [],
+      "concept": "The name is the poster. One small print sits on it, crossing the letters, as on a table.",
+      "move": "a two-line name filling the full width, cropped at both edges, one print over its middle",
+      "layout": "Name in two lines, 0 to 100% width (runs off both edges), lines from 27% to 74% of the height, tight leading. One print about 19% wide by 34% high, centred, over both lines, with one or two prints peeking behind it. Small sans in three places: top left (name, 5%), top at 29% (nav, stacked, underlined), top right (place and year); bottom row at 88% to 95%: a two-line note under the nav column, a circular stamp bottom right, a small mark bottom left. 88% empty ground.",
+      "type": {
+        "display": { "face": "Libre Caslon Display", "by": "eye", "stand-in": true, "kind": "serif", "size": 300, "weight": 400, "case": "uppercase", "tracking": "-0.01em", "leading": 0.82, "lines": 2 },
+        "small": { "face": "Inter Tight", "by": "eye", "stand-in": true, "size": 12, "weight": 400, "case": "none", "tracking": "0" },
+        "scale": 25
+      },
+      "spacing": "Margin 72 px at 1440. Nav lines 14 px apart, groups 28. Note lines sit 6 px under each other.",
+      "palette": { "ground": "#ededed", "ink": "#020202", "accent": null, "more": { "small": "#757575" } },
+      "pictures": "One small print, as shot (colour), no border, crossing the name; a second and third peek out behind it, offset a few px.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 2, "lines": 2 }, "small": 6, "pictures": 1 },
+      "devices": ["underlined nav links stacked in one column", "a circular ring of small text as a stamp", "a small two-ring mark"],
+      "measured": { "empty": 88, "pictures": 3, "radius": 0 }
+    },
+    {
+      "name": "02-split-story",
+      "likes": [{ "what": "a short story in serif on a warm panel, beside a big close photo", "why": "it reads like the first page of a book" }],
+      "avoid": [],
+      "concept": "A book spread: the left page tells, the right page shows one face close.",
+      "move": "a centred serif story on a tan panel facing a full-bleed close portrait",
+      "layout": "Two halves: left 47% a tan panel; right 53% a full-bleed close photo. Story centred in the panel, 5 to 6 short lines, top 10% to 47%; a small photo 28% of the panel wide under it, centred; a tiny uppercase quote at the bottom, and a down arrow bottom left. On the photo: the name in white serif, two lines, bottom right at 60% to 97%. Tiny uppercase nav at the top right over the photo; a small mark top left.",
+      "type": {
+        "display": { "face": "Newsreader", "by": "eye", "stand-in": true, "kind": "serif", "size": 54, "weight": 300, "case": "none", "tracking": "-0.01em", "leading": 1.05, "lines": 6, "italic": "one or two words in italic" },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 10, "weight": 400, "case": "uppercase", "tracking": "0.06em" },
+        "scale": 5.4
+      },
+      "spacing": "Panel padding about 80 px; story lines touch (leading 1.05); 36 px from story to small photo.",
+      "palette": { "ground": "#c5a978", "ink": "#1f0b00", "accent": null, "more": { "on-picture": "#fdfef7" } },
+      "pictures": "One big close crop, full bleed, as shot, warm; one small framed copy on the panel.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 12, "lines": 6 }, "small": 4, "pictures": 2 },
+      "devices": ["italic words inside the serif story", "a thin down arrow", "a tiny quote in uppercase"],
+      "measured": { "empty": 30, "pictures": 60, "radius": 0 }
+    },
+    {
+      "name": "03-name-over-strip",
+      "likes": [{ "what": "the name centred in serif above a row of pictures of different widths", "why": "calm, like a gallery header" }],
+      "avoid": [],
+      "concept": "A gallery header: the name between two rules, the work as one row under it.",
+      "move": "a centred two-line serif name between hairlines over a strip of mixed-width pictures",
+      "layout": "Thin top bar with small pictures and a centred label. A hairline at 13%. Name centred, two lines, 15% to 43%, about 62% of the width. A hairline under it at 45%. Below: a column of small uppercase text left (8% to 26% of width) set in a ring, then a row of pictures of different widths from 32% to 100% (runs off the right), 49% to 85% high. Small uppercase text block under the last picture.",
+      "type": {
+        "display": { "face": "Bellefair", "by": "eye", "stand-in": true, "kind": "serif", "size": 120, "weight": 400, "case": "uppercase", "tracking": "0", "leading": 0.95, "lines": 2 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 13, "weight": 400, "case": "uppercase", "tracking": "0.02em" },
+        "scale": 9
+      },
+      "spacing": "Margin 32 px; 24 px between pictures; hairlines full width inside the margin.",
+      "palette": { "ground": "#aaaaaa", "ink": "#181818", "accent": "#3f6cc4", "more": { "small": "#52575f" } },
+      "pictures": "Three to four pictures as shot, no border, same height, different widths, the last running off the edge.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 2, "lines": 2 }, "small": 3, "pictures": 4 },
+      "devices": ["two full-width hairlines", "text set in an oval ring", "a small star"],
+      "measured": { "empty": 57, "pictures": 21, "radius": 0 }
+    },
+    {
+      "name": "04-face-and-orange",
+      "likes": [{ "what": "a face filling the page with the name across it, and one orange block", "why": "the close-up makes it personal, the orange is the only loud thing" }],
+      "avoid": [],
+      "concept": "A face as the page; the name across it; one orange block as the only loud thing.",
+      "move": "an extreme close-up filling 60% of the screen, a heavy serif name crossing onto a cream panel with an orange block",
+      "layout": "Left 63%: a close crop of a face, full height. Right 37%: a cream panel, its lower 45% an orange block. Name in a heavy serif across the bottom third, from 25% to 80% of the width, crossing from the photo onto the orange (outline where it crosses). A small portrait on the panel at the seam, 15% wide. Small sans nav at the top. A thin circle drawn over the face. A small yellow tab left.",
+      "type": {
+        "display": { "face": "Bodoni Moda", "by": "eye", "stand-in": true, "kind": "serif", "size": 130, "weight": 900, "case": "uppercase", "tracking": "0", "leading": 1, "lines": 1 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 13, "weight": 500, "case": "none", "tracking": "0" },
+        "scale": 8
+      },
+      "spacing": "Margin 64 px; nav items 64 apart; the name sits 80 px above the bottom.",
+      "palette": { "ground": "#efe8de", "ink": "#131312", "accent": "#b74a25", "more": { "tab": "#e3a723" } },
+      "pictures": "One extreme close-up, full height, as shot; one small portrait on the panel.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 5, "pictures": 2 },
+      "devices": ["one orange block", "a thin circle over the face", "the name switching to outline where it crosses colour", "a small yellow tab"],
+      "measured": { "empty": 20, "pictures": 65, "radius": 0 }
+    },
+    {
+      "name": "05-scattered-prints",
+      "likes": [{ "what": "a few prints dropped at angles over a big red serif word", "why": "playful without being cute, like photos on a desk" }],
+      "avoid": [],
+      "concept": "Prints dropped on a desk over one big red word.",
+      "move": "two white-bordered prints at slight angles over a giant red serif word",
+      "layout": "Warm grey frame; a cream page inset 7% each side, 21% to 79% high. A red serif word across the page middle, running off both edges, 46% to 61% high. Two prints over it: one tall (24% wide), one smaller (19%), rotated -2 and 3 degrees, white border. Small sans in the four corners of the page (name, nav, index, scroll). Above and below the page: the name and a line, centred.",
+      "type": {
+        "display": { "face": "Gloock", "by": "eye", "stand-in": true, "kind": "serif", "size": 230, "weight": 400, "case": "none", "tracking": "-0.02em", "leading": 0.9, "lines": 1 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 13, "weight": 400, "case": "uppercase", "tracking": "0" },
+        "scale": 18
+      },
+      "spacing": "Page margin 28 px for corner text; prints 30 px apart.",
+      "palette": { "ground": "#d7d1c5", "ink": "#2d271e", "accent": "#f83124", "more": { "panel": "#f6f0e4", "small": "#635b52" } },
+      "pictures": "Prints with a white border about 6 px, slight rotation, a faint drop under them.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "box-shadow: 0 2px 6px rgba(0,0,0,.18)", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 6, "pictures": 2 },
+      "devices": ["white print borders", "a frame of warm grey around the page", "corner labels"],
+      "measured": { "empty": 51, "pictures": 13, "radius": 0 }
+    },
+    {
+      "name": "06-framed-script",
+      "likes": [{ "what": "one framed picture on a calm ground with a thin script line drawn through the page", "why": "quiet, and the line leads the eye" }],
+      "avoid": [],
+      "concept": "Quiet: one framed picture, a calm page, and a hand-drawn line that leads the eye to the words.",
+      "move": "a single thin line looping across the page from picture to headline",
+      "layout": "Left 50%: a picture ground with a framed picture inside it (54% of the half wide, centred). Right 50%: light grey, a thin serif uppercase headline centred at 30% to 45%, a two-line subline under it, a small picture at the bottom centre. A thin line loops from the top, behind the headline, out to the bottom. Name small, centred top of the left half; a menu icon top right; a vertical line of tiny text at the seam.",
+      "type": {
+        "display": { "face": "Cormorant Garamond", "by": "eye", "stand-in": true, "kind": "serif", "size": 58, "weight": 300, "case": "uppercase", "tracking": "-0.01em", "leading": 1, "lines": 2 },
+        "small": { "face": "Cormorant Garamond", "by": "eye", "size": 30, "weight": 300, "case": "uppercase", "tracking": "0" },
+        "scale": 2
+      },
+      "spacing": "Headline block centred in its half; 28 px headline to subline.",
+      "palette": { "ground": "#e0dcdb", "ink": "#130f0e", "accent": null, "more": {} },
+      "pictures": "One framed picture inside a picture ground; one small picture at the bottom.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 4, "lines": 2 }, "small": 3, "pictures": 2 },
+      "devices": ["a thin hand-drawn line looping through the page", "a menu of three lines", "vertical tiny text at the seam"],
+      "measured": { "empty": 38, "pictures": 40, "radius": 0 }
+    },
+    {
+      "name": "07-name-collage",
+      "likes": [{ "what": "pictures overlapping with the name set over them", "why": "lively, a whole session at a glance" }],
+      "avoid": [],
+      "concept": "A session at a glance: pictures overlapping, the name across them.",
+      "move": "colour and black-and-white pictures overlapping, a high-contrast serif name set across",
+      "layout": "Light page. Big colour picture left 40%, full height; a black-and-white picture overlapping its bottom right; another small black-and-white top right. Name across the middle from 18% to 72%, crossing picture and ground. Small text block bottom right.",
+      "type": {
+        "display": { "face": "Playfair Display", "by": "eye", "stand-in": true, "kind": "serif", "size": 150, "weight": 400, "case": "none", "tracking": "-0.02em", "leading": 1, "lines": 1 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 14, "weight": 400, "case": "none", "tracking": "0" },
+        "scale": 10
+      },
+      "spacing": "Margin 14 px to the pictures; text block 40 px from the right.",
+      "palette": { "ground": "#f8f8f6", "ink": "#1d1b16", "accent": null, "more": {} },
+      "pictures": "Overlapping, colour and black and white mixed, a soft shadow under the small ones.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "box-shadow: 0 8px 24px rgba(0,0,0,.15)", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 4, "pictures": 3 },
+      "devices": ["a line struck through part of the name", "a short dash above the text block"],
+      "measured": { "empty": 41, "pictures": 34, "radius": 0 }
+    },
+    {
+      "name": "08-thin-number",
+      "likes": [{ "what": "thin tall type, small pictures and one big number", "why": "airy, with a sense of order" }],
+      "avoid": [],
+      "concept": "Airy order: hairline tall type, small pictures placed loosely, one big number.",
+      "move": "one huge hairline number bottom right, small pictures placed on a loose grid",
+      "layout": "Cream page. Name in a hairline tall serif top left, running off the left edge. A mid-size landscape picture in the centre overlapping the name. Two small pictures (top right, bottom left). A huge number bottom right, 30% wide. Tiny text: a short paragraph left, prev/next in the thin serif.",
+      "type": {
+        "display": { "face": "Italiana", "by": "eye", "stand-in": true, "kind": "serif", "size": 250, "weight": 400, "case": "uppercase", "tracking": "0", "leading": 0.9, "lines": 1 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 9, "weight": 400, "case": "uppercase", "tracking": "0.04em" },
+        "scale": 27
+      },
+      "spacing": "Very airy; margin 40 px.",
+      "palette": { "ground": "#f7f3e8", "ink": "#09161e", "accent": null, "more": {} },
+      "pictures": "Small, as shot, no border.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "none", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 4, "pictures": 4 },
+      "devices": ["one huge number", "a thin circle button"],
+      "measured": { "empty": 45, "pictures": 15, "radius": 0 }
+    },
+    {
+      "name": "09-contact-grid",
+      "likes": [{ "what": "black-and-white pictures in a tight grid, like a contact sheet", "why": "honest, it shows the work as it was shot" }],
+      "avoid": [],
+      "concept": "A contact sheet: frames in a tight grid, black and white, shown as shot.",
+      "move": "a tight three-column grid of black-and-white frames with no gaps",
+      "layout": "Poster. Small colour bar and credits top left, a bold grotesk title at 23%, then a 3 by 3 grid of black-and-white frames with no gaps from 31% to 95%.",
+      "type": {
+        "display": { "face": "Archivo", "by": "eye", "stand-in": true, "kind": "sans", "size": 100, "weight": 700, "case": "none", "tracking": "-0.03em", "leading": 1, "lines": 1 },
+        "small": { "face": "Archivo", "by": "eye", "size": 9, "weight": 700, "case": "none", "tracking": "0" },
+        "scale": 11
+      },
+      "spacing": "No gap between frames; margin 7% around.",
+      "palette": { "ground": "#eceade", "ink": "#262522", "accent": null, "more": {} },
+      "pictures": "Black and white, grain, no gaps, square-ish frames.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "filter: grayscale(1) contrast(1.05)", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 3, "pictures": 9 },
+      "devices": ["a strip of five colour chips", "a line mark top right"],
+      "measured": { "empty": 41, "pictures": 52, "radius": 0 }
+    },
+    {
+      "name": "10-red-vertical-name",
+      "likes": [{ "what": "the red name running down the side, with prints scattered beside it", "why": "the name frames the page" }],
+      "avoid": [],
+      "concept": "The name, turned on its side in red, frames the page; prints are scattered beside it.",
+      "move": "a giant red serif name rotated up the left edge, three prints at angles beside it",
+      "layout": "Warm grey frame; cream page inset 7%, 21% to 79% high. Red name rotated -90deg, 14% to 37% of the width, running off the bottom. Three white-bordered prints at angles (-30, 0, 12 degrees) from 37% to 83% of the width. Caption under the middle print. Corner labels in small sans; a thin circle with a red dot.",
+      "type": {
+        "display": { "face": "Gloock", "by": "eye", "stand-in": true, "kind": "serif", "size": 240, "weight": 400, "case": "none", "tracking": "-0.02em", "leading": 0.9, "lines": 1 },
+        "small": { "face": "Inter Tight", "by": "eye", "size": 13, "weight": 400, "case": "uppercase", "tracking": "0" },
+        "scale": 18
+      },
+      "spacing": "As 05.",
+      "palette": { "ground": "#d6d0c4", "ink": "#282119", "accent": "#f73224", "more": { "panel": "#f6eee3", "small": "#6f685e" } },
+      "pictures": "White-bordered prints at angles, a faint shadow.",
+      "motion": { "by": "not seen" },
+      "finish": { "css": "box-shadow: 0 2px 6px rgba(0,0,0,.18)", "by": "eye" },
+      "picture_kind": "photo",
+      "slots": { "headline": { "words": 1, "lines": 1 }, "small": 6, "pictures": 3 },
+      "devices": ["rotated name", "white print borders", "a thin circle with a dot", "a frame of warm grey around the page"],
+      "measured": { "empty": 52, "pictures": 15, "radius": 0 }
+    }
+  ]
 }

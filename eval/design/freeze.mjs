@@ -11,6 +11,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureBoard } from "./board.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const src = resolve(process.argv[2] ?? "");
@@ -28,6 +29,7 @@ cpSync(join(src, ".longbeard"), join(out, ".longbeard"), { recursive: true, filt
 
 // A picture byte for byte the same as one of the fixture's is restored from there, not kept twice.
 const own = new Map();
+ensureBoard(join(here, "fixture"), resolve(here, "../.."));
 for (const d of ["fixture/board", "fixture/pictures"]) for (const f of readdirSync(join(here, d)).filter((f) => /\.jpe?g$/.test(f))) own.set(readFileSync(join(here, d, f)).toString("base64"), `${d}/${f}`);
 const restore = {};
 const files = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? files(join(d, f)) : [join(d, f)]));
