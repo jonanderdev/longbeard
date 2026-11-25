@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Build is test-first by default.** The router's Build row is now `implement-spec → tdd → design-check → pr`: each ticket's acceptance criteria become failing tests before its code. The old "Test-first, when asked" line is gone. Run `npx longbeard update` to get the new `AGENTS.md` block.
 - **Screens that hang together.** A reference you like from a site or app now keeps up to four of that product's other screens (`also:` on its card). `design-prototype` lays out each key screen from the closest source first: the screen the direction already built for it, then the base's own product, then its family, and only then any reference, so the home, the list and the form no longer come from three unrelated products.
 - **The hardest screen, before the yes.** Once the first screen is yours, the direction builds one more in its look: the brief's key screen that is hardest for it (the densest list, a form). If the look breaks on real data, you see it while going back to another pick is cheap. The quick rounds stay first-screen only.
 - **Parts, when you ask.** On the favourite, and on any prototype screen, "Open any part?" shows three or four versions of one part (the menu, the headline, a card) in place, each from a reference that shows it. "Find more" searches your own board first, then outside.
