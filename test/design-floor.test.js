@@ -23,7 +23,7 @@ test("direction links the floor before its first screens are built", () => {
   const body = text("design-direction");
   const at = body.indexOf(floor);
   assert.ok(at > -1, "design-direction does not link Before you build");
-  assert.ok(at < body.indexOf("**Every screen adapts its base, as a designer would, never copies it.**"), "the floor is linked after building starts");
+  assert.ok(at < body.indexOf("**Every screen is a concept: one liked reference, developed as a designer would, never copied.**"), "the floor is linked after building starts");
 });
 
 test("prototype reads the floor before it builds anything", () => {
@@ -67,9 +67,10 @@ test("the skills that build read the floor: every hard check, no soft one, no te
   }
 });
 
-test("two of the eight are concepts that keep an idea and are never a copy", () => {
+test("every screen is a concept that keeps an idea and is never a copy", () => {
   const body = text("design-direction");
-  assert.match(body, /two are \*\*concepts\*\*/);
+  assert.match(body, /Every screen is a concept/);
+  assert.match(body, /The lead develops two/);
   assert.match(body, /would a designer call it the same concept \(it must be yes\), and would they call it a copy \(it must be no\)\?/);
   assert.match(body, /"kind": "concept"/);
 });
