@@ -68,7 +68,7 @@ test("picker, moodboard and sheet: a local path with # ? % or a space is encoded
   run(script("design-moodboard", "moodboard.mjs"), dir, ["board.md", "--out", "board.html"]);
   const board = readFileSync(join(dir, "board.html"), "utf8");
   assert.ok(board.includes(`<img src="./${encoded}"`));
-  assert.ok(board.includes(`<a class="open" href="./${encoded}"`));
+  assert.ok(board.includes(`<a class="big" href="./${encoded}"`));
 
   run(script("design-direction", "sheet.mjs"), dir, ["sheet.html", name]);
   assert.ok(readFileSync(join(dir, "sheet.html"), "utf8").includes(`<img src="${encoded}"`));

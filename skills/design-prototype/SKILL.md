@@ -50,7 +50,7 @@ Read the brief, the design brief, the identity, the direction and `design-conten
 
 Then build them all, linked, in the identity and the direction; one menu, one card, one row, one heading style everywhere.
 
-- **Layout:** from a moodboard reference that shows that kind of screen (never its content), any family; else from the first screen.
+- **Layout, closest first:** the screen the direction already built for it (`screens.json`'s `"test": true`); else the base reference's own screen of that kind (its card's `also` shots); else that kind of screen from a reference in the base's family; else from any reference; else the first screen's own system. Never its content. A layout from another product takes the first screen's measures (the direction's `holds across screens`), never its own. Say which in the screen's one line.
 - **The direction's devices carry over:** overlaps, crops, giant type, empty space appear on every screen, never tidied (`data-crop` on text cropped on purpose). Each screen gets the direction's touch-up: contrast where text sits, its items and primary action present, nothing plainly broken.
 - **Density** as the design brief's `dense` asks: airy 1–2 shows less, dense 4–5 shows more and keeps spacing tight.
 - **Real content:** copy in the voice, the longest real names, every section a person needs. Follow `design-content.md`; without it, draft only from what the brief gives and say what they must supply. Say the copy is a draft. Pictures: theirs or the subject's stand-ins in `.longbeard/design/pictures/`; never grey boxes, never a reference's subject.
@@ -58,6 +58,8 @@ Then build them all, linked, in the identity and the direction; one menu, one ca
 - **Marked, not hidden:** `data-standin="picture"` or `"fact"` (with `data-standin-note`) on anything the product does not really have yet.
 
 A pattern that brings a feature the brief does not have is named; kept, it is a product change (`idea`) first.
+
+**Parts, if they want,** on any screen, as in the direction: name its parts in one line, "Open any part?", and three or four versions of the one part they open, in place, each from a reference that shows that part; "find more" is `design-moodboard`'s one piece. A part changed on one screen changes everywhere it is used.
 
 ### 3. Show it, and name the forks
 
@@ -81,6 +83,12 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 
 - **Contrast** reads the whole page down to `--max-height` (`--level AAA` at that brief). Exit 1 is a failing text, 3 a run that did not finish; "not read" texts are unchecked, never passed.
 - **Rules,** in order: Idea, hard (structure, contrast, targets, focus, states, labels), then soft. `rules.mjs` measures what a browser can (sideways scroll, small targets, unlabelled inputs, invisible focus, placeholder copy, clipped text) and counts rounds per screen: fix after every run; at "rounds used up", stop and say what is open. A wrong finding is waived with a reason (`--waive <id> --reason "…"`), still shown. Overlap, collision, alignment and empty space are the look: only your eye judges them.
+- **The whole set:** every key screen on one sheet, desktop then phone (`sheet.mjs --cols 4`), shown with the prototype so they judge the screens together.
+- **Drift:** what the screens use, measured against the identity:
+  ```
+  node <skill>/scripts/drift.mjs "file://$PWD/.longbeard/design/prototype/home.html" "file://$PWD/.longbeard/design/prototype/menu.html" --identity docs/design/design-identity.md
+  ```
+  It lists each face and colour no screen should have (not in the identity), and counts the type sizes, radii and spacing steps in all, with the screen that adds each one. A face or colour outside the identity is fixed to the identity's; a size, radius or step only one screen uses is brought to the nearest the others use, unless the look needs it, said in one line. It measures; the eye decides the rest.
 - **Links:** every broken link, dead button and page with no way on is fixed. It also lists the stand-ins, and `unmarked` for an unmarked stand-in picture: mark it.
 - **Flow walks:** for each flow in the brief, one fresh agent (on `sonnet` where you can choose) gets the first page and the goal in the person's words, never the steps, clicks through with the browser it has, and says where it went, hesitated, and whether it got there. A failure or a wrong turn two take is fixed inside the identity and the direction. No clean agent: walk it yourself and say it is weaker.
 - **The five-second check,** once, here: the same three strangers see the first screen (against the design brief's takeaway) and each key screen (against what it is for): [five-second.md](references/five-second.md). The first screen's result is `DESIGN.md`'s `five seconds:` line.

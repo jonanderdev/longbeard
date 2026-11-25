@@ -21,11 +21,11 @@ Each skill's top lines say what it **Needs**, **Uses if there** and **Writes**: 
 | Skill | Job |
 |---|---|
 | `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, who to stand apart from, what is fixed |
-| `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no |
+| `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no; each like keeps its product's other screens |
 | `design-families` | Optional. Sort a big board into looks, the headings the direction's board shows |
-| `design-direction` | Pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two from the others; nothing off the board, nothing they said to leave out. They choose; a light touch-up |
+| `design-direction` | Pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two from the others; nothing off the board, nothing they said to leave out. They choose, open parts if they want, and see it on the hardest screen; a light touch-up |
 | `design-identity` | The chosen screen's type and colours, refined on it from rendered options and a few bounded controls; the identity board |
-| `design-prototype` | The key screens and their states, and the five-second check; approved → `DESIGN.md` |
+| `design-prototype` | The key screens and their states, laid out from the base's own product first and checked as one set, and the five-second check; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
 | `design-content` | Optional, any time. What each screen says and shows: copy, and the full picture list |
 | `design-wordmark` | Optional, after the identity. A mark made from the chosen type |

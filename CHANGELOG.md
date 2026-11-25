@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Screens that hang together.** A reference you like from a site or app now keeps up to four of that product's other screens (`also:` on its card). `design-prototype` lays out each key screen from the closest source first: the screen the direction already built for it, then the base's own product, then its family, and only then any reference, so the home, the list and the form no longer come from three unrelated products.
+- **The hardest screen, before the yes.** Once the first screen is yours, the direction builds one more in its look: the brief's key screen that is hardest for it (the densest list, a form). If the look breaks on real data, you see it while going back to another pick is cheap. The quick rounds stay first-screen only.
+- **Parts, when you ask.** On the favourite, and on any prototype screen, "Open any part?" shows three or four versions of one part (the menu, the headline, a card) in place, each from a reference that shows it. "Find more" searches your own board first, then outside.
+- **One set, measured.** The prototype's screens are shown together, desktop and phone, and `drift.mjs` lists any face or colour not in the identity and the type sizes, radii and spacing steps only one screen uses.
+- **A board you look at, not a form.** The moodboard shows each picture at its own proportions in a masonry, with a small badge for Lead, Like or No; the notes of the card you open sit in a side panel, with its product's other screens. Keys: L, K, N, the arrows and Esc.
+- **The direction's canvas** replaces its sheet: every screen in a strip (rounds, parts and the hardest screen each in a row), the one you open large, and beside it what it is made from: the base and each move, with the reference and your words. "Beside its base" shows the two together; the buttons write the line for the chat.
+- **The design flow graphic is redrawn** as six line illustrations, one per step, with what you decide at each.
+
 - **Every reference is on the direction's board.** Families are headings, never a filter: a reference you like can come from any family, and `design-families` no longer asks you to take one or two. The board is the moodboard's own cards, so your likes and notes come with them, each placed under its family (`moodboard.mjs --topics`), with one Lead on the whole board (`--one-lead`). It says how many cards it left out for a missing shot.
 - **The board's top bar stays one line.** Only the jump bar sticks, and with many families it scrolls sideways instead of wrapping into rows that pushed the board down.
 - **Leave out.** Each card on the board has a Leave out box for what you don't want from a reference you otherwise like (the drop shadow, the all-caps menu). It is never on a screen built on that reference, never borrowed from it, and its role is filled from another of your references when the composition needs it. A card's `avoid:` line fills it.

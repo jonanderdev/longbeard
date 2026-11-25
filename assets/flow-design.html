@@ -1,155 +1,79 @@
 <!doctype html>
 <!--
   The design-* family, the picture the README links (assets/design-flow.png).
-  Change it here, then render the PNG from the repo root:
-    node skills/design-moodboard/scripts/capture.mjs "file://$PWD/assets/flow-design.html" --width 1264 --clip-selector ".canvas" --out assets/design-flow.png
+  Change it here, then render the PNG from the repo root (the committed one is a 2x render, sharper):
+    node skills/design-moodboard/scripts/capture.mjs "file://$PWD/assets/flow-design.html" --width 1200 --out assets/design-flow.png
 -->
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Design — how it flows</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=block">
-<style>
-  :root { --ink: #111110; --muted: #5b5b55; --canvas: #fbfbf9; --dot: #dcdcd6; --stroke: 2.5px; }
-  * { box-sizing: border-box; margin: 0; }
-  body { background: #fff; font-family: Inter, system-ui, sans-serif; color: var(--ink); padding: 32px; width: 1264px; }
-  .canvas { width: 1200px; padding: 28px 36px 44px; border: var(--stroke) solid var(--ink); border-radius: 20px; background: radial-gradient(circle, var(--dot) 1.1px, transparent 1.2px) 0 0 / 18px 18px, var(--canvas); }
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .logo { position: relative; width: 64px; height: 64px; border-radius: 16px; overflow: hidden; }
-  .logo img { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); }
-  .brand b { display: block; font-size: 20px; font-weight: 600; }
-  .brand span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; max-width: 640px; }
-  .legend { display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--muted); }
-  .legend .k { display: inline-flex; align-items: center; gap: 6px; }
-  .sw { width: 22px; height: 14px; border-radius: 4px; border: var(--stroke) solid var(--ink); background: #fff; }
-  .sw.opt { border-style: dashed; }
-  .sw.doc { background: var(--ink); }
-
-  .hub { display: grid; grid-template-columns: 260px 520px 1fr; align-items: center; margin-bottom: 26px; }
-  .hub .card { grid-column: 2; background: var(--ink); color: #fff; }
-  .hub .card p { color: #d6d6d0; border-color: #fff; }
-  .hub .card h3 em { color: #d6d6d0; }
-  .hub .side { grid-column: 3; padding-left: 22px; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
-
-  .rows { display: grid; grid-template-columns: 260px 520px 1fr; column-gap: 0; row-gap: 0; }
-  .row { display: contents; }
-  .left, .right { display: flex; align-items: center; padding: 10px 0; }
-  .left { justify-content: flex-end; padding-right: 22px; }
-  .right { grid-column: 3; padding-left: 22px; }
-  .mid { grid-column: 2; position: relative; padding: 10px 0 28px; }
-  .mid::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 3px; height: 22px; background: var(--ink); transform: translateX(-50%); }
-  .mid::before { content: ""; position: absolute; left: 50%; bottom: -4px; border: 7px solid transparent; border-top: 9px solid var(--ink); transform: translateX(-50%); }
-  .row:last-child .mid::after, .row:last-child .mid::before { display: none; }
-  .card { background: #fff; border: var(--stroke) solid var(--ink); border-radius: 14px; }
-  .card h3 { display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; font-weight: 600; padding: 12px 18px; }
-  .card h3 em { font-style: normal; font-weight: 500; font-size: 13px; color: var(--muted); }
-  .card p { font-size: 14px; line-height: 1.45; color: var(--muted); padding: 10px 18px 12px; border-top: 2px solid var(--ink); }
-  .card p b { color: var(--ink); font-weight: 600; }
-  .doc { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; white-space: nowrap; }
-  .doc.private { background: #fff; color: var(--ink); border: var(--stroke) solid var(--ink); }
-  .opt { max-width: 236px; border: var(--stroke) dashed var(--ink); border-radius: 12px; background: #fff; padding: 9px 12px; font-size: 13px; line-height: 1.4; color: var(--muted); }
-  .opt b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
-  .rows { position: relative; }
-  .detour { grid-column: 1; align-self: center; justify-self: start; z-index: 1; width: 196px; border: var(--stroke) dashed var(--ink); border-radius: 12px; background: #fff; padding: 9px 12px 10px; font-size: 13px; line-height: 1.4; color: var(--muted); }
-  .detour b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
-  .detour span { display: block; margin-top: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink); }
-  svg.links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 0; pointer-events: none; }
-  svg.links path.line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; }
-  svg.links path.head { fill: none; stroke: var(--ink); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
-  svg.links circle { fill: var(--canvas); stroke: var(--ink); stroke-width: 2; }
-  footer { display: flex; gap: 18px; margin-top: 26px; padding-top: 18px; border-top: 2px solid var(--ink); font-size: 13.5px; color: var(--muted); line-height: 1.45; }
-  footer div { flex: 1; }
-  footer b { color: var(--ink); font-weight: 600; }
-  .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; margin-right: 9px; vertical-align: 2px; }
-  .card h3 .t { display: inline-flex; align-items: center; }
+<meta charset=utf-8><style>
+*{box-sizing:border-box;margin:0}body{background:#f3f2ef;font:13px/1.45 Inter,system-ui,sans-serif;color:#1c1c1a;width:1200px;padding:28px 32px 26px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:22px}header img{height:44px;width:auto;filter:grayscale(1) contrast(1.3)}header b{font-size:16px;font-weight:600}header span{color:#8a877f;margin-left:6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 22px}
+.pic{aspect-ratio:16/10;border-radius:6px;background:#fff;box-shadow:0 0 0 1px #e3e0da;overflow:hidden}.pic svg{width:100%;height:100%;display:block}
+h3{font-size:14px;font-weight:600;margin:10px 0 2px;display:flex;gap:8px;align-items:baseline}h3 i{font:11px ui-monospace,monospace;color:#8a877f;font-style:normal}
+p{color:#5d5a53}.you{color:#1c1c1a;margin-top:3px}.you::before{content:"You: ";font-weight:600}
+footer{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px;padding-top:14px;border-top:1px solid #dedbd4;font-size:12px;color:#5d5a53}footer b{color:#1c1c1a}
+svg{--i:#1c1c1a;--g:#e6e3dd;--g2:#cfcbc3;--a:#ff4f1a}
+svg .s{fill:none;stroke:var(--i);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+svg .f{fill:var(--g)}svg .f2{fill:var(--g2)}svg .a{fill:var(--a)}svg .as{fill:none;stroke:var(--a);stroke-width:1.5}
+svg .d{fill:none;stroke:var(--i);stroke-width:1.2;stroke-dasharray:3 3}
+svg text{font:600 9px Inter,system-ui,sans-serif;fill:var(--i)}svg .m{font-weight:400;fill:#8a877f}
 </style>
-</head>
-<body>
-<div class="canvas">
-  <header>
-    <div class="brand">
-      <div class="logo"><img src="../logo.png" alt="Long Beard"></div>
-      <div><b>Design, one skill at a time</b><span>Each skill does one job, asks little, and writes one doc. Run them in order, skip what you already have, or call any one by name.</span></div>
-    </div>
-    <div class="legend"><span class="k"><span class="sw"></span>Skill</span><span class="k"><span class="sw opt"></span>Optional detour</span><span class="k"><span class="sw doc"></span>Committed doc</span></div>
-  </header>
+<header><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAABYBAMAAABxB3iiAAAAMFBMVEWfn59ubm7Z2dn+/v7+/v7////+/v4AAAACAgIXFxcnJyfp6enX19c3NzdXV1dGRkbPaZsJAAAAEHRSTlP///AgWZ/+AP////7/////SdcINAAABTtJREFUeNpdlWtUVFUUx3/3zB1AZhhu4AO1hVOCj8yYKLKHyaiEq5eOS9DoQ2IFPj6UtSyVamm1AC2ttFUIZo6GikU6mrrMVTFoargsxzFTU2kkKN/OyENgHrcPd5jBzrfzW/+77/7vc/Y+0kLCK1Cf2jfgSwNAjkB35vPjEzeWWgFED90/fFfDtktd5tu0P415O+uDxwZ7tZ1ubPj7uhGHUp8/uUITh+nxiv5/UNCQ/9clcyTuD8FBv26GDUXfb7iTHhpsbap5JnftXse4u5fNdPZQdyB+cckqtcm0ZMh6773hHAKDdo9eesRUDHvGLRhjfsOq/W3ajfsfeGoaoDv4Ys399SmgG4uzPKBL0hINfv/gAedlMzIoV84fbg6biUlvnhDSvA1OapzfY/zLiSfr+1llwP+6swfiLzndMRVBcFBthyNCeWStoiCz/8TWa/Oj1NBefAsRGFauKlFI90yxHyElT/dFA8RUMXCizynqq1o2Odi7CQD9tpXsmOJUhNRS0aTf9/YxO+ipOxCsnGo4qYj0jSHa5yUOOA15RYesZZdlQ7pLbjcA04ZeGCrtmrJT4XKFMyU+oOt88nxSZanx95yJY7aNGJtzzGANxJyRx9v2heo2Fbda/l1+rGqhKv3pi/UiwCgNCS1yGd6Mrbz1UtJsz1ZLBgIPsXaJOR+1SqXMaLArSsnmNlG3b5u0yIsv9Io0S3rVZc5+vTPXqHs6eVJocJ/WB4suX2gZuMA2uWlv17m/xK3OE+/J9zDLOMVMKOtgYHZheuo62TQst92+sfGPornzJ/VfYunz68qOoCxL5LW7PqwuP2yqJFixTO813jQEdN6RCbNaLq5+y/vV1h9S+pU5qUzJdki5a5Z1391McRXfVV9yAqOOZ7jJHHH1xaXDYopTj8ZdNBoMhcZ34/6ZIS24+nDS3wvaT6Wb6lz32pKq6+LiTrp1j5/1VWYdqE1f935trX/UECXO23g9UzD65mTdqZwsvg7s2anf/I5VBNPQjRWJvuSjqyosB48MzHk0w53S5otHgBSvCneD3VPyAfHPTvDGTQUB0gs205ZHEIvzXi0cdbDPxxr90TrBp3rMvLzL6TE36b1BJwJk5R8T+63Jc5f6vPZrenNfrQM8h9bTwuoLw3Z9vmE7n3hABmVHwgMmNeBuwd8unZ38aaqCAL3PgR9VBTV2PVbJBQLuaEVVpS2DIca2RHLgBQFtAuj65C3AQqxd67eA6yZGBa8CFOgfQo1Mgm4rMVZAP86OTQEB49VushatBGBtPokWkCGBbwsKeq719PzC63chQMIVbYAuPFdBIIWk+ihVbcoBKwKCRm+UpjlW3QABU/ytUZqtb9sOAlR6N5Z0U8tXzOL/S6DuXNhbrYYAgXzmdl2CFuE+J1ATafreEzExok3UTpPxAo5HaEYvrS5CzQ6NJsRDMEK9No1KQHKEWqRohHmaMzugRKkfAFPEW3RVfxboTTu0QfJV6czwCJOj0lsnpk6eBOH7EC3lmdcAVzjf1tAmAHlkYxngUzXqxKe56rQBP4f/pkrVMB2yy4CYsFbONAH5/FJeiN7RFj4huuKvQx0l5dA+TxLhHK5kB2x6J2k2wPRcWptGA5aQzb+CKkDqzi4MayfuQOEpAIxJq7eH34Dg0Zr3WzQfdd8c98drjmXPE2GI87fa5r7h12nAud2HLfuGQvf5BtejPTWTMzaWcNEONfk3cqL1Dc1JKXEt/2Jr6bnmXpWU+w6v6VxTxvKEvN71fbziSEzeYkOB+7aqy42Z7jNFaqNV2/4HUzT8HOE538sAAAAASUVORK5CYII="><b>Long Beard</b><span>Design, one step at a time. Each step writes one file and waits for your yes.</span></header>
+<div class=grid>
 
-  <div class="hub">
-    <div class="card"><h3>design <em>the way in</em></h3><p>Reads what the project has and suggests the next skill, and why. It never runs one for you.</p></div>
-    <div class="side">Suggests <b>families</b> only for a board over ~60, a gap search for one under ~8, nothing between.</div>
-  </div>
+<div><div class=pic><svg viewBox="0 0 320 200">
+<rect class=s x=90 y=22 width=140 height=160 rx=4 fill=#fff />
+<rect x=104 y=38 width=70 height=7 rx=2 fill=#1c1c1a />
+<g><rect class=f2 x=104 y=58 width=28 height=4 rx=2 /><rect class=f x=140 y=58 width=74 height=4 rx=2 />
+<rect class=f2 x=104 y=74 width=28 height=4 rx=2 /><rect class=f x=140 y=74 width=60 height=4 rx=2 />
+<rect class=f2 x=104 y=90 width=28 height=4 rx=2 /><rect class=f x=140 y=90 width=70 height=4 rx=2 />
+<rect class=f2 x=104 y=106 width=28 height=4 rx=2 /><rect class=f x=140 y=106 width=50 height=4 rx=2 />
+<rect class=f2 x=104 y=122 width=28 height=4 rx=2 /><rect class=f x=140 y=122 width=66 height=4 rx=2 /></g>
+<path class=s d="M104 148h110" stroke-dasharray="2 3"/><text x=104 y=166 class=m>read back once</text>
+<circle class=a cx=206 cy=162 r=7 /><path d="M202.5 162l2.5 2.5 4.5-5" fill=none stroke=#fff stroke-width=1.6 />
+</svg></div><h3><i>1</i>Brief</h3><p>The questions a designer asks before looking.</p><p class=you>answer once, correct the read-back.</p></div>
 
-  <div class="rows">
-    <div class="detour" style="grid-row: 2 / span 2; align-self: center; margin-top: -40px" id="d-families"><b>design-families</b>Sort a big board into looks, as headings; every reference stays.<span>Only for a board over ~60</span></div>
-    <div class="detour" style="grid-row: 3 / span 2; align-self: center; margin-top: 60px" id="d-content"><b>design-content</b>Copy and the full picture list, planned. Needs the brief.<span>Any time · copy to plan</span></div>
-    <div class="detour" style="grid-row: 5; align-self: start; margin-top: 10px" id="d-wordmark"><b>design-wordmark</b>A mark from your type, seen in the chosen screen.<span>After the identity, if wanted</span></div>
-    <svg class="links" id="links"></svg>
-    <div class="row">
-      <div class="mid"><div class="card" id="c1"><h3><span class="t"><span class="n">1</span>design-brief</span> <em>1 message</em></h3><p>A studio's questions: first screen in five seconds, personality, feel and never, apart from, what is fixed. <b>You answer; one read-back.</b></p></div></div>
-      <div class="right"><span class="doc">docs/design/design-brief.md</span></div>
-    </div>
-    <div class="row">
-      <div class="mid"><div class="card" id="c2"><h3><span class="t"><span class="n">2</span>design-moodboard</span> <em>1–2 picks</em></h3><p>Your board read and its gaps filled, or a wide search. <b>You mark like or no</b> on a picker; each keep gets its move in words.</p></div></div>
-      <div class="right"><span class="doc">design-moodboard.md</span></div>
-    </div>
-    <div class="row">
-      <div class="mid"><div class="card" id="c3"><h3><span class="t"><span class="n">3</span>design-direction</span> <em>the direction</em></h3><p>3–4 pictures of your subject, then eight first screens, each one of your references rebuilt with your content and changed by a move or two borrowed from others. <b>You pick, ask for more, mix.</b> Then a light touch-up: contrast, anything missing, never the composition.</p></div></div>
-      <div class="right"><span class="doc">design-direction.md</span></div>
-    </div>
-    <div class="row">
-      <div class="mid"><div class="card" id="c4"><h3><span class="t"><span class="n">4</span>design-identity</span> <em>3 stops</em></h3><p>The chosen screen's type and colours, with close options rendered on it. <b>You pick, refine once, and approve the identity board.</b></p></div></div>
-      <div class="right"><span class="doc">design-identity.md + .html</span></div>
-    </div>
-    <div class="row">
-      <div class="mid"><div class="card" id="c5"><h3><span class="t"><span class="n">5</span>design-prototype</span> <em>you approve</em></h3><p>The key screens and their states, in one go, with options only where a layout forks. <b>You approve</b>, then DESIGN.md.</p></div></div>
-      <div class="right"><span class="doc">DESIGN.md</span></div>
-    </div>
-    <div class="row">
-      <div class="mid"><div class="card" id="c6"><h3><span class="t"><span class="n">6</span>design-figma</span></h3><p>Tokens, the identity board on the Cover, components, every screen and state, checked by design-check. <b>You mark each Ready.</b></p></div></div>
-      <div class="right"><span class="doc">Ready Figma frames</span></div>
-    </div>
-  </div>
+<div><div class=pic><svg viewBox="0 0 320 200">
+<g class=s><rect x=22 y=20 width=52 height=70 rx=3 class="s f"/><rect x=22 y=98 width=52 height=40 rx=3 /><rect x=22 y=146 width=52 height=36 rx=3 class="s f"/>
+<rect x=82 y=20 width=52 height=40 rx=3 /><rect x=82 y=68 width=52 height=62 rx=3 class="s f"/><rect x=82 y=138 width=52 height=44 rx=3 />
+<rect x=142 y=20 width=52 height=56 rx=3 opacity=.3 /><rect x=142 y=84 width=52 height=46 rx=3 class="s f"/><rect x=142 y=138 width=52 height=44 rx=3 /></g>
+<rect x=80 y=66 width=56 height=66 rx=4 fill=none stroke=#1c1c1a stroke-width=2.5 />
+<rect x=52 y=24 width=18 height=8 rx=4 class=a /><rect x=112 y=72 width=18 height=8 rx=4 class=a /><rect x=172 y=88 width=18 height=8 rx=4 fill=#1c1c1a />
+<rect class=s x=208 y=20 width=92 height=162 rx=4 fill=#fff />
+<rect class="s f" x=216 y=28 width=76 height=56 rx=2 />
+<rect x=216 y=92 width=22 height=10 rx=2 fill=#fff stroke=#1c1c1a /><rect x=243 y=92 width=22 height=10 rx=2 class=a /><rect x=270 y=92 width=22 height=10 rx=2 fill=#fff stroke=#1c1c1a />
+<text x=216 y=118 class=m>why you like it</text><rect class=s x=216 y=122 width=76 height=14 rx=2 /><text x=216 y=150 class=m>leave out</text><rect class=s x=216 y=154 width=76 height=14 rx=2 />
+</svg></div><h3><i>2</i>Board</h3><p>Your references at full size, by family, with the same products' other screens.</p><p class=you>lead, like, no, and say why.</p></div>
 
-  <footer>
-    <div><b>Your taste picks</b> the references, the type and colours, and the composition, always on rendered options.</div>
-    <div><b>The agent does the craft:</b> it combines moves into new compositions, makes them read right, and fills in what is missing.</div>
-    <div><b>Docs stay clean.</b> <code>docs/design/</code> describes the style, never a source. Captures and grids stay in <code>.longbeard/design/</code>, out of git.</div>
-  </footer>
+<div><div class=pic><svg viewBox="0 0 320 200">
+<g class=s><rect x=22 y=16 width=26 height=16 rx=2 /><rect x=54 y=16 width=26 height=16 rx=2 /><rect x=86 y=16 width=26 height=16 rx=2 stroke-width=2.5 /><rect x=118 y=16 width=26 height=16 rx=2 /><rect x=150 y=16 width=26 height=16 rx=2 /><rect x=182 y=16 width=26 height=16 rx=2 /></g>
+<rect class=s x=22 y=44 width=186 height=136 rx=3 fill=#fff />
+<rect x=36 y=62 width=78 height=12 rx=1 fill=#1c1c1a /><circle class=a cx=46 cy=96 r=10 />
+<rect class="f" x=122 y=58 width=34 height=60 /><rect class="f2" x=162 y=66 width=34 height=44 /><rect class=f x=60 y=118 width=46 height=34 />
+
+<g><rect class="s f" x=232 y=48 width=34 height=24 rx=2 /><rect class="s f" x=232 y=94 width=34 height=24 rx=2 /><rect class="s f" x=232 y=140 width=34 height=24 rx=2 />
+<text x=272 y=58>base</text><text x=272 y=68 class=m>layout</text><text x=272 y=104>+ ref</text><text x=272 y=114 class=m>headline</text><text x=272 y=150>+ ref</text><text x=272 y=160 class=m>the dot</text></g>
+<path class=d d="M232 60H208" /><path class=d d="M232 106C190 106 140 80 116 70" /><path class=d d="M232 152C150 152 80 120 56 100" stroke=#ff4f1a />
+</svg></div><h3><i>3</i>Direction</h3><p>First screens, each one of your references rebuilt with your content. Every part shows where it came from.</p><p class=you>pick, mix, open a part, then test it on the hardest screen.</p></div>
+
+<div><div class=pic><svg viewBox="0 0 320 200">
+<text x=36 y=120 style="font:300 92px Georgia,'Times New Roman',serif;fill:#1c1c1a">Aa</text>
+<rect class=f x=38 y=138 width=110 height=4 rx=2 /><rect class=f x=38 y=148 width=96 height=4 rx=2 /><rect class=f x=38 y=158 width=104 height=4 rx=2 />
+<g><rect x=196 y=30 width=90 height=46 rx=3 fill=#f7f6f3 stroke=#1c1c1a stroke-width=1.5 /><rect x=196 y=84 width=90 height=40 rx=3 fill=#1c1c1a /><rect x=196 y=132 width=90 height=40 rx=3 class=a /></g>
+<text x=202 y=70 class=m>ground</text><text x=202 y=118 style="fill:#bbb" class=m>ink</text><text x=202 y=166 style="fill:#fff">accent</text>
+</svg></div><h3><i>4</i>Identity</h3><p>Type and colour from the chosen screen, with close options on it.</p><p class=you>pick, refine once.</p></div>
+
+<div><div class=pic><svg viewBox="0 0 320 200">
+<g transform="translate(20 24)"><rect x=0 y=0 width=76 height=54 rx=3 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=6 y=6 width=24 height=4 rx=1 fill=#1c1c1a /><circle cx=68 cy=8 r=3 fill=#ff4f1a /></g><rect x=26 y=40 width=40 height=8 fill=#1c1c1a /><rect class=f x=26 y=54 width=30 height=18 /><rect class=f2 x=60 y=54 width=30 height=18 />
+<g transform="translate(122 24)"><rect x=0 y=0 width=76 height=54 rx=3 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=6 y=6 width=24 height=4 rx=1 fill=#1c1c1a /><circle cx=68 cy=8 r=3 fill=#ff4f1a /></g><g class=f><rect x=128 y=40 width=64 height=5 /><rect x=128 y=49 width=64 height=5 /><rect x=128 y=58 width=64 height=5 /><rect x=128 y=67 width=64 height=5 /></g>
+<g transform="translate(224 24)"><rect x=0 y=0 width=76 height=54 rx=3 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=6 y=6 width=24 height=4 rx=1 fill=#1c1c1a /><circle cx=68 cy=8 r=3 fill=#ff4f1a /></g><rect class=s x=230 y=40 width=60 height=9 rx=2 /><rect class=s x=230 y=53 width=60 height=9 rx=2 /><rect x=230 y=66 width=24 height=7 rx=2 class=a />
+<path class=s d="M98 51h20m-4-4 4 4-4 4M200 51h20m-4-4 4 4-4 4" />
+<g transform="translate(122 104)"><rect class=s x=0 y=0 width=76 height=54 rx=3 fill=#fff /><rect x=6 y=6 width=24 height=4 rx=1 fill=#1c1c1a /><circle class=a cx=68 cy=8 r=3 /><rect class=s x=24 y=22 width=28 height=18 rx=2 stroke-dasharray="3 2" /><text x=26 y=50 class=m>empty</text></g>
+<g transform="translate(232 98)"><rect class=s x=0 y=0 width=34 height=66 rx=5 fill=#fff /><rect x=5 y=7 width=14 height=3 fill=#1c1c1a /><circle class=a cx=28 cy=9 r=2.5 /><rect class=f x=5 y=16 width=24 height=40 /></g>
+<g transform="translate(20 108)"><rect class=f x=0 y=0 width=76 height=42 rx=3 /><g fill=#1c1c1a><rect x=6 y=10 width=4 height=24 /><rect x=14 y=18 width=4 height=16 /><rect x=22 y=6 width=4 height=28 /><rect x=30 y=22 width=4 height=12 /></g><text x=40 y=22 class=m>drift</text><text x=40 y=34>0</text></g>
+<text x=20 y=184 class=m>one set: same header, same dot, every screen</text>
+</svg></div><h3><i>5</i>Prototype</h3><p>Every key screen and state, borrowed from your base's own product first, and seen as one set.</p><p class=you>click through and approve. DESIGN.md is written.</p></div>
+
+<div><div class=pic><svg viewBox="0 0 320 200"><defs><pattern id=dots width=10 height=10 patternUnits=userSpaceOnUse><circle cx=1 cy=1 r=.8 fill=#d6d2ca /></pattern></defs><rect width=320 height=200 fill=url(#dots) /><text x=24 y=32 class=m>Home</text><rect x=24 y=38 width=80 height=52 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=30 y=44 width=18 height=3 fill=#1c1c1a /><rect x=30 y=58 width=34 height=7 fill=#1c1c1a /><rect x=30 y=70 width=28 height=14 fill=#e6e3dd /><rect x=62 y=70 width=36 height=14 fill=#cfcbc3 /><circle cx=96 cy=46 r=5 fill=#ff4f1a /><path d="M93.5 46l1.8 1.8 3.2-3.6" fill=none stroke=#fff stroke-width=1.4 stroke-linecap=round stroke-linejoin=round /><text x=120 y=32 class=m>Menu</text><rect x=120 y=38 width=80 height=52 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=126 y=44 width=18 height=3 fill=#1c1c1a /><rect x=126 y=56 width=68 height=4 fill=#e6e3dd /><rect x=126 y=64 width=68 height=4 fill=#e6e3dd /><rect x=126 y=72 width=68 height=4 fill=#e6e3dd /><rect x=126 y=80 width=68 height=4 fill=#e6e3dd /><circle cx=192 cy=46 r=5 fill=#ff4f1a /><path d="M189.5 46l1.8 1.8 3.2-3.6" fill=none stroke=#fff stroke-width=1.4 stroke-linecap=round stroke-linejoin=round /><text x=216 y=32 class=m>Order</text><rect x=216 y=38 width=80 height=52 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=222 y=44 width=18 height=3 fill=#1c1c1a /><rect x=222 y=56 width=60 height=8 rx=2 fill=none stroke=#1c1c1a stroke-width=1.2 /><rect x=222 y=68 width=60 height=8 rx=2 fill=none stroke=#1c1c1a stroke-width=1.2 /><rect x=222 y=80 width=22 height=5 rx=1 fill=#ff4f1a /><circle cx=288 cy=46 r=5 fill=#ff4f1a /><path d="M285.5 46l1.8 1.8 3.2-3.6" fill=none stroke=#fff stroke-width=1.4 stroke-linecap=round stroke-linejoin=round /><text x=24 y=116 class=m>Empty</text><rect x=24 y=122 width=80 height=52 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=30 y=128 width=18 height=3 fill=#1c1c1a /><rect x=50 y=140 width=28 height=18 rx=2 fill=none stroke=#1c1c1a stroke-width=1.2 stroke-dasharray="3 2" /><circle cx=96 cy=130 r=5 fill=#ff4f1a /><path d="M93.5 130l1.8 1.8 3.2-3.6" fill=none stroke=#fff stroke-width=1.4 stroke-linecap=round stroke-linejoin=round /><text x=120 y=116 class=m>Phone</text><rect x=120 y=122 width=34 height=58 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><rect x=125 y=128 width=10 height=3 fill=#1c1c1a /><rect x=126 y=138 width=22 height=34 fill=#e6e3dd /><circle cx=146 cy=130 r=5 fill=#ff4f1a /><path d="M143.5 130l1.8 1.8 3.2-3.6" fill=none stroke=#fff stroke-width=1.4 stroke-linecap=round stroke-linejoin=round /><text x=170 y=116 class=m>Components</text><rect x=170 y=122 width=126 height=52 rx=2 fill=#fff stroke=#1c1c1a stroke-width=1.5 /><path d="M182 138l6-6 6 6-6 6z" fill=#1c1c1a /><rect x=200 y=133 width=30 height=10 rx=2 fill=#1c1c1a /><rect x=236 y=133 width=30 height=10 rx=2 fill=none stroke=#1c1c1a stroke-width=1.2 /><rect x=182 y=152 width=40 height=12 rx=2 fill=#e6e3dd /><rect x=228 y=152 width=56 height=4 fill=#e6e3dd /><rect x=228 y=160 width=40 height=4 fill=#e6e3dd /></svg></div><h3><i>6</i>Figma</h3><p>Tokens, components, and every screen with its states.</p><p class=you>mark each frame Ready. Build starts from there.</p></div>
 </div>
-<script>
-function draw() {
-  const box = document.querySelector(".rows").getBoundingClientRect();
-  const svg = document.getElementById("links");
-  const r = (id) => { const b = document.getElementById(id).getBoundingClientRect(); return { l: b.left - box.left, r: b.right - box.left, t: b.top - box.top, b: b.bottom - box.top, m: (b.top + b.bottom) / 2 - box.top }; };
-  const out = [];
-  const k = 12;
-  const ring = (x, y) => out.push(`<circle cx="${x}" cy="${y}" r="3.5"/>`);
-  const head = (x, y, dx, dy) => out.push(`<path class="head" d="M${x - dx * 8 - dy * 6} ${y - dy * 8 - dx * 6} L${x} ${y} L${x - dx * 8 + dy * 6} ${y - dy * 8 + dx * 6}"/>`);
-  const line = (d) => out.push(`<path class="line" d="${d}"/>`);
-  // Into a detour: out of the card's left side, along, then down into the detour's top.
-  const down = (card, pill) => {
-    const c = r(card), p = r(pill), y = Math.max(c.t + 40, Math.min(c.b - 22, p.t - 30)), x = p.l + (p.r - p.l) * 0.62, top = p.t - 3;
-    line(`M${c.l} ${y} H${x + k} Q${x} ${y} ${x} ${y + k} V${top}`);
-    ring(c.l, y); head(x, top, 0, 1);
-  };
-  // Back to the line: out of the detour's right side, along a lane, into the card's left side.
-  const back = (pill, card, from, lane, dy = 0) => {
-    const p = r(pill), c = r(card), y = r(card).m + dy, tip = c.l - 3, s = Math.sign(y - from) || 1;
-    line(Math.abs(y - from) < 2 ? `M${p.r} ${from} H${tip}` : `M${p.r} ${from} H${lane - k} Q${lane} ${from} ${lane} ${from + s * k} V${y - s * k} Q${lane} ${y} ${lane + k} ${y} H${tip}`);
-    head(tip, y, 1, 0);
-  };
-  const lane = (r("c1").l + r("d-families").r) / 2;
-  const f = r("d-families"), c = r("d-content"), w = r("d-wordmark");
-  down("c2", "d-families");
-  ring(f.r, f.b - 22); back("d-families", "c3", f.b - 22, lane, -14);
-  // design-content feeds the direction; the prototype reads it from there.
-  ring(c.r, c.m); back("d-content", "c3", c.m, lane, r("c3").b - 26 - r("c3").m);
-  down("c4", "d-wordmark");
-  ring(w.r, w.b - 22); back("d-wordmark", "c5", w.b - 22, lane);
-  svg.innerHTML = out.join("");
-}
-document.fonts.ready.then(() => { draw(); setTimeout(() => (document.title = "ready"), 200); });
-</script>
-</body>
-</html>
+<footer><div><b>Your taste picks:</b> the references, the screen, each part, the type and colours.</div><div><b>The agent does the craft:</b> it rebuilds your references with your content and adds nothing that isn't on your board.</div><div><b>Docs stay clean:</b> committed files describe the style, never a source.</div></footer>
