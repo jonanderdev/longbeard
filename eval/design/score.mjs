@@ -342,7 +342,16 @@ else {
       };
       judge(0, g.tiny, `smallest ${g.minText}px`, unread);
       judge(1, g.clipped, "", unread);
-      judge(2, g.contrast, `${g.screens} screens`, contrastGone);
+      // A colour they liked may stay under the level with its warning (grid.md): the screen's fault names it as
+      // liked, with its ratio. That is a warning here too; any other text under the level is a fail.
+      const faultOf = new Map(built.list.map((e) => [Number(e.n), String(e.fault || "")]));
+      const liked = [], under = [];
+      for (const sc of out.screens || []) for (const t of sc.contrast?.under || []) {
+        const fault = faultOf.get(Number(sc.n)) || "";
+        (/\bliked\b/i.test(fault) && fault.includes(`${t.ratio}:1`) ? liked : under).push(`${sc.n}: "${t.text}" ${t.ratio}:1`);
+      }
+      judge(2, out.screens?.some((sc) => sc.contrast?.under) ? under : g.contrast, `${g.screens} screens${liked.length ? `, ${liked.length} liked under the level` : ""}`, contrastGone);
+      if (liked.length) check("screens: liked colours kept under the level", false, false, `warned, not failed: ${list(liked)}`);
       check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
     }
   }

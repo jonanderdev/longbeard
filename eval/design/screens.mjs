@@ -187,7 +187,7 @@ for (const s of screens) {
   try {
     out = JSON.parse(c.stdout);
   } catch {}
-  if ((c.status === 0 || c.status === 1) && out && Array.isArray(out.texts) && Number.isInteger(out.failing)) s.contrast = { failing: out.failing, worst: out.texts.filter((t) => !t.pass).slice(0, 3).map((t) => `"${t.text}" ${t.p5}:1`) };
+  if ((c.status === 0 || c.status === 1) && out && Array.isArray(out.texts) && Number.isInteger(out.failing)) s.contrast = { failing: out.failing, worst: out.texts.filter((t) => !t.pass).slice(0, 3).map((t) => `"${t.text}" ${t.p5}:1`), under: out.texts.filter((t) => !t.pass).map((t) => ({ text: t.text, ratio: t.p5 })) };
   else s.contrast = { failing: null, worst: [], error: (c.error?.message || c.stderr || `exit ${c.status}`).trim().slice(0, 200) };
 }
 
