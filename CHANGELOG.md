@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Seven references in eight screens.** The two concepts come from likes no other screen stands on, so the first round spreads across your board instead of repeating a few references.
 - **Each screen beside its references.** Before the canvas, the direction looks at each screen beside the pictures it is made from, and fixes any scene or device that no longer reads as it does there.
 - **What you like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space it has there: never taken apart, restyled or given another job (a block of colour does not become a button).
 - **Options on the real page.** When you ask for versions of a part, or layouts for a page, they sit on the real screen, with its header, content and density, instead of a separate sheet. A small bar at the bottom names the reference each one comes from, and ← → flip between them; `?variant=2` links to one.
