@@ -70,4 +70,15 @@ node eval/design/score.mjs ../lb-eval --plain ../lb-plain
 - **The blind sheet:** the round and the baseline shuffled into one sheet, numbered only (`.longbeard/eval/blind/sheet.png`, the key apart in `key.json`). The owner writes good, OK or bad beside each number in `marks.md`; the next score tallies the marks by set, and only then shows the baseline's tells.
 - **Sameness** (`--other <run on the other board>`, soft): faces, ground, ink, how empty, picture share and headline size, measured alike on both runs; screens from two boards should be no more alike than screens of one. `.longbeard/eval/sameness/closest.html` shows the closest pairs.
 
+## Against the same references in one prompt, blind
+
+Beating an agent with no board shows the board matters. It does not show the flow's steps do. For that, the second baseline gets everything the person gives the flow (the brief, the design-brief answers, the board with its lead, likes, whys and leave-outs, and the subject's pictures) in one prompt, with no skills, and builds every key screen.
+
+```
+node eval/design/run.mjs --out ../lb-refs --refs --agent 'claude -p {prompt}'
+node eval/design/compare.mjs --out ../lb-compare ../lb-refs ../lb-eval ../lb-quick
+```
+
+`compare.mjs` gives each run a letter at random and shows every key screen side by side, then each letter's screens as one set (`index.html`; the key apart in `key.json`). A step earns its place when leaving it out makes the result worse on the owner's blind picks: where the one-prompt baseline or a quick run comes as close as a full run, the steps between them did not earn their time.
+
 `test/eval-score.test.js` keeps the scorer honest: a hand-made good run passes every check; a leaked name, a gap in the brief, a failing pair, a screen with no move and a dead link each fail; a checker that crashes is not run and fails the run; the tells are found; the blind sheet is shuffled once and tallied by set.
