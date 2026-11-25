@@ -91,7 +91,7 @@ Give the paths and every key screen on one sheet, desktop then phone (`sheet.mjs
 
 > Is this the product? Want options anywhere?
 
-With motion options, the question also asks which version for each moment, one line each for what moves. The others are removed on their pick, and the pick is what `DESIGN.md`'s Motion records.
+With motion options, the question also asks which version for each moment, one line each for what moves. The others are removed on their pick, and the pick is what `DESIGN.md`'s Motion records. The pick is the motion system, as the chosen screen is the frame: its eases, times and staggers carry to every page's reveals, hovers and transitions, and their notes on it are iterated like any other.
 
 **Options** only when asked: two to four layouts for that page or part from different references, on the real page with its header, content and density, each a `data-variant` with `data-from` its reference, flipped with [variants.js](references/variants.js) (`?variant=<n>`, ← →); a sheet only to see them side by side. Never ranked. Iterate until it is the product.
 
