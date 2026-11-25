@@ -46,7 +46,7 @@ The rules live in each skill's SKILL.md. Change them there. This is what the pro
   | apart from, distance | `design-moodboard` (what to search and keep out), `design-direction` (the eye's check), `design-check` (could it be mistaken for one) |
   | fixed | the direction's library (`theirs` entries, dropped grounds), `design-identity` |
   | accessibility | every contrast check (`contrast.mjs --level`, `screen-contrast.mjs --min`), `DESIGN.md`, `design-check` |
-  | motion | `design-prototype` (builds those picks and nothing beyond them), `DESIGN.md` (its Motion section), `design-check` (checks against them), `design-moodboard` (the pasted link, and examples only if asked) |
+  | motion | `design-prototype` (builds those picks and nothing beyond them), `DESIGN.md` (its Motion section), `design-check` (checks against them), `design-moodboard` (the pasted link; examples when their board has none moving, or they ask) |
   | dense | `design-prototype`, `DESIGN.md` |
   | voice | headlines, copy, the identity board, `DESIGN.md` |
   | decides | every approval: the direction, the identity board, `DESIGN.md` |

@@ -53,7 +53,7 @@ Contrast (scripts/contrast.mjs, at the level under Accessibility):
 - <component>: <what it is for, its variants, its states>
 
 ## Motion
-- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; what moves and when, as the direction's `motion:` line has it; reduced motion turns it off>
+- <the design brief's picks as built: how much, driven by, character and where it applies, moments, or "none: state changes only"; what moves and when, as the direction's `motion:` line has it, or the motion option they picked; built with CSS or the motion library the prototype used, so the stack can carry it; reduced motion turns it off>
 
 | Token | Duration | Easing | Use |
 |---|---|---|---|
