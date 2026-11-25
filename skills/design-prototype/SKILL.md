@@ -41,6 +41,7 @@ Read the brief, the design brief, the identity, the direction and `design-conten
 - **Faces** loaded at every size. A stand-in face is said again.
 - **The rest of the page:** below the first screen, small text, every width down to the phone.
 - **Motion:** exactly the design brief's `motion` line, from the direction's `motion:` line, nothing beyond (`none` is state changes only). Honour `prefers-reduced-motion`.
+- **Motion options,** when the brief's motion is present or leading, as a studio shows motion studies once the still look holds: for each moment the brief names (two at most), two or three versions, each rebuilt from a different reference on the board that shows it moving (what moves, trigger, time, easing: from a live page's code, its CSS and the motion library calls in its scripts; from a GIF or video, its own frames; recorded frames only to see the sequence), on `home.html` as a `data-variant` with `data-from`, flipped with [variants.js](references/variants.js). Build each with what its move needs, as the reference does: CSS for a state change, a motion library for sequenced, scroll-driven, split-type or physics work. A version that only hints at a complex move is not that reference. One such reference: one version, and say so. Never a move no reference makes.
 - **What waits for the prototype** (the direction's `for the prototype` line), placed in the composition's own system, never shrinking the headline or tidying a device.
 - **The ownable**, finished. **The states** reachable here (empty, loading, error), and the second theme if asked for.
 
@@ -89,6 +90,8 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 Give the paths and every key screen on one sheet, desktop then phone (`sheet.mjs --cols 4`), so they judge the set as one product. One line per screen only for a fault, a choice you made, or what sits against the design brief (its words, its never, could it be mistaken for what it must stand apart from). Then **what they still supply**: each stand-in from `links.mjs`, one line each, by screen.
 
 > Is this the product? Want options anywhere?
+
+With motion options, the question also asks which version for each moment, one line each for what moves. The others are removed on their pick, and the pick is what `DESIGN.md`'s Motion records. The pick is the motion system, as the chosen screen is the frame: its eases, times and staggers carry to every page's reveals, hovers and transitions, and their notes on it are iterated like any other.
 
 **Options** only when asked: two to four layouts for that page or part from different references, on the real page with its header, content and density, each a `data-variant` with `data-from` its reference, flipped with [variants.js](references/variants.js) (`?variant=<n>`, ← →); a sheet only to see them side by side. Never ranked. Iterate until it is the product.
 
