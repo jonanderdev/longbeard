@@ -104,11 +104,11 @@ Change the number by hand, and only in that release commit. A push to `main`, an
 2. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
 3. Set that same number in `package.json`.
 4. Commit that, and merge it into `main`.
-5. Push the tag `vX.Y.Z` on that commit: `./scripts/release.sh` from the repo root, or an agent with push access. No terminal is needed for the rest.
+5. Start `.github/workflows/release.yml` on `main`: Actions, release, Run workflow (an agent can start it too). Pushing the tag `vX.Y.Z` with `./scripts/release.sh` starts it as well.
 
-A pushed `v*` tag starts `.github/workflows/release.yml`. It checks that the tag, `package.json` and a `CHANGELOG.md` section agree and that npm does not have the version, runs `npm test`, publishes with provenance, and makes the GitHub release from that section. It stops at the first of those that fails. npm trusts the workflow by name (Trusted Publisher on npmjs.com, set once by the package's owner), so no npm token is stored in the repo or on GitHub; never add one. `./scripts/release.sh` runs the same checks before it tags, so a bad tag is caught on your machine. After a publish the site can lag: check with `npm view @jonandev/longbeard version` before trying a number again. Do not publish that number again.
+The workflow checks that the tag (when one was pushed), `package.json` and a `CHANGELOG.md` section agree and that npm does not have the version, runs `npm test`, publishes with provenance, and makes the GitHub release from that section, which creates the tag when the run was started by hand. It stops at the first of those that fails. npm trusts the workflow by name (Trusted Publisher on npmjs.com, set once by the package's owner), so no npm token is stored in the repo or on GitHub; never add one. `./scripts/release.sh` runs the same checks before it tags, so a bad tag is caught on your machine. After a publish the site can lag: check with `npm view @jonandev/longbeard version` before trying a number again. Do not publish that number again.
 
-The workflow publishes only a tag someone pushed, never a merge. It is there so npm can show each version was built from its tag.
+The workflow publishes only when someone starts it or pushes a tag, never on a merge. It is there so npm can show each version was built from its tag.
 
 While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
 
