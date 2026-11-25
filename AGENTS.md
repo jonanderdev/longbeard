@@ -6,13 +6,13 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 |---|---|---|---|
 | Idea | No docs/brief.md, or the product changes | idea | docs/brief.md |
 | Design | A site, app or graphic brief, no DESIGN.md | design → figma-generate-library → figma-generate-design | docs/design/, DESIGN.md, Ready Figma frames |
-| Architecture | No GLOSSARY.md, or new stack | grill-with-docs → framework-skills | GLOSSARY.md, ADRs |
-| Plan | A flow or feature | setup-matt-pocock-skills → to-spec → to-tickets | specs, tickets |
-| Build | Tickets | implement-spec → tdd → design-check → pr | failing tests first, then one PR per spec |
+| Architecture | No stack ADR, or new stack | grill-with-docs → framework-skills | GLOSSARY.md, ADRs |
+| Plan | A flow or feature | grilling → to-spec → to-tickets | specs, tickets, one session |
+| Build | Tickets | implement-spec → design-check | one PR per spec, red-green per slice |
 
-Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A graphic ends at Figma. A feature with a brief: grill-with-docs for new terms, else grilling, then Plan.
+Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A graphic ends at Figma. A feature with a brief: Plan; new terms: grill-with-docs.
 
-UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.
+UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug. Layout or UI options: design, never prototype.
 
 - A hard bug: diagnosing-bugs
 - Handing off, when asked: handoff
