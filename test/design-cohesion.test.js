@@ -31,22 +31,20 @@ const board = `### Quiet <b>serif</b>
 - shot: refs/b.jpg
 `;
 const screens = [
-  { n: 1, base: "Quiet <b>serif</b>", moves: [{ what: "the headline", from: "Loud", like: "confident" }], build: "quick", state: "built" },
-  { n: 2, base: "Loud", moves: [], build: "quick", state: "failed", failure: "could not read it" },
-  { n: 3, of: 1, part: "menu", base: "Quiet <b>serif</b>", moves: [], build: "quick", state: "built" },
-  { n: 4, of: 1, test: true, base: "Quiet <b>serif</b>", moves: [], build: "full", state: "fixed", fault: "names wrap" },
+  { n: 1, base: "Quiet <b>serif</b>", moves: [{ what: "the headline", from: "Loud", like: "confident" }], state: "built" },
+  { n: 2, base: "Loud", moves: [], state: "failed", failure: "could not read it" },
+  { n: 3, of: 1, part: "menu", base: "Quiet <b>serif</b>", moves: [], state: "built" },
 ];
 const files = { "board.md": board, "refs/a.jpg": "x", "refs/b.jpg": "x", "refs/a-index.jpg": "x", "refs/a-article.jpg": "x", "grid/1.png": "x", "grid/2.png": "x", "grid/3.png": "x", "grid/4.png": "x" };
 
-test("canvas: rounds, parts and the hardest screen each in a row, references escaped", () => {
+test("canvas: rounds and parts each in a row, references escaped", () => {
   const dir = project({ ...files, "screens.json": JSON.stringify(screens) });
   const r = run(canvas, dir, ["screens.json", "--board", "board.md", "--shots", "grid", "--out", "canvas.html"]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stderr, /4 screens in 3 rows/);
+  assert.match(r.stderr, /3 screens in 2 rows/);
   const html = readFileSync(join(dir, "canvas.html"), "utf8");
   assert.match(html, /<span class="rl">Round 1<\/span>/);
   assert.match(html, /<span class="rl">1 · menu<\/span>/);
-  assert.match(html, /<span class="rl">1 · hardest screen<\/span>/);
   assert.match(html, /data-n="2" data-failed/);
   assert.match(html, /"fault":"failed: could not read it"/);
   assert.match(html, /"like":"the orange \\"dot\\""/);

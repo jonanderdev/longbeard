@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Scan a clickable prototype: every page in its folder, from its first page on, for
 // links that break and pages with no way on, and for what it still stands in for.
-// Whether a person can reach each screen is the flow walks' job, not this one's.
 // Node 22+, an installed Chrome, no dependencies.
 //
 //   node links.mjs "file://$PWD/.longbeard/design/prototype/home.html"

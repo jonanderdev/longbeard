@@ -5,7 +5,8 @@
 //   node eval/design/usage.mjs --transcripts <folder>        a transcripts folder named directly
 //   add --json for one object
 //
-// Every assistant message is counted once (by its id), helpers' transcripts (subagents/) included.
+// Every assistant message is counted once (by its id, the line with the largest output when a message is
+// written on several lines), helpers' transcripts (subagents/) included.
 // A message belongs to the skill most recently loaded (Skill tool, or reading its SKILL.md) before it in the main transcript; a helper's
 // messages to the skill loaded when the helper started. Before any skill: "(none)".
 // Tokens: input (fresh), cache writes, cache reads, output. "Weighted" prices cache reads at a tenth
@@ -43,7 +44,12 @@ for (const f of main) for (const e of lines(f)) for (const c of e.message?.conte
 timeline.sort((a, b) => a[0] - b[0]);
 const skillAt = (ms) => timeline.filter(([at]) => at <= ms).pop()?.[1] ?? "(none)";
 
-const seen = new Set();
+// Each message id once: its skill and the usage of its line with the largest output.
+const msgs = new Map();
+const keep = (id, skill, u) => {
+  const had = msgs.get(id);
+  if (!had || (u.output_tokens ?? 0) > (had.u.output_tokens ?? 0)) msgs.set(id, { skill: had?.skill ?? skill, u });
+};
 const by = new Map();
 let first = Infinity;
 let last = 0;
@@ -60,9 +66,8 @@ for (const f of main) for (const e of lines(f)) {
   const ms = Date.parse(e.timestamp);
   if (ms) { first = Math.min(first, ms); last = Math.max(last, ms); }
   const id = e.message?.id;
-  if (e.type !== "assistant" || !e.message?.usage || !id || seen.has(id)) continue;
-  seen.add(id);
-  add(skillAt(ms), e.message.usage);
+  if (e.type !== "assistant" || !e.message?.usage || !id) continue;
+  keep(id, skillAt(ms), e.message.usage);
 }
 for (const f of helpers) {
   const es = lines(f);
@@ -72,11 +77,11 @@ for (const f of helpers) {
     const ms = Date.parse(e.timestamp);
     if (ms) last = Math.max(last, ms);
     const id = e.message?.id;
-    if (e.type !== "assistant" || !e.message?.usage || !id || seen.has(id)) continue;
-    seen.add(id);
-    add(skill, e.message.usage);
+    if (e.type !== "assistant" || !e.message?.usage || !id) continue;
+    keep(id, skill, e.message.usage);
   }
 }
+for (const { skill, u } of msgs.values()) add(skill, u);
 
 const weighted = (s) => Math.round(s.input + s.output + s.cacheRead * 0.1 + s.cacheWrite * 1.25);
 const total = [...by.values()].reduce((a, s) => ({ input: a.input + s.input, cacheWrite: a.cacheWrite + s.cacheWrite, cacheRead: a.cacheRead + s.cacheRead, output: a.output + s.output, messages: a.messages + s.messages }), { input: 0, cacheWrite: 0, cacheRead: 0, output: 0, messages: 0 });

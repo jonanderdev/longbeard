@@ -43,12 +43,12 @@ if (!keys.length) {
   process.exit(1);
 }
 
-// A run's page for a screen: the exact name first, else a file whose name starts with it.
+// A run's page for a screen: the exact name first, else a file whose name starts with it and a separator (work-1.html, not workshop.html).
 function page(run, key) {
   for (const d of [join(run, ".longbeard/design/prototype"), join(run, "screens")]) {
     if (!existsSync(d)) continue;
     const files = readdirSync(d).filter((f) => f.endsWith(".html"));
-    const hit = files.find((f) => f === `${key}.html`) ?? files.find((f) => f.startsWith(key));
+    const hit = files.find((f) => f === `${key}.html`) ?? files.find((f) => new RegExp(`^${key}[^a-z]`, "i").test(f));
     if (hit) return join(d, hit);
   }
   return "";

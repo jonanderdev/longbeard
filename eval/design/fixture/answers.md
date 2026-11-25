@@ -46,6 +46,7 @@ You are running the design flow for someone who is away. When a skill asks them 
 
 ## design-prototype
 - The list of screens: fine as it is.
+- A part no reference shows (the booking form, the footer): take it from the chosen screen's own system; no search.
 - Options: no.
 - Is this the product: yes. Write DESIGN.md: yes.
 

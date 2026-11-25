@@ -60,6 +60,8 @@ It says how many cards it left out for a missing shot: capture those again first
 
 Read the lead and every like closely: its grid, the share of the screen each block takes, type sizes against the width, spacing, colours, faces (the closest Google Font), and what they like in it and why. Measure where you can (`measure.mjs <link>`, or `measure.mjs <picture> --lines` and `fonts.mjs --shape`). Write it to `library.json`, with the subject and its palette from `subject-colours.mjs`: [library.md](references/library.md).
 
+**Never invent a key part.** Once the readings show what each reference has: if none shows a hero or a header and menu, or their picks leave one unclear, ask once, in one message: the cards that show it, to pick from, or a search for that one part (`design-moodboard`'s one piece).
+
 ## 3. Eight first screens
 
 Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
@@ -68,16 +70,16 @@ Build them yourself, one after another, each `screens/<n>.html` from [screen-tem
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
 - **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
 - **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each.
-- **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. **Never invent a key part.** When a part the person will notice (the hero, the menu, the footer, the logo, a form) has no reference that shows it, or their picks leave it unclear, ask once, for all such parts in one message: the references on their board that show that part, to pick from, or, when none does, a search for that one part (`design-moodboard`'s one piece). Small parts (a field, a badge) are not asked: they follow the rule above.
+- **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
 
 Record each in `.longbeard/design/direction/screens.json`:
 
 ```
-[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "build": "quick", "state": "built" }]
+[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "state": "built" }]
 ```
 
-Optional: `round` (1 when left out), `fault` (one line), `shot`.
+`state` is `built`, or `failed` with `"failure": "<why>"`. Optional: `round` (1 when left out), `fault` (one line), `shot`.
 
 **Check each screen by script:**
 
@@ -87,7 +89,7 @@ node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/directio
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```
 
-Fix a text that fails contrast with the screen's own colours or another crop, never by moving it off the picture. A liked colour stays, with its ratio in `fault`. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
+Fix a text that fails contrast with the screen's own colours or another crop, never by moving it off the picture. A liked colour stays, with its ratio in `fault`. Fix clipped text by setting it smaller within its role or cutting words. Act here only on `rules.mjs`'s clipped text and placeholder copy; targets, focus and labels are the prototype's, and a reference's small links stay. Look at each capture yourself.
 
 **A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, said in `fault`, and theirs to decide.
 

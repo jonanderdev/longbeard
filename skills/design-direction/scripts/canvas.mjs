@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // The direction's screens as one page to choose from: every screen in a strip
-// (rounds, a favourite's parts and its hardest screen each in a row), the one
+// (each round, and a screen's parts, in a row), the one
 // they open shown large, and beside it what it is made from: its base and each
 // move, with the reference's picture and their own words. Actions write a
 // line for the chat. No dependencies. It shows what was built; it adds no
@@ -8,9 +8,9 @@
 //
 //   node canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 //
-// screens.json entries (the skill's step 3): n, base, moves [{ what, from, like }], build, state,
+// screens.json entries (the skill's step 3): n, base, moves [{ what, from, like }], state,
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
-// part (a part of that screen), test (its hardest screen), fault (one line), shot
+// part (a part of that screen), fault (one line), shot
 // (a picture; else <shots>/<n>.png). board.md cards give each reference's shot and like.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
@@ -87,14 +87,14 @@ const shotOf = (s) => {
   return "";
 };
 
-// Rows: each round, then each favourite's parts and its hardest screen.
+// Rows: each round, then each screen's parts.
 const rows = new Map();
 for (const s of screens) {
-  const key = s.of != null ? (s.test ? `${s.of} · hardest screen` : `${s.of} · ${s.part || "parts"}`) : `Round ${s.round || 1}`;
+  const key = s.of != null ? `${s.of} · ${s.part || "parts"}` : `Round ${s.round || 1}`;
   if (!rows.has(key)) rows.set(key, []);
   rows.get(key).push(s);
 }
-const label = (s) => (s.state === "failed" ? "failed" : s.build === "full" ? "full" : "quick");
+const label = (s) => (s.state === "failed" ? "failed" : "built");
 const data = screens.map((s) => {
   const base = cardOf(s.base);
   return {
@@ -103,7 +103,6 @@ const data = screens.map((s) => {
     label: label(s),
     of: s.of != null ? String(s.of) : "",
     part: s.part || "",
-    test: Boolean(s.test),
     fault: s.state === "failed" ? `failed: ${s.failure || "no reason given"}` : s.fault || "",
     base: { name: base.name, src: base.src, like: base.like, avoid: base.avoid },
     moves: (s.moves || []).map((m) => {
@@ -246,7 +245,7 @@ const html = `<!DOCTYPE html>
     $("baseimg").src = s.base.src || "";
     $("basebox").href = s.base.src || "#";
     $("basecap").textContent = "Base: " + s.base.name;
-    const kind = s.test ? "hardest screen for " + s.of : s.part ? s.part + " of " + s.of : "on " + s.base.name;
+    const kind = s.part ? s.part + " of " + s.of : "on " + s.base.name;
     $("title").textContent = s.n + " · " + kind;
     $("fault").textContent = s.fault;
     $("made").innerHTML =

@@ -4,7 +4,7 @@ Read by `design-direction`, step 0 and step 2.
 
 ## Pictures
 
-Before the grid: three or four pictures of what the product is about (the bakery's bread and its bench, the climbing gym's wall, the app's real data on a desk). Not other designs, which is the moodboard's job: the product's own world. Every screen from here on uses them, so nothing is judged on grey boxes or on another product's pictures, and their colours become one more palette (step 2).
+Before the screens: three or four pictures of what the product is about (the bakery's bread and its bench, the climbing gym's wall, the app's real data on a desk). Not other designs, which is the moodboard's job: the product's own world. Every screen from here on uses them, so nothing is judged on grey boxes or on another product's pictures, and their colours become one more palette (step 2).
 
 - **Theirs first.** The design brief says whether they have pictures. If they do, ask for three or four, and save them to `.longbeard/design/pictures/`.
 - **None yet:** find stand-ins, a few, never a bulk search. Search the subject, not a mood: the brief's identity nouns, one query per picture you need.
