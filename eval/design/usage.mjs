@@ -6,7 +6,7 @@
 //   add --json for one object
 //
 // Every assistant message is counted once (by its id), helpers' transcripts (subagents/) included.
-// A message belongs to the skill most recently loaded (Skill tool, or a Read of its SKILL.md) before it in the main transcript; a helper's
+// A message belongs to the skill most recently loaded (Skill tool, or reading its SKILL.md) before it in the main transcript; a helper's
 // messages to the skill loaded when the helper started. Before any skill: "(none)".
 // Tokens: input (fresh), cache writes, cache reads, output. "Weighted" prices cache reads at a tenth
 // and cache writes at 1.25 of fresh input, so runs can be compared by one number.
@@ -34,9 +34,10 @@ const helpers = files.filter((f) => f.includes("/subagents/"));
 const timeline = [];
 for (const f of main) for (const e of lines(f)) for (const c of e.message?.content ?? []) {
   if (c?.type !== "tool_use") continue;
-  // A skill is loaded with the Skill tool, or by reading its SKILL.md.
+  // A skill is loaded with the Skill tool, or by reading its SKILL.md (Read, or cat in the shell).
   const read = c.name === "Read" && String(c.input?.file_path ?? "").match(/skills\/([\w-]+)\/SKILL\.md$/)?.[1];
-  const skill = c.name === "Skill" ? c.input?.skill : read;
+  const cat = c.name === "Bash" && String(c.input?.command ?? "").match(/(?:skills\/([\w-]+)\/SKILL\.md|skills\/([\w-]+) && cat SKILL\.md)/);
+  const skill = c.name === "Skill" ? c.input?.skill : read || (cat && (cat[1] || cat[2]));
   if (skill) timeline.push([Date.parse(e.timestamp), skill]);
 }
 timeline.sort((a, b) => a[0] - b[0]);

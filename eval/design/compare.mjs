@@ -2,6 +2,7 @@
 // A blind comparison of finished runs, every key screen side by side, for the owner to judge.
 //
 //   node eval/design/compare.mjs --out ../lb-compare ../lb-refs ../lb-full ../lb-quick
+//   … --query lb-full:basket=bake=country   a run's screen in a given state, where its default is empty
 //
 // Each run is a design flow run (its .longbeard/design/prototype/<screen>.html) or a baseline
 // built with run.mjs --refs (its screens/<screen>.html). The key screens are the brief's. Every
@@ -20,6 +21,13 @@ const capture = join(repo, "skills/design-direction/scripts/capture.mjs");
 const args = process.argv.slice(2);
 const at = args.indexOf("--out");
 const out = at === -1 ? "" : resolve(args.splice(at, 2)[1] ?? "");
+// --query <run folder name>:<screen>=<query>: open that run's screen in a given state (a full basket, say),
+// where its default is empty. Repeat it.
+const queries = new Map();
+for (let i = args.indexOf("--query"); i !== -1; i = args.indexOf("--query")) {
+  const m = (args.splice(i, 2)[1] ?? "").match(/^([^:]+):(\w+)=(.*)$/);
+  if (m) queries.set(`${m[1]}:${m[2]}`, m[3]);
+}
 const runs = args.map((a) => resolve(a));
 if (!out || runs.length < 2 || runs.some((r) => !existsSync(r))) {
   console.error("usage: node eval/design/compare.mjs --out <folder> <run> <run> [<run> …]");
@@ -58,7 +66,8 @@ for (const { letter, run } of key) {
       console.error(`compare: ${basename(run)} has no ${k} screen`);
       continue;
     }
-    const url = pathToFileURL(p).href;
+    const q = queries.get(`${basename(run)}:${k}`);
+    const url = pathToFileURL(p).href + (q ? `?${q}` : "");
     const fold = join(out, "shots", `${letter}-${k}.jpg`);
     const full = join(out, "shots", `${letter}-${k}-full.jpg`);
     const a = spawnSync(process.execPath, [capture, url, "--out", fold, "--clip", "0,0,1440,900"], { encoding: "utf8" });
