@@ -24,7 +24,7 @@
     },
     {
       "name": "Architecture",
-      "when": "No GLOSSARY.md, or new stack",
+      "when": "No stack ADR, or new stack",
       "skills": [
         "grill-with-docs",
         "framework-skills"
@@ -35,22 +35,20 @@
       "name": "Plan",
       "when": "A flow or feature",
       "skills": [
-        "setup-matt-pocock-skills",
+        "grilling",
         "to-spec",
         "to-tickets"
       ],
-      "writes": "specs, tickets"
+      "writes": "specs, tickets, one session"
     },
     {
       "name": "Build",
       "when": "Tickets",
       "skills": [
         "implement-spec",
-        "tdd",
-        "design-check",
-        "pr"
+        "design-check"
       ],
-      "writes": "failing tests first, then one PR per spec"
+      "writes": "one PR per spec, red-green per slice"
     }
   ],
   "shapes": {

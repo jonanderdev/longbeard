@@ -19,7 +19,7 @@ The brief says what and for whom, never how. No framework, database, host or lib
 
 Look at the repo. Do not ask what is there.
 
-1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature: they type `/grill-with-docs` when it brings new terms, otherwise load `grilling`. Then they type `/to-spec`. The brief stays as it is.
+1. `docs/brief.md` exists and they bring a feature → not this skill. Grill the feature: they type `/grill-with-docs` when it brings new terms, otherwise load `grilling`. Then they type `/to-spec` and `/to-tickets` in the same session: `to-spec` asks nothing and writes from the conversation. The brief stays as it is.
 2. `docs/brief.md` exists and the product itself changes (new people, new surface, a flow dropped) → **Change**.
 3. No brief, and the repo has code or a README → **Existing project**.
 4. Otherwise → **New idea**.
@@ -103,8 +103,8 @@ Read the brief. Grill only what changes and what hangs off it: a new surface reo
 Offer the next stage in one line, from the stages the router lists. A stage whose file already exists is done, so go past it:
 
 - Site, app or graphic, no `DESIGN.md` → `design`, which suggests the first design skill (`design-brief`).
-- No UI, or `DESIGN.md` exists → Design is skipped. Next is Architecture: they type `/grill-with-docs`.
-- `GLOSSARY.md` exists too → next is Plan: they type `/to-spec` for the first flow or feature.
+- No UI, or `DESIGN.md` exists → Design is skipped. Next is Architecture: they type `/grill-with-docs`. Its design tree is the stack (language, framework, data, hosting) and the words the brief and any Figma screens already use. It ends with the stack as an ADR in `docs/adr/`.
+- A stack ADR exists too → next is Plan: grill the first flow with `grilling`, then they type `/to-spec` and `/to-tickets` in the same session.
 
 With no Architecture stage in the router (a design-only install), the next stage is `design` for a site or app. Otherwise the brief is the result.
 

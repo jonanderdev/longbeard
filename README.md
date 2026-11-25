@@ -18,8 +18,8 @@ It is not an agent runtime or a marketplace, and it does not turn one prompt int
 | 1. Idea | The agent grills the idea, each question with its recommendation | `docs/brief.md` |
 | 2. Design | A short brief and your moodboard, then you pick a direction and variants of it. Type, colour and the other screens follow, each on your yes. [How it flows](assets/design-flow.png) | `DESIGN.md` and Figma screens marked Ready |
 | 3. Architecture | The stack and the words the product uses, then skills for that stack, on your yes | `GLOSSARY.md`, decisions |
-| 4. Plan | Each flow becomes a spec, each spec tickets | specs and tickets |
-| 5. Build | One agent per ticket, test-first, reviewed, checked against its Figma frame | one pull request per spec |
+| 4. Plan | Each flow is grilled, then becomes a spec and tickets in the same session | specs and tickets |
+| 5. Build | One agent per ticket, red-green one slice at a time, reviewed, checked against its Figma frame. Type `/retro` after a build that went sideways | one pull request per spec |
 
 Each stage writes a file the next one reads, so you can stop anywhere and come back, or join with a project that already has some of them. A CLI, API or library skips Design.
 

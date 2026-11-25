@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+- **What you like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space it has there: never taken apart, restyled or given another job (a block of colour does not become a button).
 - **Options on the real page.** When you ask for versions of a part, or layouts for a page, they sit on the real screen, with its header, content and density, instead of a separate sheet. A small bar at the bottom names the reference each one comes from, and ← → flip between them; `?variant=2` links to one.
+- **Plan grills each flow first.** The Plan row is now `grilling → to-spec → to-tickets`, in one session: `to-spec` asks nothing and writes from the conversation, so a spec started cold had only the brief. `to-spec` still asks for `setup-matt-pocock-skills` when a repo has none.
+- **Build says what really runs.** The Build row is `implement-spec → design-check`: `implement-spec` already runs `tdd` on each ticket and `code-review` at the end, and `pr` writes the body whenever a PR is opened. Writes reads "red-green per slice", one test then its code, never all the tests first.
+- **Architecture ends with a stack ADR.** It starts when there is no stack ADR (not when there is no `GLOSSARY.md`, which is written only once a term is settled). `idea` and `design-figma` say what to grill when they offer `/grill-with-docs`: the stack, and the words the brief and the Figma screens use.
+- **Layout or UI options go to `design`, never `prototype`.** Matt's `prototype` still answers logic questions; its UI branch made options of the model's own.
+- **`/retro`** is named in the README for a build that went sideways.
+- Run `npx longbeard update` to get the new `AGENTS.md` block.
+
 - **Concepts, not only rebuilds.** Of the eight first screens, six still rebuild one of your references; two now develop a concept you liked: the agent writes out what it is and why it works, then redraws it for your content, keeping its devices, type and colour. Before you see one it must be the same concept and not a copy; a screen with no concept behind it goes. The canvas labels them "concept from …". Style still comes only from your board.
 - **A recommendation, and the pick in context.** The direction now names the screen that best does what your design brief asks, and which line it serves; you still choose. Once you pick, it builds that screen's phone view and the hardest key screen in its look, before the identity, so a look that breaks on real content shows while going back is cheap.
 - **A first screen does a first screen's job.** A reference that is a mid-page section, an inner page or a poster lends its system and moves to the first screen; what only works in its own role is left out. And one picture leads: pictures that share a view never compete (a subject laid over the same subject behind it).
