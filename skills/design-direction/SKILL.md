@@ -62,13 +62,15 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 
 **Never invent a key part.** Once the readings show what each reference has: if none shows a hero or a header and menu, or their picks leave one unclear, ask once, in one message: the cards that show it, to pick from, or a search for that one part (`design-moodboard`'s one piece). **Never block on it:** build on with that part from the closest system on the board, marked `data-standin`, and put their answer in when it comes, in the next round or the prototype.
 
+**The accent** ([rule 6](references/design-rules.md#6-colour)): unless the board clearly shows one or they named it, add the options as swatches to that message, or send them alone, never waiting: `colours.mjs --harmony --primary <#> --ground <#> --family "<board's colours>" --level <AA|AAA>`, plus the subject's accent. Never pick or rank.
+
 ## 3. Eight first screens
 
 Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
-- **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, and no text is under 12px: a poster's tiny labels are not copied onto a page.
+- **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, at [rule 5](references/design-rules.md#5-typography)'s size floor.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
-- **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
+- **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
 - **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each; before the checks, go through the screen's CSS, and anything it cannot name goes.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
@@ -76,7 +78,7 @@ Build them yourself, one after another, each `screens/<n>.html` from [screen-tem
 Record each in `.longbeard/design/direction/screens.json`:
 
 ```
-[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "state": "built" }]
+[{ "n": 1, "base": "<card name>", "moves": [{ "what": "<the move>", "from": "<card name>", "like": "<their words, or null>" }], "accent": "<#hex from the options, or null>", "state": "built" }]
 ```
 
 `state` is `built`, or `failed` with `"failure": "<why>"`. Optional: `round` (1 when left out), `fault` (one line), `shot`.
@@ -101,7 +103,7 @@ node <skill>/scripts/canvas.mjs .longbeard/design/direction/screens.json --board
 
 It shows every screen in a strip and, for the one they open, what it is made from: its base and each move, with the reference and their words. Give its path, and one line per screen only for a fault or for what sits against the brief (its never, its words, its personality, or could be mistaken for what it must stand apart from). Never say which you prefer.
 
-> Which is closest? Or "more", "more of 3", "3 with 6's colours".
+> Which is closest? Or "more", "more of 3", "3 with 6's accent".
 
 ## 4. More, mix, choose
 

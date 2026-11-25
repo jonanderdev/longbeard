@@ -5,7 +5,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const shared = [
-  ["rules/design-rules.md", ["design-direction/references", "design-prototype/references", "design-check/references"]],
+  ["rules/design-rules.md", ["design-direction/references", "design-identity/references", "design-prototype/references", "design-check/references"]],
   ["skills/design-moodboard/scripts/capture.mjs", ["design-identity/scripts", "design-direction/scripts", "design-prototype/scripts", "design-wordmark/scripts", "design-check/scripts"]],
   ["skills/design-moodboard/scripts/contact-sheet.mjs", ["design-families/scripts", "design-direction/scripts", "design-content/scripts"]],
   ["skills/design-moodboard/scripts/moodboard.mjs", ["design-families/scripts", "design-direction/scripts"]],
@@ -20,6 +20,7 @@ export const shared = [
   ["skills/design-direction/scripts/pictures.mjs", ["design-content/scripts", "design-prototype/scripts", "design-moodboard/scripts"]],
   ["skills/design-direction/scripts/subject-colours.mjs", ["design-identity/scripts"]],
   ["skills/design-identity/scripts/fonts.mjs", ["design-direction/scripts"]],
+  ["skills/design-identity/scripts/colours.mjs", ["design-direction/scripts"]],
 ];
 
 if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
