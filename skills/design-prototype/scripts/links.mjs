@@ -7,7 +7,7 @@
 //
 // Pages are rendered (links a script builds count). Links are followed from the first page, then
 // every other page in the prototype's folder is opened too, so a page behind a state (an empty
-// basket) is still scanned. A link elsewhere (a real site, mailto:) is listed, never followed. A form that submits to another page is a way on, and so is
+// basket) is still scanned. A sheet of screenshots that sheet.mjs made there is skipped. A link elsewhere (a real site, mailto:) is listed, never followed. A form that submits to another page is a way on, and so is
 // a button whose script navigates: each is clicked, and the page it lands on is followed. A query (?state=empty) or a hash is the same page, but the
 // page is opened with the query it was first reached by, so state a prototype keeps in
 // the address (a basket, a chosen slot) carries on as it does for a person.
@@ -237,8 +237,10 @@ const seen = new Set([startPath]);
 const firstUrl = new Map([[startPath, start.split("#")[0]]]);
 const queue = [startPath];
 const broken = [], nowhere = [], deadEnds = [], outside = new Set();
-// When the links run out, every page in the folder not reached yet is opened by itself.
-const rest = () => readdirSync(dirname(startPath)).filter((f) => /\.html?$/i.test(f)).sort().map((f) => join(dirname(startPath), f)).filter((p) => !seen.has(p));
+// When the links run out, every page in the folder not reached yet is opened by itself,
+// except a sheet of screenshots (sheet.mjs marks it): it shows the prototype, it is not a page of it.
+const isSheet = (path) => { try { return /<meta name="generator" content="longbeard sheet">/.test(readFileSync(path, "utf8")); } catch { return false; } };
+const rest = () => readdirSync(dirname(startPath)).filter((f) => /\.html?$/i.test(f)).sort().map((f) => join(dirname(startPath), f)).filter((p) => !seen.has(p) && !isSheet(p));
 while (queue.length || (queue.push(...rest().slice(0, 1)), queue.length)) {
   const path = queue.shift();
   seen.add(path);

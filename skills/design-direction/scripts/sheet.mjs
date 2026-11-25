@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Lay screenshots out as one numbered sheet, so a round of first screens can
 // be seen and picked from together. It writes an HTML page; capture.mjs turns
-// that into the picture to show. No dependencies.
+// that into the picture to show. The page is marked as a sheet, so links.mjs never
+// counts it as a page of the prototype. No dependencies.
 //
 //   node sheet.mjs .longbeard/design/direction/grid/sheet.html .longbeard/design/direction/grid/1.png .longbeard/design/direction/grid/2.png …
 //   node sheet.mjs .longbeard/design/direction/grid/vary.html --cols 5 .longbeard/design/direction/grid/v*.png
@@ -49,6 +50,7 @@ writeFileSync(
   out,
   `<!doctype html>
 <meta charset="utf-8">
+<meta name="generator" content="longbeard sheet">
 <title>Sheet</title>
 <style>
   body { margin: 0; padding: 24px; background: #6f6f6f; font: 600 22px/1 system-ui, sans-serif; }

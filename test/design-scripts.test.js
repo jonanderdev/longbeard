@@ -639,6 +639,9 @@ test("links: scans every page of a prototype and says what breaks", (t) => {
   writeFileSync(join(dir, "cart.html"), `<script>if (location.search.includes("item")) document.write('<a href="home.html">Pay</a>')</script>`);
   writeFileSync(join(dir, "basket.html"), "Your basket");
   writeFileSync(join(dir, "checkout.html"), `<a href="home.html">home</a>`);
+  // A sheet of the screens, made in the folder by sheet.mjs: not a page of the prototype, so never a dead end.
+  writeFileSync(join(dir, "a.png"), "x");
+  spawnSync(process.execPath, [sheet, join(dir, "sheet.html"), join(dir, "a.png")], { encoding: "utf8" });
   const result = spawnSync(process.execPath, [join(root, "skills/design-prototype/scripts/links.mjs"), `file://${join(dir, "home.html")}`, "--json"], { encoding: "utf8" });
   if (/No Chrome/.test(result.stderr)) return t.skip("no Chrome installed");
   assert.equal(result.status, 1, result.stderr);

@@ -22,7 +22,7 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
     "motion": { "what": "…", "trigger": "…", "ms": 600, "easing": "…", "character": "…", "by": "page | frames | not seen" },
     "finish": { "css": "…", "by": "page | eye" },
     "picture_kind": "photo | illustration | 3d | mixed",
-    "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "pictures": 1 },
+    "slots": { "headline": { "words": 3, "lines": 2 }, "small": 3, "blocks": 5, "pictures": 1 },
     "devices": ["<each element that is not content: a disc, a ruled line, a word band, a ring of text>"],
     "measured": { "empty": 62, "pictures": 28, "radius": 12 }
   }]
@@ -59,7 +59,7 @@ Give it every measure the picture gave (`width`, `xheight`, `dark`, `contrast`).
 - **`layout`, `type`, `spacing`:** the system, in numbers, so the rebuild is measured, not approximated. Type sizes are the reference's against its screen: a 96 px headline on a 1440 screen stays 96 px.
 - **`palette`:** the colours as they work together. A palette is borrowed whole, or one colour they did not name is swapped for another of the same role. Never one colour picked out of it by itself.
 - **`pictures`:** the treatment the product's pictures get on a screen built from it.
-- **`slots`:** how much text it carries; a screen built on it carries the same, and one small element more at most.
+- **`slots`:** how much text it carries, with its text `blocks` as `measure.mjs` counts them (or by eye); a screen built on it carries the same, and one small element more at most.
 - **`devices`:** every element that is not content, so each on a screen traces to one.
 
 ## Motion, finish and picture kind
