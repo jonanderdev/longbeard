@@ -85,6 +85,8 @@ const refs = refsAt !== -1 && Boolean(args.splice(refsAt, 1));
 // --method: --refs, with the flow's method written into the prompt (method/METHOD.md): still one agent, no skills, no helpers.
 const methodAt = args.indexOf("--method");
 const method = methodAt !== -1 && Boolean(args.splice(methodAt, 1));
+// --lead <card>: a build-only run with another of the liked references as the lead (the old lead becomes a like).
+const leadArg = flag("lead");
 const liveAt = args.indexOf("--live");
 const live = liveAt !== -1 && Boolean(args.splice(liveAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
@@ -97,8 +99,8 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
-if (!out || args.length || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--lead <card>] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || (leadArg && !from) || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
@@ -235,6 +237,34 @@ if (from) {
   cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !fromSkip.test(p.slice(src.length)) });
   // The fixture's readings keep no second copy of the fixture's pictures (freeze.mjs): put them back.
   if (existsSync(join(src, "restore.json"))) for (const [to, f] of Object.entries(JSON.parse(readFileSync(join(src, "restore.json"), "utf8")))) cpSync(join(here, f), join(dir, to));
+}
+// --lead: swap the lead with one of the likes, in the answers, the board and the readings alike.
+if (leadArg) {
+  const libPath = join(dir, ".longbeard/design/direction/library.json");
+  const lib = JSON.parse(readFileSync(libPath, "utf8"));
+  const old = lib.lead;
+  const refs = JSON.stringify(lib).includes(`"${leadArg}"`);
+  if (!refs || leadArg === old) {
+    console.error(`run: --lead ${leadArg} is not a liked reference in the readings (the lead is ${old})`);
+    process.exit(2);
+  }
+  const swap = (line) => line.split(old).map((part) => part.split(leadArg).join("\u0000")).join(leadArg).split("\u0000").join(old);
+  lib.lead = leadArg;
+  for (const r of lib.references ?? []) if (r.name === leadArg) r.role = "lead"; else if (r.name === old) r.role = "like";
+  writeFileSync(libPath, `${JSON.stringify(lib, null, 2)}\n`);
+  const boardPath = join(dir, ".longbeard/design/direction/board.md");
+  let card = "";
+  const board = readFileSync(boardPath, "utf8").split("\n").flatMap((l) => {
+    if (/^### /.test(l)) card = l.slice(4).trim();
+    if (l === "- lead: yes") return [];
+    if (/^- (lead|likes|spread[^:]*):/.test(l)) return [swap(l)];
+    if (/^- part:/.test(l) && card === leadArg) return [l, "- lead: yes"];
+    return [l];
+  });
+  writeFileSync(boardPath, board.join("\n"));
+  const ans = readFileSync(join(dir, "answers.md"), "utf8").split("\n").map((l) => (/^- Lead:/.test(l) ? swap(l) : l));
+  writeFileSync(join(dir, "answers.md"), ans.join("\n"));
+  console.log(`lead: ${leadArg} (was ${old})`);
 }
 // Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
