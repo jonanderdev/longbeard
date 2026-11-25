@@ -60,7 +60,7 @@ It says how many cards it left out for a missing shot: capture those again first
 
 Read the lead and every like closely: its grid, the share of the screen each block takes, type sizes against the width, spacing, colours, faces (the closest Google Font), and what they like in it and why. Measure where you can (`measure.mjs <link>`, or `measure.mjs <picture> --lines` and `fonts.mjs --shape`). Write it to `library.json`, with the subject and its palette from `subject-colours.mjs`: [library.md](references/library.md).
 
-**Never invent a key part.** Once the readings show what each reference has: if none shows a hero or a header and menu, or their picks leave one unclear, ask once, in one message: the cards that show it, to pick from, or a search for that one part (`design-moodboard`'s one piece).
+**Never invent a key part.** Once the readings show what each reference has: if none shows a hero or a header and menu, or their picks leave one unclear, ask once, in one message: the cards that show it, to pick from, or a search for that one part (`design-moodboard`'s one piece). **Never block on it:** build on with that part from the closest system on the board, marked `data-standin`, and put their answer in when it comes, in the next round or the prototype.
 
 ## 3. Eight first screens
 
