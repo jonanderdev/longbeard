@@ -1,9 +1,11 @@
 name: release
 
-# Publishes the version a pushed tag names, with provenance, so npm shows the
-# package was built from that tag. npm trusts this workflow by name (Trusted
-# Publisher on npmjs.com): no token is stored anywhere.
+# Publishes the version in package.json, with provenance, so npm shows the
+# package was built from that commit, and tags it. Start it from the Actions tab
+# (Run workflow, on main) or by pushing the tag. npm trusts this workflow by name
+# (Trusted Publisher on npmjs.com): no token is stored anywhere.
 on:
+  workflow_dispatch:
   push:
     tags: ['v*']
 
@@ -26,7 +28,14 @@ jobs:
       - name: The tag, package.json and CHANGELOG.md agree
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          [ "v$VERSION" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME, package.json $VERSION" >&2; exit 1; }
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            [ "$GITHUB_REF_NAME" = main ] || { echo "run it on main, not $GITHUB_REF_NAME" >&2; exit 1; }
+            if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null; then
+              echo "tag v$VERSION already exists. Bump package.json to a new version first." >&2; exit 1
+            fi
+          else
+            [ "v$VERSION" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME, package.json $VERSION" >&2; exit 1; }
+          fi
           awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1 } END { exit !found }' CHANGELOG.md \
             || { echo "CHANGELOG.md has no section for $VERSION" >&2; exit 1; }
           if npm view "$(node -p "require('./package.json').name")@$VERSION" version >/dev/null 2>&1; then
@@ -42,4 +51,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md > notes.md
-          gh release create "$GITHUB_REF_NAME" --title "$VERSION" --notes-file notes.md
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file notes.md
