@@ -19,7 +19,7 @@ An engineer-designer who ships products with agents and wants work worth deliver
 - None.
 
 ## Surface
-no UI. An installer and a set of agent skills. The pages a person clicks (the picker, the sheets) are steps inside a skill.
+no UI. An installer and a set of agent skills. The pages a person clicks (the picker, the board, the canvas) are steps inside a skill.
 
 ## V1 and later
 - v1: all five flows, already shipped.
