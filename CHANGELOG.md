@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Options on the real page.** When you ask for versions of a part, or layouts for a page, they sit on the real screen, with its header, content and density, instead of a separate sheet. A small bar at the bottom names the reference each one comes from, and ← → flip between them; `?variant=2` links to one.
 - **Concepts, not only rebuilds.** Of the eight first screens, six still rebuild one of your references; two now develop a concept you liked: the agent writes out what it is and why it works, then redraws it for your content, keeping its devices, type and colour. Before you see one it must be the same concept and not a copy; a screen with no concept behind it goes. The canvas labels them "concept from …". Style still comes only from your board.
 - **A recommendation, and the pick in context.** The direction now names the screen that best does what your design brief asks, and which line it serves; you still choose. Once you pick, it builds that screen's phone view and the hardest key screen in its look, before the identity, so a look that breaks on real content shows while going back is cheap.
 - **A first screen does a first screen's job.** A reference that is a mid-page section, an inner page or a poster lends its system and moves to the first screen; what only works in its own role is left out. And one picture leads: pictures that share a view never compete (a subject laid over the same subject behind it).

@@ -117,7 +117,7 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 - **More of 3:** three more on 3's base with other moves, in round 2.
 - **A mix** ("4 with 7's colours"): one screen.
 - **More:** a fresh round of eight, new pairings. After two rounds with nothing taken, ask once what is missing (`design-moodboard`).
-- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the screen with everything else kept, each from a reference that shows that part, in `screens.json` as `"of": <n>, "part": "<name>"`.
+- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the real screen, everything else kept, each from a reference that shows that part. **Options live on the page:** each version is an element with `data-variant="<n>"` and `data-from="<card name>"`, and the page loads [variants.js](references/variants.js) (copy it beside the page): `?variant=<n>` shows one, a small bar names its reference, and ← → flip between them. Capture each with `?variant=<n>&bar=0`, and record each in `screens.json` as `"of": <n>, "part": "<name>"`.
 
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 
