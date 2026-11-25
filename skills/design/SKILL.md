@@ -21,8 +21,7 @@ Each skill's top lines say what it **Needs**, **Uses if there** and **Writes**: 
 | Skill | Job |
 |---|---|
 | `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, who to stand apart from, what is fixed |
-| `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no; each like keeps its product's other screens |
-| `design-families` | Optional. Sort a big board into looks, the headings the direction's board shows |
+| `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no; each like keeps its product's other screens; a big board is grouped by eye into headings |
 | `design-direction` | Pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two from the others; nothing off the board, nothing they said to leave out. One agent builds them, scripts check contrast and clipped text; they choose, or ask for more or a mix |
 | `design-identity` | The chosen screen's type and colours, refined on it from rendered options and a few bounded controls; the identity board |
 | `design-prototype` | The key screens and their states in the chosen screen's frame, each page opening with its own job, checked by script and shown as one set; approved → `DESIGN.md` |
@@ -40,7 +39,7 @@ Look at the repo; do not ask what is there. Read the design brief's `pace` first
 1. No `docs/brief.md` → `idea`. The brief says no UI → nothing to design; say so.
 2. No `docs/design/design-brief.md` → `design-brief`.
 3. No moodboard (no `design-moodboard.md`, and no board or folder named) → `design-moodboard`. Never skipped.
-4. **The board's size:** over about 60 references, unsorted → offer `design-families` once ("Your board has 240 references. Sort it into families, so the board you choose from has headings?"; not at `quick`). About 8 to 60 → no sorting. Under about 8, or a key screen nothing shows → `design-moodboard` for the gap only (at `quick`, three are enough).
+4. **The board's size:** under about 8, or a key screen nothing shows → `design-moodboard` for the gap only (at `quick`, three are enough).
 5. No `design-direction.md` → `design-direction`.
 6. No `design-identity.md` → `design-identity`.
 7. No `DESIGN.md` → `design-prototype`.
@@ -60,5 +59,4 @@ Then stop. They type the skill, or say yes and you load it.
 ## Do not
 
 - Run a skill without their yes, or two at once.
-- Suggest `design-families` for a board they already curated to a few dozen.
 - Write any doc yourself. Each belongs to its skill.

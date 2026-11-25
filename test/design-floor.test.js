@@ -8,8 +8,8 @@ import assert from "node:assert/strict";
 // build and link it; they never restate it.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const text = (name) => readFileSync(join(root, "skills", name, "SKILL.md"), "utf8");
-const floor = "references/design-rules.md#before-you-build";
-const split = "references/design-rules.md#how-to-use-this";
+const floor = "references/design-floor.md#before-you-build";
+const split = "references/design-floor.md#how-to-use-this";
 const builders = ["design-direction", "design-prototype"];
 
 test("the rules file has the anchors the skills link", () => {
@@ -23,7 +23,7 @@ test("direction links the floor before its first screens are built", () => {
   const body = text("design-direction");
   const at = body.indexOf(floor);
   assert.ok(at > -1, "design-direction does not link Before you build");
-  assert.ok(at < body.indexOf("**One reference is the base,**"), "the floor is linked after building starts");
+  assert.ok(at < body.indexOf("**On a rebuild, one reference is the base,**"), "the floor is linked after building starts");
 });
 
 test("prototype reads the floor before it builds anything", () => {
@@ -54,4 +54,29 @@ test("prototype builds each part in order: the chosen screen, liked references, 
   assert.deepEqual([...at].sort((a, b) => a - b), at, "the part order is out of order");
   const block = body.slice(body.lastIndexOf("\n", at[0]), at[3]);
   assert.match(block, /^\s*1\. [\s\S]*\n\s*2\. [\s\S]*\n\s*3\. [\s\S]*\n\s*4\. /, "the parts are not a numbered order");
+});
+
+test("the skills that build read the floor: every hard check, no soft one, no tells", () => {
+  const floorText = readFileSync(join(root, "skills/design-direction/references/design-floor.md"), "utf8");
+  const rules = readFileSync(join(root, "rules/design-rules.md"), "utf8");
+  for (const line of rules.split("\n").filter((l) => l.startsWith("- [hard]"))) assert.ok(floorText.includes(line), `the floor lost: ${line}`);
+  assert.doesNotMatch(floorText, /^- \[soft\]/m);
+  assert.doesNotMatch(floorText, /^## 14\. Tells/m);
+  for (const name of ["design-direction", "design-identity", "design-prototype"]) {
+    assert.doesNotMatch(text(name), /references\/design-rules\.md/, `${name} still reads the full rules while building`);
+  }
+});
+
+test("two of the eight are concepts that keep an idea and are never a copy", () => {
+  const body = text("design-direction");
+  assert.match(body, /two are \*\*concepts\*\*/);
+  assert.match(body, /would a designer call it the same concept, and would they call it a copy\?/);
+  assert.match(body, /"kind": "concept"/);
+});
+
+test("principles are written at the pick and carried to the prototype, DESIGN.md and design-check", () => {
+  assert.match(text("design-direction"), /## Principles/);
+  assert.match(text("design-prototype"), /principles hold on every page/);
+  assert.match(readFileSync(join(root, "skills/design-prototype/references/design-md-template.md"), "utf8"), /## Principles/);
+  assert.match(text("design-check"), /every principle in `DESIGN.md`/);
 });

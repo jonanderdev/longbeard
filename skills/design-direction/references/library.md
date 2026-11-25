@@ -29,11 +29,11 @@ Write `.longbeard/design/direction/library.json`, one reading per reference (the
 }
 ```
 
-## Measure first, then look
+## Measure a page, read a picture
 
 **A live page:** `measure.mjs <link>` lists its fonts, sizes, weights, colours and gradients (`by: page`). It also lists the page's motion (each transition and animation with its property, time, easing and trigger) and its finish (shadows, filters, blends and textures with the share of the screen they cover), read before anything is judged by eye.
 
-**A reference that is only a picture** (a shot, a poster, a presentation frame):
+**A reference that is only a picture** (a shot, a poster, a presentation frame): read it yourself, at full size: the layout as shares of the screen, the type sizes at 1440 wide, the colours, how much is empty. Its reading says `by: eye`. Scripts guess at pictures; your eye is the better reader, and gets better with every model. For a number you cannot read (a size on a busy shot, the exact ground), measure it:
 
 ```
 node <skill>/scripts/measure.mjs .longbeard/design/moodboard/refs/<name>.jpg --lines
@@ -41,7 +41,7 @@ node <skill>/scripts/measure.mjs .longbeard/design/moodboard/refs/<name>.jpg --l
 
 It reads inside a presentation frame, and gives the ground, the `ink`, the palette (`common`, `loud`), how much is `empty` and how much is `pictures`, and the type: the display line's `px1440`, `weight`, `case`, `box`, the body size, the `scale`, the headline's words and lines, the text `blocks`. `--lines` lists every line it read, with its box: that is the layout's measurements. Sizes are given as px at 1440 wide, which is the size to build at.
 
-What it cannot read (text on a photograph, rotated text, script faces, letters that touch) is read by eye with the picture at full size, and says `by: eye`. A number that disagrees with what you plainly see is a misread: use your reading, and say so.
+A number that disagrees with what you plainly see is a misread: use your reading, and say so.
 
 **The face, from a picture:** the nearest free face by its measured shape, of the kind you see:
 

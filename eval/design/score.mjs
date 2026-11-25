@@ -100,7 +100,7 @@ const docs = ["docs/design/design-brief.md", "docs/design/design-moodboard.md", 
 const missing = docs.filter((d) => !existsSync(at(d)));
 check("docs", true, !missing.length, missing.length ? `missing: ${missing.join(", ")}` : `${docs.length} docs`);
 if (pace === "quick") {
-  const extra = ["docs/design/design-families.md", "docs/design/design-content.md"].filter((d) => existsSync(at(d)));
+  const extra = ["docs/design/design-content.md"].filter((d) => existsSync(at(d)));
   check("quick: no optional skills", false, !extra.length, extra.join(", "));
 }
 
@@ -512,7 +512,7 @@ if (otherArg && round.length) {
   const other = screensOf(otherArg);
   const sets = { a: round, b: other, plain: plainSet };
   const all = Object.values(sets).flat().filter((sc) => sc.png);
-  const measureScript = join(repo, "skills/design-families/scripts/measure.mjs");
+  const measureScript = join(repo, "skills/design-moodboard/scripts/measure.mjs");
   const m = noBrowser ? null : spawnSync(process.execPath, [measureScript, ...all.map((sc) => sc.png)], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 600000 });
   let measured = [];
   try {

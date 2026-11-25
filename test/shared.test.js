@@ -10,9 +10,10 @@ import { shared } from "../scripts/share.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("every skill ships the same copy of a shared file", () => {
-  for (const [source, targets] of shared) {
-    const text = readFileSync(join(root, source), "utf8");
-    const name = source.split("/").pop();
+  for (const [source, targets, made] of shared) {
+    const raw = readFileSync(join(root, source), "utf8");
+    const text = made ? made.make(raw) : raw;
+    const name = made?.as || source.split("/").pop();
     for (const target of targets) {
       const copy = readFileSync(join(root, "skills", target, name), "utf8");
       assert.equal(copy, text, `skills/${target}/${name} drifted from ${source}. Edit the source, then run npm run share.`);
@@ -35,10 +36,11 @@ test("share.mjs does its work when run through a symlinked path or a path with a
     symlinkSync(join(real, "scripts"), link);
     const run = spawnSync(process.execPath, [join(link, "share.mjs")], { cwd: real, encoding: "utf8" });
     assert.equal(run.status, 0, run.stderr);
-    for (const [source, targets] of shared) {
-      const name = source.split("/").pop();
+    for (const [source, targets, made] of shared) {
+      const name = made?.as || source.split("/").pop();
+      const want = made ? made.make(`source of ${source}\n`) : `source of ${source}\n`;
       for (const target of targets) {
-        assert.equal(readFileSync(join(real, "skills", target, name), "utf8"), `source of ${source}\n`, `${target}/${name} was not copied`);
+        assert.equal(readFileSync(join(real, "skills", target, name), "utf8"), want, `${target}/${name} was not copied`);
       }
     }
   } finally {

@@ -9,6 +9,7 @@
 //   node canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 //
 // screens.json entries (the skill's step 3): n, base, moves [{ what, from, like }], state,
+// kind ("concept", with idea: the concept it keeps, shown in place of "Base"),
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
 // part (a part of that screen), fault (one line), shot
 // (a picture; else <shots>/<n>.png). board.md cards give each reference's shot and like.
@@ -103,6 +104,7 @@ const data = screens.map((s) => {
     label: label(s),
     of: s.of != null ? String(s.of) : "",
     part: s.part || "",
+    concept: s.kind === "concept" ? s.idea || "its concept" : "",
     fault: s.state === "failed" ? `failed: ${s.failure || "no reason given"}` : s.fault || "",
     base: { name: base.name, src: base.src, like: base.like, avoid: base.avoid },
     moves: (s.moves || []).map((m) => {
@@ -245,11 +247,13 @@ const html = `<!DOCTYPE html>
     $("baseimg").src = s.base.src || "";
     $("basebox").href = s.base.src || "#";
     $("basecap").textContent = "Base: " + s.base.name;
-    const kind = s.part ? s.part + " of " + s.of : "on " + s.base.name;
+    const kind = s.part ? s.part + " of " + s.of : (s.concept ? "concept from " : "on ") + s.base.name;
     $("title").textContent = s.n + " · " + kind;
     $("fault").textContent = s.fault;
     $("made").innerHTML =
-      ing(s.base.src, "Base · " + s.base.name, "the layout, spacing and everything no move names", s.base.like, s.base.avoid) +
+      (s.concept
+        ? ing(s.base.src, "Concept · " + s.base.name, "its idea, redrawn for this product: " + s.concept, s.base.like, s.base.avoid)
+        : ing(s.base.src, "Base · " + s.base.name, "the layout, spacing and everything no move names", s.base.like, s.base.avoid)) +
       s.moves.map((m) => ing(m.src, "+ " + m.from, m.what + (m.proposed ? " (proposed)" : ""), m.like, "")).join("");
     try { localStorage.setItem(key, s.n); } catch (e) {}
   }

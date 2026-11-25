@@ -30,7 +30,7 @@ Each stage writes a file the next one reads, so you can stop anywhere and come b
 **You are the designer.** An AI has no taste of its own, only an average of what once looked good. So Long Beard follows an art director's process:
 
 - **You choose.** You pick references you love, say what you like in each, and choose the result.
-- **The agent does the craft.** It rebuilds your references with your real content, combines what you took from them, and adds nothing that is not on your board.
+- **The agent does the craft.** It rebuilds your references with your real content, develops the concepts you liked in them for your product, combines what you took from each, and adds no style that is not on your board.
 
 **No board yet?** It searches award-winning and most-liked work, and you mark what you like. **Have a brand?** Your colours, faces and references go in first.
 
@@ -50,7 +50,6 @@ Long Beard's own skills live in [`skills/`](skills/). The others are installed f
 | [design](skills/design/SKILL.md) | The way in: suggests which design skill to run next | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-brief](skills/design-brief/SKILL.md) | A studio's questions, in one message | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-moodboard](skills/design-moodboard/SKILL.md) | Your board, or a search you mark like or no | Long Beard |
-| &nbsp;&nbsp;&nbsp;↳ [design-families](skills/design-families/SKILL.md) | Optional: sorts a big board into looks | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-direction](skills/design-direction/SKILL.md) | First screens from your references; you pick a direction and variants of it | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-identity](skills/design-identity/SKILL.md) | Type and colour, refined on the chosen screen | Long Beard |
 | &nbsp;&nbsp;&nbsp;↳ [design-prototype](skills/design-prototype/SKILL.md) | The key screens and their states, then `DESIGN.md` | Long Beard |

@@ -48,6 +48,8 @@ Their board already holds their taste: it is the pool, with no search and no pic
   node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --sheets <scratch>/sheets --out .longbeard/design/moodboard/refs
   ```
 
+**What earlier projects learned:** a `Learned` frame on their board, a `learned.md` in their folder, or `~/.longbeard/taste.md`. Its likes, whys and leave-outs go on the matching cards (`like:`, `avoid:`), its noes under **Not this**. Their words, never reworded.
+
 **Screens of one product** (a section or a group of cards from the same site or app): the one they starred or captioned is the keep, and the others are its `also:` lines.
 
 A keep with a live link to a site or app gets its other screens as in **Search**, step 7.
@@ -60,7 +62,7 @@ A keep with a live link to a site or app gets its other screens as in **Search**
 
 A gap: search only that, 20 to 60 candidates, one picker round. Too thin: the full **Search**, their fits as seeds. "Go": what it lacks goes under `Missing`.
 
-**Big boards.** Over about 60 keeps, say once: "That's 240 references. `design-families` can sort them into looks, as headings on the board you choose from; none is dropped." Their call.
+**Big boards.** Over about 60 keeps (not at `quick`), group them by eye so the board they choose from has headings: look at them on contact sheets (`contact-sheet.mjs`, never picture by picture), and give each card a `topic:` line naming its group for what is seen, in words a person outside design would use ("one huge word is the picture"). As many groups as there are looks; strays stay strays, and none is dropped. Their own board is never changed. Say the groups in one line each with the doc.
 
 ## Search
 
@@ -100,6 +102,8 @@ An app's Dribbble concept stays only if it survives the brief's longest names, r
 - also: <part>: .longbeard/design/moodboard/refs/<file> (one line per other screen of the same product; else leave out)
 - screen: <yes | no>
 - like: <their words from the picker's note, as written; leave out when none>
+- avoid: <what they want left out of it, in their words; leave out when none>
+- topic: <its group on a big board, named for what is seen; leave out when not grouped>
 - move: <what it does, about ten words: "headline fills the width, cropped at the right edge">
 - why: <why it fits the design brief, one line>
 ```
@@ -134,7 +138,7 @@ No names, links or paths. Then the doc in up to five lines, how many likes it ho
 
 > Anything wrong in how I read your board?
 
-Next: `design-direction`, or `design-families` first for a board over about 60.
+Next: `design-direction`.
 
 ## One piece
 

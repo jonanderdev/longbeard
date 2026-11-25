@@ -16,7 +16,7 @@ description: >
 **Uses if there:** `docs/design/design-content.md`, `docs/design/design-moodboard.md`  
 **Writes:** `DESIGN.md`
 
-A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed. Then `design-figma`. Read [Before you build](references/design-rules.md#before-you-build) before building, and apply it while you draw; the [full rules](references/design-rules.md) are the checklist here and in `design-check`.
+A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed. Then `design-figma`. Read [Before you build](references/design-floor.md#before-you-build) before building, and apply it while you draw; [the floor](references/design-floor.md) is the checklist here. The direction's **principles** are what every page answers to; the soft rules are `design-check`'s.
 
 **They are the designer; you do the craft.** The chosen screen carries their concept. Develop it across the product, make the craft decisions it leaves open, and add no taste of your own.
 
@@ -50,6 +50,7 @@ Read the brief, the design brief, the identity, the direction and `design-conten
 
 Then build them all, linked.
 
+- **The direction's principles hold on every page.** They are this design's rules: a page that would break one is drawn again, or the clash goes to them as a choice.
 - **The chosen screen is the frame, as a system, not a composition to repeat.** Its header, navigation, grid, type sizes, colour roles (which colour for headlines, small text, buttons and fields) and spacing steps stay the same on every page. One menu, one card, one row, one heading style everywhere.
 - **Each page opens with its own job** in the first view (the list on the menu, the form on checkout), never the first screen's hero again.
 - **The direction's devices carry over** where the page has room for them: overlaps, crops, giant type, empty space, never tidied (`data-crop` on text cropped on purpose).
@@ -81,7 +82,7 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 - **Drift** lists each face and colour no screen should have, and the type sizes, radii and spacing steps only one screen uses. Bring them to the frame's.
 - **Links:** every broken link, dead button and page with no way on is fixed. It also lists the stand-ins.
 
-**The floor, inside the concept** ([how they split](references/design-rules.md#how-to-use-this)). Text a person acts on must pass, fixed from inside the concept. Display type over a picture, overlaps, crops and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them as a choice, one line each (what it costs, and what would fix it: keep, or change?): they decide.
+**The floor, inside the concept** ([how they split](references/design-floor.md#how-to-use-this)). Text a person acts on must pass, fixed from inside the concept. Display type over a picture, overlaps, crops and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them as a choice, one line each (what it costs, and what would fix it: keep, or change?): they decide.
 
 ### 4. Show it
 
@@ -102,11 +103,16 @@ Only on their yes to the rendered prototype (and the `decides` person's, if name
 - **Themes:** each colour token once, a value per theme, every pair checked in each.
 - **Tokens are code names** (`color/ink`, `type/body`, `space/md`, `radius/md`, `motion/enter`), the same in Figma. Colour, type, spacing, radius and motion are tables; the direction's `finish:` is the Finish line; the identity's **Adjusted** lines are built in.
 - **The token block** is generated from the tables, never written by hand: `node <skill>/scripts/tokens.mjs DESIGN.md --name "<product>"` (exit 2 names a row it cannot read; `--check` exits 1 when block and tables disagree).
+- **Principles** from the direction, kept as the prototype proved them.
 - **What makes it this design** goes under Components, with values. **Soft rules overridden on purpose** go under Decisions, with the reason.
 - **Still to supply:** `links.mjs` again, then the list by screen, in words, never a file name; "nothing" when empty.
 - **Ideas, not sources:** no reference, site, person, link or `.longbeard/` path.
 
-Then `design-check` docs mode on `DESIGN.md` and `docs/design/` (it runs `tokens.mjs --check`), and fix what it finds. Next: `design-figma`.
+Then `design-check` docs mode on `DESIGN.md` and `docs/design/` (it runs `tokens.mjs --check`), and fix what it finds.
+
+**What this project taught about their taste,** offered once, in the same message as the next step: the whys they gave, what they left out, and what they turned down with their reason (a screen, a face, a palette), from `screens.json`, `library.json` and this run's answers. On yes, write it where their board lives, so the next project starts from it: a Figma board, one `Learned` text frame on the board's page, a line per card (`<card>: like … · why … · leave out …`) and one per no; a folder, `learned.md` in it; anything else, `~/.longbeard/taste.md`. Their own cards and captions are never changed. A no stands.
+
+Next: `design-figma`.
 
 ## Feature loop
 

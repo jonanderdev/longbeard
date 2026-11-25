@@ -7,8 +7,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../skills");
-// Each script lives in the skill that owns it: moodboard's picker and board, families' sorting.
-const owner = { "families.mjs": "design-families", "tag.mjs": "design-families", "measure.mjs": "design-families" };
+// Each script lives in design-moodboard, which owns the board, its grouping and its measures.
+const owner = {};
 const script = (name) => join(skills, owner[name] || "design-moodboard", "scripts", name);
 
 // A project outside any git tree, so the scripts resolve paths against it.

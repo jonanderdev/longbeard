@@ -1,6 +1,6 @@
 # Design rules
 
-How a screen is checked. Read by `design-direction` and `design-prototype` before they build and by `design-check` on every frame and build.
+How a screen is checked. `design-check` reads all of it on every frame and build. The skills that build read only the floor (`design-floor.md`: these opening sections and every hard check), so a better model's craft is never held to a textbook while drawing.
 
 These rules decide execution, never the look. The direction and `DESIGN.md` decide the look. A rule that seems to ask for a colour, a typeface or a style is misread. It asks only that whatever was chosen is used with intent.
 
@@ -12,7 +12,7 @@ A studio applies these while drawing each screen, not as a check after. Each is 
 - Contrast where the text sits, over pictures too (rules 6 and 12).
 - Text size at its floor (rule 5).
 - One grouping device per group (rule 2).
-- Every screen carries the concept, and reads as the same product as the first (rule 0).
+- Every screen follows the direction's principles (before the pick, their whys), and reads as the same product as the first.
 
 ## How to use this
 
@@ -35,6 +35,7 @@ A studio applies these while drawing each screen, not as a check after. Each is 
 - [soft] You can say what the screen is for in one sentence, and the most visible element serves that sentence.
 - [soft] The ownable idea in `DESIGN.md` (or the direction, before `DESIGN.md` exists) shows up somewhere you can point to.
 - [soft] Beside the first screen, with the logo covered, it reads as the same product.
+- [soft] The screen keeps each of the principles in `DESIGN.md` (or the direction, before `DESIGN.md` exists). A finding against a principle comes before any finding against a soft rule here: the principles are this product's, the rules are a default.
 
 ## 1. Hierarchy
 

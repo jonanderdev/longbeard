@@ -13,7 +13,7 @@ description: >
 # Design identity
 
 **Needs:** `docs/design/design-brief.md`, `docs/design/design-direction.md`  
-**Uses if there:** `docs/design/design-moodboard.md`, `docs/design/design-families.md`  
+**Uses if there:** `docs/design/design-moodboard.md`  
 **Writes:** `docs/design/design-identity.md`, `docs/design/design-identity.html`
 
 The direction found the look by building screens from their references. This skill makes it the product's own: it starts from what the chosen screen was built with, shows close alternatives on that same screen, and locks one pairing and one palette. Every option comes from somewhere they can point to. The agent never invents a palette or picks a face by taste.
@@ -36,7 +36,7 @@ Three stops, no more: options, one refinement, the board.
 
 A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 
-Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's principles and "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
 **At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`, with `--level AAA` when the brief asks for it); a colour they liked by name is never stepped: it stays, with its warning. The accent is still asked (below), then go to **3. The board**. They can ask for options at the board; that is full pace from there.
 
@@ -68,7 +68,7 @@ When the project brought a `DESIGN.md` with tokens (see `design`), its faces and
 - **From their other references,** the palettes in the direction's readings (`library.json`), each whole.
 - **From the subject:** the light, dark and signature palettes `subject-colours.mjs .longbeard/design/pictures --level <AA|AAA>` proposes: the pictures' own colours, chosen and tuned to their roles by rule, never sampled raw. Often the most ownable, because they are the product's own world. Say for each the thing in the picture it came from ("the crust, lightened to carry white text"); a colour that cannot be named as part of the subject is not offered.
 - **Theirs,** what the design brief records as owned.
-- Every palette meets [rule 6](references/design-rules.md#6-colour)'s contrast at the brief's level; the scripts offer only that, so pass `--level` every time. A colour they liked by name is never stepped to pass: fix the pair with its other colour, or move it to a fill, a mark or large text; else keep it with its warning and ratio, and let them choose.
+- Every palette meets [rule 6](references/design-floor.md#6-colour)'s contrast at the brief's level; the scripts offer only that, so pass `--level` every time. A colour they liked by name is never stepped to pass: fix the pair with its other colour, or move it to a fill, a mark or large text; else keep it with its warning and ratio, and let them choose.
 
 **The accent, at every pace.** Picking a screen is not picking its accent: unless they named it or the board leaves no doubt, render the harmony options (`colours.mjs --harmony`), the subject's and the built one on the chosen screen, and ask.
 
@@ -80,7 +80,7 @@ node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/protot
 node <skill>/scripts/sheet.mjs .longbeard/design/identity/type.html .longbeard/design/identity/type-1.png … --cols 3
 ```
 
-One sheet of pairings (each on the screen's colours) and one of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word), add that as a fact on the same line; it stays an option.
+One sheet of pairings (each on the screen's colours) and one of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word) or breaks one of the direction's principles, add that as a fact on the same line; it stays an option.
 
 > Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as built.
 

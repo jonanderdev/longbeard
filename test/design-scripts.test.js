@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const sheet = join(root, "skills/design-direction/scripts/sheet.mjs");
-const measure = join(root, "skills/design-families/scripts/measure.mjs");
+const measure = join(root, "skills/design-moodboard/scripts/measure.mjs");
 
 const run = (script, dir, args) => spawnSync(process.execPath, [script, ...args], { cwd: dir, encoding: "utf8" });
 
