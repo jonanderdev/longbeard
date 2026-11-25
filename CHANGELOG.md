@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Eight concepts.** Every first screen now develops one liked reference's idea, written out and redrawn for your product, with at most two things borrowed from your other likes. Your lead gets two screens, each a different take; six other likes get one each. A reference from mid-page keeps its idea but is redrawn to open the page, so what only worked mid-page stays out.
+
 ## 0.14.0 — 2026-11-25
 
 - **Concepts, not only rebuilds.** Of the eight first screens, six still rebuild one of your references; two now develop a concept you liked: the agent writes out what it is and why it works, then redraws it for your content, keeping its devices, type and colour. Before you see one it must be the same concept and not a copy; a screen with no concept behind it goes. The canvas labels them "concept from …". Style still comes only from your board.
