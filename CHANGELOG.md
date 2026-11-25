@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **Eight concepts.** Every first screen now develops one liked reference's idea, written out and redrawn for your product, with at most two things borrowed from your other likes. Your lead gets two screens, each a different take; six other likes get one each. A reference from mid-page keeps its idea but is redrawn to open the page, so what only worked mid-page stays out.
+- **Eight concepts.** Every first screen now develops one liked reference's idea, written out and redrawn for your product, with at most two things borrowed from your other likes. Your lead gets two screens, each a different take; six other likes get one each. Any liked reference can lead a screen, whatever it was made as (a section, an inner page, a poster, an app screen): it keeps its idea and is redrawn for the role this screen plays in your product (a site's opening screen, an app's first screen, or the piece itself for a graphic), so what only worked in its old role stays out.
 
 ## 0.14.0 — 2026-11-25
 
