@@ -24,6 +24,8 @@
 //                                   a fresh folder of its own, outside any run, so it sees nothing else; its
 //                                   screens are copied to --out/screens and captured. score.mjs --plain shuffles
 //                                   them unlabelled into a run's sheet for the owner to mark.
+//   node eval/design/run.mjs --out ../longbeard-eval --skills ../variant/skills --agent "claude -p"
+//                                   the design skills from another folder: a variant under test, beside a run of this repo's.
 //   node eval/design/run.mjs --out ../longbeard-refs --refs --agent "claude -p"
 //                                   the baseline with references: the brief, the design-brief answers, the board
 //                                   with its lead, likes and whys, and the subject's pictures, in one prompt with no
@@ -71,6 +73,8 @@ const pace = flag("pace", "full");
 const from = short ? join(here, "fixture/readings") : flag("from");
 const timeoutMinutes = Number(flag("timeout", short ? "30" : "180"));
 const extraEnv = flags("env");
+// --skills <folder>: the design skills from another folder (a variant under test) instead of this repo's.
+const skillsDir = resolve(flag("skills") || join(repo, "skills"));
 const plainAt = args.indexOf("--plain");
 const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
 const refsAt = args.indexOf("--refs");
@@ -87,7 +91,7 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--plain | --refs] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
 if (!out || args.length || (short && plain) || (refs && (plain || short || from || !agent)) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
@@ -191,9 +195,9 @@ mkdirSync(dir, { recursive: true });
 cpSync(fx("docs"), join(dir, "docs"), { recursive: true });
 const answers = readFileSync(fx("answers.md"), "utf8").replace(/^- 10\. Pace: full\..*$/m, `- 10. Pace: ${pace}.`);
 writeFileSync(join(dir, "answers.md"), answers);
-const skills = readdirSync(join(repo, "skills")).filter((name) => name === "design" || name.startsWith("design-"));
+const skills = readdirSync(skillsDir).filter((name) => name === "design" || name.startsWith("design-"));
 for (const folder of [".claude/skills", ".agents/skills"]) for (const name of skills) {
-  cpSync(join(repo, "skills", name), join(dir, folder, name), { recursive: true });
+  cpSync(join(skillsDir, name), join(dir, folder, name), { recursive: true });
   // The subject's pictures are the fixture's, never a search: same photographs every run, no network.
   if (!live && existsSync(join(dir, folder, name, "scripts/pictures.mjs"))) cpSync(join(here, "mock/pictures.mjs"), join(dir, folder, name, "scripts/pictures.mjs"));
 }
