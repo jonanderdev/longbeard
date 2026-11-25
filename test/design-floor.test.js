@@ -23,7 +23,7 @@ test("direction links the floor before its first screens are built", () => {
   const body = text("design-direction");
   const at = body.indexOf(floor);
   assert.ok(at > -1, "design-direction does not link Before you build");
-  assert.ok(at < body.indexOf("**On a rebuild, one reference is the base,**"), "the floor is linked after building starts");
+  assert.ok(at < body.indexOf("**Every screen adapts its base, as a designer would, never copies it.**"), "the floor is linked after building starts");
 });
 
 test("prototype reads the floor before it builds anything", () => {

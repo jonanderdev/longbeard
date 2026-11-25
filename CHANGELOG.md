@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Adapted, never copied.** Each first screen keeps its reference's essence and scene and adapts the specifics to your product, as a designer would: your content and pictures, the proportions they need, and where your brief or subject asks, a colour or face of the same character. Every screen must be the same idea and not a copy.
 - **Never a collage.** A screen is its base and at most two moves; the lead's devices (or any reference's) sit on at most two screens beyond its own, so the round does not paste the same pieces everywhere.
 - **Seven references in eight screens.** The two concepts come from likes no other screen stands on, so the first round spreads across your board instead of repeating a few references.
 - **Each screen beside its references.** Before the canvas, the direction looks at each screen beside the pictures it is made from, and fixes any scene or device that no longer reads as it does there.

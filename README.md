@@ -30,7 +30,7 @@ Each stage writes a file the next one reads, so you can stop anywhere and come b
 **You are the designer.** An AI has no taste of its own, only an average of what once looked good. So Long Beard follows an art director's process:
 
 - **You choose.** You pick references you love, say what you like in each, and choose the result.
-- **The agent does the craft.** It rebuilds your references with your real content, develops the concepts you liked in them for your product, combines what you took from each, and adds no style that is not on your board.
+- **The agent does the craft.** It adapts your references to your product as a designer would, keeping what makes each work and never copying it, develops the concepts you liked, combines what you took from each, and adds no style that is not on your board.
 
 **No board yet?** It searches award-winning and most-liked work, and you mark what you like. **Have a brand?** Your colours, faces and references go in first.
 

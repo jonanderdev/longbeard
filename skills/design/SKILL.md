@@ -22,7 +22,7 @@ Each skill's top lines say what it **Needs**, **Uses if there** and **Writes**: 
 |---|---|
 | `design-brief` | The questions a designer asks before looking: what the first screen must do, feel and never-feel, who to stand apart from, what is fixed |
 | `design-moodboard` | Read their board and fill its gaps, or find references they mark like or no; each like keeps its product's other screens; a big board is grouped by eye into headings |
-| `design-direction` | Pictures of the subject, then eight first screens, each one of their references rebuilt with the product's content and changed by a move or two from the others; nothing off the board, nothing they said to leave out. One agent builds them, scripts check contrast and clipped text; they choose, or ask for more or a mix |
+| `design-direction` | Pictures of the subject, then eight first screens, each one of their references adapted to the product as a designer would (never a copy), with a move or two from the others; nothing off the board, nothing they said to leave out. One agent builds them, scripts check contrast and clipped text; they choose, or ask for more or a mix |
 | `design-identity` | The chosen screen's type and colours, refined on it from rendered options and a few bounded controls; the identity board |
 | `design-prototype` | The key screens and their states in the chosen screen's frame, each page opening with its own job, checked by script and shown as one set; approved → `DESIGN.md` |
 | `design-figma` | Tokens, the identity board, components and Ready frames |
