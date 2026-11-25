@@ -46,10 +46,11 @@
       "when": "Tickets",
       "skills": [
         "implement-spec",
+        "tdd",
         "design-check",
         "pr"
       ],
-      "writes": "one PR per spec"
+      "writes": "failing tests first, then one PR per spec"
     }
   ],
   "shapes": {
@@ -208,10 +209,6 @@
         {
           "skill": "diagnosing-bugs",
           "when": "A hard bug"
-        },
-        {
-          "skill": "tdd",
-          "when": "Test-first, when asked"
         },
         {
           "skill": "handoff",
