@@ -1,12 +1,9 @@
 ---
 name: design-wordmark
 description: >
-  Optional, after the identity. A wordmark made from the identity's own faces and devices:
-  four to six marks rendered in the navigation and at hero size on the
-  identity's grounds, picked and pushed once. Adds the mark to
-  docs/design/design-identity.md and the identity board. Runs once the
-  identity is chosen, when they want a mark beyond the name set in the
-  display face.
+  Optional. A wordmark from the identity's faces and devices, judged in the
+  chosen screen. Runs once the identity is chosen and they want a mark
+  beyond the name set in type.
 ---
 
 # Design wordmark

@@ -1,12 +1,10 @@
 ---
 name: design-check
 description: >
-  Check a screen against the design rules and DESIGN.md, and report findings
-  (rule, hard or soft, where, fix). Frame mode checks a Figma frame, called
-  by design-figma after each screen. Build mode checks a built UI spec against its
-  Ready frames, run after implement-spec, with evidence for the PR. Docs mode
-  checks the committed design docs name no reference. Hard
-  findings block; soft findings are reported. It reports and never redesigns.
+  Checks a Figma frame, a built UI or the design docs against the design
+  rules and DESIGN.md, and reports; hard findings block, soft ones are
+  reported. Runs after each Figma screen, after implement-spec, or on the
+  docs.
 ---
 
 # design-check

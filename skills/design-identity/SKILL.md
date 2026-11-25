@@ -1,13 +1,9 @@
 ---
 name: design-identity
 description: >
-  Lock and refine the identity on the screen they chose in design-direction:
-  the type pairing and a small set of colours, starting from what that screen
-  was built with, with close alternatives from measured font lists, even colour
-  steps, their other references, the subject's pictures and anything they own,
-  all rendered on that screen, never picked by the agent. Ends in the identity
-  board: the faces at size and the colours as swatches with their values and
-  roles. Runs after design-direction; or for a rebrand.
+  Refines the chosen screen's type and colours from rendered options traced
+  to their board, then the identity board. Writes docs/design/design-
+  identity.md. Runs after design-direction, or for a rebrand.
 ---
 
 # Design identity

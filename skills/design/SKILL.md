@@ -1,11 +1,9 @@
 ---
 name: design
 description: >
-  The way into the design-* skills. Reads what the project already has and
-  says which design skill to run next, and why, in a few lines. It suggests;
-  they choose, and any design-* skill can be called directly instead. Runs when
-  docs/brief.md exists, the brief is a site, an app or a graphic, and there is no approved DESIGN.md,
-  or when they ask what to do next on the look.
+  The way into the design-* skills: reads the project and suggests the next
+  design skill, and why. Runs when a site, app or graphic brief has no
+  approved DESIGN.md, or when they ask what next on the look.
 ---
 
 # Design

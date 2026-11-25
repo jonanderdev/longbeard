@@ -4,6 +4,8 @@
 
 - **Eight concepts.** Every first screen now develops one liked reference's idea, written out and redrawn for your product, with at most two things borrowed from your other likes. Your lead gets two screens, each a different take; six other likes get one each. Any liked reference can lead a screen, whatever it was made as (a section, an inner page, a poster, an app screen): it keeps its idea and is redrawn for the role this screen plays in your product (a site's opening screen, an app's first screen, or the piece itself for a graphic), so what only worked in its old role stays out.
 
+- **Lighter design steps.** Each first screen no longer carries a copy of the screen's fixed code (the look from the address, font loading, the live controls): it is one `screen.js` beside the screens, so a round of eight is written with far fewer tokens and in less time. The skill descriptions are shorter, so every session loads less, and `design-brief` and `design-direction` say the same things in fewer words. Nothing to do after `update`.
+
 ## 0.14.0 — 2026-11-25
 
 - **Concepts, not only rebuilds.** Of the eight first screens, six still rebuild one of your references; two now develop a concept you liked: the agent writes out what it is and why it works, then redraws it for your content, keeping its devices, type and colour. Before you see one it must be the same concept and not a copy; a screen with no concept behind it goes. The canvas labels them "concept from …". Style still comes only from your board.

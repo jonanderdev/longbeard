@@ -1,13 +1,9 @@
 ---
 name: design-moodboard
 description: >
-  References for the look. Reads their own moodboard (a Figma board, a folder,
-  links) and fills only what it lacks, or, without one, finds a wide pool from
-  the sources they choose for them to mark like or no on a picker page, with
-  one sharper second round. The keeps are captured privately; the committed doc
-  describes what the board says, move by move, without naming a source. Runs
-  after docs/design/design-brief.md exists, or when a key screen has no
-  reference ("one piece").
+  References for the look: reads their own board, or finds a pool they mark
+  like or no, and fills only gaps. Writes docs/design/design-moodboard.md.
+  Runs after the design brief, or when a key screen has no reference.
 ---
 
 # Design moodboard

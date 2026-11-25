@@ -1,13 +1,9 @@
 ---
 name: design-prototype
 description: >
-  Design the product's key screens in the chosen direction and identity: the
-  first screen finished, then the other key screens in its frame, with real
-  copy and pictures and every reachable state, checked by script. On their yes
-  to the rendered prototype, writes DESIGN.md in one go, contrast-checked.
-  Runs when docs/design/design-direction.md and design-identity.md exist and
-  there is no DESIGN.md, or for a feature that needs screens once DESIGN.md
-  exists.
+  The key screens and their states in the chosen direction, checked by
+  script; on their yes, DESIGN.md. Runs when the direction and identity
+  exist and there is no DESIGN.md, or for a feature with screens.
 ---
 
 # Design prototype

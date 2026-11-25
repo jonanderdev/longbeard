@@ -1,12 +1,10 @@
 ---
 name: idea
 description: >
-  Turn an idea, or an existing repo, into docs/brief.md: one page that says
-  what the product is, for whom, its core flows and key screens, and whether
-  it has a UI. Grills in rounds until every section is settled, then writes
-  the brief and offers the next stage. Runs first in a new project, when a
-  repo has no brief, or when the product itself changes. A feature for a
-  product that has a brief goes to to-spec, not here.
+  Turn an idea, or an existing repo, into docs/brief.md: what the product
+  is, for whom, its core flows, key screens and surface. Runs first, when a
+  repo has no brief, or when the product itself changes; a feature goes to
+  to-spec.
 ---
 
 # Idea
