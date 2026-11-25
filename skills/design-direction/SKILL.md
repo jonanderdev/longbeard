@@ -107,7 +107,7 @@ Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets,
 node <skill>/scripts/canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 ```
 
-It shows every screen in a strip and, for the one they open, what it is made from: its base and each move, with the reference and their words. Give its path, and one line per screen only for a fault or for what sits against the brief (its never, its words, its personality, or could be mistaken for what it must stand apart from). Never say which you prefer.
+It shows every screen in a strip and, for the one they open, what it is made from: its base and each move, with the reference and their words. Give its path, and one line per screen only for a fault or for what sits against the brief (its never, its words, its personality, or could be mistaken for what it must stand apart from). Then one recommendation, as a studio would give it: the screen that best does what the design brief asks, and why, naming the line it serves (the takeaway, the never, what it must stand apart from). Never a preference of your own: the brief's case, theirs to overrule.
 
 > Which is closest? Or "more", "more of 3", "3 with 6's accent".
 
@@ -121,6 +121,8 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 
 On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it to `prototype/first.html`, and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
+
+**In context, before the identity.** A studio shows a chosen concept where it will live before it is signed off. Build two more pages from the chosen screen: its phone view (390 wide), and the brief's key screen that is hardest for this look (the densest list, a form), in the chosen screen's frame and principles, each page opening with its own job. Check them like the eight, and show them beside the chosen screen with the direction. If the look breaks on real content, say where in one line: going back to another pick is still cheap. The prototype starts from these pages.
 
 ## Write `docs/design/design-direction.md`
 
@@ -164,7 +166,7 @@ No reference names, links or paths. Then the direction in up to five lines:
 
 ## Do not
 
-- Rank the screens, or say which you prefer.
+- Rank the screens, or recommend from taste: the one recommendation names the design brief line it serves.
 - Add anything their board does not have, or anything they wrote to leave out.
 - Show a concept that drops the idea it develops, or copies its reference's layout.
 - Fit more text on a screen than its base carries.
