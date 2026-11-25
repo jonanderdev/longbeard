@@ -89,7 +89,7 @@ node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/
 
 Fix a text that fails contrast with the screen's own colours or another crop, never by moving it off the picture. A liked colour stays, with its ratio in `fault`. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
 
-**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, said in `fault`.
+**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, said in `fault`, and theirs to decide.
 
 **Show the canvas:**
 
