@@ -56,11 +56,11 @@ A keep with a live link to a site or app gets its other screens as in **Search**
 
 **Keep every card that fits;** drop only what plainly fails (off-topic, broken, a duplicate) and say how many in one line. A poster, specimen, packaging or illustration is kept as `screen: no`.
 
-**Is it enough?** At least six screens; every key screen in the brief shown by at least one keep; and, when every keep is a screen, one far reference (print, signage, packaging; Fonts In Use has these, [sources.md](references/sources.md)). All met: say so in one line. Otherwise say what it lacks in up to three lines:
+**Is it enough?** At least six screens; every key screen in the brief shown by at least one keep; when every keep is a screen, one far reference (print, signage, packaging; Fonts In Use has these, [sources.md](references/sources.md)); and, when the design brief's motion is present or leading, a keep that shows it moving (a card with `frames:`, or the site they pasted for its motion). All met: say so in one line. Otherwise say what it lacks in up to three lines:
 
 > Search for these, or go with what your board has?
 
-A gap: search only that, 20 to 60 candidates, one picker round. Too thin: the full **Search**, their fits as seeds. "Go": what it lacks goes under `Missing`.
+A gap: search only that, 20 to 60 candidates, one picker round. A motion gap is judged moving, never from a thumbnail: record 8 to 12 candidates (`--frames 6`), show them as a strip of frames each on one contact sheet, and they name likes by number, with what moves that they like. Too thin: the full **Search**, their fits as seeds. "Go": what it lacks goes under `Missing`.
 
 **Big boards.** Over about 60 keeps (not at `quick`), group them by eye so the board they choose from has headings: look at them on contact sheets (`contact-sheet.mjs`, never picture by picture), and give each card a `topic:` line naming its group for what is seen, in words a person outside design would use ("one huge word is the picture"). As many groups as there are looks; strays stay strays, and none is dropped. Their own board is never changed. Say the groups in one line each with the doc.
 

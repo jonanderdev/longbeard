@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Motion you can choose.** When your design brief asks for present or leading motion and your board has nothing moving, the moodboard offers a short motion search, recorded as frames, and you pick what you like. The prototype then shows two or three versions of each key moment, each rebuilt from a moving reference on your board with whatever it needs (a motion library for sequenced or scroll-driven work), and DESIGN.md records the one you pick.
+
 ## 0.14.0 — 2026-11-25
 
 - **Concepts, not only rebuilds.** Of the eight first screens, six still rebuild one of your references; two now develop a concept you liked: the agent writes out what it is and why it works, then redraws it for your content, keeping its devices, type and colour. Before you see one it must be the same concept and not a copy; a screen with no concept behind it goes. The canvas labels them "concept from …". Style still comes only from your board.
