@@ -8,7 +8,7 @@
 //
 //   node canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 //
-// screens.json entries (grid.md): n, base, moves [{ what, from, like }], build, state,
+// screens.json entries (the skill's step 3): n, base, moves [{ what, from, like }], build, state,
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
 // part (a part of that screen), test (its hardest screen), fault (one line), shot
 // (a picture; else <shots>/<n>.png). board.md cards give each reference's shot and like.

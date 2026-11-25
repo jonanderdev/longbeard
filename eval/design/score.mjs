@@ -75,7 +75,7 @@ const node = (file, list) => spawnSync(process.execPath, [file, ...list], { enco
 const results = [];
 // A first-round run (run.mjs --from or --short) stops at the first sheet: what comes after it is not its to have.
 const firstRound = existsSync(at(".longbeard/eval/first-round.txt"));
-const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|five-second|still to supply)/i;
+const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|still to supply)/i;
 const skipLater = (id) => firstRound && later.test(id) && (results.push({ id, hard: false, status: "SKIP", detail: "a first-round run" }), true);
 const check = (id, hard, ok, detail = "") => skipLater(id) || results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
 // A check that could not run: not counted in the score, and a hard one fails the run.
@@ -175,11 +175,6 @@ else {
 }
 
 // ------------------------------------------------------------------ the direction and identity docs
-// The five-second check runs once, in design-prototype, and DESIGN.md records it. An older run kept it in the direction doc.
-{
-  const five = (read("DESIGN.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || (read("docs/design/design-direction.md") || "").match(/^- five seconds:\s*(.+)$/m)?.[1] || "";
-  if (read("DESIGN.md") || five) check("five-second check run", false, Boolean(five) && !/not run/i.test(five), five || "no five seconds line in DESIGN.md");
-}
 const identity = read("docs/design/design-identity.md");
 if (identity) {
   const block = identity.match(/```json identity\s*\n([\s\S]*?)```/)?.[1];

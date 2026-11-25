@@ -108,7 +108,7 @@ So nobody asks again, and so each answer changes something:
 
 | Line | Read by |
 |---|---|
-| takeaway | `design-direction` (what the screens carry, headlines), `design-prototype` (the five-second check), `design-content` |
+| takeaway | `design-direction` (what the screens carry, headlines), `design-content` |
 | first seen on | `design-direction` (the size the screens are built at) |
 | pace | `design` and every design skill: quick drops the optional stops |
 | words, personality, feel, never | `design-moodboard` (queries and picks), `design-families` (the sliders), `design-direction` (the against-the-brief column), `design-identity` (options and their notes) |
@@ -125,9 +125,9 @@ So nobody asks again, and so each answer changes something:
 `pace: quick` asks the same questions (they take a minute, and everything after reads them) and changes what follows:
 
 - `design-moodboard`: their references as they are (three or more), or one search shown as one contact sheet of about 30, from which they name six to ten; no picker rounds, no gap search, no families.
-- `design-direction`: subject pictures, one round of eight, one vary if they ask; touch-up and five-second check as usual.
+- `design-direction`: subject pictures, one round of eight, more only if they ask.
 - `design-identity`: the chosen screen's type and colours become the identity as built, contrast-checked; no options, straight to the board.
-- `design-prototype`: as usual. Never quick on states, contrast, or the flows.
+- `design-prototype`: as usual. Never quick on states or contrast.
 - `design-content` and `design-wordmark` are not offered.
 
 They can switch to full at any step; the design brief records it under **Changes**.
