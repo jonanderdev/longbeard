@@ -64,7 +64,7 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 
 ## 3. Eight first screens
 
-Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
+Read [Before you build](references/design-rules.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
 - **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, and no text is under 12px: a poster's tiny labels are not copied onto a page.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
@@ -89,9 +89,9 @@ node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/directio
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```
 
-Fix a text that fails contrast with the screen's own colours or another crop, never by moving it off the picture. A liked colour stays, with its ratio in `fault`. Fix clipped text by setting it smaller within its role or cutting words. Act here only on `rules.mjs`'s clipped text and placeholder copy; targets, focus and labels are the prototype's, and a reference's small links stay. Look at each capture yourself.
+Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
 
-**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when a reference does them: never tidied away. A finding that would undo what they like is left, and theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
+**The floor, inside the concept** ([how they split](references/design-rules.md#how-to-use-this)). Text a person acts on must pass contrast and size, fixed with the screen's own colours or another crop, never by moving it off the picture. Display type over a picture, overlaps, crops and wide empty space are the look when a reference does them: never tidied away. A liked colour or size stays, its measure in `fault`. A finding left is theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
 
 **Show the canvas:**
 
