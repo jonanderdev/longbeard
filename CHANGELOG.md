@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Clipped text is caught by the contrast check.** `screen-contrast.mjs` (in design-direction, design-prototype and design-check) now also lists text cut off by its box and exits 1 for it, so a clipped word blocks the direction's canvas like a contrast failure instead of being left to the eye. A crop of display type, text on a curve and a band running off the screen's edge are not counted.
+
 ## 0.13.0 — 2026-11-25
 
 - **Build is test-first by default.** The router's Build row is now `implement-spec → tdd → design-check → pr`: each ticket's acceptance criteria become failing tests before its code. The old "Test-first, when asked" line is gone. Run `npx longbeard update` to get the new `AGENTS.md` block.
