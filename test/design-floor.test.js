@@ -70,7 +70,7 @@ test("the skills that build read the floor: every hard check, no soft one, no te
 test("two of the eight are concepts that keep an idea and are never a copy", () => {
   const body = text("design-direction");
   assert.match(body, /two are \*\*concepts\*\*/);
-  assert.match(body, /would a designer call it the same concept, and would they call it a copy\?/);
+  assert.match(body, /would a designer call it the same concept \(it must be yes\), and would they call it a copy \(it must be no\)\?/);
   assert.match(body, /"kind": "concept"/);
 });
 
