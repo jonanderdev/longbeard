@@ -66,7 +66,7 @@ Build them yourself, one after another, each `screens/<n>.html` from [screen-tem
 
 - **One reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
-- **Spread:** the lead is the base of two screens, every like is in at least one. No main picture on more than two screens.
+- **Spread:** the lead is the base of two screens; the other six each stand on one of their liked references. With fewer than six likes, the lead and then the likes take a second. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
 - **Nothing that is not on their board:** no face, colour, gradient, shadow, radius, button style or effect that none of their references has. `PROVENANCE` names the reference for each.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references; if none has it, ask.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
