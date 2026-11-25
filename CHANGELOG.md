@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Never a collage.** A screen is its base and at most two moves; the lead's devices (or any reference's) sit on at most two screens beyond its own, so the round does not paste the same pieces everywhere.
 - **Seven references in eight screens.** The two concepts come from likes no other screen stands on, so the first round spreads across your board instead of repeating a few references.
 - **Each screen beside its references.** Before the canvas, the direction looks at each screen beside the pictures it is made from, and fixes any scene or device that no longer reads as it does there.
 - **What you like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space it has there: never taken apart, restyled or given another job (a block of colour does not become a button).
