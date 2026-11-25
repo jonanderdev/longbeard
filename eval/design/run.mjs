@@ -26,6 +26,9 @@
 //                                   them unlabelled into a run's sheet for the owner to mark.
 //   node eval/design/run.mjs --out ../longbeard-eval --skills ../variant/skills --agent "claude -p"
 //                                   the design skills from another folder: a variant under test, beside a run of this repo's.
+//   node eval/design/run.mjs --out ../longbeard-method --refs --method --agent "claude -p"
+//                                   the same, with the flow's method in the prompt (method/METHOD.md): one agent, no skills,
+//                                   no helpers; it builds eight first screens, picks by the answers' rule, then the key screens.
 //   node eval/design/run.mjs --out ../longbeard-refs --refs --agent "claude -p"
 //                                   the baseline with references: the brief, the design-brief answers, the board
 //                                   with its lead, likes and whys, and the subject's pictures, in one prompt with no
@@ -79,6 +82,9 @@ const plainAt = args.indexOf("--plain");
 const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
 const refsAt = args.indexOf("--refs");
 const refs = refsAt !== -1 && Boolean(args.splice(refsAt, 1));
+// --method: --refs, with the flow's method written into the prompt (method/METHOD.md): still one agent, no skills, no helpers.
+const methodAt = args.indexOf("--method");
+const method = methodAt !== -1 && Boolean(args.splice(methodAt, 1));
 const liveAt = args.indexOf("--live");
 const live = liveAt !== -1 && Boolean(args.splice(liveAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
@@ -91,8 +97,8 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
-if (!out || args.length || (short && plain) || (refs && (plain || short || from || !agent)) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
@@ -151,7 +157,7 @@ if (plain) {
 // pictures. It builds every key screen, so a run's prototype and this can be compared screen by screen
 // (compare.mjs). Where it comes close to the flow, the flow's extra steps did not earn their time.
 if (refs) {
-  const work = mkdtempSync(join(tmpdir(), "refs-"));
+  const work = mkdtempSync(join(tmpdir(), method ? "method-" : "refs-"));
   cpSync(fx("docs/brief.md"), join(work, "docs/brief.md"));
   for (const f of readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg"))) cpSync(join(fixture, "board", f), join(work, "moodboard", f));
   for (const f of readdirSync(join(here, "fixture/pictures")).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(here, "fixture/pictures", f), join(work, "pictures", f));
@@ -168,14 +174,16 @@ if (refs) {
     section("design-direction").split("\n").filter((l) => /Lead:|What I like|^\s+- `/.test(l)).join("\n"),
     "",
     "Pictures of the subject (stand-ins, CC0) are in pictures/.",
+    ...(method ? ["", "# How I choose among the first screens", "", section("design-direction").split("\n").filter((l) => /The grid:/.test(l)).join("\n")] : []),
   ].join("\n");
   writeFileSync(join(work, "notes.md"), `${notes}\n`);
+  if (method) cpSync(join(here, "method/METHOD.md"), join(work, "METHOD.md"));
   const keys = (readFileSync(fx("docs/brief.md"), "utf8").match(/## Key screens\n([\s\S]*?)\n## /)?.[1] ?? "").match(/^- (\w+):/gm)?.map((l) => l.slice(2, -1)) ?? [];
   const brief = [
     "Design the website for the product in docs/brief.md.",
     "My references are the pictures in moodboard/, and notes.md says what I want from the look, which reference leads and what I like in each and why.",
     `Build its key screens (${keys.join(", ")}) as screens/<name>.html, each a self-contained page of plain HTML and CSS (web fonts are fine) for a 1440-wide window, with real content from the brief and the photographs in pictures/.`,
-    "Make it as good as you can: the screens should look like one product, built from my references.",
+    method ? "Work the way METHOD.md says, step by step." : "Make it as good as you can: the screens should look like one product, built from my references.",
     "Work alone in this folder; when every screen is written, stop.",
   ].join(" ");
   writeFileSync(join(work, "PROMPT.txt"), `${brief}\n`);
