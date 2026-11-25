@@ -1,11 +1,9 @@
 ---
 name: design-figma
 description: >
-  Build the approved design in Figma: variables and styles from DESIGN.md, the
-  identity board on the Cover, only the components the key screens need, the
-  key screens and every reachable state, each checked with design-check and
-  marked Ready on approval. Runs when DESIGN.md exists and its screens have no
-  Ready frames, or for a feature's screens. Figma is required for UI projects.
+  Builds the approved design in Figma: tokens, the identity board,
+  components and every key screen and state, marked Ready on approval. Runs
+  when DESIGN.md exists without Ready frames, or for a feature's screens.
 ---
 
 # Design Figma

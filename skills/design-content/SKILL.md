@@ -1,14 +1,9 @@
 ---
 name: design-content
 description: >
-  Optional, any time. Plan what each key screen says and shows: its sections in
-  order, the one thing it leads with, real copy in the product's voice, and
-  the full set of pictures each screen needs, with licensed stand-ins of the
-  product's own subject where they have none. (The first three or four
-  pictures are found by design-direction.) Never asks them to write final copy.
-  Writes docs/design/design-content.md. Runs after the design brief, when
-  they ask about copy or imagery, or when design offers it because they have
-  no pictures.
+  Optional. What each key screen says and shows: sections, real copy in the
+  voice, and the pictures it needs, with licensed stand-ins. Writes
+  docs/design/design-content.md. Runs when they ask about copy or pictures.
 ---
 
 # Design content

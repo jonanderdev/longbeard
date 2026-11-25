@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import vm from "node:vm";
 import { tmpdir } from "node:os";
@@ -193,8 +193,13 @@ test("measure --profiles: a picture and its page in one profile, and the tags al
 });
 
 test("screen template: its script parses, marks what a run writes, and takes the look from the URL", () => {
-  const html = readFileSync(join(root, "skills/design-direction/references/screen-template.html"), "utf8");
-  const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const page = readFileSync(join(root, "skills/design-direction/references/screen-template.html"), "utf8");
+  const engine = readFileSync(join(root, "skills/design-direction/references/screen.js"), "utf8");
+  // A page writes only its own part and loads the fixed part last, never a copy of it.
+  assert.match(page, /<script src="screen\.js"><\/script>\s*<\/body>/);
+  assert.ok(!page.includes("function mountControls"), "the page does not carry screen.js");
+  const js = page.match(/<script>([\s\S]*?)<\/script>/)[1] + "\n" + engine;
+  const html = page + engine;
   const dir = mkdtempSync(join(tmpdir(), "longbeard-template-"));
   writeFileSync(join(dir, "page.js"), js);
   const check = spawnSync(process.execPath, ["--check", join(dir, "page.js")], { encoding: "utf8" });
@@ -261,6 +266,7 @@ test("screen template: the controls move measures inside the board's ranges, kee
     .replace(/<!-- WRITE: the screen's HTML[^>]*-->/, body)
     .replace("</body>", `${driver}</body>`);
   writeFileSync(join(dir, "first.html"), page);
+  cpSync(join(root, "skills/design-direction/references/screen.js"), join(dir, "screen.js"));
   const url = `file://${join(dir, "first.html")}`;
   const shot = (query, name) => new Promise((done) => {
     const child = spawn(process.execPath, [join(root, "skills/design-moodboard/scripts/capture.mjs"), url + query, "--out", join(dir, name), "--clip", "0,0,1440,900"]);

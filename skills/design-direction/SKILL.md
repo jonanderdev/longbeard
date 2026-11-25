@@ -1,15 +1,9 @@
 ---
 name: design-direction
 description: >
-  Find the direction: eight first screens, each a concept: one liked
-  reference's idea, written out and redrawn for this product as a designer
-  would (never a copy), with at most two things borrowed from their other
-  references. The lead gets two. Nothing on a screen
-  that is not on their board. One agent builds them, scripts check
-  contrast and clipped text, and they pick on a rendered canvas, or ask for
-  more or a mix. Writes docs/design/design-direction.md. Runs after
-  design-brief and design-moodboard; design-identity then refines its type
-  and colour.
+  Eight first screens, each one liked reference's concept redrawn for this
+  product, nothing off their board; they pick. Writes docs/design/design-
+  direction.md. Runs after design-brief and design-moodboard.
 ---
 
 # Design direction
@@ -57,7 +51,7 @@ It says how many cards it left out for a missing shot: capture those again first
 - **What they like** is what is borrowed; **why** is where it may go. A like without a why: ask once.
 - **What they leave out is never on a screen:** dropped, or its role filled from another of their references.
 - With fewer than 6 references, say once that the eight will look alike.
-- **A like the design brief rules out** ("gold on deep green", brief: light only): the brief wins, and the like is carried by its role. Say it once before building; a change goes under **Changes** in the design brief.
+- **A like the design brief rules out:** the brief wins, and the like is carried by its role. Say it once before building; a change goes under **Changes** in the design brief.
 
 ## 2. Read the references
 
@@ -69,14 +63,13 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 
 ## 3. Eight first screens
 
-Read [Before you build](references/design-floor.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
+Read [Before you build](references/design-floor.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844). Copy [screen.js](references/screen.js) to `screens/` once: every screen loads it, and none repeats it.
 
 - **Every screen does the job of this product's first view** (a site's opening screen, an app's first screen, the piece itself for a graphic): what this is, for whom, the one action. Any liked reference can lead one, whatever it was made as: a reference made for another role (a section from mid-page, an inner page, a poster for a site) keeps its idea and its system, redrawn for this role; what only works in its own role is left out.
 - **Every screen is a concept: one liked reference, developed as a designer would, never copied.** First write its `concept` in the reading as a designer would defend it: what it is, and why it works (the tension, the hierarchy, what does the work). Keep that essence and its scene, redrawn for this screen's role (above). Then redraw the arrangement for this product's content so the idea still does the work, with that reference's devices, type, colour and picture treatment, and adapt the specifics to this client: their content and pictures, only the text its `slots` allow, and where the brief or the subject asks, a colour or face of the same character (another vibrant for a vibrant, a near cousin of the face from `fonts.mjs`). Sizes are scaled to this screen, at [rule 5](references/design-floor.md#5-typography)'s size floor. Two questions for every screen: would a designer call it the same concept (it must be yes), and would they call it a copy (it must be no)? Either answer wrong: redraw. A screen with no concept behind it is generic, and goes.
-- **At most two moves** borrowed from their other liked references, only where they help the idea. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this screen sends the move to another.
-- **Never a collage.** A screen is its base and at most two moves, nothing more. The lead may set the round's tone, but its devices are moves like any other's: a device sits on its own reference's screens and on at most two others, so the eight stay eight different screens.
+- **At most two moves** borrowed from their other liked references, only where they help the idea, never a collage. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this screen sends the move to another. The lead's devices are moves like any other's: on its own screens and at most two others, so the eight stay eight different screens.
 - **Spread: eight concepts.** The lead develops two, each a different take on its idea; six develop one liked reference each, a different one for every screen. With fewer than six likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
-- **What they like is taken whole.** A liked reference's scene, and any device borrowed from it (a ring of text, a block of colour, prints laid on a table), keeps the form, the job and the space around it that it has there. It is never taken apart, restyled or given another job: a block of colour that is a ground does not become a button, a ring of text gets no extra line, pictures laid over each other stay far enough apart to read as separate pictures. A move changes where things sit, never what they are.
+- **What they like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space around it that it has there: never taken apart, restyled or given another job. A move changes where things sit, never what they are.
 - **Nothing off their board's character:** no face, colour, gradient, shadow, radius, button style or effect their references do not show in kind. An adapted colour or face keeps the role and energy of the one it replaces and comes from the board, the subject or the accent options. `PROVENANCE` names the reference for each, and what was adapted; before the checks, go through the screen's CSS, and anything it cannot name goes.
 - **Where the board shows nothing for a part** (a field, a price, a badge), take it from the base's own system; if the base has none, from another of their references. The name is set in the base's type; a mark is `design-wordmark`'s.
 - **Marked, not hidden:** anything the product does not really have yet carries `data-standin="picture"` or `"fact"`, with `data-standin-note`.
@@ -118,11 +111,11 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 - **More of 3:** three more on 3's base with other moves, in round 2.
 - **A mix** ("4 with 7's colours"): one screen.
 - **More:** a fresh round of eight, new pairings. After two rounds with nothing taken, ask once what is missing (`design-moodboard`).
-- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the real screen, everything else kept, each from a reference that shows that part. **Options live on the page:** each version is an element with `data-variant="<n>"` and `data-from="<card name>"`, and the page loads [variants.js](references/variants.js) (copy it beside the page): `?variant=<n>` shows one, a small bar names its reference, and ← → flip between them. Capture each with `?variant=<n>&bar=0`, and record each in `screens.json` as `"of": <n>, "part": "<name>"`.
+- **A part,** only when they ask ("other menus for 3"): three or four versions of that part on the real screen, everything else kept, each from a reference that shows that part. They live on the page, flipped with [variants.js](references/variants.js) (how, in its header); record each in `screens.json` as `"of": <n>, "part": "<name>"`.
 
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 
-On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it to `prototype/first.html`, and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
+On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it and `screen.js` to `prototype/` (as `first.html`), and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
 
 **In context, before the identity.** A studio shows a chosen concept where it will live before it is signed off. Build two more pages from the chosen screen: its phone view (390 wide), and the brief's key screen that is hardest for this look (the densest list, a form), in the chosen screen's frame and principles, each page opening with its own job. Check them like the eight, and show them beside the chosen screen with the direction. If the look breaks on real content, say where in one line: going back to another pick is still cheap. The prototype starts from these pages.
 
@@ -168,9 +161,4 @@ No reference names, links or paths. Then the direction in up to five lines:
 
 ## Do not
 
-- Rank the screens, or recommend from taste: the one recommendation names the design brief line it serves.
-- Add anything their board does not have, or anything they wrote to leave out.
-- Show a concept that drops the idea it develops, or copies its reference's layout.
-- Fit more text on a screen than its base carries.
-- Undo what they like because a check flagged it.
 - Take a reference's content, pictures or words.

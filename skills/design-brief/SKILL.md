@@ -1,13 +1,9 @@
 ---
 name: design-brief
 description: >
-  The questions a designer asks a client before looking for anything: what the
-  first screen must make someone think and do, the personality, how it should
-  feel and never feel, who it must stand apart from, and what is already fixed.
-  One message of questions with suggested answers from the product brief, one
-  read-back, and the answers written to docs/design/design-brief.md. Runs after
-  docs/brief.md exists and the brief is a site, an app or a graphic, before any other design-* skill,
-  or when the feel of the product changes.
+  A designer's questions before any looking: what the first screen must do,
+  personality, feel, never, apart from, fixed. Writes docs/design/design-
+  brief.md. Runs before any other design-* skill, or when the feel changes.
 ---
 
 # Design brief
@@ -102,35 +98,9 @@ Give each number as the scale's right end (loud 2 is fairly quiet), so the read-
 
 **Names stay out.** The sites and brands they love, and the competitors they named, go to `.longbeard/design/brief-loves.md` for `design-moodboard` to search from. Before that first write, add `.longbeard/design/` to `.gitignore` if it is missing, and say why in one line: the names must never be committed. The committed doc describes what those things do ("long editorial pages, one picture at a time"), never who. Owned colours and faces are theirs, so their values are written.
 
-## Who reads what
+Every line is read by a later step, so nobody asks again and each answer changes something.
 
-So nobody asks again, and so each answer changes something:
-
-| Line | Read by |
-|---|---|
-| takeaway | `design-direction` (what the screens carry, headlines), `design-content` |
-| first seen on | `design-direction` (the size the screens are built at) |
-| pace | `design` and every design skill: quick drops the optional stops |
-| words, personality, feel, never | `design-moodboard` (queries and picks), `design-direction` (the against-the-brief column), `design-identity` (options and their notes) |
-| apart from, distance | `design-moodboard` (what to search and keep out), `design-direction` (the eye's check), `design-check` (could it be mistaken for one) |
-| fixed | the direction's library (`theirs` entries, dropped grounds), `design-identity` |
-| accessibility | every contrast check (`contrast.mjs --level`, `screen-contrast.mjs --min`), `DESIGN.md`, `design-check` |
-| motion | `design-prototype` (builds those picks and nothing beyond them), `DESIGN.md` (its Motion section), `design-check` (checks against them), `design-moodboard` (the pasted link; examples when their board has none moving, or they ask) |
-| dense | `design-prototype`, `DESIGN.md` |
-| voice | headlines, copy, the identity board, `DESIGN.md` |
-| decides | every approval: the direction, the identity board, `DESIGN.md` |
-
-## Quick
-
-`pace: quick` asks the same questions (they take a minute, and everything after reads them) and changes what follows:
-
-- `design-moodboard`: their references as they are (three or more), or one search shown as one contact sheet of about 30, from which they name six to ten; no picker rounds, no gap search, no grouping.
-- `design-direction`: subject pictures, one round of eight, more only if they ask.
-- `design-identity`: the chosen screen's type and colours become the identity as built, contrast-checked; no options, straight to the board.
-- `design-prototype`: as usual. Never quick on states or contrast.
-- `design-content` and `design-wordmark` are not offered.
-
-They can switch to full at any step; the design brief records it under **Changes**.
+`pace: quick` asks the same questions (they take a minute, and everything after reads them); each later skill says what it skips. They can switch to full at any step; the design brief records it under **Changes**.
 
 ## Then
 

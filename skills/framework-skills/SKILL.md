@@ -1,11 +1,9 @@
 ---
 name: framework-skills
 description: >
-  Find and propose agent skills for the frameworks and languages the project
-  uses: the framework's own published skills first, else the most installed,
-  read before proposing, installed on yes with longbeard add. Runs at
-  Architecture once the stack is decided, and again when the repo gains a new
-  stack (a pubspec.yaml, a new framework in package.json, a Cargo.toml).
+  Finds and proposes published agent skills for the project's frameworks and
+  languages, installs on yes. Runs at Architecture once the stack is
+  decided, and when the repo gains a new stack.
 ---
 
 # Framework skills
