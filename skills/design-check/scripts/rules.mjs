@@ -18,6 +18,15 @@
 //   11 Copy           no lorem ipsum, and no text that is only "Title", "Button", "User Name"...
 //   5  Typography     text cut by its container, including an ellipsis. Text cut on purpose
 //                     carries data-crop on the element (or one above it) and is skipped
+//   5  Typography     text size: nothing under 12px; text a person acts on (links, buttons,
+//                     labels, fields, navigation) at least 14px; body (running text of 60
+//                     characters or more) at least 16px. Text marked data-board-size (on it or
+//                     above it: the board shows it that small and the person kept it) is a
+//                     warning with its measure, not a block
+// Soft (reported, never blocking):
+//   6  Colour         proportion on the first screen, text and pictures left out: the ground
+//                     (the largest colour) under 50%, or the accent over 20% (--accent "#hex"
+//                     names it; else the most saturated colour). A board that does otherwise wins
 // Not checked, on purpose: overlap, collision, alignment, empty space, section height. They are
 // the look's own moves. Not checked either: contrast (screen-contrast.mjs), states, hierarchy.
 //
@@ -37,7 +46,8 @@
 // run. A check that could not run is "not checked", never passed. The first failure on a screen
 // says what to do; the second says to report it as not checked and go on.
 //   --widths 1440,390, --screen name, --app, --cookie "a=b; c=d", --wait 300 (ms), --timeout 120000
-//   (ms for the whole run; every browser call also has its own 15 s limit), --rounds 2, --dir, --json
+//   (ms for the whole run; every browser call also has its own 15 s limit), --rounds 2, --dir,
+//   --accent "#hex" (the accent from DESIGN.md, for the proportion), --json
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -65,11 +75,12 @@ const reason = flag("reason");
 const shipWords = flag("ship");
 const app = has("app");
 const json = has("json");
+const accentArg = flag("accent");
 const [url] = args;
-const usage = 'usage: node rules.mjs "<file:// or http(s):// url>" [--screen name] [--widths 1440,390] [--app] [--cookie "a=b"] [--wait 300] [--timeout 120000] [--rounds 2] [--dir .longbeard/design] [--json]\n       node rules.mjs --screen name --waive <id> --reason "why this finding is false"\n       node rules.mjs --screen name --ship "the person\'s words"';
+const usage = 'usage: node rules.mjs "<file:// or http(s):// url>" [--screen name] [--widths 1440,390] [--app] [--cookie "a=b"] [--wait 300] [--timeout 120000] [--rounds 2] [--dir .longbeard/design] [--accent "#hex"] [--json]\n       node rules.mjs --screen name --waive <id> --reason "why this finding is false"\n       node rules.mjs --screen name --ship "the person\'s words"';
 const recording = Boolean(waiveId || shipWords);
 const usageOk = recording ? Boolean(screenArg || url) && args.length <= 1 : url && args.length === 1 && /^(https?|file):/.test(url);
-if (!usageOk || widths.some((w) => !(w >= 200 && w <= 3840)) || !(wait >= 0 && wait <= 10000) || !(totalMs >= 5000) || !(limit >= 1) || (waiveId && shipWords) || (reason && !waiveId)) {
+if (!usageOk || widths.some((w) => !(w >= 200 && w <= 3840)) || !(wait >= 0 && wait <= 10000) || !(totalMs >= 5000) || !(limit >= 1) || (waiveId && shipWords) || (reason && !waiveId) || (accentArg && !/^#?[0-9a-f]{6}$/i.test(accentArg))) {
   console.error(usage);
   process.exit(2);
 }
@@ -125,7 +136,7 @@ if (shipWords) {
     console.error(`rules: ${screen} has not been checked yet. Run it once, so the open findings are on record.`);
     process.exit(2);
   }
-  record.closed = { words: shipWords.trim(), at: today(), open: record.found.filter((f) => !waivers.some((w) => w.screen === screen && w.id === f.id)) };
+  record.closed = { words: shipWords.trim(), at: today(), open: record.found.filter((f) => (f.level || "hard") === "hard" && !waivers.some((w) => w.screen === screen && w.id === f.id)) };
   rounds[screen] = record;
   writeJson(roundsFile, rounds);
   console.log(`${screen} closed by the person: "${record.closed.words}". Open findings, to report as open:`);
@@ -430,7 +441,100 @@ function staticChecks(opt) {
     }
   });
 
+  // 5: text size. Nothing under 12px; what a person acts on 14px; body 16px.
+  run("5 size", () => {
+    const act = 'a, button, label, input, select, textarea, summary, legend, nav, [role=button], [role=link], [role=tab], [role=menuitem], [role=option]';
+    const done = new Set();
+    const size = (el) => parseFloat(getComputedStyle(el).fontSize);
+    const judge = (el, text) => {
+      if (done.has(el)) return;
+      done.add(el);
+      const px = size(el);
+      const acts = !!el.closest(act);
+      const block = el.closest("p, li, dd, blockquote");
+      const body = !acts && block && !el.closest("figcaption, small, footer, aside, sup, sub") && (block.innerText || "").trim().length >= 60;
+      const [floor, role] = acts ? [14, "text a person acts on"] : body ? [16, "body text"] : [12, "text"];
+      if (px >= floor - 0.05) return;
+      const board = !!el.closest("[data-board-size]");
+      found.push({ rule: "5 Typography", check: "size", level: board ? "warn" : "hard", path: path(el), desc: desc(el), detail: `${Math.round(px * 10) / 10}px ${role}, floor ${floor}px${board ? " (data-board-size: the board's size, kept)" : ""}` });
+    };
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const el = n.parentElement;
+      if (!el || !n.textContent.trim() || el instanceof SVGElement || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE|OPTION)$/.test(el.tagName) || !visible(el)) continue;
+      const box = el.getBoundingClientRect();
+      if (box.width <= 2 || box.height <= 2) continue; // visually hidden text, read by screen readers
+      judge(el);
+    }
+    for (const el of document.body.querySelectorAll("input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea")) if (visible(el)) judge(el);
+  });
+
   return { found, notChecked };
+}
+
+// Colour proportion of the first screen, from a shot with the text hidden. Pictures are left out.
+// Returns { shares: [{ hex, share, chroma }], ground, accent } in shares of the pixels counted.
+async function colourProportion(opt) {
+  const out = [];
+  for (const el of document.body.querySelectorAll("*")) {
+    const s = getComputedStyle(el);
+    if (el.matches("img, video, canvas, picture, iframe, svg image, object, embed") || /url\(/.test(s.backgroundImage)) {
+      const r = el.getBoundingClientRect();
+      if (r.width >= 1 && r.height >= 1) out.push(r);
+    }
+  }
+  const img = new Image();
+  img.src = `data:image/png;base64,${opt.png}`;
+  await img.decode();
+  const c = document.createElement("canvas");
+  c.width = img.naturalWidth;
+  c.height = img.naturalHeight;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  const px = g.getImageData(0, 0, c.width, c.height).data;
+  const lin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const lab = (r, gr, b) => {
+    const [R, G, B] = [lin(r), lin(gr), lin(b)];
+    const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B), m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B), s2 = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s2, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s2, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s2];
+  };
+  const buckets = new Map();
+  let total = 0;
+  const step = 2;
+  for (let y = 0; y < c.height; y += step)
+    for (let x = 0; x < c.width; x += step) {
+      if (out.some((r) => x >= r.left && x < r.right && y >= r.top && y < r.bottom)) continue;
+      const i = (y * c.width + x) * 4;
+      const key = ((px[i] >> 3) << 10) | ((px[i + 1] >> 3) << 5) | (px[i + 2] >> 3);
+      const b = buckets.get(key) || { n: 0, r: px[i], g: px[i + 1], b: px[i + 2] };
+      b.n++;
+      buckets.set(key, b);
+      total++;
+    }
+  if (!total) return { shares: [], ground: null, accent: null };
+  // Near colours are one colour: a bucket joins the biggest cluster within a small distance.
+  const clusters = [];
+  for (const b of [...buckets.values()].sort((a, z) => z.n - a.n)) {
+    const L = lab(b.r, b.g, b.b);
+    const near = clusters.find((k) => Math.hypot(k.lab[0] - L[0], k.lab[1] - L[1], k.lab[2] - L[2]) < 0.06);
+    if (near) near.n += b.n;
+    else clusters.push({ n: b.n, lab: L, rgb: [b.r, b.g, b.b] });
+  }
+  const hex = (rgb) => `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+  const shares = clusters.sort((a, z) => z.n - a.n).map((k) => ({ hex: hex(k.rgb), share: k.n / total, chroma: Math.hypot(k.lab[1], k.lab[2]), lab: k.lab }));
+  const ground = shares[0];
+  let accent = null;
+  if (opt.accent) {
+    const h = opt.accent.replace("#", "");
+    const A = lab(parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16));
+    const near = shares.filter((k) => Math.hypot(k.lab[0] - A[0], k.lab[1] - A[1], k.lab[2] - A[2]) < 0.06);
+    accent = { hex: `#${h.toLowerCase()}`, share: near.reduce((a, k) => a + k.share, 0), named: true };
+  } else {
+    // Unnamed, the accent is the most saturated colour other than the ground.
+    const pick = shares.slice(1).filter((k) => k.chroma >= 0.1 && k.share >= 0.005).sort((a, z) => z.chroma - a.chroma)[0];
+    if (pick) accent = { hex: pick.hex, share: pick.share, named: false };
+  }
+  return { shares: shares.slice(0, 4).map(({ hex: h, share }) => ({ hex: h, share })), ground: { hex: ground.hex, share: ground.share }, accent };
 }
 
 // The focus check. Called once to take the baseline, then after each Tab.
@@ -494,10 +598,13 @@ const FIX = {
   focus: "Give it a visible :focus-visible style with 3:1 contrast against what is around it (an outline or ring). Never outline: none alone.",
   placeholder: "Write the real copy, in the product's voice.",
   clipped: "Let the box grow or the text wrap, so no word is cut. If the cut is the look, mark that element data-crop.",
+  size: "Scale the step up, keeping the reference's proportions between sizes. If the board shows it this small and the person kept it, mark it data-board-size.",
+  proportion: "Let the ground dominate, the primary support and the accent stay small (about 60/30/10). If the board clearly does otherwise, keep it and say so in a note.",
 };
 const RULE_OF = { focus: "10 Accessibility" };
 const found = new Map();
 const notChecked = [];
+const proportions = [];
 const checkedAt = new Map();
 const evaluate = async (expression, call) => {
   const r = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
@@ -521,7 +628,7 @@ try {
   }
   const record1 = (item, w, check) => {
     const key = `${item.rule || RULE_OF[check] || ""}|${check}|${item.path}`;
-    if (!found.has(key)) found.set(key, { rule: item.rule || RULE_OF[check], check, path: item.path, desc: item.desc, detail: item.detail || "", widths: [] });
+    if (!found.has(key)) found.set(key, { rule: item.rule || RULE_OF[check], check, level: item.level || "hard", path: item.path, desc: item.desc, detail: item.detail || "", widths: [] });
     const f = found.get(key);
     if (!f.widths.includes(w)) f.widths.push(w);
   };
@@ -554,6 +661,25 @@ try {
     } catch (e) {
       notChecked.push({ check: "10 focus", width: w, why: String(e.message).slice(0, 80) });
     }
+    // Colour proportion, last: it hides the text. The first screen only, as a person meets it.
+    try {
+      await evaluate(`(() => {
+  window.scrollTo(0, 0);
+  if (document.activeElement) document.activeElement.blur();
+  const s = document.createElement("style");
+  s.textContent = "* { color: transparent !important; text-shadow: none !important; -webkit-text-fill-color: transparent !important; text-decoration-color: transparent !important; caret-color: transparent !important; outline: none !important; }";
+  document.head.appendChild(s);
+  return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => done(true))));
+})()`, call);
+      const shot = await call("Page.captureScreenshot", { format: "png" });
+      const p = await evaluate(`(${colourProportion})(${JSON.stringify({ png: shot.result.data, accent: accentArg })})`, call);
+      proportions.push({ width: w, ...p });
+      const pct = (x) => `${Math.round(x * 100)}%`;
+      if (p.ground && p.ground.share < 0.5) record1({ rule: "6 Colour", level: "soft", path: "ground", desc: "first screen", detail: `the ground (${p.ground.hex}) covers ${pct(p.ground.share)}; it should dominate (about 60%)` }, w, "proportion");
+      if (p.accent && p.accent.share > 0.2) record1({ rule: "6 Colour", level: "soft", path: "accent", desc: "first screen", detail: `the accent (${p.accent.hex}${p.accent.named ? "" : ", read as the most saturated colour"}) covers ${pct(p.accent.share)}; it should stay small (about 10%)` }, w, "proportion");
+    } catch (e) {
+      notChecked.push({ check: "6 proportion", width: w, why: String(e.message).slice(0, 80) });
+    }
     checkedAt.set(w, true);
   }
   ws.close();
@@ -567,7 +693,9 @@ finished = true;
 const id = (f) => createHash("sha1").update(`${f.rule}|${f.check}|${f.path}`).digest("hex").slice(0, 6);
 const rows = [...found.values()].map((f) => ({ ...f, id: id(f), where: `${f.desc}: ${f.detail} (at ${f.widths.sort((a, b) => b - a).join(", ")})` }));
 const waived = rows.filter((f) => waivers.some((w) => w.screen === screen && w.id === f.id));
-const open = rows.filter((f) => !waived.includes(f));
+// Hard findings block. Warnings (the board's own small text) and soft ones are reported only.
+const open = rows.filter((f) => !waived.includes(f) && f.level === "hard");
+const reported = rows.filter((f) => !waived.includes(f) && f.level !== "hard");
 
 // A run on a changed page is a round; the same page again is the same round. Each url of a screen
 // (a state: ?menu=open) keeps its own fingerprint, so the first look at another state is part of
@@ -580,15 +708,15 @@ const changed = seen && fps[key] !== fingerprint;
 const round = !used ? 1 : changed && used < limit ? used + 1 : used;
 const beyond = changed && used >= limit;
 const closed = changed ? null : record.closed || null;
-rounds[screen] = { round, fps: { ...fps, [key]: fingerprint }, at: today(), failed: 0, found: rows.map((f) => ({ id: f.id, rule: f.rule, where: f.where })), ...(closed ? { closed } : {}) };
+rounds[screen] = { round, fps: { ...fps, [key]: fingerprint }, at: today(), failed: 0, found: rows.map((f) => ({ id: f.id, rule: f.rule, level: f.level, where: f.where })), ...(closed ? { closed } : {}) };
 writeJson(roundsFile, rounds);
 
 const widthNote = widths.join(" and ");
-const checks = [["13 sideways", "13 sideways scroll (phone width)"], ["10 targets", `10 targets (${app ? "44 on phone, 24 otherwise" : "24"})`], ["10 labels", "10 visible labels"], ["10 focus", "10 focus shown (not its contrast)"], ["11 copy", "11 placeholder copy"], ["5 clipped", "5 clipped text (data-crop skipped)"]];
+const checks = [["13 sideways", "13 sideways scroll (phone width)"], ["10 targets", `10 targets (${app ? "44 on phone, 24 otherwise" : "24"})`], ["10 labels", "10 visible labels"], ["10 focus", "10 focus shown (not its contrast)"], ["11 copy", "11 placeholder copy"], ["5 clipped", "5 clipped text (data-crop skipped)"], ["5 size", "5 text size (12 / 14 / 16)"], ["6 proportion", "6 colour proportion (soft)"]];
 if (!widths.some((w) => w <= 480)) notChecked.push({ check: "13 sideways", width: widths.join(","), why: "no phone width (480 or less) in --widths" });
 const done = checks.filter(([key]) => !notChecked.some((n) => n.check === key)).map(([, label]) => label);
 if (json) {
-  console.log(JSON.stringify({ screen, round, limit, roundsUsedUp: round >= limit && open.length > 0, closed, open, waived, notChecked, checked: done }, null, 1));
+  console.log(JSON.stringify({ screen, round, limit, roundsUsedUp: round >= limit && open.length > 0, closed, open, reported, waived, proportions, notChecked, checked: done }, null, 1));
 } else {
   console.log(`rules: ${screen} at ${widthNote}, round ${round} of ${limit}${beyond ? " (this page changed after the last round: not counted)" : changed || !used ? "" : seen ? " (the page has not changed since the last run)" : " (another state of this screen: same round)"}`);
   if (closed) console.log(`closed by the person on ${closed.at}: "${closed.words}". Do not fix more. Report what is open.`);
@@ -602,6 +730,12 @@ if (json) {
     }
     for (const [check, n] of Object.entries(shown)) if (n > 10) console.log(`(${n - 10} more ${check} findings with the same fix, not listed: fix these, run again, or use --json for all)`);
   } else console.log(`passes: ${done.join("; ")}`);
+  if (reported.length) {
+    console.log("reported, not blocking:\n| Rule | Hard/soft | Where | Fix |\n|---|---|---|---|");
+    for (const f of reported.slice(0, 20)) console.log(`| ${f.rule} | ${f.level} | ${f.where.replace(/\|/g, "/")} [${f.id}] | ${FIX[f.check]} |`);
+    if (reported.length > 20) console.log(`(${reported.length - 20} more, not listed: --json has all)`);
+  }
+  for (const p of proportions) if (p.ground) console.log(`colour proportion at ${p.width}: ground ${p.ground.hex} ${Math.round(p.ground.share * 100)}%${p.shares.slice(1).map((k) => `, ${k.hex} ${Math.round(k.share * 100)}%`).join("")}${p.accent ? `; accent ${p.accent.hex} ${Math.round(p.accent.share * 100)}%` : ""}`);
   if (waived.length) {
     console.log(`waived (${waived.length}), listed so the person sees them:`);
     for (const f of waived) console.log(`- ${f.rule}: ${f.where} [${f.id}]: ${waivers.find((w) => w.screen === screen && w.id === f.id).reason}`);

@@ -1,14 +1,28 @@
 # Design rules
 
-How a screen is checked. Read by `design-direction` and `design-prototype` before they prototype and by `design-check` on every frame and build.
+How a screen is checked. Read by `design-direction` and `design-prototype` before they build and by `design-check` on every frame and build.
 
 These rules decide execution, never the look. The direction and `DESIGN.md` decide the look. A rule that seems to ask for a colour, a typeface or a style is misread. It asks only that whatever was chosen is used with intent.
+
+## Before you build
+
+A studio applies these while drawing each screen, not as a check after. Each is the numbered rule's, said there.
+
+- One most prominent element and one primary action (rule 1).
+- Contrast where the text sits, over pictures too (rules 6 and 12).
+- Text size at its floor (rule 5).
+- One grouping device per group (rule 2).
+- Every screen carries the concept, and reads as the same product as the first (rule 0).
 
 ## How to use this
 
 - Check from a screenshot. Every check below can be passed or failed by looking at a rendered screen at its real size. When a check needs a state you cannot see (focus, error, empty), it needs that state's frame, and a missing frame fails rule 8.
 - Go in order: **Idea** first, then every **hard** check, then **soft**.
-- **Hard** is the floor: structure, contrast, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it, with one exception: a colour the person liked by name and kept under the contrast level, marked `WARN liked, kept` in `DESIGN.md`, is reported as a warning, not a block.
+- **Hard** is the floor: structure, contrast, text size, targets, focus and states. A hard failure blocks the screen. `DESIGN.md` cannot waive it, except for what the person liked or asked for (below).
+- **When the floor meets a liked concept:**
+  - Text a person acts on (body, labels, prices, fields, navigation, buttons): the floor wins. The fix comes from inside the concept: its own ink, another crop, a device the board already has. Never by moving the text off the concept or dropping the concept.
+  - Display and composition (giant type over a picture, overlaps, crops): the concept wins, and the fault is written down.
+  - A colour or a small size the person liked or asked for: kept, reported as a warning with its measure, not a block. Marked `WARN liked, kept` in `DESIGN.md`; on a page, small text is marked `data-board-size`.
 - **Soft** is a default. `DESIGN.md` may override a soft check on purpose, with a written reason. A soft finding with no reason in `DESIGN.md` is reported, not blocked.
 - A finding is four things: the rule (number and check), hard or soft, where on the screen, and the fix.
 - The shared core applies to everything, except where the Graphics list says it does not. Then add the site, app or graphics list, whichever the brief's surface says.
@@ -20,6 +34,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 - [soft] Cover the logo and the name. Is it still recognisably this product, from its content, imagery, voice or structure? A screen that could belong to any product in the category fails.
 - [soft] You can say what the screen is for in one sentence, and the most visible element serves that sentence.
 - [soft] The ownable idea in `DESIGN.md` (or the direction, before `DESIGN.md` exists) shows up somewhere you can point to.
+- [soft] Beside the first screen, with the logo covered, it reads as the same product.
 
 ## 1. Hierarchy
 
@@ -62,7 +77,8 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 - [soft] The view uses at most five font sizes, and adjacent sizes are clearly different (roughly a 1.2× step or more), not 15, 16 and 17.
 - [soft] Body text runs about 45 to 80 characters per line on desktop. Count one line.
-- [soft] Body line height is visibly looser than heading line height. Headings of two lines do not drift apart.
+- [soft] Large type is set for its size: display text has tighter line height and tracking than body, and body keeps its reading spacing. Headings of two lines do not drift apart.
+- [hard] At the screen's real size, nothing is under 12px, text a person acts on (links, buttons, labels, fields, prices, navigation) is at least 14px, and body is 16px at every width. Where a reference sets smaller, keep its proportions and scale the step up.
 - [soft] Weight does the work before size. A label is not set larger to be noticed when bold would do.
 - [hard] No text is clipped, overlapped, or cut mid-word by its container, in any language the product ships.
 
@@ -74,7 +90,10 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 - [hard] Colour is never the only signal. An error, a selected item or a required field also changes shape, weight, an icon or text.
 - [soft] Every colour on the screen is a token in `DESIGN.md`. Pick three at random: each maps to a named token.
 - [hard] A product with more than one theme has one set of colour tokens, with a value for each theme, and passes every check here in each theme. A colour that stays the same when the theme changes, and should not, fails.
+- [soft] The accent comes from the board: one it clearly shows, or one the person names. Otherwise it comes from harmony with the board's primary (complementary, split-complementary, analogous, or a colour from the subject's own pictures), matched to the board's lightness and chroma, and the person chooses it.
 - [soft] The accent colour marks action or state, and is not also used for decoration on the same screen.
+- [soft] The ground dominates, the primary supports and the accent stays small: about 60/30/10 of the screen's area. A board that clearly does otherwise wins, with a note.
+- [soft] Neutrals (greys, lines, quiet text) are steps of the board's own ground or primary, never a stock grey.
 - [soft] Status colours (error, warning, success) are used for status only.
 
 ## 7. Consistency
@@ -146,7 +165,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 - [hard] At mobile width (360–390px) nothing scrolls sideways, nothing is clipped, and nothing overlaps.
 - [hard] The primary action is reachable at every size without hunting: visible, or one obvious step away.
 - [soft] The layout changes structure between sizes where it should: columns stack, tables become lists or scroll inside their own box, navigation collapses into one control.
-- [soft] Type and spacing scale down a step on mobile, not to illegible sizes. Body text stays at least 16px.
+- [soft] Type and spacing scale down a step on mobile, never under the size floor in rule 5.
 
 ## 14. Tells
 

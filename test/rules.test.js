@@ -19,7 +19,8 @@ const run = (args, cwd) =>
   });
 const page = (html, cwd, name = "p.html") => {
   const file = join(cwd, name);
-  writeFileSync(file, `<!doctype html><meta charset=utf-8><title>t</title><body style="margin:0;font:16px sans-serif">${html}`);
+  // Controls take the page's type, as on any real page; a test that wants the browser's default says so.
+  writeFileSync(file, `<!doctype html><meta charset=utf-8><title>t</title><style>button,input,select,textarea{font:inherit}</style><body style="margin:0;font:16px sans-serif">${html}`);
   return `file://${file}`;
 };
 // One run at phone width on a fresh folder.
@@ -51,6 +52,9 @@ const failing = [
   ["11 Copy", "lorem ipsum", `${focusRing}<h1>Lorem ipsum dolor sit amet</h1>`],
   ["11 Copy", "a heading that is only Title", `${focusRing}<h1>Title</h1>`],
   ["5 Typography", "text cut by its box", `${focusRing}<div style="width:100px;overflow:hidden;white-space:nowrap">This sentence is far too long for its box</div>`],
+  ["5 Typography", "a caption under 12px", `${focusRing}<p style="font-size:11px">Shot in May</p>`],
+  ["5 Typography", "a button under 14px, at the browser's default", `${focusRing}<button style="font:13px sans-serif;width:120px;height:48px">Book a session</button>`],
+  ["5 Typography", "body text under 16px", `${focusRing}<p style="font-size:15px">Every session starts with a walk, so your dog knows me before the camera comes out of the bag.</p>`],
   ["5 Typography", "an ellipsis, which is also a cut", `${focusRing}<div style="width:100px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">This sentence is far too long for its box</div>`],
 ];
 for (const [rule, what, html] of failing) {
@@ -73,8 +77,42 @@ test("rules: giant type cut at the edge is skipped only when marked data-crop", 
   assert.match(bare.stdout, /5 Typography/);
 });
 
+test("rules: text at the floor passes: 12px meta, 14px on what you act on, 16px body", async (t) => {
+  const r = await check(
+    `${focusRing}<p style="font-size:12px">Shot in May</p><a href="#b" style="display:inline-block;font-size:14px;padding:12px 0">Book a session</a>
+    <p>Every session starts with a walk, so your dog knows me before the camera comes out of the bag.</p>`,
+  );
+  if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.doesNotMatch(r.stdout, /floor \d+px/);
+});
+
+test("rules: small text marked as the board's size is a warning with its measure, not a block", async (t) => {
+  const r = await check(`${focusRing}<nav data-board-size><a href="#w" style="display:inline-block;font-size:11px;padding:12px 0">Work</a></nav>`);
+  if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /^\| 5 Typography \| warn \|.*11px/m);
+  assert.match(r.stdout, /data-board-size/);
+});
+
+test("rules: an accent that floods the first screen is a soft finding, and does not block", async (t) => {
+  const r = await check(`${focusRing}<div style="height:300px;background:#e5302a"></div><p>Portraits of dogs, at home and outdoors.</p>`);
+  if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /^\| 6 Colour \| soft \|.*the accent \(#e5302a, read as the most saturated colour\) covers 3\d%/m);
+  // A ground that does not dominate is reported too; the accent can be named from DESIGN.md.
+  const split = await check(`${focusRing}<div style="height:300px;background:#1f3a5f"></div><div style="height:300px;background:#e8e2d6"></div>`, ["--accent", "#1f3a5f"]);
+  assert.match(split.stdout, /the ground \(#[0-9a-f]{6}\) covers \d+%/);
+  assert.match(split.stdout, /the accent \(#1f3a5f\) covers 3\d%/);
+  // A quiet ground with a small accent has no proportion finding, and the measure is printed.
+  const calm = await check(`${focusRing}<div style="height:40px;background:#e5302a"></div><p>Portraits of dogs, at home and outdoors.</p>`);
+  assert.equal(calm.status, 0, calm.stdout + calm.stderr);
+  assert.doesNotMatch(calm.stdout, /6 Colour/);
+  assert.match(calm.stdout, /^colour proportion at 390: ground #ffffff 9\d%/m);
+});
+
 test("rules: a link inside a sentence and a target with space around it are not too small", async (t) => {
-  const r = await check(`${focusRing}<p>Read <a href="#x" style="font-size:10px">the terms</a> first.</p><p style="margin-top:80px"><button style="width:14px;height:14px;padding:0"></button></p>`);
+  const r = await check(`${focusRing}<p>Read <a href="#x" style="font-size:14px">the terms</a> first.</p><p style="margin-top:80px"><button style="width:14px;height:14px;padding:0"></button></p>`);
   if (/No Chrome/.test(r.stderr)) return t.skip("no Chrome installed");
   assert.equal(r.status, 0, r.stdout + r.stderr);
   // The app list raises the floor on touch: the same lone button now fails.

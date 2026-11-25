@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **A craft floor in the design rules.** `design-rules.md` opens with **Before you build**: five checks a screen meets while it is drawn, each pointing to its rule. Text has a floor (12px, 14px on what a person acts on, 16px body) that `rules.mjs` measures; small text the board shows and you kept is a warning with its size (`data-board-size`), not a block. Text you act on keeps the floor inside a liked concept; display type and composition keep the concept. New soft rules: the accent from the board or from harmony with its primary, colour proportion about 60/30/10 (measured on the first screen, reported only), neutrals tinted from the board, and display type set tighter than body.
 - **Fixes from the pet-photographer run.** Direction screens set no text under 12px and carry only the text their base's `slots` allow (readings now count its text `blocks`). Every shadow, gradient or effect on a screen names its reference before the checks, or goes. A check that would undo the concept now reaches you as a choice ("keep, or change?") in the message, not only in the canvas. A sheet of screenshots in the prototype's folder is no longer counted as a dead-end page by `links.mjs`.
 
 ## 0.13.0 — 2026-11-25
