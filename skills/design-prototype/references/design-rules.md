@@ -150,7 +150,7 @@ These rules decide execution, never the look. The direction and `DESIGN.md` deci
 
 ## 14. Tells
 
-**Dated 2026-11-03. Reviewed each release.** Add new tells, retire ones that stopped being defaults.
+**Dated 2026-11-25. Reviewed each release.** Add new tells, retire ones that stopped being defaults.
 
 A tell is a device that makes a screen look produced by default rather than designed for this product. Most began as good ideas. They are tells because they arrive without a reason. Every check here is **soft**: present, and `DESIGN.md` gives no reason for it. This list never says what to use instead. That comes from the direction. A device that came with a look they chose on rendered screens is there on purpose: `DESIGN.md` says under Decisions what it does for this product.
 
@@ -167,6 +167,7 @@ A tell is a device that makes a screen look produced by default rather than desi
 - [soft] Invented social proof: logos, quotes, star rows or user counts the product does not have.
 - [soft] Every section in the same layout, or the stock order hero, logos, features, testimonial, pricing, call to action, when the argument needs another.
 - [soft] One medium corner radius on everything, chosen by default rather than on purpose.
+- [soft] A face that is the platform's or the framework's default (Inter, Roboto, the system UI stack) with no reference behind it.
 
 Removing tells is not the goal. A screen with none and no idea fails rule 0.
 
