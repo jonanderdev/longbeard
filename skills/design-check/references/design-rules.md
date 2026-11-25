@@ -10,6 +10,7 @@ A studio applies these while drawing each screen, not as a check after. Each is 
 
 - One most prominent element and one primary action (rule 1).
 - Contrast where the text sits, over pictures too (rules 6 and 12).
+- One picture leads; pictures that share the screen never compete (rule 12).
 - Text size at its floor (rule 5).
 - One grouping device per group (rule 2).
 - Every screen follows the direction's principles (before the pick, their whys), and reads as the same product as the first.
@@ -157,6 +158,7 @@ A studio applies these while drawing each screen, not as a check after. Each is 
 - [soft] Images show this product's subject, people or interface. A stock scene that fits any product in the category fails.
 - [soft] Where a picture belongs, there is a picture, not a grey box, a gradient or a text block pretending.
 - [soft] Images share one treatment: one crop logic, one colour handling, one corner shape.
+- [soft] One picture leads. Pictures that share a view never compete: a picture laid over another does not cover or repeat the subject of the one behind it.
 - [hard] Text over an image meets the contrast floor in rule 6 across the whole text area, not only on the darkest part.
 
 ## 13. Responsive

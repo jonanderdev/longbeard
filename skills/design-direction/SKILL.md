@@ -71,6 +71,7 @@ Read the lead and every like closely: its grid, the share of the screen each blo
 
 Read [Before you build](references/design-floor.md#before-you-build) first, and apply it to each screen while you draw it. Build them yourself, one after another, each `screens/<n>.html` from [screen-template.html](references/screen-template.html) at 1440 by 900 (an app, or `first seen on: phone`: 390 by 844).
 
+- **Every screen does a first screen's job:** what this is, for whom, the one action. A reference that is not a first screen (a section from mid-page, an inner page, a poster) lends its system and its moves; what only works in its own role is left out.
 - **On a rebuild, one reference is the base,** rebuilt faithfully: its composition, proportions, type and colour, with this product's content and pictures, and only the text its `slots` allow. Its sizes are scaled to this screen, at [rule 5](references/design-floor.md#5-typography)'s size floor.
 - **Then one or two moves** borrowed from their other liked references. A move is what they said they like, placed where their why says it belongs, and it changes only what it names. A why that would not be true on this base sends the move to another base.
 - **Spread:** the lead is the base of two screens; four stand on one of their liked references each; two are **concepts**. With fewer than four likes, the lead and then the likes take a second. Accent options still unanswered: about two screens each. Only the lead and their likes are used, never a card they did not pick. No main picture on more than two screens.
