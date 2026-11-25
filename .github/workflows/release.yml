@@ -1,0 +1,45 @@
+name: release
+
+# Publishes the version a pushed tag names, with provenance, so npm shows the
+# package was built from that tag. npm trusts this workflow by name (Trusted
+# Publisher on npmjs.com): no token is stored anywhere.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # the GitHub release
+  id-token: write # npm trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or later; Node 22 ships npm 10.
+      - run: npm install -g npm@11
+      - name: The tag, package.json and CHANGELOG.md agree
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          [ "v$VERSION" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME, package.json $VERSION" >&2; exit 1; }
+          awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1 } END { exit !found }' CHANGELOG.md \
+            || { echo "CHANGELOG.md has no section for $VERSION" >&2; exit 1; }
+          if npm view "$(node -p "require('./package.json').name")@$VERSION" version >/dev/null 2>&1; then
+            echo "$VERSION is already on npm" >&2; exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      # The font test measures installed faces.
+      - run: sudo apt-get update && sudo apt-get install -y fonts-dejavu fonts-freefont-ttf fonts-crosextra-caladea
+      - run: npm test
+      - run: npm publish --provenance
+      - name: GitHub release from the changelog section
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" --title "$VERSION" --notes-file notes.md

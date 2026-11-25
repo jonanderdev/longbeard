@@ -103,12 +103,12 @@ Change the number by hand, and only in that release commit. A push to `main`, an
 1. Review the tells in `rules/design-rules.md`: add new ones, retire stale ones, update the date, run `npm run share`.
 2. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
 3. Set that same number in `package.json`.
-4. Commit that, and push `main`. Stay on that commit.
-5. From the repo root, run `./scripts/release.sh`.
+4. Commit that, and merge it into `main`.
+5. Push the tag `vX.Y.Z` on that commit: `./scripts/release.sh` from the repo root, or an agent with push access. No terminal is needed for the rest.
 
-The script runs `npm test`, reads `package.json`, tags that number, and publishes it. It does not rewrite `CHANGELOG.md`. It stops if a test fails, if that section is missing, if the tag exists, or if npm already has the version. After `npm publish`, the site can lag. If the next attempt says the version is already staged, wait and run `npm view @jonandev/longbeard version`. Do not publish that number again.
+A pushed `v*` tag starts `.github/workflows/release.yml`. It checks that the tag, `package.json` and a `CHANGELOG.md` section agree and that npm does not have the version, runs `npm test`, publishes with provenance, and makes the GitHub release from that section. It stops at the first of those that fails. npm trusts the workflow by name (Trusted Publisher on npmjs.com, set once by the package's owner), so no npm token is stored in the repo or on GitHub; never add one. `./scripts/release.sh` runs the same checks before it tags, so a bad tag is caught on your machine. After a publish the site can lag: check with `npm view @jonandev/longbeard version` before trying a number again. Do not publish that number again.
 
-There is no publish workflow. A GitHub Action would earn its place only to prove the package was built from that tag. Until then, do not add one.
+The workflow publishes only a tag someone pushed, never a merge. It is there so npm can show each version was built from its tag.
 
 While the version is `0.x`, a patch does not change the kit. A minor can add, drop, or change a skill or a flag.
 

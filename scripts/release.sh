@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Tags the version in package.json and pushes the tag. The release workflow
+# (.github/workflows/release.yml) tests, publishes to npm and writes the GitHub release.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -25,5 +27,4 @@ fi
 
 git tag "v$VERSION"
 git push origin "v$VERSION"
-gh release create "v$VERSION" --title "$VERSION" --notes "$(awk -v ver="$VERSION" '$0 ~ "^## " ver "( |$)" { found=1; next } found && /^## / { exit } found { print }' CHANGELOG.md)"
-npm publish
+echo "Pushed v$VERSION. The release workflow publishes it: see the repository's Actions tab."
