@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.13.0 — 2026-11-25
+
 - **Build is test-first by default.** The router's Build row is now `implement-spec → tdd → design-check → pr`: each ticket's acceptance criteria become failing tests before its code. The old "Test-first, when asked" line is gone. Run `npx longbeard update` to get the new `AGENTS.md` block.
 - **Screens that hang together.** A reference you like from a site or app now keeps up to four of that product's other screens (`also:` on its card). `design-prototype` lays out each key screen from the closest source first: the screen the direction already built for it, then the base's own product, then its family, and only then any reference, so the home, the list and the form no longer come from three unrelated products.
 - **The hardest screen, before the yes.** Once the first screen is yours, the direction builds one more in its look: the brief's key screen that is hardest for it (the densest list, a form). If the look breaks on real data, you see it while going back to another pick is cheap. The quick rounds stay first-screen only.
@@ -10,7 +12,6 @@
 - **A board you look at, not a form.** The moodboard shows each picture at its own proportions in a masonry, with a small badge for Lead, Like or No; the notes of the card you open sit in a side panel, with its product's other screens. Keys: L, K, N, the arrows and Esc.
 - **The direction's canvas** replaces its sheet: every screen in a strip (rounds, parts and the hardest screen each in a row), the one you open large, and beside it what it is made from: the base and each move, with the reference and your words. "Beside its base" shows the two together; the buttons write the line for the chat.
 - **The design flow graphic is redrawn** as six line illustrations, one per step, with what you decide at each.
-
 - **Every reference is on the direction's board.** Families are headings, never a filter: a reference you like can come from any family, and `design-families` no longer asks you to take one or two. The board is the moodboard's own cards, so your likes and notes come with them, each placed under its family (`moodboard.mjs --topics`), with one Lead on the whole board (`--one-lead`). It says how many cards it left out for a missing shot.
 - **The board's top bar stays one line.** Only the jump bar sticks, and with many families it scrolls sideways instead of wrapping into rows that pushed the board down.
 - **Leave out.** Each card on the board has a Leave out box for what you don't want from a reference you otherwise like (the drop shadow, the all-caps menu). It is never on a screen built on that reference, never borrowed from it, and its role is filled from another of your references when the composition needs it. A card's `avoid:` line fills it.
@@ -20,6 +21,8 @@
 - **The live controls moved to `design-identity`,** into its one refinement round, on the pairing and palette you picked. A stop fewer in the direction.
 - **Shorter skills and shorter stops.** `design-direction` (with its `grid.md`), `design-prototype` and `design-moodboard` are 35 to 40% shorter, with the same rules, and `design` is a quarter shorter. Every design step says what is new and its one question in up to five lines, and the direction's sheet gets one line per screen instead of a table.
 - **Galleries for single parts of a site:** Footer Design and CTA Gallery for a footer or a call to action, and Recent's motion listing, launch videos and Codrops demos for motion, only when the brief asks for motion examples. Recent's other listings too: interface, app screenshots and app icons for an app; branding, posters and print for the far reference and for graphics; social images for a post; illustration for imagery. `sources.md` says how to read each one's cards and what to keep. Behance stays out of the picker: it refuses scripts.
+- **A tell for a default face.** `design-check` and the direction now flag a face that is the platform's or framework's default (Inter, Roboto, the system UI stack) when no reference brought it.
+- **The identity board names no working folder.** `docs/design/design-identity.html` no longer carries a comment pointing into `.longbeard/`.
 
 If you already ran `init`: run `npx longbeard update`. A direction in progress keeps working: a run that already took families simply shows every card next time its board is built.
 
