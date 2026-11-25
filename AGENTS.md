@@ -12,11 +12,10 @@ The project's own code, conventions, and DESIGN.md win. Load only what the task 
 
 Each stage offers the next; start it on yes. A skill you can't load: they type /<name>. No UI: skip Design. A graphic ends at Figma. A feature with a brief: Plan; new terms: grill-with-docs.
 
-UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug.
+UI tickets link their Ready Figma frame. UI work follows DESIGN.md and that frame; a mismatch is a bug. Layout or UI options: design, never prototype.
 
 - A hard bug: diagnosing-bugs
 - Handing off, when asked: handoff
-- A logic question: prototype. Never a look.
 - Before any use_figma call: figma-use
 - A Figma link to build: figma-design-to-code
 

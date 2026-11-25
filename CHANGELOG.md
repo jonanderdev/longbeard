@@ -5,7 +5,7 @@
 - **Plan grills each flow first.** The Plan row is now `grilling → to-spec → to-tickets`, in one session: `to-spec` asks nothing and writes from the conversation, so a spec started cold had only the brief. `to-spec` still asks for `setup-matt-pocock-skills` when a repo has none.
 - **Build says what really runs.** The Build row is `implement-spec → design-check`: `implement-spec` already runs `tdd` on each ticket and `code-review` at the end, and `pr` writes the body whenever a PR is opened. Writes reads "red-green per slice", one test then its code, never all the tests first.
 - **Architecture ends with a stack ADR.** It starts when there is no stack ADR (not when there is no `GLOSSARY.md`, which is written only once a term is settled). `idea` and `design-figma` say what to grill when they offer `/grill-with-docs`: the stack, and the words the brief and the Figma screens use.
-- **`prototype` is for logic, never a look.** A look question stays with the design skills.
+- **Layout or UI options go to `design`, never `prototype`.** Matt's `prototype` still answers logic questions; its UI branch made options of the model's own.
 - **`/retro`** is named in the README for a build that went sideways.
 - Run `npx longbeard update` to get the new `AGENTS.md` block.
 

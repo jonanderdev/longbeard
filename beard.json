@@ -202,11 +202,6 @@
         {
           "skill": "handoff",
           "when": "Handing off, when asked"
-        },
-        {
-          "skill": "prototype",
-          "when": "A logic question",
-          "why": "Never a look."
         }
       ]
     },
