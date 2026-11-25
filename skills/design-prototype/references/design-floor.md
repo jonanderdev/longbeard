@@ -12,6 +12,7 @@ A studio applies these while drawing each screen, not as a check after. Each is 
 
 - One most prominent element and one primary action (rule 1).
 - Contrast where the text sits, over pictures too (rules 6 and 12).
+- One picture leads; pictures that share the screen never compete (rule 12).
 - Text size at its floor (rule 5).
 - One grouping device per group (rule 2).
 - Every screen follows the direction's principles (before the pick, their whys), and reads as the same product as the first.
