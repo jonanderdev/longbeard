@@ -60,7 +60,7 @@ A keep with a live link to a site or app gets its other screens as in **Search**
 
 > Search for these, or go with what your board has?
 
-A gap: search only that, 20 to 60 candidates, one picker round. A motion gap is judged moving, never from a thumbnail: record 8 to 12 candidates (`--frames 6`), show them as a strip of frames each on one contact sheet, and they name likes by number, with what moves that they like. Too thin: the full **Search**, their fits as seeds. "Go": what it lacks goes under `Missing`.
+A gap: search only that, 20 to 60 candidates, one picker round. A motion gap is judged moving, never from a thumbnail: in the picker they open each candidate's link and watch it live, then like it with what moves that they like. Only a like is recorded (`--frames`) and read, so the prototype can rebuild it. Too thin: the full **Search**, their fits as seeds. "Go": what it lacks goes under `Missing`.
 
 **Big boards.** Over about 60 keeps (not at `quick`), group them by eye so the board they choose from has headings: look at them on contact sheets (`contact-sheet.mjs`, never picture by picture), and give each card a `topic:` line naming its group for what is seen, in words a person outside design would use ("one huge word is the picture"). As many groups as there are looks; strays stay strays, and none is dropped. Their own board is never changed. Say the groups in one line each with the doc.
 
