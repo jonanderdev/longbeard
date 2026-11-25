@@ -20,7 +20,7 @@
 //
 // --topics .longbeard/design/families/board.md: each card takes its family from
 // that board, matched by name, so the moodboard's own cards (with their like,
-// avoid and move lines) are shown under the families design-families found.
+// avoid and move lines) are shown under the families that board names.
 // A card in no family keeps its part. Every card stays.
 //
 // --one-lead: one Lead on the whole board, not one per group. The direction's

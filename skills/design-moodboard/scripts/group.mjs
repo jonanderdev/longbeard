@@ -2,7 +2,7 @@
 // Group a search's candidates into families before anyone picks, so the person
 // chooses between looks first and a pool of one look shows itself. It reads
 // each candidate's thumbnail from its URL, measures it with measure.mjs and
-// sorts the numbers with families.mjs: the same sorter design-families uses.
+// sorts the numbers with families.mjs.
 //
 // Nothing is kept. A thumbnail is hotlinked, never saved (sources.md, "What
 // is saved"): each is fetched into a scratch folder outside the project, read
