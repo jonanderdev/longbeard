@@ -16,7 +16,7 @@ description: >
 **Uses if there:** `docs/design/design-content.md`, `docs/design/design-moodboard.md`  
 **Writes:** `DESIGN.md`
 
-A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed. Then `design-figma`. [design-rules.md](references/design-rules.md) is the checklist here and in `design-check`.
+A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed. Then `design-figma`. Read [Before you build](references/design-rules.md#before-you-build) before building, and apply it while you draw; the [full rules](references/design-rules.md) are the checklist here and in `design-check`.
 
 **They are the designer; you do the craft.** The chosen screen carries their concept. Develop it across the product, make the craft decisions it leaves open, and add no taste of your own.
 
@@ -52,9 +52,12 @@ Then build them all, linked.
 
 - **The chosen screen is the frame, as a system, not a composition to repeat.** Its header, navigation, grid, type sizes, colour roles (which colour for headlines, small text, buttons and fields) and spacing steps stay the same on every page. One menu, one card, one row, one heading style everywhere.
 - **Each page opens with its own job** in the first view (the list on the menu, the form on checkout), never the first screen's hero again.
-- **A page's content** may take its layout from one of their references that shows that kind of content (a list, a form), inside the frame. Never its content, faces or colours.
 - **The direction's devices carry over** where the page has room for them: overlaps, crops, giant type, empty space, never tidied (`data-crop` on text cropped on purpose).
-- **Where the board shows nothing for a part** (a field, a stepper, a table), take it from the frame's own system; if it has none, from one of their references. **Never invent a key part:** when no reference shows the footer, a form, or a page's main kind of content (a list, a detail page), ask once, for all of them in one message: the cards that show it, or a search for that one part (`design-moodboard`'s one piece). **Never block on it:** build on with that part from the closest system on the board, marked `data-standin`, and put their answer in when it comes.
+- **Every part** (a footer, a form, a menu, a list) comes, in this order, from:
+  1. The chosen screen's frame and concept, always: beside the first screen, it reads as the same product.
+  2. Their liked references that show that part, minus their **Leave out**: its layout, inside the frame, never its content, faces or colours.
+  3. None, for a key part (a footer, a form, a page's main content): ask once, all of them in one message, with the closest cards or a search for that one part (`design-moodboard`'s One piece).
+  4. Never block: build it meanwhile, and a small part (a field, a stepper) at once, from the frame's own system, marked `data-standin`, and put their answer in when it comes.
 - **Density** as the design brief's `dense` asks: airy 1–2 shows less, dense 4–5 shows more and keeps spacing tight.
 - **Real content:** copy in the voice, the longest real names, every section a person needs. Follow `design-content.md`; without it, draft only from what the brief gives and say what they must supply. Pictures: theirs or the subject's stand-ins in `.longbeard/design/pictures/`; never grey boxes, never a reference's subject.
 - **States:** empty, loading and error where reachable (`?state=empty`), every width, each theme.
@@ -78,7 +81,7 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 - **Drift** lists each face and colour no screen should have, and the type sizes, radii and spacing steps only one screen uses. Bring them to the frame's.
 - **Links:** every broken link, dead button and page with no way on is fixed. It also lists the stand-ins.
 
-**A check reports; the concept wins.** Text over a picture, overlaps, crops, giant type and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them as a choice, one line each (what it costs, and what would fix it: keep, or change?): they decide.
+**The floor, inside the concept** ([how they split](references/design-rules.md#how-to-use-this)). Text a person acts on must pass, fixed from inside the concept. Display type over a picture, overlaps, crops and wide empty space are the look when the chosen screen does them: never tidied away. A finding that would undo the concept is left and told to them as a choice, one line each (what it costs, and what would fix it: keep, or change?): they decide.
 
 ### 4. Show it
 
