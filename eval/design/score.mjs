@@ -73,9 +73,13 @@ const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), a
 const node = (file, list) => spawnSync(process.execPath, [file, ...list], { encoding: "utf8", cwd: dir });
 
 const results = [];
-const check = (id, hard, ok, detail = "") => results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
+// A first-round run (run.mjs --from or --short) stops at the first sheet: what comes after it is not its to have.
+const firstRound = existsSync(at(".longbeard/eval/first-round.txt"));
+const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|five-second|still to supply)/i;
+const skipLater = (id) => firstRound && later.test(id) && (results.push({ id, hard: false, status: "SKIP", detail: "a first-round run" }), true);
+const check = (id, hard, ok, detail = "") => skipLater(id) || results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
 // A check that could not run: not counted in the score, and a hard one fails the run.
-const notRun = (id, hard, detail = "") => results.push({ id, hard, status: "NOT RUN", detail });
+const notRun = (id, hard, detail = "") => skipLater(id) || results.push({ id, hard, status: "NOT RUN", detail });
 // What a spawned checker said: 0 is a pass; 1 is a fail only when it printed what failed (stdout), since a
 // crash also exits 1 but says nothing there; any other exit, a signal or a missing script did not run.
 const outcome = (r, hasFindings = (out) => out.trim().length > 0) => {
@@ -90,7 +94,7 @@ const outcome = (r, hasFindings = (out) => out.trim().length > 0) => {
 // ------------------------------------------------------------------ the docs
 const brief = read("docs/design/design-brief.md");
 const pace = /^- pace:\s*quick/m.test(brief || "") ? "quick" : "full";
-const docs = ["docs/design/design-brief.md", "docs/design/design-moodboard.md", "docs/design/design-direction.md", "docs/design/design-identity.md", "docs/design/design-identity.html", "DESIGN.md"];
+const docs = ["docs/design/design-brief.md", "docs/design/design-moodboard.md", ...(firstRound ? [] : ["docs/design/design-direction.md", "docs/design/design-identity.md", "docs/design/design-identity.html", "DESIGN.md"])];
 const missing = docs.filter((d) => !existsSync(at(d)));
 check("docs", true, !missing.length, missing.length ? `missing: ${missing.join(", ")}` : `${docs.length} docs`);
 if (pace === "quick") {

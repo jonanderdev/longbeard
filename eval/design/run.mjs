@@ -177,6 +177,8 @@ if (from) {
 // Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
 writeFileSync(join(dir, ".longbeard/eval/fixture.txt"), `${fixture}\n`);
+// A run --from another stops at the first sheet: score.mjs skips what comes after it.
+if (from) writeFileSync(join(dir, ".longbeard/eval/first-round.txt"), "design-direction, the first round's sheet\n");
 // A short run is offline: its Chrome (the agent's and score.mjs's) reaches no host, and the faces the readings
 // name come from fixture/fonts. Fontconfig serves them, so on Linux; elsewhere they fall back to installed faces.
 if (short) {
@@ -198,8 +200,9 @@ const prompt = from ? [
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
   "Stop when you would show the person the first round's sheet of screens (after its checks): write the sheet, then end, going no further.",
+  short ? "The Chrome the skills' scripts find is already this run's (CHROME_PATH): offline, with the readings' faces installed. Run the scripts as they are; do not set CHROME_PATH or point them at another Chrome." : "",
   helpers,
-].join(" ") : [
+].filter(Boolean).join(" ") : [
   "Run this project's design flow end to end, from the `design` skill to an approved DESIGN.md, following each design-* skill exactly as written.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",

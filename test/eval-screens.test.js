@@ -102,6 +102,11 @@ test("run.mjs --short builds on the frozen readings, offline, and its pictures.m
   assert.equal(run.status, 0, run.stderr);
   assert.ok(existsSync(join(out, ".longbeard/design/direction/library.json")));
   assert.match(readFileSync(join(out, "PROMPT.txt"), "utf8"), /Continue design-direction from step 3/);
+  // It stops at the first sheet, so the score skips what comes after.
+  assert.ok(existsSync(join(out, ".longbeard/eval/first-round.txt")));
+  const score = JSON.parse(spawnSync(process.execPath, [join(root, "eval/design/score.mjs"), out, "--json", "--no-browser"], { encoding: "utf8" }).stdout);
+  assert.equal(score.results.find((r) => r.id === "docs").status, "PASS");
+  assert.equal(score.results.find((r) => r.id === "screens: one chosen")?.status ?? "SKIP", "SKIP");
   // The pictures the freeze left out come back from the fixture.
   const restore = JSON.parse(readFileSync(join(root, "eval/design/fixture/readings/restore.json"), "utf8"));
   for (const path of Object.keys(restore)) assert.ok(existsSync(join(out, path)), `${path} restored`);
