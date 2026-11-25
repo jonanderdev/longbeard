@@ -99,7 +99,7 @@ node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/directio
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```
 
-Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself.
+Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets, focus and labels are the prototype's. Fix clipped text by setting it smaller within its role or cutting words. Look at each capture yourself, beside the pictures of what it is made from (its base, each move's reference): as a designer would, check that every borrowed scene and device still reads as it does there, whole, with its job and its spacing. Fix what broke before you show it.
 
 **The floor, inside the concept** ([how they split](references/design-floor.md#how-to-use-this)). Text a person acts on must pass contrast and size, fixed with the screen's own colours or another crop, never by moving it off the picture. Display type over a picture, overlaps, crops and wide empty space are the look when a reference does them: never tidied away. A liked colour or size stays, its measure in `fault`. A finding left is theirs to decide: `fault` says it as a choice (what it costs, and what would fix it: keep, or change?), and that line goes in your message with the canvas.
 

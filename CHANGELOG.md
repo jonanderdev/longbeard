@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Each screen beside its references.** Before the canvas, the direction looks at each screen beside the pictures it is made from, and fixes any scene or device that no longer reads as it does there.
 - **What you like is taken whole.** A liked reference's scene, and any device borrowed from it, keeps the form, the job and the space it has there: never taken apart, restyled or given another job (a block of colour does not become a button).
 - **Options on the real page.** When you ask for versions of a part, or layouts for a page, they sit on the real screen, with its header, content and density, instead of a separate sheet. A small bar at the bottom names the reference each one comes from, and ← → flip between them; `?variant=2` links to one.
 - **Plan grills each flow first.** The Plan row is now `grilling → to-spec → to-tickets`, in one session: `to-spec` asks nothing and writes from the conversation, so a spec started cold had only the brief. `to-spec` still asks for `setup-matt-pocock-skills` when a repo has none.
