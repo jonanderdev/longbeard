@@ -87,6 +87,8 @@ const methodAt = args.indexOf("--method");
 const method = methodAt !== -1 && Boolean(args.splice(methodAt, 1));
 // --lead <card>: a build-only run with another of the liked references as the lead (the old lead becomes a like).
 const leadArg = flag("lead");
+const likeAllAt = args.indexOf("--like-all");
+const likeAll = likeAllAt !== -1 && Boolean(args.splice(likeAllAt, 1));
 const liveAt = args.indexOf("--live");
 const live = liveAt !== -1 && Boolean(args.splice(liveAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
@@ -99,8 +101,8 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--lead <card>] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
-if (!out || args.length || (leadArg && !from) || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--lead <card>] [--like-all] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--skills <folder>] [--plain | --refs [--method]] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || ((leadArg || likeAll) && !from) || (short && plain) || (refs && (plain || short || from || !agent)) || (method && !refs) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
@@ -238,33 +240,53 @@ if (from) {
   // The fixture's readings keep no second copy of the fixture's pictures (freeze.mjs): put them back.
   if (existsSync(join(src, "restore.json"))) for (const [to, f] of Object.entries(JSON.parse(readFileSync(join(src, "restore.json"), "utf8")))) cpSync(join(here, f), join(dir, to));
 }
-// --lead: swap the lead with one of the likes, in the answers, the board and the readings alike.
-if (leadArg) {
+// --like-all: every card on the board is liked, its own move and why as their words. --lead <card>: that card leads
+// and the old lead becomes a like. A liked card with no reading yet is read by the agent first (step 2, for it alone).
+let unread = [];
+if (leadArg || likeAll) {
   const libPath = join(dir, ".longbeard/design/direction/library.json");
   const lib = JSON.parse(readFileSync(libPath, "utf8"));
   const old = lib.lead;
-  const refs = JSON.stringify(lib).includes(`"${leadArg}"`);
-  if (!refs || leadArg === old) {
-    console.error(`run: --lead ${leadArg} is not a liked reference in the readings (the lead is ${old})`);
+  const read = new Set((lib.references ?? []).map((r) => r.name));
+  const boardPath = join(dir, ".longbeard/design/direction/board.md");
+  const text = readFileSync(boardPath, "utf8");
+  const cards = [...text.matchAll(/^### (.+)$/gm)].map((m) => m[1].trim()).filter((c) => c !== "subject");
+  const liked = new Set((text.match(/^- likes:\s*(.+)$/m)?.[1] ?? "").split(",").map((c) => c.trim()).filter(Boolean));
+  if (likeAll) for (const c of cards) if (c !== old) liked.add(c);
+  const lead = leadArg || old;
+  if (!cards.includes(lead) || (!liked.has(lead) && lead !== old)) {
+    console.error(`run: --lead ${lead} is not a liked card on the board (add --like-all to like every card)`);
     process.exit(2);
   }
-  const swap = (line) => line.split(old).map((part) => part.split(leadArg).join("\u0000")).join(leadArg).split("\u0000").join(old);
-  lib.lead = leadArg;
-  for (const r of lib.references ?? []) if (r.name === leadArg) r.role = "lead"; else if (r.name === old) r.role = "like";
+  liked.delete(lead);
+  if (lead !== old) liked.add(old);
+  lib.lead = lead;
+  for (const r of lib.references ?? []) r.role = r.name === lead ? "lead" : liked.has(r.name) ? "like" : r.role;
   writeFileSync(libPath, `${JSON.stringify(lib, null, 2)}\n`);
-  const boardPath = join(dir, ".longbeard/design/direction/board.md");
+  unread = [lead, ...liked].filter((c) => !read.has(c));
+  const likes = [...liked].sort();
   let card = "";
-  const board = readFileSync(boardPath, "utf8").split("\n").flatMap((l) => {
-    if (/^### /.test(l)) card = l.slice(4).trim();
-    if (l === "- lead: yes") return [];
-    if (/^- (lead|likes|spread[^:]*):/.test(l)) return [swap(l)];
-    if (/^- part:/.test(l) && card === leadArg) return [l, "- lead: yes"];
-    return [l];
-  });
-  writeFileSync(boardPath, board.join("\n"));
-  const ans = readFileSync(join(dir, "answers.md"), "utf8").split("\n").map((l) => (/^- Lead:/.test(l) ? swap(l) : l));
+  let hasLike = false;
+  const out = [];
+  for (const l of text.split("\n")) {
+    if (/^### /.test(l)) { card = l.slice(4).trim(); hasLike = false; }
+    if (l === "- lead: yes" || /^- not marked/.test(l)) continue;
+    if (/^- lead:/.test(l)) { out.push(`- lead: ${lead}`); continue; }
+    if (/^- likes:/.test(l)) { out.push(`- likes: ${likes.join(", ")}`); continue; }
+    if (/^- spread[^:]*:/.test(l)) { out.push(`- spread for step 3: ${lead} is the base of two screens; the other six each stand on a like; the subject lends moves, never a base.`); continue; }
+    if (/^- like:/.test(l)) hasLike = true;
+    out.push(l);
+    if (/^- part:/.test(l) && card === lead) out.push("- lead: yes");
+    // A newly liked card takes its own move and why as their words.
+    if (/^- why:/.test(l) && unread.includes(card) && !hasLike) {
+      const move = text.split(`### ${card}`)[1]?.match(/^- move:\s*(.+)$/m)?.[1];
+      if (move) out.push(`- like: ${move}`, `- why-they: ${l.replace(/^- why:\s*/, "")}`);
+    }
+  }
+  writeFileSync(boardPath, out.join("\n"));
+  const ans = readFileSync(join(dir, "answers.md"), "utf8").split("\n").map((l) => (/^- Lead:/.test(l) ? `- Lead: \`${lead}\`. Likes: ${likes.map((c) => `\`${c}\``).join(", ")}.` : l));
   writeFileSync(join(dir, "answers.md"), ans.join("\n"));
-  console.log(`lead: ${leadArg} (was ${old})`);
+  console.log(`lead: ${lead} (was ${old}); likes: ${likes.join(", ")}${unread.length ? `; to read first: ${unread.join(", ")}` : ""}`);
 }
 // Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
@@ -288,7 +310,7 @@ if (short) {
 const helpers = "Ending your turn ends the run: wait for every helper you start to finish, and never end while one is still working.";
 const prompt = from ? [
   "This project's design flow has been run up to design-direction step 2: the design brief, the moodboard, the pictures and the readings (`.longbeard/design/direction/library.json`) are done, and the person's answers so far are in answers.md.",
-  "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
+  unread.length ? `Some liked references have no reading yet (${unread.join(", ")}): read those, and only those, as step 2 says, into library.json; then continue design-direction from step 3, following the skill exactly as written. Do not read the other references again or search for pictures.` : "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
   "Stop when you would show the person the first round's sheet of screens (after its checks): write the sheet, then end, going no further.",
