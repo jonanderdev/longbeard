@@ -44,6 +44,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
+// What --from never takes from a finished run: its screens, checks, messages, tools and eval files.
+const fromSkip = /\/design\/tools(\/|$)|\/design\/direction\/(screens|grid|prototype|checks|fix-check|briefs|build)(\/|$)|\/screens\.json$|\/eval(\/|$)|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/;
 const repo = resolve(here, "../..");
 const args = process.argv.slice(2);
 const flag = (name, def = "") => {
@@ -56,14 +58,19 @@ const flags = (name) => {
   for (let i = args.indexOf(`--${name}`); i !== -1; i = args.indexOf(`--${name}`)) all.push(...(args.splice(i, 2)[1] ?? "").split(",").map((v) => v.trim()).filter(Boolean));
   return all;
 };
+const shortAt = args.indexOf("--short");
+const short = shortAt !== -1 && Boolean(args.splice(shortAt, 1));
 const out = flag("out");
 const agent = flag("agent");
 const pace = flag("pace", "full");
-const from = flag("from");
-const timeoutMinutes = Number(flag("timeout", "180"));
+// --short builds on the fixture's own finished readings, offline.
+const from = short ? join(here, "fixture/readings") : flag("from");
+const timeoutMinutes = Number(flag("timeout", short ? "30" : "180"));
 const extraEnv = flags("env");
 const plainAt = args.indexOf("--plain");
 const plain = plainAt !== -1 && Boolean(args.splice(plainAt, 1));
+const liveAt = args.indexOf("--live");
+const live = liveAt !== -1 && Boolean(args.splice(liveAt, 1));
 // A build-only run takes its board from the finished run it builds on, so the readings and the board always agree.
 const fromFixture = from && existsSync(join(resolve(from), ".longbeard/eval/fixture.txt")) ? readFileSync(join(resolve(from), ".longbeard/eval/fixture.txt"), "utf8").trim() : "";
 const fixtureArg = flag("fixture");
@@ -74,8 +81,8 @@ const fx = (rel) => (existsSync(join(fixture, rel)) ? join(fixture, rel) : join(
 // What the agent is given of this shell's environment: the basics a command needs, the network's settings, and
 // the agent's own variables. Everything else (other tools' keys and tokens) stays out unless --env names it.
 const allowed = /^(PATH|HOME|USER|LOGNAME|SHELL|TERM|LANG|LANGUAGE|LC_[A-Z_]+|TMPDIR|TZ|PWD|CHROME_PATH|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE|SSL_CERT_DIR|(HTTPS?|NO|ALL)_PROXY|ANTHROPIC_[A-Z0-9_]+|CLAUDE_[A-Z0-9_]+)$/i;
-const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--pace full|quick] [--from <a finished run>] [--fixture <folder>] [--plain] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
-if (!out || args.length || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
+const usage = "usage: node eval/design/run.mjs --out <new folder outside this repo> [--short] [--pace full|quick] [--from <a finished run>] [--live] [--fixture <folder>] [--plain] [--agent \"claude -p {prompt}\"] [--timeout <minutes, default 180>] [--env NAME]";
+if (!out || args.length || (short && plain) || !["full", "quick"].includes(pace) || !(timeoutMinutes > 0) || extraEnv.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)) || (plain && (!from || !agent))) {
   if (plain && (!from || !agent)) console.error("run: --plain needs --from (the brief, pictures and content it builds from) and --agent");
   console.error(usage);
   process.exit(2);
@@ -135,7 +142,11 @@ cpSync(fx("docs"), join(dir, "docs"), { recursive: true });
 const answers = readFileSync(fx("answers.md"), "utf8").replace(/^- 10\. Pace: full\..*$/m, `- 10. Pace: ${pace}.`);
 writeFileSync(join(dir, "answers.md"), answers);
 const skills = readdirSync(join(repo, "skills")).filter((name) => name === "design" || name.startsWith("design-"));
-for (const folder of [".claude/skills", ".agents/skills"]) for (const name of skills) cpSync(join(repo, "skills", name), join(dir, folder, name), { recursive: true });
+for (const folder of [".claude/skills", ".agents/skills"]) for (const name of skills) {
+  cpSync(join(repo, "skills", name), join(dir, folder, name), { recursive: true });
+  // The subject's pictures are the fixture's, never a search: same photographs every run, no network.
+  if (!live && existsSync(join(dir, folder, name, "scripts/pictures.mjs"))) cpSync(join(here, "mock/pictures.mjs"), join(dir, folder, name, "scripts/pictures.mjs"));
+}
 const router = spawnSync(process.execPath, [join(repo, "bin/long-beard.js"), "router"], { encoding: "utf8" });
 if (router.status !== 0) {
   console.error(router.stderr);
@@ -159,22 +170,41 @@ if (from) {
     process.exit(1);
   }
   cpSync(join(src, "docs"), join(dir, "docs"), { recursive: true });
-  cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !/\/design\/tools(\/|$)|\/design\/direction\/(screens|grid|prototype|checks|fix-check|briefs|build)(\/|$)|\/screens\.json$|\/eval\/|\/design\/direction\/(round-\d+|messages|message-\d+|table)\.md$/.test(p) });
+  cpSync(join(src, ".longbeard"), join(dir, ".longbeard"), { recursive: true, filter: (p) => !fromSkip.test(p.slice(src.length)) });
+  // The fixture's readings keep no second copy of the fixture's pictures (freeze.mjs): put them back.
+  if (existsSync(join(src, "restore.json"))) for (const [to, f] of Object.entries(JSON.parse(readFileSync(join(src, "restore.json"), "utf8")))) cpSync(join(here, f), join(dir, to));
 }
 // Which fixture this project was built from, for score.mjs.
 mkdirSync(join(dir, ".longbeard/eval"), { recursive: true });
 writeFileSync(join(dir, ".longbeard/eval/fixture.txt"), `${fixture}\n`);
+// A short run is offline: its Chrome (the agent's and score.mjs's) reaches no host, and the faces the readings
+// name come from fixture/fonts. Fontconfig serves them, so on Linux; elsewhere they fall back to installed faces.
+if (short) {
+  const real = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium"].find((p) => p && p !== "none" && existsSync(p));
+  if (!real) {
+    console.error("run: no Chrome found (set CHROME_PATH); a short run needs one");
+    process.exit(1);
+  }
+  const conf = join(dir, ".longbeard/eval/fonts.conf");
+  writeFileSync(conf, `<?xml version="1.0"?>\n<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n<fontconfig>\n  <include ignore_missing="yes">/etc/fonts/fonts.conf</include>\n  <dir>${join(here, "fixture/fonts")}</dir>\n  <cachedir>${join(dir, ".longbeard/eval/font-cache")}</cachedir>\n</fontconfig>\n`);
+  writeFileSync(join(dir, ".longbeard/eval/chrome"), `#!/bin/sh\n# The eval's Chrome: no network, the fixture's faces installed.\nexport FONTCONFIG_FILE='${conf}'\nexec '${real}' --host-resolver-rules='MAP * ~NOTFOUND' --no-proxy-server "$@"\n`, { mode: 0o755 });
+  process.env.CHROME_PATH = join(dir, ".longbeard/eval/chrome");
+}
+// The run ends when the agent's turn does, so nothing may still be working then.
+const helpers = "Ending your turn ends the run: wait for every helper you start to finish, and never end while one is still working.";
 const prompt = from ? [
   "This project's design flow has been run up to design-direction step 2: the design brief, the moodboard, the pictures and the readings (`.longbeard/design/direction/library.json`) are done, and the person's answers so far are in answers.md.",
   "Continue design-direction from step 3, following the skill exactly as written, with the readings and pictures as they are: do not read the references or search for pictures again.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
   "Stop when you would show the person the first round's sheet of screens (after its checks): write the sheet, then end, going no further.",
+  helpers,
 ].join(" ") : [
   "Run this project's design flow end to end, from the `design` skill to an approved DESIGN.md, following each design-* skill exactly as written.",
   "The person is away. Whenever a skill asks them anything, take their answer from answers.md and go on; never stop to wait.",
   "Keep eval-log.md: one line per stop (skill, what you asked, the answer you used, and **uncovered** when answers.md did not cover it), and one line for anything in a skill you could not follow, and why.",
   "Do not run design-figma. Stop once DESIGN.md is written.",
+  helpers,
 ].join(" ");
 writeFileSync(join(dir, "PROMPT.txt"), `${prompt}\n`);
 console.log(`project: ${dir} (pace ${pace}, ${skills.length} skills, ${board.length} references)`);
@@ -187,11 +217,18 @@ writeFileSync(join(dir, ".longbeard/eval/started.txt"), `${Date.now()}\n`);
 console.log(`running: ${agent} <prompt>`);
 const run = await runAgent(dir, prompt);
 console.log(`agent ${run.timedOut ? `stopped after ${timeoutMinutes} minutes (--timeout); what it wrote so far can still be scored` : `exited ${run.status}`}. Score it: node ${join(here, "score.mjs")} ${dir}`);
+// A short run scores itself: one command for the check before a release.
+if (short) process.exit(spawnSync(process.execPath, [join(here, "score.mjs"), dir], { stdio: "inherit" }).status || (run.timedOut || run.status ? 1 : 0));
 process.exit(run.timedOut ? 1 : run.status ?? 1);
 
 function agentEnv(text) {
   const env = {};
   for (const [k, v] of Object.entries(process.env)) if (allowed.test(k) || extraEnv.includes(k)) env[k] = v;
+  // A headless agent ends when its turn does, and takes with it any helper still running in the
+  // background: the prototype's workers were lost that way. Helpers run in the foreground here.
+  delete env.CLAUDE_AUTO_BACKGROUND_TASKS;
+  env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS = "1";
+  env.LB_EVAL_PICTURES = join(here, "fixture/pictures");
   env.LB_PROMPT = text;
   return env;
 }

@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -83,12 +83,39 @@ test("run.mjs gives the agent only the environment it needs, and the ones named 
   const out = runFolder();
   const run = spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--out", out, "--env", "WANTED_KEY", "--agent", nodeAgent('require("fs").writeFileSync("env.json", JSON.stringify(process.env))')], {
     encoding: "utf8",
-    env: { ...process.env, SECRET_TOKEN: "s", AWS_SECRET_ACCESS_KEY: "s", GITHUB_TOKEN: "s", WANTED_KEY: "w", ANTHROPIC_API_KEY: "a", CLAUDE_CODE_X: "c" },
+    env: { ...process.env, SECRET_TOKEN: "s", AWS_SECRET_ACCESS_KEY: "s", GITHUB_TOKEN: "s", WANTED_KEY: "w", ANTHROPIC_API_KEY: "a", CLAUDE_CODE_X: "c", CLAUDE_AUTO_BACKGROUND_TASKS: "true" },
   });
   assert.equal(run.status, 0, run.stderr);
   const env = JSON.parse(readFileSync(join(out, "env.json"), "utf8"));
   for (const name of ["PATH", "HOME", "LB_PROMPT", "WANTED_KEY", "ANTHROPIC_API_KEY", "CLAUDE_CODE_X"]) assert.ok(env[name], `${name} reaches the agent`);
   for (const name of ["SECRET_TOKEN", "AWS_SECRET_ACCESS_KEY", "GITHUB_TOKEN"]) assert.equal(env[name], undefined, `${name} stays out`);
+  // A headless agent must not leave helpers in the background when its turn ends.
+  assert.equal(env.CLAUDE_AUTO_BACKGROUND_TASKS, undefined);
+  assert.equal(env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS, "1");
+  assert.match(env.LB_PROMPT, /wait for every helper/);
+});
+
+test("run.mjs --short builds on the frozen readings, offline, and its pictures.mjs searches nothing", () => {
+  const out = runFolder();
+  // Any file stands in for Chrome: the project is only built here, never rendered.
+  const run = spawnSync(process.execPath, [join(root, "eval/design/run.mjs"), "--short", "--out", out], { encoding: "utf8", env: { ...process.env, CHROME_PATH: process.execPath } });
+  assert.equal(run.status, 0, run.stderr);
+  assert.ok(existsSync(join(out, ".longbeard/design/direction/library.json")));
+  assert.match(readFileSync(join(out, "PROMPT.txt"), "utf8"), /Continue design-direction from step 3/);
+  // The pictures the freeze left out come back from the fixture.
+  const restore = JSON.parse(readFileSync(join(root, "eval/design/fixture/readings/restore.json"), "utf8"));
+  for (const path of Object.keys(restore)) assert.ok(existsSync(join(out, path)), `${path} restored`);
+  // Its Chrome resolves no host and has the fixture's faces.
+  const chrome = readFileSync(join(out, ".longbeard/eval/chrome"), "utf8");
+  assert.match(chrome, /MAP \* ~NOTFOUND/);
+  assert.match(readFileSync(join(out, ".longbeard/eval/fonts.conf"), "utf8"), /fixture\/fonts/);
+  // pictures.mjs hands out the fixture's photographs, credited, with no search.
+  const pics = join(out, "pics");
+  const p = spawnSync(process.execPath, [join(out, ".claude/skills/design-direction/scripts/pictures.mjs"), "sourdough loaf", "--out", pics, "--count", "2"], { encoding: "utf8", cwd: out, env: { ...process.env, LB_EVAL_PICTURES: join(root, "eval/design/fixture/pictures") } });
+  assert.equal(p.status, 0, p.stderr);
+  const rows = readFileSync(join(pics, "credits.tsv"), "utf8").trim().split("\n").slice(1);
+  assert.equal(rows.length, 2);
+  for (const r of rows) assert.ok(existsSync(r.split("\t")[1]) && r.split("\t")[4] === "CC0", r);
 });
 
 test("run.mjs stops an agent that runs past --timeout, and says so", () => {

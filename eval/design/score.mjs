@@ -52,6 +52,8 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 const at = (...p) => join(dir, ...p);
+// A short run renders offline with the fixture's faces (run.mjs --short): score it in the same Chrome.
+if (existsSync(at(".longbeard/eval/chrome")) && process.env.CHROME_PATH !== "none") process.env.CHROME_PATH = at(".longbeard/eval/chrome");
 // The fixture the project was built from (run.mjs --fixture records it), else the default one. The recorded
 // path may be another checkout's: when it is not here, the same folder of this checkout's eval/design.
 const fixtureFile = at(".longbeard/eval/fixture.txt");
