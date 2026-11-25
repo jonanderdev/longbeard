@@ -10,15 +10,14 @@ A repeatable end-to-end run of the design skills, judged by the files it leaves 
 
 ## What is fixed
 
-- `fixture/docs/brief.md`: the product brief of a fictional bakery (Hearth Bakehouse), with key screens, flows, real content and an empty case.
-- `fixture/board/`: ten JPEGs, the person's moodboard folder. Each takes its composition, type, spacing and colour from a starred card on a real art-direction board, rebuilt with our own words, fictional names and CC0 photographs (credited in `CREDITS.md`). No original design or image is included: the pictures are the fixture.
-- `fixture/sources.json`: the fictional names on the board and the sites the person loves, which a committed doc must never carry.
+- `fixture/docs/brief.md`: the product brief of a fictional pet photographer (Ada Lund), with key screens, flows, real content and an empty case.
+- `fixture/board.json`: the person's moodboard, ten references from the owner's own taste library, each with its file name, a public picture link and its library id. The pictures are never committed: `board.mjs` fetches them once into `fixture/board/` (gitignored), from the link, else from the taste library (`LB_TASTE`, or `../longbeard-taste`). If a link dies and you have no taste library, the run says which picture is missing: put it in `fixture/board/` by hand, or run on your own board with `--fixture` (any folder with a `board/` of pictures, `docs/brief.md` and `answers.md`).
+- `fixture/sources.json`: the names that appear on the board and the sites the person loves, which a committed doc must never carry.
 - `fixture/answers.md`: the person's answer at every stop. A stop it does not cover is taken as "yes" and logged as **uncovered**.
-- `fixture/plain.md`: the content the screens carry, for the baseline.
-- `fixture/pictures/`: four CC0 photographs of the subject (credited in its `credits.tsv`). Every run's `pictures.mjs` hands these out instead of searching (`mock/pictures.mjs`), so every run designs with the same pictures and none waits on the network; `--live` runs the real search.
+- `fixture/plain.md`: the content the screens carry, for the baselines.
+- `fixture/pictures/`: five CC0 photographs of the subject, standing in for the photographer's own (credited in its `credits.tsv`). Every run's `pictures.mjs` hands these out instead of searching (`mock/pictures.mjs`), so every run designs with the same pictures and none waits on the network; `--live` runs the real search. A fixture folder with its own `pictures/` and `plain.md` uses those.
 - `fixture/readings/`: a run's design brief, moodboard, subject pictures and readings, frozen after design-direction step 2 (`freeze.mjs`): what the short run builds on. Pictures it shares with the board or `pictures/` are restored from there (`restore.json`).
 - `fixture/fonts/`: the faces those readings name, from Google Fonts, for the short run's offline Chrome.
-- `fixture-2/`: a second board of seven references, with its own `answers.md`, sharing the brief, so a run on it differs only in its references. `run.mjs --fixture eval/design/fixture-2` builds from it.
 
 ## Run
 
@@ -42,7 +41,7 @@ The agent is run with a time limit and a plain environment. `--timeout <minutes>
 `score.mjs` checks, hard unless marked soft:
 
 - every design doc and `DESIGN.md` is there; the design brief has every line, all seven scales, a distance and AA or AAA;
-- no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`. A name is matched as the board draws it (case and all) and as a whole word, so a name that is also a plain word (`calma`, `still practice`) trips only on the name itself, never on ordinary use;
+- no committed doc names a reference or a loved site, links to one, or points into `.longbeard/`. A name is matched as the board draws it (case and all) and as a whole word, so a name that is also a plain word (`Mara` in `Marathon`) trips only on the name itself, never on ordinary use;
 - every screen has a base and moves from cards on the board, every reference is a base (soft), and a screen was chosen;
 - the identity's json block parses; `DESIGN.md` records the brief's accessibility level, and every contrast pair on its colour tokens passes at it;
 - `DESIGN.md`'s token block at the top agrees with its tables (`tokens.mjs --check`, from the project's installed skill): no block is a fail, and tables it cannot read leave the check `NOT RUN`;

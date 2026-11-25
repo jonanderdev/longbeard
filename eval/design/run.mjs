@@ -7,7 +7,7 @@
 //   node eval/design/run.mjs --out ../longbeard-eval                       builds the project, prints the command
 //   node eval/design/run.mjs --out ../longbeard-eval --agent "claude -p"   builds it and runs the agent there
 //   node eval/design/run.mjs --out ../longbeard-eval --pace quick          the quick path instead of full
-//   node eval/design/run.mjs --out ../longbeard-eval --fixture eval/design/fixture-2
+//   node eval/design/run.mjs --out ../longbeard-eval --fixture ../my-board
 //                                   another board: the fixture folder's board/, and its docs/ and
 //                                   answers.md where it has its own (else fixture/'s). The project
 //                                   records it, so score.mjs uses the same one.
@@ -51,6 +51,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { ensureBoard } from "./board.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // What --from never takes from a finished run: its screens, checks, messages, tools and eval files.
@@ -108,6 +109,9 @@ if (!out || args.length || ((leadArg || likeAll) && !from) || (short && plain) |
   process.exit(2);
 }
 const dir = resolve(out);
+ensureBoard(fixture, repo);
+// The short run builds on the default fixture's readings, whose pictures come from its board too.
+if (from) ensureBoard(join(here, "fixture"), repo);
 if (!existsSync(join(fixture, "board"))) {
   console.error(`run: ${fixture} has no board/ folder`);
   process.exit(2);
@@ -134,7 +138,7 @@ if (plain) {
   cpSync(join(src, "docs/brief.md"), join(work, "docs/brief.md"));
   cpSync(join(src, "docs/design/design-brief.md"), join(work, "docs/design-brief.md"));
   for (const f of readdirSync(pics).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(pics, f), join(work, "pictures", f));
-  cpSync(join(here, "fixture/plain.md"), join(work, "content.md"));
+  cpSync(fx("plain.md"), join(work, "content.md"));
   const brief = [
     "Design the first screen of the website for the product in docs/brief.md, following its design brief in docs/design-brief.md.",
     "Make eight different directions for that first screen, each as good as you can make it: screens/1.html to screens/8.html, each a self-contained page of plain HTML and CSS (web fonts are fine) designed for a 1440 by 900 window, using the photographs in pictures/ and exactly the content in content.md.",
@@ -164,7 +168,7 @@ if (refs) {
   const work = mkdtempSync(join(tmpdir(), method ? "method-" : "refs-"));
   cpSync(fx("docs/brief.md"), join(work, "docs/brief.md"));
   for (const f of readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg"))) cpSync(join(fixture, "board", f), join(work, "moodboard", f));
-  for (const f of readdirSync(join(here, "fixture/pictures")).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(here, "fixture/pictures", f), join(work, "pictures", f));
+  for (const f of readdirSync(fx("pictures")).filter((f) => /\.(jpe?g|png|webp)$/i.test(f))) cpSync(join(fx("pictures"), f), join(work, "pictures", f));
   const answersText = readFileSync(fx("answers.md"), "utf8");
   const section = (name) => (answersText.split(/^## /m).find((s) => s.startsWith(`${name}\n`)) ?? "").replace(/^.*\n/, "").trim();
   // What the person says about the look, as they would type it to an agent: the design brief's answers, then the board's notes.
@@ -345,7 +349,7 @@ function agentEnv(text) {
   // background: the prototype's workers were lost that way. Helpers run in the foreground here.
   delete env.CLAUDE_AUTO_BACKGROUND_TASKS;
   env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS = "1";
-  env.LB_EVAL_PICTURES = join(here, "fixture/pictures");
+  env.LB_EVAL_PICTURES = fx("pictures");
   env.LB_PROMPT = text;
   return env;
 }

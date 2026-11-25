@@ -2,8 +2,8 @@
 
 The same content the design flow's screens carry, so the baseline differs from them only in having no board.
 
-- Headline: "Today's bread is still here."
-- Primary action: Order a loaf for pickup
-- Status: 9 loaves left for today
-- What it shows: today's bakes, each with what is left ("Seeded rye · 4 left", "Country white · 3 left", "Raisin & walnut · 2 left")
-- Everything else (tomorrow's bakes, pickup slots, prices, the sold-out state, how pickup works, hours and address) waits for later pages.
+- Headline: "Every animal has a name. These are theirs."
+- Primary action: Book a session
+- Status: Dates open for January
+- What it shows: recent sessions, each named after the animal ("Bertha, fourteen", "Milo and the window", "Sigrid, eight weeks")
+- Everything else (session types and prices, how a session goes, the deposit, about Ada, contact) waits for later pages.

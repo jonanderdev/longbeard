@@ -1,37 +1,37 @@
-# Hearth Bakehouse
+# Ada Lund, pet portraits
 
 ## Problem
-Neighbours of a small sourdough bakery queue at 8am and find their loaf sold out. The bakery takes orders by phone, which interrupts the bake.
+Ada photographs dogs and cats at home and outdoors, in sessions of about two hours. People find her through friends, then ask the same questions by message: what a session costs, what they get, when she is free. Bookings get lost in those threads, and her best work sits in a folder nobody sees.
 
 ## For
-People within walking distance who buy bread two or three times a week, and plan the day before. Mostly 30–60, on a laptop the evening before or a phone on the way.
+Pet owners in and around Copenhagen who want one set of real pictures of their animal, often for an old dog or a new puppy. Mostly 28–55, looking on a laptop in the evening, sometimes from a link on a phone.
 
 ## Flows
-1. **Order for pickup:** see today's and tomorrow's bakes, choose a loaf and a pickup slot, pay, get a pickup code.
-2. **What's baked today:** see what is in the window now, and what is sold out.
+1. **Book a session:** see what a session includes and costs, pick a type and a date, leave the pet's name and a note, pay a deposit, get a confirmation.
+2. **Look at the work:** browse past sessions, open one, see the whole set.
 
 ## Surface
-A website. Most orders are placed on a laptop the evening before.
+A website. Most bookings are made on a laptop.
 
 ## Key screens
-- home: what is baking today, the way to order
-- menu: every bake for today and tomorrow, with what is left
-- product: one bake, its story, size and slot
-- basket: what you are taking, the slot, the total
-- checkout: pay and get your pickup code
+- home: who she is, the work at a glance, the way to book
+- work: every session, by animal and place
+- session: one session's pictures and its short story
+- about: Ada, how a session goes, what you get
+- booking: choose a session type and a date, the pet's details, the deposit
 
 ## Position
-- against: queuing and hoping; phoning the bakery; supermarket sourdough
-- remembered for: the day's bake list chalked up each morning, with what is left counting down
+- against: studio pet photography with props and backdrops; phone snapshots; generic photographer templates
+- remembered for: each session named after the animal, with its name, age and one line about it beside the pictures
 
 ## Identity nouns
-Crust, flour, proving basket, chalkboard, oven door, paper bag, early light, rye
+Fur, leash, window light, a favourite toy, the walk, contact sheet, film border, paw
 
 ## Content
-- longest bake name: "Seeded Rye with Toasted Sunflower and Black Treacle"
-- prices: £3.20 to £7.80
-- slots: 7:30–9:00, 9:00–11:00, 11:00–13:00
-- empty case: everything sold out for tomorrow ("Back on Thursday")
+- longest session name: "Bertha, fourteen, and the last summer at the lake house"
+- sessions: At home (2 hours, 3,200 kr), Outdoors (2 hours, 3,600 kr), Old friends (1 hour, for older animals, 2,400 kr); deposit 800 kr
+- dates: weekends and Wednesdays, about six weeks ahead
+- empty case: no dates left this month ("Next dates open on the 1st")
 
 ## v1
-Order for pickup, today's window, sold-out states. Out: delivery, accounts, subscriptions.
+Booking with deposit, the work, sessions. Out: print shop, gift cards, client galleries behind a login.

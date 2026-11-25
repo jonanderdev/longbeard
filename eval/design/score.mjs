@@ -63,7 +63,9 @@ const fixture = recorded ? (existsSync(recorded) ? recorded : join(here, recorde
 let sources = [], boardNames = [], fixtureError = "";
 try {
   sources = JSON.parse(readFileSync(join(existsSync(join(fixture, "sources.json")) ? fixture : join(here, "fixture"), "sources.json"), "utf8"));
-  boardNames = readdirSync(join(fixture, "board")).filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
+  // A fixture whose pictures are fetched (board.json) names them there, fetched or not.
+  const files = existsSync(join(fixture, "board.json")) ? JSON.parse(readFileSync(join(fixture, "board.json"), "utf8")).map((r) => r.file) : readdirSync(join(fixture, "board"));
+  boardNames = files.filter((f) => f.endsWith(".jpg")).map((f) => f.replace(/\.jpg$/, ""));
 } catch (e) {
   fixtureError = `the fixture ${recorded || fixture} could not be read: ${e.message}`;
 }

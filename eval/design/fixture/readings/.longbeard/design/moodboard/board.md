@@ -1,83 +1,83 @@
-# Moodboard board: Hearth Bakehouse
+# Board: Ada Lund, pet portraits
 
-From their folder `moodboard/`, 10 cards, all kept.
+Their folder `moodboard/`, 10 references, read as the board. No search.
 
-### 01-arch-poster
-- link: none (shared in folder)
+### 01-giant-serif-name
+- link: none (shared in a folder)
 - part: home
-- shot: .longbeard/design/moodboard/refs/01-arch-poster.jpg
+- shot: .longbeard/design/moodboard/refs/01-giant-serif-name.jpg
+- screen: yes
+- move: name in a huge thin serif across the page, one stacked print crossing it
+- why: big picture plus a name, like a photo book cover; quiet, picture-led
+
+### 02-split-story
+- link: none (shared in a folder)
+- part: session
+- shot: .longbeard/design/moodboard/refs/02-split-story.jpg
+- screen: yes
+- move: serif story with italic words on a warm panel beside a full-bleed close portrait
+- why: the session's short story beside its picture, a book's first page
+
+### 03-name-over-strip
+- link: none (shared in a folder)
+- part: session
+- shot: .longbeard/design/moodboard/refs/03-name-over-strip.jpg
+- screen: yes
+- move: name centred in a wide serif between rules, a row of mixed-width pictures below
+- why: a calm gallery header for one session's set
+
+### 04-face-and-orange
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/04-face-and-orange.jpg
+- screen: yes
+- move: a face cropped to fill the page, heavy serif name across it, one orange block
+- why: close-up makes it personal; one loud colour against a calm page
+
+### 05-scattered-prints
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/05-scattered-prints.jpg
+- screen: yes
+- move: white-bordered prints at angles over a giant red serif word, cream ground
+- why: photos dropped on a table; playful without being cute
+
+### 06-framed-script
+- link: none (shared in a folder)
+- part: about
+- shot: .longbeard/design/moodboard/refs/06-framed-script.jpg
+- screen: yes
+- move: one framed picture on a calm ground, a thin hand-drawn line looping through
+- why: quiet; the line leads the eye from picture to words
+
+### 07-name-collage
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/07-name-collage.jpg
+- screen: yes
+- move: overlapping colour and black-and-white pictures, a high-contrast serif name over them
+- why: a whole session at a glance
+
+### 08-thin-number
+- link: none (shared in a folder)
+- part: work
+- shot: .longbeard/design/moodboard/refs/08-thin-number.jpg
+- screen: yes
+- move: thin tall condensed serif, small pictures placed loosely, one huge number
+- why: airy with order; a number could be a session's count or an animal's age
+
+### 09-contact-grid
+- link: none (shared in a folder)
+- part: work
+- shot: .longbeard/design/moodboard/refs/09-contact-grid.jpg
 - screen: no
-- move: one photo in a tall arch, centred; text set around it, vertical at the sides
-- why: one picture framed calmly on a warm stone ground: warm, quiet, picture-led
+- move: black-and-white frames in a tight three-column grid under a bold grotesk title
+- why: a contact sheet; shows the work as it was shot
 
-### 02-name-grid
-- link: none (shared in folder)
+### 10-red-vertical-name
+- link: none (shared in a folder)
 - part: home
-- shot: .longbeard/design/moodboard/refs/02-name-grid.jpg
+- shot: .longbeard/design/moodboard/refs/10-red-vertical-name.jpg
 - screen: yes
-- move: a wide geometric name across the top, three photo columns below
-- why: plain and exact, the name is the sign over the door
-
-### 03-dot-editorial
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/03-dot-editorial.jpg
-- screen: yes
-- move: an orange disc as the only button; black-and-white photos at staggered heights
-- why: one spot of colour leads to the one action on a quiet page
-
-### 04-still-life
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/04-still-life.jpg
-- screen: yes
-- move: split page; a tall condensed serif title crossing a big orange disc
-- why: a still life of food beside a title that fights the shape: alive but quiet
-
-### 05-orange-block
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/05-orange-block.jpg
-- screen: yes
-- move: a photo straddling the seam of a light panel and a dark band; a red strip at the edge
-- why: few words, one picture, colour held to the side
-
-### 06-lime-letters
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/06-lime-letters.jpg
-- screen: no
-- move: giant serif letters laid over a black-and-white portrait, neon on black
-- why: the far reference: type and picture as one; loud against the brief's quiet
-
-### 07-condensed-panel
-- link: none (shared in folder)
-- part: navigation
-- shot: .longbeard/design/moodboard/refs/07-condensed-panel.jpg
-- screen: yes
-- move: heavy condensed caps over a three-panel grid with hairline rules
-- why: a ruled grid like a chalkboard list; loud type against the brief's quiet
-
-### 08-dark-arches
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/08-dark-arches.jpg
-- screen: yes
-- move: thin high-contrast serif in cream and gold on deep green; arched photos; a word band at the foot
-- why: slow and crafted, like a painted shop sign
-
-### 09-teal-window
-- link: none (shared in folder)
-- part: photography
-- shot: .longbeard/design/moodboard/refs/09-teal-window.jpg
-- screen: no
-- move: a rounded photo window centred, small spaced mono text in its four corners
-- why: the picture is the page; the words only label it, exact and plain
-
-### 10-arch-portrait
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/10-arch-portrait.jpg
-- screen: yes
-- move: a headline in a thin high-contrast serif running over the edge of an arched photo
-- why: words and picture together on a warm cream ground, light and confident
+- move: red serif name running down the left edge, white-bordered prints scattered beside it
+- why: the name frames the page; prints on a table

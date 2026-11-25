@@ -1,12 +1,7 @@
-# Loves and competitors (private; never committed)
+# Brief loves (private, never committed)
 
-## Loves (seeds for design-moodboard)
-- Field Notes Press
-- the Tidewater Journal
-
-## Stand apart from (never seeds)
-- supermarket bakery counters
-- delivery apps
-
-## Motion
-- no link given
+- Loves: Søren Vik Studio; Linnea Hart's site.
+- Stand apart from: pet-shop and vet-clinic sites; studio pet photographers (props, backdrops).
+- Tried before: a template site with a slider; people only ever messaged.
+- Motion link: none.
+- Moodboard: the folder `moodboard/` in the project (10 images).

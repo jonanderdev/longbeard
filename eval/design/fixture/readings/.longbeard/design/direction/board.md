@@ -1,131 +1,101 @@
-# Direction board: Hearth Bakehouse
+# Board: Ada Lund, pet portraits
 
-Every card from the moodboard board, plus the subject. Step 1 of design-direction is answered below; continue at step 3 (build the screens) with `library.json` beside this file.
+Direction board: every moodboard card, plus the subject.
 
-## Step 1: the content (their answers)
-
-- fill order (as much as the base carries, in this order): 1 headline (the takeaway) · 2 primary action: "Order for pickup" · 3 status: what is left today, counting down, and that ordering for tomorrow is open · 4 what it shows: today's loaves on the shelf (name and how many left)
-- one extra small element at most, where the base has room: the pickup slot times (7:30–9:00 · 9:00–11:00 · 11:00–13:00)
-- later (for design-prototype, not on the first screen): the full menu for today and tomorrow with counts; prices (£3.20 to £7.80); the longest name "Seeded Rye with Toasted Sunflower and Black Treacle"; product story, size and slot; basket and total; checkout and the pickup code; the sold-out state ("Back on Thursday"); the shop's address and hours; the picture credits
-- headlines offered: 1 "Today's bread is still here." · 2 "Baked at four. Most of it is still on the shelf." · 3 "Order tonight. Collect it warm from 7:30." · 4 "Bread from round the corner, kept back for you."
-- headline taken: 1 "Today's bread is still here." (their answer: take the first offered)
-- ownable: the day's bake list chalked up each morning, each loaf with how many are left, counting down as orders come in (a live count, from the brief's "remembered for")
-- pictures: none of theirs; the subject's licensed stand-ins are fine (their answer)
-- lead: 01-arch-poster
-- likes: 03-dot-editorial, 04-still-life, 05-orange-block, 08-dark-arches, 09-teal-window, 10-arch-portrait
-- not marked (on the board, never a base; no moves borrowed): 02-name-grid, 06-lime-letters, 07-condensed-panel
-- leave-outs: they wrote none on any card (answers.md gives none)
-- brief wins (said once before building): 08-dark-arches' deep-green ground is a dark page and the design brief is light only, so its like ("thin elegant serif in gold on deep green") is carried by its role: the thin serif and the gold, on a light ground. A change to "light only" would go under Changes in the design brief.
-- spread for step 3: 01-arch-poster is the base of two screens; each of the six likes is the base of at least one; the subject lends moves, never a base.
-
-### 01-arch-poster
-- link: none (shared in folder)
+### 01-giant-serif-name
+- like: the name in a huge thin serif across the whole page, with one small picture crossing it: the name is the poster, and the picture sits on it like a print on a table.
+- link: none (shared in a folder)
 - part: home
-- shot: .longbeard/design/moodboard/refs/01-arch-poster.jpg
+- shot: .longbeard/design/moodboard/refs/01-giant-serif-name.jpg
+- screen: yes
+- move: name in a huge thin serif across the page, one stacked print crossing it
+- why: big picture plus a name, like a photo book cover; quiet, picture-led
+
+### 02-split-story
+- like: a short story in serif on a warm panel, beside a big close photo: it reads like the first page of a book.
+- link: none (shared in a folder)
+- part: session
+- shot: .longbeard/design/moodboard/refs/02-split-story.jpg
+- screen: yes
+- move: serif story with italic words on a warm panel beside a full-bleed close portrait
+- why: the session's short story beside its picture, a book's first page
+
+### 03-name-over-strip
+- like: the name centred in serif above a row of pictures of different widths: calm, like a gallery header.
+- link: none (shared in a folder)
+- part: session
+- shot: .longbeard/design/moodboard/refs/03-name-over-strip.jpg
+- screen: yes
+- move: name centred in a wide serif between rules, a row of mixed-width pictures below
+- why: a calm gallery header for one session's set
+
+### 04-face-and-orange
+- like: a face filling the page with the name across it, and one orange block: the close-up makes it personal, the orange is the only loud thing.
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/04-face-and-orange.jpg
+- screen: yes
+- move: a face cropped to fill the page, heavy serif name across it, one orange block
+- why: close-up makes it personal; one loud colour against a calm page
+
+### 05-scattered-prints
+- like: a few prints dropped at angles over a big red serif word: playful without being cute, like photos on a desk.
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/05-scattered-prints.jpg
+- screen: yes
+- move: white-bordered prints at angles over a giant red serif word, cream ground
+- why: photos dropped on a table; playful without being cute
+
+### 06-framed-script
+- like: one framed picture on a calm ground with a thin script line drawn through the page: quiet, and the line leads the eye.
+- link: none (shared in a folder)
+- part: about
+- shot: .longbeard/design/moodboard/refs/06-framed-script.jpg
+- screen: yes
+- move: one framed picture on a calm ground, a thin hand-drawn line looping through
+- why: quiet; the line leads the eye from picture to words
+
+### 07-name-collage
+- like: pictures overlapping with the name set over them: lively, a whole session at a glance.
+- link: none (shared in a folder)
+- part: home
+- shot: .longbeard/design/moodboard/refs/07-name-collage.jpg
+- screen: yes
+- move: overlapping colour and black-and-white pictures, a high-contrast serif name over them
+- why: a whole session at a glance
+
+### 08-thin-number
+- like: thin tall type, small pictures and one big number: airy, with a sense of order.
+- link: none (shared in a folder)
+- part: work
+- shot: .longbeard/design/moodboard/refs/08-thin-number.jpg
+- screen: yes
+- move: thin tall condensed serif, small pictures placed loosely, one huge number
+- why: airy with order; a number could be a session's count or an animal's age
+
+### 09-contact-grid
+- like: black-and-white pictures in a tight grid, like a contact sheet: honest, it shows the work as it was shot.
+- link: none (shared in a folder)
+- part: work
+- shot: .longbeard/design/moodboard/refs/09-contact-grid.jpg
 - screen: no
-- lead: yes
-- like: the photo in a tall arch with the text set around it; the terracotta on stone
-- why-they: it frames one thing and makes the page feel like a calm room; warm without shouting
-- avoid: none
-- move: one photo in a tall arch, centred; text set around it, vertical at the sides
-- why: one picture framed calmly on a warm stone ground: warm, quiet, picture-led
+- move: black-and-white frames in a tight three-column grid under a bold grotesk title
+- why: a contact sheet; shows the work as it was shot
 
-### 02-name-grid
-- link: none (shared in folder)
+### 10-red-vertical-name
+- like: the red name running down the side, with prints scattered beside it: the name frames the page.
+- link: none (shared in a folder)
 - part: home
-- shot: .longbeard/design/moodboard/refs/02-name-grid.jpg
+- shot: .longbeard/design/moodboard/refs/10-red-vertical-name.jpg
 - screen: yes
-- move: a wide geometric name across the top, three photo columns below
-- why: plain and exact, the name is the sign over the door
-
-### 03-dot-editorial
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/03-dot-editorial.jpg
-- screen: yes
-- like: the orange disc as the only button; the black-and-white photos at different heights
-- why-they: the one spot of contrast on a quiet page, so the eye goes straight to it; they feel like a contact sheet, unposed
-- avoid: none
-- move: an orange disc as the only button; black-and-white photos at staggered heights
-- why: one spot of colour leads to the one action on a quiet page
-
-### 04-still-life
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/04-still-life.jpg
-- screen: yes
-- like: the big orange disc the tall condensed title crosses; the title broken top and bottom
-- why-they: the title and the shape fight a little, which makes it alive; it frames the page
-- avoid: none
-- move: split page; a tall condensed serif title crossing a big orange disc
-- why: a still life of food beside a title that fights the shape: alive but quiet
-
-### 05-orange-block
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/05-orange-block.jpg
-- screen: yes
-- like: the photo straddling the seam between the light panel and the dark band; the red strip
-- why-they: it ties two halves together; a hard edge of colour at the side, not in the middle of things
-- avoid: none
-- move: a photo straddling the seam of a light panel and a dark band; a red strip at the edge
-- why: few words, one picture, colour held to the side
-
-### 06-lime-letters
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/06-lime-letters.jpg
-- screen: no
-- move: giant serif letters laid over a black-and-white portrait, neon on black
-- why: the far reference: type and picture as one; loud against the brief's quiet
-
-### 07-condensed-panel
-- link: none (shared in folder)
-- part: navigation
-- shot: .longbeard/design/moodboard/refs/07-condensed-panel.jpg
-- screen: yes
-- move: heavy condensed caps over a three-panel grid with hairline rules
-- why: a ruled grid like a chalkboard list; loud type against the brief's quiet
-
-### 08-dark-arches
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/08-dark-arches.jpg
-- screen: yes
-- like: the thin elegant serif in gold on deep green
-- why-they: it feels slow and crafted, like a shop sign
-- avoid: none
-- brief: light only, so the deep-green ground is not borrowed as a page; the thin serif and the gold carry the like on a light ground
-- move: thin high-contrast serif in cream and gold on deep green; arched photos; a word band at the foot
-- why: slow and crafted, like a painted shop sign
-
-### 09-teal-window
-- link: none (shared in folder)
-- part: photography
-- shot: .longbeard/design/moodboard/refs/09-teal-window.jpg
-- screen: no
-- like: the rounded photo window with small mono text in its four corners
-- why-they: the picture is the page, and the text only labels it
-- avoid: none
-- move: a rounded photo window centred, small spaced mono text in its four corners
-- why: the picture is the page; the words only label it, exact and plain
-
-### 10-arch-portrait
-- link: none (shared in folder)
-- part: home
-- shot: .longbeard/design/moodboard/refs/10-arch-portrait.jpg
-- screen: yes
-- like: the headline running over the arch's edge; the airy, thin, high-contrast serif
-- why-they: words and picture belong together; light and confident
-- avoid: none
-- move: a headline in a thin high-contrast serif running over the edge of an arched photo
-- why: words and picture together on a warm cream ground, light and confident
+- move: red serif name running down the left edge, white-bordered prints scattered beside it
+- why: the name frames the page; prints on a table
 
 ### subject
-- link: none (licensed stand-ins, credits in .longbeard/design/pictures/credits.tsv)
+- link: none (licensed stand-ins)
 - part: subject
-- shot: .longbeard/design/direction/subject/pictures-sheet.jpg
+- shot: .longbeard/design/direction/subject/sheet-01.jpg
 - screen: no
-- like: (no like of their own given; they accepted the stand-ins) the bread itself as the pictures every screen uses
-- move: the bread itself: crust, flour, dough on the bench, the bakery tins
-- why: the product's own world; its colours are one more palette
+- move: five stand-in pictures of dogs and a cat at home, CC0
+- why: the product's own subject; theirs replace them

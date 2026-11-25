@@ -1,30 +1,29 @@
-# Moodboard: Hearth Bakehouse
+# Moodboard: Ada Lund, pet portraits
 
-10 references across home, navigation and photography. From their own board, read as it is; no search.
+10 references across home, session, about and work. From their board, read as it is; no search.
 
 ## What it says
-- One picture leads each page, framed: an arch, a rounded window, a block that straddles a seam. The frame makes the picture feel placed, not decorative.
-- Pages are mostly empty, warm-light grounds (stone, cream, off-white), with the picture and a headline doing the work.
-- One spot of hot colour (orange or red: a disc, a strip, a button) on an otherwise quiet page, and it marks the action.
-- Type is either a thin, high-contrast serif set large and slow, or a tall condensed face; small text is spaced, often uppercase or mono, set as labels around the picture.
-- Words and pictures touch: a headline runs over a photo's edge or crosses a shape.
-- Photos are calm and unposed, often toned (black and white, a warm sepia, a single-hue duotone).
+- The name is the poster: set in a large serif, often bigger than the page, with pictures laid over or beside it.
+- Pictures behave like prints on a table: white borders, slight angles, overlapping, a few at a time rather than a grid of thumbnails.
+- Calm, warm light grounds (cream, warm grey, bone) carry most pages; one loud colour (a red or an orange) is used once, never spread around.
+- Close crops make it personal: a face, an eye, a single animal filling a panel.
+- Text is short and bookish: a serif story with an italic word or two, small sans labels at the corners.
+- Order under the looseness: thin rules, a big number, a contact-sheet grid when the whole set is shown.
 
 ## Moves worth keeping
-- home: a photo in a tall arch, text set around it, vertical at the sides (2 references)
-- home: an orange disc as the only button on a quiet page (2 references)
-- home: a headline running over the edge of the picture or crossing a shape (3 references)
-- home: a photo straddling the seam between a light panel and a dark band, a colour strip at the edge (1 reference)
-- home: a thin high-contrast serif in cream and gold on deep green, a word band at the foot (1 reference)
-- home: a wide geometric name across the top, photo columns below (1 reference)
-- navigation: heavy condensed caps over a ruled three-panel grid (1 reference)
-- photography: a rounded photo window with small spaced mono labels in its four corners (1 reference)
-- far: giant serif letters laid over a black-and-white portrait (1 reference)
+- home: name in a huge thin serif across the page, one print crossing it (1 reference)
+- home: white-bordered prints dropped at angles over a giant coloured serif word (2 references)
+- home: a face cropped to fill the page, the name across it, one orange block (1 reference)
+- home: overlapping colour and black-and-white pictures with the name set over them (1 reference)
+- session: a short serif story on a warm panel beside a big close photo (1 reference)
+- session: the name centred in serif between rules, a row of pictures of different widths below (1 reference)
+- about: one framed picture on a calm ground, a thin drawn line leading the eye through the page (1 reference)
+- work: thin tall serif, small pictures placed loosely, one big number (1 reference)
+- work: black-and-white frames in a tight grid, like a contact sheet (1 reference, a poster)
 
 ## Not this
-- Glossy chain-store polish, stock-photo smiles, a carousel that hides the order button.
-- Anything that looks like a supermarket bakery counter or a food-delivery app.
-- Fussy: ornament for its own sake.
+- Paw-print clip art, pastel pet-shop colours, studio backdrops, anything cute.
+- A template page with a picture slider.
 
 ## Missing
-- menu (a list of the day's bakes with what is left), product, basket and checkout: no reference shows a list, a form or a total; they chose to go with what the board has.
+- booking: no reference shows a form, a date picker or a price list.
