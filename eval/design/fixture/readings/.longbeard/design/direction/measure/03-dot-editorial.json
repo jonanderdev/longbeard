@@ -1,0 +1,292 @@
+{
+ "width": 1800,
+ "height": 1350,
+ "firstScreen": false,
+ "traits": {
+  "ground": "#dddddd",
+  "tone": "light",
+  "empty": 53.8,
+  "loud": 0.3,
+  "busy": 1.7,
+  "lum": 0.722,
+  "ink": "#0e0e0e",
+  "pictures": 5.1
+ },
+ "type": {
+  "lines": [
+   {
+    "size": 0.011,
+    "px1440": 11,
+    "weight": null,
+    "stroke": 0.21,
+    "contrast": 1.5,
+    "width": 0.79,
+    "xheight": null,
+    "case": "uppercase",
+    "dark": 0.3,
+    "ink": "#0f0f0f",
+    "box": [
+     0.134,
+     0.221,
+     0.019,
+     0.007
+    ],
+    "letters": 3,
+    "pass": "ground"
+   },
+   {
+    "size": 0.013,
+    "px1440": 14,
+    "weight": null,
+    "stroke": 0.175,
+    "contrast": 1.5,
+    "width": 0.7,
+    "xheight": 0.53,
+    "case": "mixed",
+    "dark": 0.24,
+    "ink": "#0f0f0f",
+    "box": [
+     0.132,
+     0.235,
+     0.053,
+     0.009
+    ],
+    "letters": 8,
+    "pass": "ground"
+   },
+   {
+    "size": 0.152,
+    "px1440": 165,
+    "weight": 100,
+    "stroke": 0.005,
+    "contrast": 1,
+    "width": 0.7,
+    "xheight": null,
+    "case": "uppercase",
+    "dark": 0.01,
+    "ink": "#575757",
+    "box": [
+     0.534,
+     0.256,
+     0.161,
+     0.107
+    ],
+    "letters": 2,
+    "pass": "ground"
+   },
+   {
+    "size": 0.076,
+    "px1440": 82,
+    "weight": 300,
+    "stroke": 0.058,
+    "contrast": 6,
+    "width": 0.44,
+    "xheight": 0.43,
+    "case": "mixed",
+    "dark": 0.13,
+    "ink": "#0e0e0e",
+    "box": [
+     0.132,
+     0.371,
+     0.252,
+     0.054
+    ],
+    "letters": 10,
+    "pass": "ground"
+   },
+   {
+    "size": 0.008,
+    "px1440": 9,
+    "weight": null,
+    "stroke": 0.175,
+    "contrast": 2,
+    "width": 0.79,
+    "xheight": null,
+    "case": "uppercase",
+    "dark": 0.3,
+    "ink": "#0f100f",
+    "box": [
+     0.186,
+     0.507,
+     0.015,
+     0.006
+    ],
+    "letters": 3,
+    "pass": "ground"
+   },
+   {
+    "size": 0.01,
+    "px1440": 10,
+    "weight": null,
+    "stroke": 0.156,
+    "contrast": 2,
+    "width": 0.74,
+    "xheight": 0.54,
+    "case": "mixed",
+    "dark": 0.21,
+    "ink": "#151515",
+    "box": [
+     0.757,
+     0.767,
+     0.037,
+     0.007
+    ],
+    "letters": 7,
+    "pass": "ground"
+   },
+   {
+    "size": 0.011,
+    "px1440": 11,
+    "weight": null,
+    "stroke": 0.14,
+    "contrast": 2,
+    "width": 0.9,
+    "xheight": 0.49,
+    "case": "mixed",
+    "dark": 0.2,
+    "ink": "#191919",
+    "box": [
+     0.819,
+     0.767,
+     0.036,
+     0.007
+    ],
+    "letters": 5,
+    "pass": "ground"
+   }
+  ],
+  "display": {
+   "size": 0.152,
+   "px1440": 165,
+   "weight": 100,
+   "stroke": 0.005,
+   "contrast": 1,
+   "width": 0.7,
+   "xheight": null,
+   "case": "uppercase",
+   "dark": 0.01,
+   "ink": "#575757",
+   "box": [
+    0.534,
+    0.256,
+    0.161,
+    0.107
+   ],
+   "letters": 2,
+   "pass": "ground"
+  },
+  "body": {
+   "size": 0.01,
+   "px1440": 10,
+   "weight": null,
+   "stroke": 0.156,
+   "contrast": 2,
+   "width": 0.74,
+   "xheight": 0.54,
+   "case": "mixed",
+   "dark": 0.21,
+   "ink": "#151515",
+   "box": [
+    0.757,
+    0.767,
+    0.037,
+    0.007
+   ],
+   "letters": 7,
+   "pass": "ground"
+  },
+  "scale": 16,
+  "ink": "#0e0e0e",
+  "headline": {
+   "words": 2,
+   "lines": 1
+  },
+  "blocks": 6,
+  "small": 5
+ },
+ "figure": {
+  "share": 47.6,
+  "colours": 8,
+  "colourful": 16,
+  "grey": 99.3,
+  "flat": 73.5,
+  "soft": 8.5,
+  "sharp": 17.9,
+  "texture": 8.2,
+  "palette": [
+   {
+    "colour": "#ffffff",
+    "share": 73.4
+   },
+   {
+    "colour": "#000000",
+    "share": 3.9
+   },
+   {
+    "colour": "#666666",
+    "share": 3
+   },
+   {
+    "colour": "#777777",
+    "share": 2.5
+   },
+   {
+    "colour": "#bbbbbb",
+    "share": 2.4
+   }
+  ],
+  "grid": [
+   14,
+   27,
+   27,
+   27,
+   27,
+   13,
+   53,
+   96,
+   90,
+   75,
+   69,
+   46,
+   53,
+   94,
+   61,
+   97,
+   92,
+   53,
+   14,
+   26,
+   24,
+   26,
+   26,
+   14
+  ]
+ },
+ "common": [
+  {
+   "colour": "#dddddd",
+   "share": 47
+  },
+  {
+   "colour": "#f8f8f8",
+   "share": 33.7
+  },
+  {
+   "colour": "#e8e8e8",
+   "share": 3.6
+  },
+  {
+   "colour": "#c9c9c9",
+   "share": 3.1
+  },
+  {
+   "colour": "#020202",
+   "share": 1.6
+  },
+  {
+   "colour": "#686868",
+   "share": 1.5
+  }
+ ],
+ "loud": []
+}

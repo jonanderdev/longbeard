@@ -52,6 +52,8 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 const at = (...p) => join(dir, ...p);
+// A short run renders offline with the fixture's faces (run.mjs --short): score it in the same Chrome.
+if (existsSync(at(".longbeard/eval/chrome")) && process.env.CHROME_PATH !== "none") process.env.CHROME_PATH = at(".longbeard/eval/chrome");
 // The fixture the project was built from (run.mjs --fixture records it), else the default one. The recorded
 // path may be another checkout's: when it is not here, the same folder of this checkout's eval/design.
 const fixtureFile = at(".longbeard/eval/fixture.txt");
@@ -71,9 +73,13 @@ const script = (skill, name) => [at(".claude/skills", skill, "scripts", name), a
 const node = (file, list) => spawnSync(process.execPath, [file, ...list], { encoding: "utf8", cwd: dir });
 
 const results = [];
-const check = (id, hard, ok, detail = "") => results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
+// A first-round run (run.mjs --from or --short) stops at the first sheet: what comes after it is not its to have.
+const firstRound = existsSync(at(".longbeard/eval/first-round.txt"));
+const later = /^(screens: one chosen|chosen screen|prototype|identity|DESIGN\.md|five-second|still to supply)/i;
+const skipLater = (id) => firstRound && later.test(id) && (results.push({ id, hard: false, status: "SKIP", detail: "a first-round run" }), true);
+const check = (id, hard, ok, detail = "") => skipLater(id) || results.push({ id, hard, status: ok === null ? "SKIP" : ok ? "PASS" : "FAIL", detail });
 // A check that could not run: not counted in the score, and a hard one fails the run.
-const notRun = (id, hard, detail = "") => results.push({ id, hard, status: "NOT RUN", detail });
+const notRun = (id, hard, detail = "") => skipLater(id) || results.push({ id, hard, status: "NOT RUN", detail });
 // What a spawned checker said: 0 is a pass; 1 is a fail only when it printed what failed (stdout), since a
 // crash also exits 1 but says nothing there; any other exit, a signal or a missing script did not run.
 const outcome = (r, hasFindings = (out) => out.trim().length > 0) => {
@@ -88,7 +94,7 @@ const outcome = (r, hasFindings = (out) => out.trim().length > 0) => {
 // ------------------------------------------------------------------ the docs
 const brief = read("docs/design/design-brief.md");
 const pace = /^- pace:\s*quick/m.test(brief || "") ? "quick" : "full";
-const docs = ["docs/design/design-brief.md", "docs/design/design-moodboard.md", "docs/design/design-direction.md", "docs/design/design-identity.md", "docs/design/design-identity.html", "DESIGN.md"];
+const docs = ["docs/design/design-brief.md", "docs/design/design-moodboard.md", ...(firstRound ? [] : ["docs/design/design-direction.md", "docs/design/design-identity.md", "docs/design/design-identity.html", "DESIGN.md"])];
 const missing = docs.filter((d) => !existsSync(at(d)));
 check("docs", true, !missing.length, missing.length ? `missing: ${missing.join(", ")}` : `${docs.length} docs`);
 if (pace === "quick") {
@@ -336,7 +342,16 @@ else {
       };
       judge(0, g.tiny, `smallest ${g.minText}px`, unread);
       judge(1, g.clipped, "", unread);
-      judge(2, g.contrast, `${g.screens} screens`, contrastGone);
+      // A colour they liked may stay under the level with its warning (grid.md): the screen's fault names it as
+      // liked, with its ratio. That is a warning here too; any other text under the level is a fail.
+      const faultOf = new Map(built.list.map((e) => [Number(e.n), String(e.fault || "")]));
+      const liked = [], under = [];
+      for (const sc of out.screens || []) for (const t of sc.contrast?.under || []) {
+        const fault = faultOf.get(Number(sc.n)) || "";
+        (/\bliked\b/i.test(fault) && fault.includes(`${t.ratio}:1`) ? liked : under).push(`${sc.n}: "${t.text}" ${t.ratio}:1`);
+      }
+      judge(2, out.screens?.some((sc) => sc.contrast?.under) ? under : g.contrast, `${g.screens} screens${liked.length ? `, ${liked.length} liked under the level` : ""}`, contrastGone);
+      if (liked.length) check("screens: liked colours kept under the level", false, false, `warned, not failed: ${list(liked)}`);
       check(gridIds[3], false, !g.overSlots.length, g.overSlots.length ? list(g.overSlots) : `blocks ${g.blocks.join(", ")}`);
     }
   }

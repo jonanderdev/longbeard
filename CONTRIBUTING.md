@@ -80,7 +80,7 @@ Do not put model-picker warnings in the kit. A skill that needs the current year
 
 Installed ≠ used. There is no usage logger. Judge the files: each stage's file appears only after its yes (`docs/brief.md`, the `docs/design/design-*.md` docs, `DESIGN.md`, Ready frames, specs, tickets, a PR); `design-check` docs mode finds no reference named in `docs/design/` or `DESIGN.md`; `screens.json` gives every screen a base and moves from references on the board; Ready frames have their states; the PR carries design-check's shots and findings.
 
-The design skills have a repeatable run of their own: `eval/design/` builds a fixed project (a bakery's brief, ten references, the person's answers at every stop), runs an agent from `design` to `DESIGN.md`, and scores what it left with the checks above (`eval/design/README.md`). After a change to how the direction's screens are built, run it with `--from` a finished run; after any other design change, the tests are enough to merge. Run it in full before a release that carries one.
+The design skills have a repeatable run of their own: `eval/design/` builds a fixed project (a bakery's brief, ten references, the person's answers at every stop), runs an agent from `design` to `DESIGN.md`, and scores what it left with the checks above (`eval/design/README.md`). Before a release that carries a design change, run the short one: `run.mjs --short` builds the direction's first round from fixed readings, offline, and scores it, in about 15 minutes. Run it in full only after a big change to the Design stage (a skill added, dropped or reordered, or a change to the moodboard or the readings), and then freeze its readings for the short run (`freeze.mjs`). After any other design change, the tests are enough to merge.
 
 Smoke project: `../longbeard-smoke`, outside this git tree; create it there (a fresh folder, `init` run in it) if it is missing. After changing a local skill, copy `skills/<name>/` into that project's `.agents/skills/<name>/` (and `.claude/skills/` if present) and replace the `AGENTS.md` block with the output of `node bin/long-beard.js router`. A full smoke run starts fresh: one idea through brief, design brief, moodboard, direction, identity, screens, `DESIGN.md` and a Figma key screen, then one small spec through Build and `design-check`. Do not run `longbeard init` in *this* repo.
 
@@ -101,10 +101,11 @@ A release is one number in three places: `package.json`, the git tag `vX.Y.Z`, a
 Change the number by hand, and only in that release commit. A push to `main`, and a pull request into `main`, do not get a new version. Those commits stack under `Unreleased` in `CHANGELOG.md`. Ship a version when someone who already ran `init` should take the new copy: the installer, the catalog, a skill in this repo, or the public install story. A wording fix can wait for that release. Do not add a bot that publishes on every merge.
 
 1. Review the tells in `rules/design-rules.md`: add new ones, retire stale ones, update the date, run `npm run share`.
-2. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
-3. Set that same number in `package.json`.
-4. Commit that, and merge it into `main`.
-5. Start `.github/workflows/release.yml` on `main`: Actions, release, Run workflow (an agent can start it too). Pushing the tag `vX.Y.Z` with `./scripts/release.sh` starts it as well.
+2. If it carries a design change, the short eval passes: `node eval/design/run.mjs --short --out <folder outside the repo> --agent …` (`eval/design/README.md`).
+3. Write what changed under a heading `## X.Y.Z — date` in `CHANGELOG.md`. Include what a person who already ran `init` must do.
+4. Set that same number in `package.json`.
+5. Commit that, and merge it into `main`.
+6. Start `.github/workflows/release.yml` on `main`: Actions, release, Run workflow (an agent can start it too). Pushing the tag `vX.Y.Z` with `./scripts/release.sh` starts it as well.
 
 The workflow checks that the tag (when one was pushed), `package.json` and a `CHANGELOG.md` section agree and that npm does not have the version, runs `npm test`, publishes with provenance, and makes the GitHub release from that section, which creates the tag when the run was started by hand. It stops at the first of those that fails. npm trusts the workflow by name (Trusted Publisher on npmjs.com, set once by the package's owner), so no npm token is stored in the repo or on GitHub; never add one. `./scripts/release.sh` runs the same checks before it tags, so a bad tag is caught on your machine. After a publish the site can lag: check with `npm view @jonandev/longbeard version` before trying a number again. Do not publish that number again.
 
