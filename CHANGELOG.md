@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Another gallery for the moodboard:** ilovecreatives' Internet Gems, hand-picked sites browsed by category (portfolio, studio, food & beverage, shops and more), each naming the typefaces it uses. `sources.md` says how to read its cards.
+
 ## 0.15.0 — 2026-11-26
 
 - **Motion you can choose.** When your design brief asks for present or leading motion and your board has nothing moving, the moodboard offers a short motion search; you watch each candidate live from its link and like what moves well, and only your likes are recorded. The prototype then shows two or three versions of each key moment, each rebuilt from a moving reference on your board with whatever it needs (a motion library for sequenced or scroll-driven work), and DESIGN.md records the one you pick.
