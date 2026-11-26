@@ -76,6 +76,12 @@ Add-ons are your choice: `init` lets you tick them, and the agent offers one whe
 - **The list** `init` installs is [`beard.json`](beard.json). Don't copy it into your project: that forks the kit. A skill for one stack belongs in the project that uses it.
 - **Design files:** `docs/design/` and `DESIGN.md` are committed and describe the style, never its references. `.longbeard/design/` is the agents' scratch folder, out of git.
 
+## The difference
+
+The same agent, the same brief, photos and words for a pet photographer's first screen: asked directly on the left, through the Design stage on the right.
+
+<img src="assets/comparison.jpg" alt="Two first screens made by asking the agent directly, beside two made with Long Beard from references">
+
 ## You need
 
 - Node 18+ for the installer; Node 22+ and Chrome for the design skills' screenshots.
