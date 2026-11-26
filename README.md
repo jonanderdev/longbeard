@@ -78,7 +78,7 @@ Add-ons are your choice: `init` lets you tick them, and the agent offers one whe
 
 ## The difference
 
-The same agent, the same brief, photos and words for a pet photographer's first screen: asked directly on the left, through the Design stage on the right.
+What the Design stage adds: an art director's process, built on references you choose.
 
 <img src="assets/comparison.jpg" alt="Two first screens made by asking the agent directly, beside two made with Long Beard from references">
 
