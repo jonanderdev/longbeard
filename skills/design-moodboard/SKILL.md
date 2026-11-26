@@ -44,6 +44,8 @@ Their board already holds their taste: it is the pool, with no search and no pic
   node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --sheets <scratch>/sheets --out .longbeard/design/moodboard/refs
   ```
 
+**A reference that moves is judged from its frames, never from one picture.** A GIF or a video, in a folder or on a card marked moving (a `gif-link` line, `motion` in its caption or tags): a board card's picture and a GIF's first frame are stills, so fetch the GIF or video itself (from that link on Figma), record it (`capture.mjs file:///<path> --out refs/<name>-frames --frames 12 --every 200`), look at the frames and give its card `frames:`.
+
 **What earlier projects learned:** a `Learned` frame on their board, a `learned.md` in their folder, or `~/.longbeard/taste.md`. Its likes, whys and leave-outs go on the matching cards (`like:`, `avoid:`), its noes under **Not this**. Their words, never reworded.
 
 **Screens of one product** (a section or a group of cards from the same site or app): the one they starred or captioned is the keep, and the others are its `also:` lines.
