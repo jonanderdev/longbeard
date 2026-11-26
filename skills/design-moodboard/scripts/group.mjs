@@ -208,6 +208,11 @@ async function main() {
 
   console.log(`group: ${grouped} of ${rows.length} rows grouped${unread.size ? `, ${unread.size} not read (${[...unread].slice(0, 4).map(([id, why]) => `${id} ${why}`).join(", ")}${unread.size > 4 ? " …" : ""})` : ""}, ${families.filter((f) => !f.stray).length} families, spread ${raw.spread}`);
   for (const f of families) console.log(`${f.id.padEnd(7)} ${String(f.size).padStart(4)}  ${f.shares}${f.small ? "  [small]" : ""}`);
+  const bySource = new Map();
+  for (const r of rows) bySource.set(r.source || "?", (bySource.get(r.source || "?") || 0) + 1);
+  const ranked = [...bySource].sort((a, b) => b[1] - a[1]);
+  const top = ranked[0];
+  console.log(`sources: ${ranked.map(([s, n]) => `${s} ${n}`).join(", ")}${top && rows.length >= 20 && top[1] > rows.length / 2 ? `. Over half is ${top[0]}: add rows from other sources that fit before the picker` : ""}`);
   if (verdict) {
     console.log(
       verdict.met

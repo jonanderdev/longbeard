@@ -66,7 +66,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 
 **The design brief steers the pool, not the picks.** Queries carry the personality where it leans off 3 ("bold colour-block dashboard", "minimal serif editorial homepage"), half the pool from those, half wide. At distance 4–5, leave out what looks like the kind of product in `apart from`. Drop only what is plainly the `never`; anything less plain is theirs to say no to.
 
-1. **A wide pool:** 150 to 250 candidates across every part, querying the form, not the word. Cut only what is not a candidate (off-form, broken, under the source's floor), never for taste; pass `--drop` only for what this brief rules out. One row each in `candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
+1. **A wide pool:** 150 to 250 candidates across every part, querying the form, not the word, from every listed source that fits the brief: no one gallery's taste sets the pool, so no source gives over half (`group.mjs` counts them). Cut only what is not a candidate (off-form, broken, under the source's floor), never for taste; pass `--drop` only for what this brief rules out. One row each in `candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
 2. **Check and group it.** Drop non-screens and broken thumbnails on contact sheets (`contact-sheet.mjs`), then:
    ```
    node <skill>/scripts/group.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/families.json
