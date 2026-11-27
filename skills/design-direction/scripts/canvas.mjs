@@ -12,7 +12,14 @@
 // kind ("concept", with idea: the concept it keeps, shown in place of "Base"),
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
 // part (a part of that screen), fault (one line), shot
-// (a picture; else <shots>/<n>.png). board.md cards give each reference's shot and like.
+// (a picture; else <shots>/<n>.png), row (the row it sits in, in place of its round:
+// "Type", "Colour", "Desktop"), note (where an option comes from, for one with no base).
+// board.md cards give each reference's shot and like.
+//
+// Every design step shows on this page: the direction's rounds, the identity's
+// options (--title Identity, a row per choice), the prototype's pages
+// (--title Prototype, a row per width), the wordmark's marks. bundle.mjs makes it
+// one file to publish where the person cannot open this machine's files.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 
@@ -24,9 +31,10 @@ const flag = (name) => {
 const boardArg = flag("board");
 const shotsArg = flag("shots");
 const outArg = flag("out");
+const titleArg = flag("title") || "Direction";
 const [screensArg] = args;
 if (!screensArg || !outArg || !shotsArg || args.length !== 1 || !/\.html$/.test(outArg)) {
-  console.error("usage: node canvas.mjs <screens.json> --shots <folder of n.png> [--board <board.md>] --out <canvas.html>");
+  console.error("usage: node canvas.mjs <screens.json> --shots <folder of n.png> [--board <board.md>] [--title <step>] --out <canvas.html>");
   process.exit(2);
 }
 const outPath = resolve(outArg);
@@ -91,7 +99,7 @@ const shotOf = (s) => {
 // Rows: each round, then each screen's parts.
 const rows = new Map();
 for (const s of screens) {
-  const key = s.of != null ? `${s.of} · ${s.part || "parts"}` : `Round ${s.round || 1}`;
+  const key = s.row ? String(s.row) : s.of != null ? `${s.of} · ${s.part || "parts"}` : `Round ${s.round || 1}`;
   if (!rows.has(key)) rows.set(key, []);
   rows.get(key).push(s);
 }
@@ -105,6 +113,7 @@ const data = screens.map((s) => {
     of: s.of != null ? String(s.of) : "",
     part: s.part || "",
     concept: s.kind === "concept" ? s.idea || "its concept" : "",
+    note: s.note || "",
     fault: s.state === "failed" ? `failed: ${s.failure || "no reason given"}` : s.fault || "",
     base: { name: base.name, src: base.src, like: base.like, avoid: base.avoid },
     moves: (s.moves || []).map((m) => {
@@ -133,7 +142,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Direction</title>
+<title>${esc(titleArg)}</title>
 <style>
   /* Quiet chrome: the screens and references are the only colour on the page. */
   :root { --canvas: #f3f2ef; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6c65; --line: #dedbd4; --soft: #e9e7e2; }
@@ -200,7 +209,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 <main>
-  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>Direction</h1><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between screens</span></div>
+  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them</span></div>
   <div class="strip">${strip}</div>
   <div class="main">
     <section>
@@ -213,7 +222,7 @@ const html = `<!DOCTYPE html>
       <div class="acts">
         <button type="button" class="primary" data-act="take">Take this one</button>
         <button type="button" data-act="more">More of this</button>
-        <button type="button" data-act="compare" aria-pressed="false">Beside its base</button>
+        <button type="button" id="compare" data-act="compare" aria-pressed="false">Beside its base</button>
         <input type="text" id="ask" placeholder="Or say it: with 6's colours, open the menu…" aria-label="What to do with this screen">
       </div>
     </section>
@@ -247,11 +256,15 @@ const html = `<!DOCTYPE html>
     $("baseimg").src = s.base.src || "";
     $("basebox").href = s.base.src || "#";
     $("basecap").textContent = "Base: " + s.base.name;
-    const kind = s.part ? s.part + " of " + s.of : (s.concept ? "concept from " : "on ") + s.base.name;
-    $("title").textContent = s.n + " · " + kind;
+    const based = Boolean(s.base.name);
+    $("compare").hidden = !based;
+    if (!based && !$("basebox").hidden) $("compare").click();
+    const kind = s.part ? s.part + " of " + s.of : based ? (s.concept ? "concept from " : "on ") + s.base.name : s.note;
+    $("title").textContent = kind ? s.n + " · " + kind : s.n;
     $("fault").textContent = s.fault;
-    $("made").innerHTML =
-      (s.concept
+    $("made").innerHTML = !based
+      ? (s.note ? ing("", "From", s.note, "", "") : "")
+      : (s.concept
         ? ing(s.base.src, "Concept · " + s.base.name, "its idea, redrawn for this product: " + s.concept, s.base.like, s.base.avoid)
         : ing(s.base.src, "Base · " + s.base.name, "the layout, spacing and everything no move names", s.base.like, s.base.avoid)) +
       s.moves.map((m) => ing(m.src, "+ " + m.from, m.what + (m.proposed ? " (proposed)" : ""), m.like, "")).join("");

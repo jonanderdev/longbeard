@@ -10,13 +10,13 @@ description: >
 
 **Needs:** `docs/design/design-direction.md`, `docs/design/design-identity.md`  
 **Uses if there:** `docs/design/design-content.md`, `docs/design/design-moodboard.md`  
-**Writes:** `DESIGN.md`
+**Writes:** `docs/design/design-prototype.md`, `DESIGN.md`
 
-A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then **`DESIGN.md`**, committed. Then `design-figma`. Read [Before you build](references/design-floor.md#before-you-build) before building, and apply it while you draw; [the floor](references/design-floor.md) is the checklist here. The direction's **principles** are what every page answers to; the soft rules are `design-check`'s.
+A prototype they approve (in `.longbeard/design/prototype/`, gitignored), one page per session, tracked in **`docs/design/design-prototype.md`**; once every page is approved, **`DESIGN.md`**. Both committed. Then `design-figma`. Read [Before you build](references/design-floor.md#before-you-build) before building, and apply it while you draw; [the floor](references/design-floor.md) is the checklist here. The direction's **principles** are what every page answers to; the soft rules are `design-check`'s.
 
 **They are the designer; you do the craft.** The chosen screen carries their concept. Develop it across the product, make the craft decisions it leaves open, and add no taste of your own.
 
-**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+**At every stop,** say what is new and the one question, in up to five lines: one line per option, nothing they already know. They look at the page itself (the board, the canvas, a screen), never a picture of it: its path where they can open this machine's files; where they cannot (a cloud session), `bundle.mjs <page> --out <one file>`, publish that as a private page if your agent can, and give the link. Pictures are for your own checks. Each yes is written to its doc when it is given, so the session can end at any stop. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
 
 ## Gate
 
@@ -26,7 +26,22 @@ A prototype they approve (in `.longbeard/design/prototype/`, gitignored), then *
 
 A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 
-Read the brief, the design brief, the identity, the direction and `design-content.md` if there. The chosen first screen is `.longbeard/design/direction/prototype/first.html`; if it is gone, rebuild it from the direction's composition and the identity, and say so.
+Read the brief, the design brief, the identity, the direction and `design-content.md` if there. The chosen first screen is `.longbeard/design/direction/prototype/first.html`; if the working folder is gone, take the kept copies in `docs/design/prototype/`, else rebuild it from the direction's composition and the identity, and say so.
+
+**The ledger,** `docs/design/design-prototype.md`, is how a page starts in a fresh session:
+
+```markdown
+# Prototype: <product>
+
+| Page | State | Opens with |
+|---|---|---|
+| home | approved | <its job in the first view> |
+| menu | todo | <its job> |
+
+Next: <page>.
+```
+
+`State` is `todo`, `built` or `approved`. With a ledger, go to the first page that is not `approved`.
 
 ## First pass
 
@@ -43,9 +58,11 @@ Read the brief, the design brief, the identity, the direction and `design-conten
 
 ### 2. The other key screens
 
-> I'll prototype <the menu>, <screen>, <screen>. Change the list?
+The first screen goes through steps 3 and 4 on its own first. On its yes, ask the list:
 
-Then build them all, linked.
+> I'll prototype <the menu>, <screen>, <screen>, one page per session. Change the list?
+
+Write the list to the ledger, then build the next page that is not approved, linked to the ones before it. One page per session: it is shown, iterated and approved on its own, and its yes ends the session with the next page named. Several at once only when they ask.
 
 - **The direction's principles hold on every page.** They are this design's rules: a page that would break one is drawn again, or the clash goes to them as a choice.
 - **The chosen screen is the frame, as a system, not a composition to repeat.** Its header, navigation, grid, type sizes, colour roles (which colour for headlines, small text, buttons and fields) and spacing steps stay the same on every page. One menu, one card, one row, one heading style everywhere.
@@ -83,17 +100,19 @@ node <skill>/scripts/links.mjs "file://$PWD/.longbeard/design/prototype/home.htm
 
 ### 4. Show it
 
-Give the paths and every key screen on one sheet, desktop then phone (`sheet.mjs --cols 4`), so they judge the set as one product. One line per screen only for a fault, a choice you made, or what sits against the design brief (its words, its never, could it be mistaken for what it must stand apart from). Then **what they still supply**: each stand-in from `links.mjs`, one line each, by screen.
+Show the page itself, and every page so far on the canvas, a row for desktop and one for phone (`canvas.mjs <pages.json> --shots <captures> --title Prototype --out …`, each entry `{ "n": "menu", "row": "Desktop", "shot": …, "state": "built" }`), so they judge it as one product. Published, every page goes as one file each, side by side, so the links between them hold. One line per screen only for a fault, a choice you made, or what sits against the design brief (its words, its never, could it be mistaken for what it must stand apart from). Then **what they still supply**: each stand-in from `links.mjs`, one line each, by screen.
 
 > Is this the product? Want options anywhere?
 
 With motion options, the question also asks which version for each moment, one line each for what moves. The others are removed on their pick, and the pick is what `DESIGN.md`'s Motion records. The pick is the motion system, as the chosen screen is the frame: its eases, times and staggers carry to every page's reveals, hovers and transitions, and their notes on it are iterated like any other.
 
-**Options** only when asked: two to four layouts for that page or part from different references, on the real page with its header, content and density, each a `data-variant` with `data-from` its reference, flipped with [variants.js](references/variants.js) (`?variant=<n>`, ← →); a sheet only to see them side by side. Never ranked. Iterate until it is the product.
+**Options** only when asked: two to four layouts for that page or part from different references, on the real page with its header, content and density, each a `data-variant` with `data-from` its reference, flipped with [variants.js](references/variants.js) (`?variant=<n>`, ← →); the canvas only to see them side by side. Never ranked. Iterate until it is the product.
+
+On their yes to a page, mark it `approved` in the ledger and set its `Next:`. Where the working folder will not outlive the session, copy the approved pages and their stylesheet to `docs/design/prototype/`, with the pictures they load and no reference left in them (no `data-from`, no path into `.longbeard/`). Pages left: the next one starts in a new session. None left: step 5.
 
 ### 5. Approve: write `DESIGN.md` in one go
 
-Only on their yes to the rendered prototype (and the `decides` person's, if named). Write the whole file from [design-md-template.md](references/design-md-template.md):
+Only when every page in the ledger is approved (and the `decides` person said yes, if named). Write the whole file from [design-md-template.md](references/design-md-template.md):
 
 - **Contrast first:** every text, control and focus pair through `contrast.mjs` (4.5:1 body, 3:1 large and non-text; AAA: 7 and 4.5). Never a failing pair, except a liked colour kept: `WARN liked, kept` after the ratio, its why under Decisions.
   ```

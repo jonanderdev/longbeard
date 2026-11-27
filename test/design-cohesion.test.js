@@ -63,6 +63,52 @@ test("canvas: refuses while a screen has no state, and counts a missing picture"
   assert.match(r2.stderr, /1 without a picture/);
 });
 
+test("canvas: any step's options sit in named rows under the step's title, and a page with no base offers no compare", () => {
+  const options = [
+    { n: "type 1", row: "Type", note: "as built", state: "built", shot: "grid/1.png" },
+    { n: "colour 1", row: "Colour", note: "from the crust", state: "built", shot: "grid/2.png" },
+  ];
+  const dir = project({ ...files, "options.json": JSON.stringify(options) });
+  const r = run(canvas, dir, ["options.json", "--shots", "grid", "--title", "Identity", "--out", "c.html"]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /2 screens in 2 rows/);
+  const html = readFileSync(join(dir, "c.html"), "utf8");
+  assert.match(html, /<title>Identity<\/title>/);
+  assert.match(html, /<span class="rl">Type<\/span>/);
+  assert.match(html, /"note":"from the crust"/);
+  assert.match(html, /\$\("compare"\)\.hidden = !based/);
+});
+
+test("bundle: the canvas becomes one file, its pictures, scripts and styles written in; links to pages stay", () => {
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==", "base64");
+  const dir = project({ ...files, "screens.json": JSON.stringify(screens) });
+  for (const f of ["grid/1.png", "grid/2.png", "grid/3.png", "refs/a.jpg"]) writeFileSync(join(dir, f), png);
+  assert.equal(run(canvas, dir, ["screens.json", "--board", "board.md", "--shots", "grid", "--out", "out/canvas.html"]).status, 0);
+  const bundle = join(skills, "design-direction", "scripts", "bundle.mjs");
+  const r = run(bundle, dir, ["out/canvas.html", "--out", "share/canvas.html"]);
+  assert.equal(r.status, 0, r.stderr);
+  const one = readFileSync(join(dir, "share/canvas.html"), "utf8");
+  assert.doesNotMatch(one, /grid\/1\.png/);
+  assert.match(one, /data:image\/png;base64,/);
+
+  const page = project({
+    "p/home.html": '<link rel="stylesheet" href="site.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter"><script src="screen.js"></script><img src="../pictures/dog.png"><a href="menu.html">Menu</a><img src="gone.png">',
+    "p/site.css": "body { background: url(bg.png) }",
+    "p/bg.png": "x",
+    "p/screen.js": "document.title = 'ready'",
+    "pictures/dog.png": "x",
+  });
+  const r2 = run(bundle, page, ["p/home.html", "--out", "share/home.html"]);
+  assert.equal(r2.status, 0, r2.stderr);
+  assert.match(r2.stderr, /not found: gone\.png/);
+  const home = readFileSync(join(page, "share/home.html"), "utf8");
+  assert.match(home, /<style>body \{ background: url\("data:image\/png;base64,/);
+  assert.match(home, /<script>document\.title = 'ready'<\/script>/);
+  assert.match(home, /href="https:\/\/fonts\.googleapis\.com/);
+  assert.match(home, /<a href="menu\.html">/);
+  assert.doesNotMatch(home, /dog\.png/);
+});
+
 test("moodboard: a card's other screens show with it, never as tiles of their own", () => {
   const dir = project(files);
   const r = run(moodboard, dir, ["board.md", "--out", "b.html"]);
