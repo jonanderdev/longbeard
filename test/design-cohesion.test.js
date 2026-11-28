@@ -68,12 +68,15 @@ test("canvas: any step's options sit in named rows under the step's title, and a
     { n: "type 1", row: "Type", note: "as built", state: "built", shot: "grid/1.png" },
     { n: "colour 1", row: "Colour", note: "from the crust", state: "built", shot: "grid/2.png" },
   ];
-  const dir = project({ ...files, "options.json": JSON.stringify(options) });
+  const dir = project({ ...files, "options.json": JSON.stringify(options), "docs/design/design-brief.md": "# Brief" });
   const r = run(canvas, dir, ["options.json", "--shots", "grid", "--title", "Identity", "--out", "c.html"]);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stderr, /2 screens in 2 rows/);
   const html = readFileSync(join(dir, "c.html"), "utf8");
   assert.match(html, /<title>Identity<\/title>/);
+  assert.match(html, /<li data-done>Brief<\/li>/);
+  assert.match(html, /<li aria-current="step">Identity<\/li>/);
+  assert.match(html, /<li>Prototype<\/li>/);
   assert.match(html, /<span class="rl">Type<\/span>/);
   assert.match(html, /"note":"from the crust"/);
   assert.match(html, /\$\("compare"\)\.hidden = !based/);

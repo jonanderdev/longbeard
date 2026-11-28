@@ -135,6 +135,15 @@ const strip = [...rows.entries()]
   )
   .join("");
 
+// Where they are in the design: each step done when its doc exists (read from the
+// project the canvas is made in), this page's step marked, so a long run never loses its place.
+const STEPS = [["Brief", "docs/design/design-brief.md"], ["Moodboard", "docs/design/design-moodboard.md"], ["Direction", "docs/design/design-direction.md"], ["Identity", "docs/design/design-identity.md"], ["Prototype", "DESIGN.md"], ["Figma", ""]];
+const trail = STEPS.map(([name, doc]) => {
+  const here = name.toLowerCase() === titleArg.toLowerCase();
+  const done = !here && doc && existsSync(resolve(doc));
+  return `<li${here ? ' aria-current="step"' : done ? " data-done" : ""}>${esc(name)}</li>`;
+}).join("");
+
 // The Long Beard beard, small and one ink: it marks the page as the tool's and adds no colour.
 const LOGO = "iVBORw0KGgoAAAANSUhEUgAAACoAAABYBAMAAABxB3iiAAAAMFBMVEWfn59ubm7Z2dn+/v7+/v7////+/v4AAAACAgIXFxcnJyfp6enX19c3NzdXV1dGRkbPaZsJAAAAEHRSTlP///AgWZ/+AP////7/////SdcINAAABTtJREFUeNpdlWtUVFUUx3/3zB1AZhhu4AO1hVOCj8yYKLKHyaiEq5eOS9DoQ2IFPj6UtSyVamm1AC2ttFUIZo6GikU6mrrMVTFoargsxzFTU2kkKN/OyENgHrcPd5jBzrfzW/+77/7vc/Y+0kLCK1Cf2jfgSwNAjkB35vPjEzeWWgFED90/fFfDtktd5tu0P415O+uDxwZ7tZ1ubPj7uhGHUp8/uUITh+nxiv5/UNCQ/9clcyTuD8FBv26GDUXfb7iTHhpsbap5JnftXse4u5fNdPZQdyB+cckqtcm0ZMh6773hHAKDdo9eesRUDHvGLRhjfsOq/W3ajfsfeGoaoDv4Ys399SmgG4uzPKBL0hINfv/gAedlMzIoV84fbg6biUlvnhDSvA1OapzfY/zLiSfr+1llwP+6swfiLzndMRVBcFBthyNCeWStoiCz/8TWa/Oj1NBefAsRGFauKlFI90yxHyElT/dFA8RUMXCizynqq1o2Odi7CQD9tpXsmOJUhNRS0aTf9/YxO+ipOxCsnGo4qYj0jSHa5yUOOA15RYesZZdlQ7pLbjcA04ZeGCrtmrJT4XKFMyU+oOt88nxSZanx95yJY7aNGJtzzGANxJyRx9v2heo2Fbda/l1+rGqhKv3pi/UiwCgNCS1yGd6Mrbz1UtJsz1ZLBgIPsXaJOR+1SqXMaLArSsnmNlG3b5u0yIsv9Io0S3rVZc5+vTPXqHs6eVJocJ/WB4suX2gZuMA2uWlv17m/xK3OE+/J9zDLOMVMKOtgYHZheuo62TQst92+sfGPornzJ/VfYunz68qOoCxL5LW7PqwuP2yqJFixTO813jQEdN6RCbNaLq5+y/vV1h9S+pU5qUzJdki5a5Z1391McRXfVV9yAqOOZ7jJHHH1xaXDYopTj8ZdNBoMhcZ34/6ZIS24+nDS3wvaT6Wb6lz32pKq6+LiTrp1j5/1VWYdqE1f935trX/UECXO23g9UzD65mTdqZwsvg7s2anf/I5VBNPQjRWJvuSjqyosB48MzHk0w53S5otHgBSvCneD3VPyAfHPTvDGTQUB0gs205ZHEIvzXi0cdbDPxxr90TrBp3rMvLzL6TE36b1BJwJk5R8T+63Jc5f6vPZrenNfrQM8h9bTwuoLw3Z9vmE7n3hABmVHwgMmNeBuwd8unZ38aaqCAL3PgR9VBTV2PVbJBQLuaEVVpS2DIca2RHLgBQFtAuj65C3AQqxd67eA6yZGBa8CFOgfQo1Mgm4rMVZAP86OTQEB49VushatBGBtPokWkCGBbwsKeq719PzC63chQMIVbYAuPFdBIIWk+ihVbcoBKwKCRm+UpjlW3QABU/ytUZqtb9sOAlR6N5Z0U8tXzOL/S6DuXNhbrYYAgXzmdl2CFuE+J1ATafreEzExok3UTpPxAo5HaEYvrS5CzQ6NJsRDMEK9No1KQHKEWqRohHmaMzugRKkfAFPEW3RVfxboTTu0QfJV6czwCJOj0lsnpk6eBOH7EC3lmdcAVzjf1tAmAHlkYxngUzXqxKe56rQBP4f/pkrVMB2yy4CYsFbONAH5/FJeiN7RFj4huuKvQx0l5dA+TxLhHK5kB2x6J2k2wPRcWptGA5aQzb+CKkDqzi4MayfuQOEpAIxJq7eH34Dg0Zr3WzQfdd8c98drjmXPE2GI87fa5r7h12nAud2HLfuGQvf5BtejPTWTMzaWcNEONfk3cqL1Dc1JKXEt/2Jr6bnmXpWU+w6v6VxTxvKEvN71fbziSEzeYkOB+7aqy42Z7jNFaqNV2/4HUzT8HOE538sAAAAASUVORK5CYII=";
 
@@ -157,6 +166,9 @@ const html = `<!DOCTYPE html>
   .brand h1 { margin: 0; font-size: 16px; font-weight: 400; color: var(--muted); }
   .brand h1::before { content: "/"; margin-right: 10px; color: var(--line); }
   .brand .keys { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .steps { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 0 18px; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+  .steps li[data-done]::before { content: "✓ "; }
+  .steps li[aria-current] { color: var(--ink); font-weight: 600; }
   kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--paper); color: var(--ink); }
   .strip { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
   .row { display: flex; gap: 10px; align-items: flex-end; overflow-x: auto; padding: 4px 2px 6px; }
@@ -201,6 +213,8 @@ const html = `<!DOCTYPE html>
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #2f6fdb; outline-offset: 2px; }
   @media (max-width: 900px) {
     main { padding: 16px 16px 200px; }
+    .brand { flex-wrap: wrap; }
+    .steps { margin-left: 0; flex-basis: 100%; }
     .main, .stage[data-compare] { grid-template-columns: 1fr; }
     .brand .keys { display: none; }
     .rl { width: 64px; }
@@ -210,7 +224,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 <main>
-  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them</span></div>
+  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><ol class="steps" aria-label="Design steps">${trail}</ol><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them</span></div>
   <div class="strip">${strip}</div>
   <div class="main">
     <section>

@@ -15,7 +15,7 @@ Figma is the truth for screens. `DESIGN.md` is the written summary of the rules 
 
 Load `figma-use`, `figma-generate-library` and `figma-generate-design`, and follow them. This skill adds only what they do not decide.
 
-**At every stop,** say what is new and the one question, in up to five lines: a path or a link instead of pasted content, one line per option, nothing they already know. Each yes is written to its doc when it is given, so the session can end at any stop. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
+**At every stop,** say what is new and the one question, in up to five lines: a path or a link instead of pasted content, one line per option, nothing they already know. Each yes is written to its doc when it is given, so the session can end at any stop. Open the first stop with where they are in the design (the steps done, this one, the ones after), what this step decides, and when it is done. An ask that belongs to another step (another page during the direction, a new colour during the prototype) is named as that step's: say so, and whether to finish this one first. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
 
 ## Gate
 
