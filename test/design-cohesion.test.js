@@ -74,9 +74,9 @@ test("canvas: any step's options sit in named rows under the step's title, and a
   assert.match(r.stderr, /2 screens in 2 rows/);
   const html = readFileSync(join(dir, "c.html"), "utf8");
   assert.match(html, /<title>Identity<\/title>/);
-  assert.match(html, /<li data-done>Brief<\/li>/);
-  assert.match(html, /<li aria-current="step">Identity<\/li>/);
-  assert.match(html, /<li>Prototype<\/li>/);
+  assert.match(html, /data-tip="[^"]+" data-done>Brief<\/li>/);
+  assert.match(html, /aria-current="step">Identity<\/li>/);
+  assert.match(html, /data-tip="Every key page[^"]*">Prototype<\/li>/);
   assert.match(html, /<span class="rl">Type<\/span>/);
   assert.match(html, /"note":"from the crust"/);
   assert.match(html, /\$\("compare"\)\.hidden = !based/);

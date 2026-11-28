@@ -137,11 +137,18 @@ const strip = [...rows.entries()]
 
 // Where they are in the design: each step done when its doc exists (read from the
 // project the canvas is made in), this page's step marked, so a long run never loses its place.
-const STEPS = [["Brief", "docs/design/design-brief.md"], ["Moodboard", "docs/design/design-moodboard.md"], ["Direction", "docs/design/design-direction.md"], ["Identity", "docs/design/design-identity.md"], ["Prototype", "DESIGN.md"], ["Figma", ""]];
-const trail = STEPS.map(([name, doc]) => {
+const STEPS = [
+  ["Brief", "docs/design/design-brief.md", "What the first screen must do and feel, and who to stand apart from."],
+  ["Moodboard", "docs/design/design-moodboard.md", "Your references, and what you like in each and why."],
+  ["Direction", "docs/design/design-direction.md", "The look, decided on one first screen: concepts from your references, you pick one."],
+  ["Identity", "docs/design/design-identity.md", "The chosen screen's type and colours, refined and locked."],
+  ["Prototype", "DESIGN.md", "Every key page in that look, one per session; ends in DESIGN.md."],
+  ["Figma", "", "Tokens, components and every screen as Ready frames."],
+];
+const trail = STEPS.map(([name, doc, tip]) => {
   const here = name.toLowerCase() === titleArg.toLowerCase();
   const done = !here && doc && existsSync(resolve(doc));
-  return `<li${here ? ' aria-current="step"' : done ? " data-done" : ""}>${esc(name)}</li>`;
+  return `<li tabindex="0" data-tip="${esc(tip)}"${here ? ' aria-current="step"' : done ? " data-done" : ""}>${esc(name)}</li>`;
 }).join("");
 
 // The Long Beard beard, small and one ink: it marks the page as the tool's and adds no colour.
@@ -167,7 +174,14 @@ const html = `<!DOCTYPE html>
   .brand h1::before { content: "/"; margin-right: 10px; color: var(--line); }
   .brand .keys { margin-left: auto; font-size: 12px; color: var(--muted); }
   .steps { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 0 18px; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+  .steps li { position: relative; cursor: help; }
   .steps li[data-done]::before { content: "✓ "; }
+  .steps li:hover::after, .steps li:focus::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 0; z-index: 5; width: max-content; max-width: 240px; padding: 6px 9px; border-radius: 6px; background: var(--ink); color: var(--paper); font-weight: 400; font-size: 12px; line-height: 1.35; white-space: normal; }
+  .steps li:nth-last-child(-n+2):hover::after, .steps li:nth-last-child(-n+2):focus::after { left: auto; right: 0; }
+  .steps li:focus { outline: none; }
+  .stage[data-zoom] .shot { max-height: 78vh; overflow: auto; cursor: zoom-out; }
+  .stage[data-zoom] .shot img { width: auto; max-width: none; max-height: none; }
+  .shot { cursor: zoom-in; }
   .steps li[aria-current] { color: var(--ink); font-weight: 600; }
   kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--paper); color: var(--ink); }
   .strip { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
@@ -209,6 +223,8 @@ const html = `<!DOCTYPE html>
   .bar-in { max-width: 1680px; margin: 0 auto; padding: 10px 28px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
   .bar label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
   .bar textarea { width: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; height: 46px; resize: vertical; background: var(--canvas); }
+  .barbtns { display: flex; gap: 8px; }
+  #clear { font: inherit; font-size: 13px; padding: 9px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   #copy { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 6px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #2f6fdb; outline-offset: 2px; }
   @media (max-width: 900px) {
@@ -219,12 +235,13 @@ const html = `<!DOCTYPE html>
     .brand .keys { display: none; }
     .rl { width: 64px; }
     .bar-in { grid-template-columns: 1fr; padding: 10px 16px; }
+    .barbtns button { flex: 1; }
   }
 </style>
 </head>
 <body>
 <main>
-  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><ol class="steps" aria-label="Design steps">${trail}</ol><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them</span></div>
+  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><ol class="steps" aria-label="Design steps">${trail}</ol><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them · <kbd>Z</kbd> zoom</span></div>
   <div class="strip">${strip}</div>
   <div class="main">
     <section>
@@ -246,7 +263,7 @@ const html = `<!DOCTYPE html>
 </main>
 <div class="bar"><div class="bar-in">
   <div><label for="out">Copy this into the chat</label><textarea id="out" readonly></textarea></div>
-  <button type="button" id="copy">Copy</button>
+  <div class="barbtns"><button type="button" id="clear">Clear</button><button type="button" id="copy">Copy</button></div>
 </div></div>
 <script>
 (() => {
@@ -267,7 +284,7 @@ const html = `<!DOCTYPE html>
     for (const t of thumbs) t.setAttribute("aria-current", t.dataset.n === s.n ? "true" : "false");
     $("big").src = s.src || "";
     $("shot").href = s.src || "#";
-    $("cap").textContent = s.n + " · " + s.label;
+    $("cap").textContent = s.n + " · " + s.label + " · click or Z to zoom";
     $("baseimg").src = s.base.src || "";
     $("basebox").href = s.base.src || "#";
     $("basecap").textContent = "Base: " + s.base.name;
@@ -305,6 +322,14 @@ const html = `<!DOCTYPE html>
       write();
     });
   }
+  // Zoom: the screen at its real size, scrolled inside its frame, to inspect it.
+  const zoom = (e) => {
+    if (e) e.preventDefault();
+    if ($("stage").hasAttribute("data-zoom")) $("stage").removeAttribute("data-zoom"); else $("stage").setAttribute("data-zoom", "");
+  };
+  $("shot").addEventListener("click", zoom);
+  $("basebox").addEventListener("click", zoom);
+  $("clear").addEventListener("click", () => { said.length = 0; write(); });
   $("ask").addEventListener("keydown", (e) => {
     if (e.key !== "Enter" || !e.target.value.trim()) return;
     said.push(screens[at].n + " " + e.target.value.trim().replace(/\\s+/g, " "));
@@ -313,6 +338,8 @@ const html = `<!DOCTYPE html>
   });
   document.addEventListener("keydown", (e) => {
     if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "z" || e.key === "Z") { zoom(e); return; }
+    if (e.key === "Escape" && $("stage").hasAttribute("data-zoom")) { zoom(e); return; }
     if (e.key === "ArrowRight") { e.preventDefault(); show(at + 1); }
     if (e.key === "ArrowLeft") { e.preventDefault(); show(at - 1); }
   });
