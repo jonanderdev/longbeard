@@ -53,6 +53,8 @@ test("group: families as row ids, the floor met with four looks, and a sheet in 
   assert.deepEqual(ids.map((m) => Math.floor((m[0] - 1) / 10) + "" + Math.floor((m[9] - 1) / 10)).sort(), ["00", "11", "22", "33"]);
   assert.equal(doc.floor.met, true);
   assert.match(result.stdout, /floor: met, 4 families of 3 or more \(need 4\)/);
+  // All forty rows come from one gallery: it says so, and asks for others before the picker.
+  assert.match(result.stdout, /sources: dribbble 40\. Over half is dribbble: add rows from other sources/);
   const sheet = readFileSync(join(dir, "out/sheet.tsv"), "utf8").trim().split("\n");
   assert.equal(sheet.length, 40);
   assert.match(sheet[0], /^a\d+ f\d\thttps:\/\/cdn\.example\.com\/a\d+\.jpg$/);

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **A pool from many galleries.** The moodboard draws its candidates from every source that fits your brief, so no one gallery's taste sets what you pick from. `group.mjs` counts the rows per source and says when one gives over half.
 - **Another gallery for the moodboard:** ilovecreatives' Internet Gems, hand-picked sites browsed by category (portfolio, studio, food & beverage, shops and more), each naming the typefaces it uses. `sources.md` says how to read its cards.
 
 ## 0.15.0 — 2026-11-26
