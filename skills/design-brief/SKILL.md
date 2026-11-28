@@ -13,7 +13,7 @@ description: >
 
 One doc comes out, `docs/design/design-brief.md`, committed. Every other design skill reads it, so nobody is asked the same question twice. It records what they want the look to do, in words. It chooses no look: no layout, colour, typeface or style name.
 
-**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+**At every stop,** say what is new and the one question, in up to five lines: a path or a link instead of pasted content, one line per option, nothing they already know. Each yes is written to its doc when it is given, so the session can end at any stop. Open the first stop with where they are in the design (the steps done, this one, the ones after), what this step decides, and when it is done. An ask that belongs to another step (another page during the direction, a new colour during the prototype) is named as that step's: say so, and whether to finish this one first. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
 
 ## Gate
 

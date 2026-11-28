@@ -23,7 +23,7 @@ Options and captures live in `.longbeard/design/identity/`, gitignored.
 
 Three stops, no more: options, one refinement, the board.
 
-**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+**At every stop,** say what is new and the one question, in up to five lines: one line per option, nothing they already know. They look at the page itself (the board, the canvas, a screen), never a picture of it: its path where they can open this machine's files; where they cannot (a cloud session), `bundle.mjs <page> --out <one file>`, publish that as a private page if your agent can, and give the link. Pictures are for your own checks. Each yes is written to its doc when it is given, so the session can end at any stop. Open the first stop with where they are in the design (the steps done, this one, the ones after), what this step decides, and when it is done. An ask that belongs to another step (another page during the direction, a new colour during the prototype) is named as that step's: say so, and whether to finish this one first. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
 
 ## Gate
 
@@ -32,13 +32,13 @@ Three stops, no more: options, one refinement, the board.
 
 A graphic (the brief's surface): read [graphic.md](references/graphic.md) first.
 
-Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's principles and "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the private folder is gone, rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
+Read the design brief (words, personality, feel, never, what is fixed, accessibility, voice, decides) and the direction's principles and "Look, as built". The chosen screen is `.longbeard/design/direction/prototype/first.html`; if the working folder is gone, take the kept copy in `docs/design/prototype/`, else rebuild it from `design-direction.md` and say so. **What is fixed is fixed:** a face or colour they own is in every option; a refused one is in none; light, dark or both decides which grounds count.
 
 **At `pace: quick`** (the design brief): no options and no refinement. The chosen screen's type and colours, as built, are the identity: check every pair with `contrast.mjs` (at the brief's level), fix a failing ink with the nearest step that passes (`colours.mjs`, with `--level AAA` when the brief asks for it); a colour they liked by name is never stepped: it stays, with its warning. The accent is still asked (below), then go to **3. The board**. They can ask for options at the board; that is full pace from there.
 
 ## 1. Options, on the chosen screen, in one message
 
-When the project brought a `DESIGN.md` with tokens (see `design`), its faces and colours come first on each sheet, "as brought", ahead of the options below, and are rendered on the chosen screen like any other. They are the person's choice and are never overruled.
+When the project brought a `DESIGN.md` with tokens (see `design`), its faces and colours come first in each row, "as brought", ahead of the options below, and are rendered on the chosen screen like any other. They are the person's choice and are never overruled.
 
 **Type pairings, three to five.** A pairing is a display face and a text face. The first is the one the screen was built with.
 
@@ -71,18 +71,18 @@ When the project brought a `DESIGN.md` with tokens (see `design`), its faces and
 **Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?face=Newsreader&body=Inter&weight=300" --out .longbeard/design/identity/type-1.png --clip 0,0,1440,900
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?ground=%23f1ede4&ink=%23111111&accent=%23fe2601" --out .longbeard/design/identity/colour-1.png --clip 0,0,1440,900
-node <skill>/scripts/sheet.mjs .longbeard/design/identity/type.html .longbeard/design/identity/type-1.png … --cols 3
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?face=Newsreader&body=Inter&weight=300" --out .longbeard/design/identity/type-1.jpg --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?ground=%23f1ede4&ink=%23111111&accent=%23fe2601" --out .longbeard/design/identity/colour-1.jpg --clip 0,0,1440,900
+node <skill>/scripts/canvas.mjs .longbeard/design/identity/options.json --shots .longbeard/design/identity --title Identity --out .longbeard/design/identity/canvas.html
 ```
 
-One sheet of pairings (each on the screen's colours) and one of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word) or breaks one of the direction's principles, add that as a fact on the same line; it stays an option.
+`options.json` lists each capture: `{ "n": "type 1", "row": "Type", "note": "as built", "shot": ".longbeard/design/identity/type-1.jpg", "state": "built" }`. On the canvas, a row of pairings (each on the screen's colours) and a row of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from (its `note`) ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word) or breaks one of the direction's principles, add that as a fact on the same line; it stays an option.
 
 > Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as built.
 
 ## 2. One refinement
 
-On what they picked, one row of nearby choices, rendered on the screen the same way: the display face's nearest neighbours, each colour's even steps. Or build what they asked for in words, and show it before it counts.
+On what they picked, one row of nearby choices on the same canvas (`"row": "Refine"`), rendered on the screen the same way: the display face's nearest neighbours, each colour's even steps. Or build what they asked for in words, and show it before it counts.
 
 In the same message, the screen with their pick and a few live controls (type scale, line spacing, accent strength, corner radius), each limited to what their references measure, so they judge a value by seeing it. How: [controls.md](references/controls.md).
 
@@ -92,11 +92,11 @@ In the same message, the screen with their pick and a few live controls (type sc
 
 ## 3. The board
 
-Copy [identity-board.html](references/identity-board.html) to `docs/design/design-identity.html`, write its `IDENTITY` block (the product's real name, one line in the voice, the faces, the colours with roles), capture it, read it yourself (every face loaded, every colour shown, nothing clipped), and show it beside the chosen screen in the identity.
+Copy [identity-board.html](references/identity-board.html) to `docs/design/design-identity.html`, write its `IDENTITY` block (the product's real name, one line in the voice, the faces, the colours with roles), capture it and read it yourself (every face loaded, every colour shown, nothing clipped). Then show the board itself, the page, and the chosen screen in the identity, as a second page.
 
 > Is this us?
 
-A note reopens only that row, then the board again. A yes is the identity. When the design brief's `decides` names someone else, the board is what they confirm: give its path, and write the identity once they say it holds.
+A note reopens only that row, then the board again. A yes is the identity. When the design brief's `decides` names someone else, the board is what they confirm: give it the same way, and write the identity once they say it holds.
 
 ## Write `docs/design/design-identity.md`
 
@@ -127,7 +127,7 @@ docs/design/design-identity.html
 
 Contrast is checked before it is written (`contrast.mjs "#111 on #eee"`, with `--level AAA` when the design brief asks for it). Faces with a stylesheet outside Google Fonts carry its `css`. Names and values only: no reference, site or person.
 
-Then put the identity on the chosen screen, so the prototype starts from it: in `.longbeard/design/direction/prototype/first.html`, set `LOOK` to the identity's faces and colours (the display face and weight, the body face, the ground, the ink, the accent, and any other colour by its role in `more`), and capture it once to see it holds. Nothing else in the page changes.
+Then put the identity on the chosen screen, so the prototype starts from it: in `.longbeard/design/direction/prototype/first.html`, set `LOOK` to the identity's faces and colours (the display face and weight, the body face, the ground, the ink, the accent, and any other colour by its role in `more`), and capture it once to see it holds. Nothing else in the page changes. A kept copy in `docs/design/prototype/` (see `design-direction`) takes the same change.
 
 Then the next step in one line: `design-prototype`. If the name is only set in the display face, offer `design-wordmark` once, in the same line; no mark is a fine answer.
 

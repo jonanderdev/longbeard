@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Always the live page, never a screenshot.** Every design step now shows you the page itself (the board, the canvas, the screen), never a picture of it. In a cloud session, where you can't open the agent's files, it makes the page one file (`bundle.mjs`, pictures written in) and publishes it as a private page, then gives you the link.
+- **One canvas for every step.** The identity's type pairings and palettes, the prototype's pages (desktop and phone) and the wordmark's marks now sit on the same canvas as the direction's screens, in named rows you click through, instead of picture sheets.
+- **It tells you what's next, and when to start fresh.** Each step writes your yes down when you give it, then ends with what is decided, the next step and why, and to start it in a new session, with what to type. When the next step needs files this session won't keep (a cloud session), it says so and goes on in the same one.
+- **A canvas you can work in.** Click a screen, or press Z, to see it at full size and scroll around it; Clear empties what you've marked; hover or tap a step for what it does.
+- **You always know which step you're in.** Each step opens by saying where you are, what it decides and when it's done, and the canvas shows the steps with this one marked. An ask that belongs to another step (designing the blog during the direction) is named as that step's. The direction's two pages in context are a check, not the start of the prototype.
+- **The prototype, one page per session.** The first screen is finished and approved on its own, then each key screen gets its own session, tracked in `docs/design/design-prototype.md`. `DESIGN.md` is written once every page is approved.
+- **Kept across cloud sessions.** In a cloud session the chosen screen and approved pages are kept in `docs/design/prototype/`, with no reference left in them, so identity, prototype and Figma can start in a fresh session.
 - **A pool from many galleries.** The moodboard draws its candidates from every source that fits your brief, so no one gallery's taste sets what you pick from. `group.mjs` counts the rows per source and says when one gives over half.
 - **Another gallery for the moodboard:** ilovecreatives' Internet Gems, hand-picked sites browsed by category (portfolio, studio, food & beverage, shops and more), each naming the typefaces it uses. `sources.md` says how to read its cards.
 

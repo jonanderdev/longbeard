@@ -18,7 +18,7 @@ description: >
 
 Writes `docs/design/design-direction.md` (committed) and works in `.longbeard/design/direction/` (gitignored): `library.json`, `screens/<n>.html`, `screens.json`, `prototype/first.html`, captures and the canvas.
 
-**At every stop,** say what is new and the one question, in up to five lines: a path or a sheet instead of pasted content, one line per option, nothing they already know.
+**At every stop,** say what is new and the one question, in up to five lines: one line per option, nothing they already know. They look at the page itself (the board, the canvas, a screen), never a picture of it: its path where they can open this machine's files; where they cannot (a cloud session), `bundle.mjs <page> --out <one file>`, publish that as a private page if your agent can, and give the link. Pictures are for your own checks. Each yes is written to its doc when it is given, so the session can end at any stop. Open the first stop with where they are in the design (the steps done, this one, the ones after), what this step decides, and when it is done. An ask that belongs to another step (another page during the direction, a new colour during the prototype) is named as that step's: say so, and whether to finish this one first. **At the end,** say what is now decided, the next step and why, and to start it in a new session (the files carry it), with what to type; when the next step needs this working folder and the folder will not outlive the session (a cloud session), go on here and say why.
 
 ## Gate
 
@@ -87,7 +87,7 @@ Record each in `.longbeard/design/direction/screens.json`:
 **Check each screen by script:**
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.jpg --clip 0,0,1440,900
 node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```
@@ -102,7 +102,7 @@ Act here on `rules.mjs`'s clipped text, text size and placeholder copy; targets,
 node <skill>/scripts/canvas.mjs .longbeard/design/direction/screens.json --board .longbeard/design/direction/board.md --shots .longbeard/design/direction/grid --out .longbeard/design/direction/canvas.html
 ```
 
-It shows every screen in a strip and, for the one they open, what it is made from: its base and each move, with the reference and their words. Give its path, and one line per screen only for a fault or for what sits against the brief (its never, its words, its personality, or could be mistaken for what it must stand apart from). Then one recommendation, as a studio would give it: the screen that best does what the design brief asks, and why, naming the line it serves (the takeaway, the never, what it must stand apart from). Never a preference of your own: the brief's case, theirs to overrule.
+It shows every screen in a strip and, for the one they open, what it is made from: its base and each move, with the reference and their words. Show it (see **At every stop**), and one line per screen only for a fault or for what sits against the brief (its never, its words, its personality, or could be mistaken for what it must stand apart from). Then one recommendation, as a studio would give it: the screen that best does what the design brief asks, and why, naming the line it serves (the takeaway, the never, what it must stand apart from). Never a preference of your own: the brief's case, theirs to overrule.
 
 > Which is closest? Or "more", "more of 3", "3 with 6's accent".
 
@@ -115,9 +115,11 @@ It shows every screen in a strip and, for the one they open, what it is made fro
 
 Every version stays theirs. A pick that breaks a why they gave: ask once whether the why still holds; never block it.
 
-On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it and `screen.js` to `prototype/` (as `first.html`), and set `"chosen": n` in `screens.json`. When the brief's `decides` names someone else, they confirm it first.
+On their yes, read it back in one line, with three to five **principles**: what this design does on every screen, drawn from their whys and the chosen screen, in their words where they gave some ("one loud thing per screen", "pictures always run to the edge", "type does the decorating"). Each is specific enough that a page could break it. A correction rewrites a principle. Then read its base's motion unless the brief's is none ([library.md](references/library.md)), copy it and `screen.js` to `prototype/` (as `first.html`), set `"chosen": n` in `screens.json`, and write `design-direction.md` now (below): the pages in context only change it if they change the pick. When the brief's `decides` names someone else, they confirm it first.
 
-**In context, before the identity.** A studio shows a chosen concept where it will live before it is signed off. Build two more pages from the chosen screen: its phone view (390 wide), and the brief's key screen that is hardest for this look (the densest list, a form), in the chosen screen's frame and principles, each page opening with its own job. Check them like the eight, and show them beside the chosen screen with the direction. If the look breaks on real content, say where in one line: going back to another pick is still cheap. The prototype starts from these pages.
+**Kept for the next session.** Where the working folder will not outlive the session (a cloud session), copy `prototype/` to `docs/design/prototype/`, with the pictures it loads beside it and no reference left in it (`PROVENANCE` emptied, no `data-from`, no path into `.longbeard/`). The later steps read the chosen screen from there when the working folder is gone.
+
+**In context, before the identity.** A studio shows a chosen concept where it will live before it is signed off. Build two more pages from the chosen screen: its phone view (390 wide), and the brief's key screen that is hardest for this look (the densest list, a form), in the chosen screen's frame and principles, each page opening with its own job. Check them like the eight, and show them beside the chosen screen with the direction. If the look breaks on real content, say where in one line: going back to another pick is still cheap. They are a check, not the prototype: two pages, fixed only where the look broke, never grown into more pages; designing the pages is `design-prototype`'s, in its own sessions. The prototype starts from these pages.
 
 ## Write `docs/design/design-direction.md`
 

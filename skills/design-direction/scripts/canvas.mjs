@@ -12,7 +12,14 @@
 // kind ("concept", with idea: the concept it keeps, shown in place of "Base"),
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
 // part (a part of that screen), fault (one line), shot
-// (a picture; else <shots>/<n>.png). board.md cards give each reference's shot and like.
+// (a picture; else <shots>/<n>.jpg or .png), row (the row it sits in, in place of its round:
+// "Type", "Colour", "Desktop"), note (where an option comes from, for one with no base).
+// board.md cards give each reference's shot and like.
+//
+// Every design step shows on this page: the direction's rounds, the identity's
+// options (--title Identity, a row per choice), the prototype's pages
+// (--title Prototype, a row per width), the wordmark's marks. bundle.mjs makes it
+// one file to publish where the person cannot open this machine's files.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 
@@ -24,9 +31,10 @@ const flag = (name) => {
 const boardArg = flag("board");
 const shotsArg = flag("shots");
 const outArg = flag("out");
+const titleArg = flag("title") || "Direction";
 const [screensArg] = args;
 if (!screensArg || !outArg || !shotsArg || args.length !== 1 || !/\.html$/.test(outArg)) {
-  console.error("usage: node canvas.mjs <screens.json> --shots <folder of n.png> [--board <board.md>] --out <canvas.html>");
+  console.error("usage: node canvas.mjs <screens.json> --shots <folder of n.png> [--board <board.md>] [--title <step>] --out <canvas.html>");
   process.exit(2);
 }
 const outPath = resolve(outArg);
@@ -81,7 +89,8 @@ const cardOf = (name) => cards.get(name) || { name: name || "", src: "", like: "
 
 let missing = 0;
 const shotOf = (s) => {
-  const path = s.shot ? (isAbsolute(s.shot) ? s.shot : resolve(s.shot)) : resolve(shotsArg, `${s.n}.png`);
+  // JPEG captures keep a page made one file small; a PNG still works.
+  const path = s.shot ? (isAbsolute(s.shot) ? s.shot : resolve(s.shot)) : [`${s.n}.jpg`, `${s.n}.png`].map((f) => resolve(shotsArg, f)).find((p) => existsSync(p)) || resolve(shotsArg, `${s.n}.jpg`);
   if (existsSync(path)) return href(path);
   missing++;
   console.error(`canvas: no picture for screen ${s.n} at ${relative(process.cwd(), path)}`);
@@ -91,7 +100,7 @@ const shotOf = (s) => {
 // Rows: each round, then each screen's parts.
 const rows = new Map();
 for (const s of screens) {
-  const key = s.of != null ? `${s.of} · ${s.part || "parts"}` : `Round ${s.round || 1}`;
+  const key = s.row ? String(s.row) : s.of != null ? `${s.of} · ${s.part || "parts"}` : `Round ${s.round || 1}`;
   if (!rows.has(key)) rows.set(key, []);
   rows.get(key).push(s);
 }
@@ -105,6 +114,7 @@ const data = screens.map((s) => {
     of: s.of != null ? String(s.of) : "",
     part: s.part || "",
     concept: s.kind === "concept" ? s.idea || "its concept" : "",
+    note: s.note || "",
     fault: s.state === "failed" ? `failed: ${s.failure || "no reason given"}` : s.fault || "",
     base: { name: base.name, src: base.src, like: base.like, avoid: base.avoid },
     moves: (s.moves || []).map((m) => {
@@ -119,11 +129,27 @@ const strip = [...rows.entries()]
     ([name, list]) => `<div class="row"><span class="rl">${esc(name)}</span>${list
       .map((s) => {
         const d = data.find((x) => x.n === String(s.n));
-        return `<button type="button" class="th" data-n="${esc(d.n)}"${d.label === "failed" ? " data-failed" : ""}>${d.src ? `<img src="${esc(d.src)}" alt="">` : `<span class="none">no picture</span>`}<span class="tl">${esc(d.n)} · ${esc(d.label)}</span></button>`;
+        return `<button type="button" class="th" data-n="${esc(d.n)}"${d.label === "failed" ? " data-failed" : ""}>${d.src ? `<img alt="">` : `<span class="none">no picture</span>`}<span class="tl">${esc(d.n)} · ${esc(d.label)}</span></button>`;
       })
       .join("")}</div>`,
   )
   .join("");
+
+// Where they are in the design: each step done when its doc exists (read from the
+// project the canvas is made in), this page's step marked, so a long run never loses its place.
+const STEPS = [
+  ["Brief", "docs/design/design-brief.md", "What the first screen must do and feel, and who to stand apart from."],
+  ["Moodboard", "docs/design/design-moodboard.md", "Your references, and what you like in each and why."],
+  ["Direction", "docs/design/design-direction.md", "The look, decided on one first screen: concepts from your references, you pick one."],
+  ["Identity", "docs/design/design-identity.md", "The chosen screen's type and colours, refined and locked."],
+  ["Prototype", "DESIGN.md", "Every key page in that look, one per session; ends in DESIGN.md."],
+  ["Figma", "", "Tokens, components and every screen as Ready frames."],
+];
+const trail = STEPS.map(([name, doc, tip]) => {
+  const here = name.toLowerCase() === titleArg.toLowerCase();
+  const done = !here && doc && existsSync(resolve(doc));
+  return `<li tabindex="0" data-tip="${esc(tip)}"${here ? ' aria-current="step"' : done ? " data-done" : ""}>${esc(name)}</li>`;
+}).join("");
 
 // The Long Beard beard, small and one ink: it marks the page as the tool's and adds no colour.
 const LOGO = "iVBORw0KGgoAAAANSUhEUgAAACoAAABYBAMAAABxB3iiAAAAMFBMVEWfn59ubm7Z2dn+/v7+/v7////+/v4AAAACAgIXFxcnJyfp6enX19c3NzdXV1dGRkbPaZsJAAAAEHRSTlP///AgWZ/+AP////7/////SdcINAAABTtJREFUeNpdlWtUVFUUx3/3zB1AZhhu4AO1hVOCj8yYKLKHyaiEq5eOS9DoQ2IFPj6UtSyVamm1AC2ttFUIZo6GikU6mrrMVTFoargsxzFTU2kkKN/OyENgHrcPd5jBzrfzW/+77/7vc/Y+0kLCK1Cf2jfgSwNAjkB35vPjEzeWWgFED90/fFfDtktd5tu0P415O+uDxwZ7tZ1ubPj7uhGHUp8/uUITh+nxiv5/UNCQ/9clcyTuD8FBv26GDUXfb7iTHhpsbap5JnftXse4u5fNdPZQdyB+cckqtcm0ZMh6773hHAKDdo9eesRUDHvGLRhjfsOq/W3ajfsfeGoaoDv4Ys399SmgG4uzPKBL0hINfv/gAedlMzIoV84fbg6biUlvnhDSvA1OapzfY/zLiSfr+1llwP+6swfiLzndMRVBcFBthyNCeWStoiCz/8TWa/Oj1NBefAsRGFauKlFI90yxHyElT/dFA8RUMXCizynqq1o2Odi7CQD9tpXsmOJUhNRS0aTf9/YxO+ipOxCsnGo4qYj0jSHa5yUOOA15RYesZZdlQ7pLbjcA04ZeGCrtmrJT4XKFMyU+oOt88nxSZanx95yJY7aNGJtzzGANxJyRx9v2heo2Fbda/l1+rGqhKv3pi/UiwCgNCS1yGd6Mrbz1UtJsz1ZLBgIPsXaJOR+1SqXMaLArSsnmNlG3b5u0yIsv9Io0S3rVZc5+vTPXqHs6eVJocJ/WB4suX2gZuMA2uWlv17m/xK3OE+/J9zDLOMVMKOtgYHZheuo62TQst92+sfGPornzJ/VfYunz68qOoCxL5LW7PqwuP2yqJFixTO813jQEdN6RCbNaLq5+y/vV1h9S+pU5qUzJdki5a5Z1391McRXfVV9yAqOOZ7jJHHH1xaXDYopTj8ZdNBoMhcZ34/6ZIS24+nDS3wvaT6Wb6lz32pKq6+LiTrp1j5/1VWYdqE1f935trX/UECXO23g9UzD65mTdqZwsvg7s2anf/I5VBNPQjRWJvuSjqyosB48MzHk0w53S5otHgBSvCneD3VPyAfHPTvDGTQUB0gs205ZHEIvzXi0cdbDPxxr90TrBp3rMvLzL6TE36b1BJwJk5R8T+63Jc5f6vPZrenNfrQM8h9bTwuoLw3Z9vmE7n3hABmVHwgMmNeBuwd8unZ38aaqCAL3PgR9VBTV2PVbJBQLuaEVVpS2DIca2RHLgBQFtAuj65C3AQqxd67eA6yZGBa8CFOgfQo1Mgm4rMVZAP86OTQEB49VushatBGBtPokWkCGBbwsKeq719PzC63chQMIVbYAuPFdBIIWk+ihVbcoBKwKCRm+UpjlW3QABU/ytUZqtb9sOAlR6N5Z0U8tXzOL/S6DuXNhbrYYAgXzmdl2CFuE+J1ATafreEzExok3UTpPxAo5HaEYvrS5CzQ6NJsRDMEK9No1KQHKEWqRohHmaMzugRKkfAFPEW3RVfxboTTu0QfJV6czwCJOj0lsnpk6eBOH7EC3lmdcAVzjf1tAmAHlkYxngUzXqxKe56rQBP4f/pkrVMB2yy4CYsFbONAH5/FJeiN7RFj4huuKvQx0l5dA+TxLhHK5kB2x6J2k2wPRcWptGA5aQzb+CKkDqzi4MayfuQOEpAIxJq7eH34Dg0Zr3WzQfdd8c98drjmXPE2GI87fa5r7h12nAud2HLfuGQvf5BtejPTWTMzaWcNEONfk3cqL1Dc1JKXEt/2Jr6bnmXpWU+w6v6VxTxvKEvN71fbziSEzeYkOB+7aqy42Z7jNFaqNV2/4HUzT8HOE538sAAAAASUVORK5CYII=";
@@ -133,7 +159,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Direction</title>
+<title>${esc(titleArg)}</title>
 <style>
   /* Quiet chrome: the screens and references are the only colour on the page. */
   :root { --canvas: #f3f2ef; --paper: #ffffff; --ink: #1c1c1a; --muted: #6f6c65; --line: #dedbd4; --soft: #e9e7e2; }
@@ -147,6 +173,16 @@ const html = `<!DOCTYPE html>
   .brand h1 { margin: 0; font-size: 16px; font-weight: 400; color: var(--muted); }
   .brand h1::before { content: "/"; margin-right: 10px; color: var(--line); }
   .brand .keys { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .steps { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 0 18px; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+  .steps li { position: relative; cursor: help; }
+  .steps li[data-done]::before { content: "✓ "; }
+  .steps li:hover::after, .steps li:focus::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 0; z-index: 5; width: max-content; max-width: 240px; padding: 6px 9px; border-radius: 6px; background: var(--ink); color: var(--paper); font-weight: 400; font-size: 12px; line-height: 1.35; white-space: normal; }
+  .steps li:nth-last-child(-n+2):hover::after, .steps li:nth-last-child(-n+2):focus::after { left: auto; right: 0; }
+  .steps li:focus { outline: none; }
+  .stage[data-zoom] .shot { max-height: 78vh; overflow: auto; cursor: zoom-out; }
+  .stage[data-zoom] .shot img { width: auto; max-width: none; max-height: none; }
+  .shot { cursor: zoom-in; }
+  .steps li[aria-current] { color: var(--ink); font-weight: 600; }
   kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--paper); color: var(--ink); }
   .strip { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
   .row { display: flex; gap: 10px; align-items: flex-end; overflow-x: auto; padding: 4px 2px 6px; }
@@ -187,20 +223,25 @@ const html = `<!DOCTYPE html>
   .bar-in { max-width: 1680px; margin: 0 auto; padding: 10px 28px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
   .bar label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
   .bar textarea { width: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; height: 46px; resize: vertical; background: var(--canvas); }
+  .barbtns { display: flex; gap: 8px; }
+  #clear { font: inherit; font-size: 13px; padding: 9px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
   #copy { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 6px; border: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #2f6fdb; outline-offset: 2px; }
   @media (max-width: 900px) {
     main { padding: 16px 16px 200px; }
+    .brand { flex-wrap: wrap; }
+    .steps { margin-left: 0; flex-basis: 100%; }
     .main, .stage[data-compare] { grid-template-columns: 1fr; }
     .brand .keys { display: none; }
     .rl { width: 64px; }
     .bar-in { grid-template-columns: 1fr; padding: 10px 16px; }
+    .barbtns button { flex: 1; }
   }
 </style>
 </head>
 <body>
 <main>
-  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>Direction</h1><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between screens</span></div>
+  <div class="brand"><img src="data:image/png;base64,${LOGO}" alt="" width="21" height="44"><span>Long Beard</span><h1>${esc(titleArg)}</h1><ol class="steps" aria-label="Design steps">${trail}</ol><span class="keys"><kbd>←</kbd><kbd>→</kbd> move between them · <kbd>Z</kbd> zoom</span></div>
   <div class="strip">${strip}</div>
   <div class="main">
     <section>
@@ -213,7 +254,7 @@ const html = `<!DOCTYPE html>
       <div class="acts">
         <button type="button" class="primary" data-act="take">Take this one</button>
         <button type="button" data-act="more">More of this</button>
-        <button type="button" data-act="compare" aria-pressed="false">Beside its base</button>
+        <button type="button" id="compare" data-act="compare" aria-pressed="false">Beside its base</button>
         <input type="text" id="ask" placeholder="Or say it: with 6's colours, open the menu…" aria-label="What to do with this screen">
       </div>
     </section>
@@ -222,7 +263,7 @@ const html = `<!DOCTYPE html>
 </main>
 <div class="bar"><div class="bar-in">
   <div><label for="out">Copy this into the chat</label><textarea id="out" readonly></textarea></div>
-  <button type="button" id="copy">Copy</button>
+  <div class="barbtns"><button type="button" id="clear">Clear</button><button type="button" id="copy">Copy</button></div>
 </div></div>
 <script>
 (() => {
@@ -243,15 +284,19 @@ const html = `<!DOCTYPE html>
     for (const t of thumbs) t.setAttribute("aria-current", t.dataset.n === s.n ? "true" : "false");
     $("big").src = s.src || "";
     $("shot").href = s.src || "#";
-    $("cap").textContent = s.n + " · " + s.label;
+    $("cap").textContent = s.n + " · " + s.label + " · click or Z to zoom";
     $("baseimg").src = s.base.src || "";
     $("basebox").href = s.base.src || "#";
     $("basecap").textContent = "Base: " + s.base.name;
-    const kind = s.part ? s.part + " of " + s.of : (s.concept ? "concept from " : "on ") + s.base.name;
-    $("title").textContent = s.n + " · " + kind;
+    const based = Boolean(s.base.name);
+    $("compare").hidden = !based;
+    if (!based && !$("basebox").hidden) $("compare").click();
+    const kind = s.part ? s.part + " of " + s.of : based ? (s.concept ? "concept from " : "on ") + s.base.name : s.note;
+    $("title").textContent = kind ? s.n + " · " + kind : s.n;
     $("fault").textContent = s.fault;
-    $("made").innerHTML =
-      (s.concept
+    $("made").innerHTML = !based
+      ? (s.note ? ing("", "From", s.note, "", "") : "")
+      : (s.concept
         ? ing(s.base.src, "Concept · " + s.base.name, "its idea, redrawn for this product: " + s.concept, s.base.like, s.base.avoid)
         : ing(s.base.src, "Base · " + s.base.name, "the layout, spacing and everything no move names", s.base.like, s.base.avoid)) +
       s.moves.map((m) => ing(m.src, "+ " + m.from, m.what + (m.proposed ? " (proposed)" : ""), m.like, "")).join("");
@@ -260,6 +305,8 @@ const html = `<!DOCTYPE html>
   function write() {
     $("out").value = said.length ? said.join("\\n") : "";
   }
+  // Each picture is named once, in the list above, so a page made one file carries it once.
+  for (const t of thumbs) { const img = t.querySelector("img"); if (img) img.src = screens.find((s) => s.n === t.dataset.n).src; }
   for (const t of thumbs) t.addEventListener("click", () => show(screens.findIndex((s) => s.n === t.dataset.n)));
   for (const b of document.querySelectorAll("[data-act]")) {
     b.addEventListener("click", () => {
@@ -275,6 +322,14 @@ const html = `<!DOCTYPE html>
       write();
     });
   }
+  // Zoom: the screen at its real size, scrolled inside its frame, to inspect it.
+  const zoom = (e) => {
+    if (e) e.preventDefault();
+    if ($("stage").hasAttribute("data-zoom")) $("stage").removeAttribute("data-zoom"); else $("stage").setAttribute("data-zoom", "");
+  };
+  $("shot").addEventListener("click", zoom);
+  $("basebox").addEventListener("click", zoom);
+  $("clear").addEventListener("click", () => { said.length = 0; write(); });
   $("ask").addEventListener("keydown", (e) => {
     if (e.key !== "Enter" || !e.target.value.trim()) return;
     said.push(screens[at].n + " " + e.target.value.trim().replace(/\\s+/g, " "));
@@ -283,6 +338,8 @@ const html = `<!DOCTYPE html>
   });
   document.addEventListener("keydown", (e) => {
     if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "z" || e.key === "Z") { zoom(e); return; }
+    if (e.key === "Escape" && $("stage").hasAttribute("data-zoom")) { zoom(e); return; }
     if (e.key === "ArrowRight") { e.preventDefault(); show(at + 1); }
     if (e.key === "ArrowLeft") { e.preventDefault(); show(at - 1); }
   });
