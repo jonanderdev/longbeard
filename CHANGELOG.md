@@ -9,7 +9,7 @@
 - **You always know which step you're in.** Each step opens by saying where you are, what it decides and when it's done, and the canvas shows the steps with this one marked. An ask that belongs to another step (designing the blog during the direction) is named as that step's. The direction's two pages in context are a check, not the start of the prototype.
 - **The prototype, one page per session.** The first screen is finished and approved on its own, then each key screen gets its own session, tracked in `docs/design/design-prototype.md`. `DESIGN.md` is written once every page is approved.
 - **Kept across cloud sessions.** In a cloud session the chosen screen and approved pages are kept in `docs/design/prototype/`, with no reference left in them, so identity, prototype and Figma can start in a fresh session.
-
+- **A pool from many galleries.** The moodboard draws its candidates from every source that fits your brief, so no one gallery's taste sets what you pick from. `group.mjs` counts the rows per source and says when one gives over half.
 - **Another gallery for the moodboard:** ilovecreatives' Internet Gems, hand-picked sites browsed by category (portfolio, studio, food & beverage, shops and more), each naming the typefaces it uses. `sources.md` says how to read its cards.
 
 ## 0.15.0 — 2026-11-26

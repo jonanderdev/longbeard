@@ -44,6 +44,8 @@ Their board already holds their taste: it is the pool, with no search and no pic
   node <skill>/scripts/crops.mjs .longbeard/design/moodboard/cards.json --sheets <scratch>/sheets --out .longbeard/design/moodboard/refs
   ```
 
+**A reference that moves is judged from its frames, never from one picture.** A GIF or a video, in a folder or on a card marked moving (a `gif-link` line, `motion` in its caption or tags): a board card's picture and a GIF's first frame are stills, so fetch the GIF or video itself (from that link on Figma), record it (`capture.mjs file:///<path> --out refs/<name>-frames --frames 12 --every 200`), look at the frames and give its card `frames:`.
+
 **What earlier projects learned:** a `Learned` frame on their board, a `learned.md` in their folder, or `~/.longbeard/taste.md`. Its likes, whys and leave-outs go on the matching cards (`like:`, `avoid:`), its noes under **Not this**. Their words, never reworded.
 
 **Screens of one product** (a section or a group of cards from the same site or app): the one they starred or captioned is the keep, and the others are its `also:` lines.
@@ -66,7 +68,7 @@ Read [sources.md](references/sources.md) first. Default sources: for an app, pop
 
 **The design brief steers the pool, not the picks.** Queries carry the personality where it leans off 3 ("bold colour-block dashboard", "minimal serif editorial homepage"), half the pool from those, half wide. At distance 4–5, leave out what looks like the kind of product in `apart from`. Drop only what is plainly the `never`; anything less plain is theirs to say no to.
 
-1. **A wide pool:** 150 to 250 candidates across every part, querying the form, not the word. Cut only what is not a candidate (off-form, broken, under the source's floor), never for taste; pass `--drop` only for what this brief rules out. One row each in `candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
+1. **A wide pool:** 150 to 250 candidates across every part, querying the form, not the word, from every listed source that fits the brief: no one gallery's taste sets the pool, so no source gives over half (`group.mjs` counts them). Cut only what is not a candidate (off-form, broken, under the source's floor), never for taste; pass `--drop` only for what this brief rules out. One row each in `candidates.tsv`: `title<TAB>thumbnail<TAB>link<TAB>source<TAB>meta`.
 2. **Check and group it.** Drop non-screens and broken thumbnails on contact sheets (`contact-sheet.mjs`), then:
    ```
    node <skill>/scripts/group.mjs .longbeard/design/moodboard/candidates.tsv --out .longbeard/design/moodboard/families.json
