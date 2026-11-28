@@ -87,7 +87,7 @@ Record each in `.longbeard/design/direction/screens.json`:
 **Check each screen by script:**
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.png --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --out .longbeard/design/direction/grid/1.jpg --clip 0,0,1440,900
 node <skill>/scripts/screen-contrast.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --wait-title ready
 node <skill>/scripts/rules.mjs "file://$PWD/.longbeard/design/direction/screens/1.html" --screen direction-1 --widths 1440
 ```

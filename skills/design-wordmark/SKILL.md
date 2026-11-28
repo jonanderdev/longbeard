@@ -36,7 +36,7 @@ Four to six marks, each a small HTML page in `.longbeard/design/wordmark/`, made
 Each is shown where the name actually sits in the chosen screen (`.longbeard/design/direction/prototype/first.html`, or its kept copy in `docs/design/prototype/`), at that size and on that ground, and once large on its own. Where the chosen screen does not show the name at all, that stays so: the mark is for the places that do (the navigation, the tab, the favicon). Capture them and show them on the canvas:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/wordmark/1.html" --out .longbeard/design/wordmark/1.png
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/wordmark/1.html" --out .longbeard/design/wordmark/1.jpg
 node <skill>/scripts/canvas.mjs .longbeard/design/wordmark/marks.json --shots .longbeard/design/wordmark --title Wordmark --out .longbeard/design/wordmark/canvas.html
 ```
 

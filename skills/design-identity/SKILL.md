@@ -71,12 +71,12 @@ When the project brought a `DESIGN.md` with tokens (see `design`), its faces and
 **Render them on the chosen screen, never list them.** The screen takes overrides in its URL, so each option is a capture, not a rebuild:
 
 ```
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?face=Newsreader&body=Inter&weight=300" --out .longbeard/design/identity/type-1.png --clip 0,0,1440,900
-node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?ground=%23f1ede4&ink=%23111111&accent=%23fe2601" --out .longbeard/design/identity/colour-1.png --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?face=Newsreader&body=Inter&weight=300" --out .longbeard/design/identity/type-1.jpg --clip 0,0,1440,900
+node <skill>/scripts/capture.mjs "file://$PWD/.longbeard/design/direction/prototype/first.html?ground=%23f1ede4&ink=%23111111&accent=%23fe2601" --out .longbeard/design/identity/colour-1.jpg --clip 0,0,1440,900
 node <skill>/scripts/canvas.mjs .longbeard/design/identity/options.json --shots .longbeard/design/identity --title Identity --out .longbeard/design/identity/canvas.html
 ```
 
-`options.json` lists each capture: `{ "n": "type 1", "row": "Type", "note": "as built", "shot": ".longbeard/design/identity/type-1.png", "state": "built" }`. On the canvas, a row of pairings (each on the screen's colours) and a row of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from (its `note`) ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word) or breaks one of the direction's principles, add that as a fact on the same line; it stays an option.
+`options.json` lists each capture: `{ "n": "type 1", "row": "Type", "note": "as built", "shot": ".longbeard/design/identity/type-1.jpg", "state": "built" }`. On the canvas, a row of pairings (each on the screen's colours) and a row of palettes (each on the screen's type), so each choice is seen alone and in the composition they chose. Number them, never rank them. For each, one line of where it comes from (its `note`) ("as built", "a narrower, darker cousin, less used", "from the bread's crust and flour"), never which is best. Where an option sits plainly against the design brief (a script face for a serious 1, a cold palette for a warm 1, its never word) or breaks one of the direction's principles, add that as a fact on the same line; it stays an option.
 
 > Pick a pairing and a palette (any mix: "type 2, colours 4"), or tell me what you're after: "warmer", "no green", "something like the type in X". "Keep" leaves the screen as built.
 

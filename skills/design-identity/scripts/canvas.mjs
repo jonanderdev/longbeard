@@ -12,7 +12,7 @@
 // kind ("concept", with idea: the concept it keeps, shown in place of "Base"),
 // failure, and optionally round (1 when left out), of (the screen it belongs to),
 // part (a part of that screen), fault (one line), shot
-// (a picture; else <shots>/<n>.png), row (the row it sits in, in place of its round:
+// (a picture; else <shots>/<n>.jpg or .png), row (the row it sits in, in place of its round:
 // "Type", "Colour", "Desktop"), note (where an option comes from, for one with no base).
 // board.md cards give each reference's shot and like.
 //
@@ -89,7 +89,8 @@ const cardOf = (name) => cards.get(name) || { name: name || "", src: "", like: "
 
 let missing = 0;
 const shotOf = (s) => {
-  const path = s.shot ? (isAbsolute(s.shot) ? s.shot : resolve(s.shot)) : resolve(shotsArg, `${s.n}.png`);
+  // JPEG captures keep a page made one file small; a PNG still works.
+  const path = s.shot ? (isAbsolute(s.shot) ? s.shot : resolve(s.shot)) : [`${s.n}.jpg`, `${s.n}.png`].map((f) => resolve(shotsArg, f)).find((p) => existsSync(p)) || resolve(shotsArg, `${s.n}.jpg`);
   if (existsSync(path)) return href(path);
   missing++;
   console.error(`canvas: no picture for screen ${s.n} at ${relative(process.cwd(), path)}`);
@@ -128,7 +129,7 @@ const strip = [...rows.entries()]
     ([name, list]) => `<div class="row"><span class="rl">${esc(name)}</span>${list
       .map((s) => {
         const d = data.find((x) => x.n === String(s.n));
-        return `<button type="button" class="th" data-n="${esc(d.n)}"${d.label === "failed" ? " data-failed" : ""}>${d.src ? `<img src="${esc(d.src)}" alt="">` : `<span class="none">no picture</span>`}<span class="tl">${esc(d.n)} · ${esc(d.label)}</span></button>`;
+        return `<button type="button" class="th" data-n="${esc(d.n)}"${d.label === "failed" ? " data-failed" : ""}>${d.src ? `<img alt="">` : `<span class="none">no picture</span>`}<span class="tl">${esc(d.n)} · ${esc(d.label)}</span></button>`;
       })
       .join("")}</div>`,
   )
@@ -273,6 +274,8 @@ const html = `<!DOCTYPE html>
   function write() {
     $("out").value = said.length ? said.join("\\n") : "";
   }
+  // Each picture is named once, in the list above, so a page made one file carries it once.
+  for (const t of thumbs) { const img = t.querySelector("img"); if (img) img.src = screens.find((s) => s.n === t.dataset.n).src; }
   for (const t of thumbs) t.addEventListener("click", () => show(screens.findIndex((s) => s.n === t.dataset.n)));
   for (const b of document.querySelectorAll("[data-act]")) {
     b.addEventListener("click", () => {
